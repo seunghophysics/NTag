@@ -1,29 +1,55 @@
 #include <string.h>
+#include <iostream>
 
-#include "skheadC.h"
+#include <skparmC.h>
+#include <skheadC.h>
+#include <sktqC.h>
 
-extern "C" {
-    void kzinit_();
-    void geoset_();
-    void set_rflist_(int*, const char*, const char*, const char*, const char*, 
-                     const char*, const char*, const char*, const char*, const char*,
-                     int, int, int, int, int, int, int, int, int);
-    void skopenf_(int*, int*, const char*, int*);
-}
+#include "main.hh"
 
 int main(int argc, char** argv)
 {
-    int lun = 10;
-    const char* fname = "/disk02/usr6/han/root2zbs/test.zbs";
-    int npt = 1;
-    int ierr;
-
+    // Initialize ZEBRA
     kzinit_();
 
-    skheadg_.sk_geometry = 5;
-    geoset_();
+    // Set rflist and open file
+    int lun = 10;
+    int ipt = 1;
+    int openError;
+    const char* fileName = argv[1];
 
-    set_rflist_(&lun, fname, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
-			    strlen(fname),5,0,3,0,0,20,0,0);
-    skopenf_(&lun, &npt, "Z", &ierr);
+    set_rflist_(&lun, fileName, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
+			    strlen(fileName),5,0,3,0,0,20,0,0);
+    skopenf_(&lun, &ipt, "Z", &openError);
+
+    if(openError){
+        std::cerr << "[SKOPENF]: File open error." << std::endl;
+        return -1;
+    }
+
+    // Set SK options and SK geometry
+    const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
+    skheadg_.sk_geometry = 5; geoset_();
+
+    // Read data event-by-event
+    int readStatus;
+    
+    while(1){
+	    readStatus = skread_(&lun);
+	    switch (readStatus){
+	        case 0: // event read
+                for(int i = 0; i < sktqz_.nqiskz; i++){
+                    std::cout << sktqz_.tiskz[i] << " " << sktqz_.qiskz[i] << std::endl;
+                }
+                break;
+            case 1: // read-error
+                break;
+            case 2: // end of input
+                std::cout << "Reached the end of input. Closing file..." << std::endl;
+                skclosef_(&lun);
+                break;
+        }
+    }
+
+    return 0;
 }
