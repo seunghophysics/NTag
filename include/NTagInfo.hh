@@ -8,12 +8,17 @@ class NTagInfo
 {
 	public:
 		NTagInfo() {}
-		~NTagInfo() {}
+		virtual ~NTagInfo() {}
 
-		void Clear();
-		void SetBranchAddressOfTree(TTree*);
-		void CreateBranchesToTree(TTree*);
+		virtual void Clear();
+		virtual void SetBranchAddressOfTree(TTree*);
+		virtual void CreateBranchesToTree(TTree*);
 
+		// aliases
+		void setBranch(TTree* tree) { SetBranchAddressOfTree(tree); }
+		void createTree(TTree* tree) { CreateBranchesToTree(tree); }
+
+	protected:
 		// SK data variables
 		Int_t	nrun, nsub, nev, trgtype, nhitac;
 		Float_t	trgofst, timnsk;
@@ -72,10 +77,6 @@ class NTagInfo
     	Float_t px, py, pz, npx[MAXNP], npy[MAXNP], npz[MAXNP];
     	Float_t dirx, diry, dirz, ndirx[MAXNP], ndiry[MAXNP], ndirz[MAXNP];
   		Float_t summedWeight[MAXNP];
-
-		// aliases
-		void setBranch(TTree* tree) { SetBranchAddressOfTree(tree); }
-		void createTree(TTree* tree) { CreateBranchesToTree(tree); }
 };
 
 typedef NTagInfo Res_t;
