@@ -1,3 +1,6 @@
+#ifndef SKIOLIB_HH
+#define SKIOLIB_HH 1
+
 extern "C" {
     void kzinit_();
     void geoset_();
@@ -9,3 +12,5 @@ extern "C" {
     int skread_(int*);
     void skclosef_(int*);
 }
+
+#endif

@@ -5,7 +5,7 @@
 #include <skheadC.h>
 #include <sktqC.h>
 
-#include "main.hh"
+#include "SKIOLib.hh"
 
 int main(int argc, char** argv)
 {
