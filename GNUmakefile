@@ -1,29 +1,18 @@
-#
-# In case of building locally, set SKOFL_ROOT variable 
-#      setenv SKOFL_ROOT   ... 
-#  or directly set in this makefile 
-# SKOFL_ROOT = /skofl
-#
+include $(ATMPD_ROOT)/config.gmk
 
-ifndef SKOFL_ROOT
-  SKOFL_ROOT = ../..
-endif
+NTAG_GD_ROOT = $(shell pwd)
 
-include $(SKOFL_ROOT)/config.gmk
+LOCAL_INC = -I$(NTAG_GD_ROOT)/include
+LOCAL_LIBS =
 
-
-LOCAL_INC	= 
-
-LOCAL_LIBS	= 
-
-#
 #  Objects
-#
 
-OBJS   =   main 
+OBJS = src/%.o
 
-all: $(OBJS) 
+main: $(OBJS)
 
-clean: 
-	$(RM) *.o *~ core fort.* *.log *.hbk $(OBJS) output.* 
+
+
+clean:
+	$(RM) *.o *~ *.log $(OBJS)
 
