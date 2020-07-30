@@ -2,7 +2,7 @@ include $(ATMPD_ROOT)/config.gmk
 
 NTAG_GD_ROOT = $(shell pwd)
 
-LOCAL_INC = -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/analysis/neutron/ntag
+LOCAL_INC = -I$(NTAG_GD_ROOT)/include #-I$(ATMPD_ROOT)/src/analysis/neutron/ntag
 LOCAL_LIBS =
 
 CXXFLAGS += $(LOCAL_INC)
