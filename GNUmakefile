@@ -10,18 +10,21 @@ CXXFLAGS += $(LOCAL_INC)
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
-main: $(OBJS) obj/main.o
+bin/main: $(OBJS) obj/main.o bin
 	@echo "[NTagGd] Building the main program..."
-	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/main.o $(LDLIBS)
 	@echo "[NTagGd] Done!"
-
-obj/%.o: src/%.cc
-	@echo "[NTagGd] Building $*..."
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 obj/main.o: main.cc
 	@echo "[NTagGd] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
+obj/%.o: src/%.cc obj
+	@echo "[NTagGd] Building $*..."
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+bin obj:
+	@mkdir $@
+
 clean:
-	@$(RM) *.o *~ *.log $(OBJS) main
+	@$(RM) -r *.o *~ *.log obj bin
