@@ -23,6 +23,7 @@ extern "C" {
     void aprstbnk_(int*);
     void odpc_2nd_s_(int*);
     void inpmt_(float*, int&);
+    float wallsk_(float*);
 }
 
 // BONSAI
