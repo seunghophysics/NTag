@@ -1,6 +1,19 @@
-#include <NTagInfo.hh>
+#include <math.h>
 
-void NTagInfo::Clear()
+#include <skheadC.h>
+#include <sktqC.h>
+#include <apmringC.h>
+#include <geotnkC.h>
+
+#include <NTagEventInfo.hh>
+#include <SKIOLib.hh>
+
+NTagEventInfo::NTagEventInfo(bool isData)
+: bData(isData){}
+
+NTagEventInfo::~NTagEventInfo() {}
+
+void NTagEventInfo::Clear()
 {
     np = 0;
     N200M = 0;
@@ -46,7 +59,6 @@ void NTagInfo::Clear()
         Nc1[i] = 0;
 		goodn[i] = 0;
 		realneutron[i] = 0;
-        TMVAoutput[i] = -9999;
 		summedWeight[i] = 0;
 		bsenergy[i] = 0.;
 		bsvertex0[i] = 0.;
@@ -67,7 +79,9 @@ void NTagInfo::Clear()
     }
 }
 
-void NTagInfo::SetBranchAddressOfTree(TTree *tree)
+
+
+void NTagEventInfo::SetBranchAddressOfTree(TTree *tree, bool forTruth)
 {
 	tree->SetBranchAddress("np", &np);
 	tree->SetBranchAddress("nrun", &nrun);
@@ -136,21 +150,18 @@ void NTagInfo::SetBranchAddressOfTree(TTree *tree)
 	tree->SetBranchAddress("tbsvt", &tbsvt);
 	tree->SetBranchAddress("tbsgood", &tbsgood);
 	tree->SetBranchAddress("g2d2", &g2d2);
-	tree->SetBranchAddress("realneutron",&realneutron);
-	tree->SetBranchAddress("TMVAoutput",&TMVAoutput);
 	tree->SetBranchAddress("summedWeight",&summedWeight);
+
+	if(forTruth)
+		tree->SetBranchAddress("realneutron",&realneutron);
 }
 
-void NTagInfo::CreateBranchesToTree (TTree *tree)
+void NTagEventInfo::CreateBranchesToTree (TTree *tree, bool forTruth)
 {
     tree->Branch("np", &np, "np/I");
     tree->Branch("nrun", &nrun, "nrun/I");
     tree->Branch("nsub", &nsub, "nsub/I");
     tree->Branch("nev", &nev, "nev/I");
-    tree->Branch("wall", &wall, "wall/F");
-    tree->Branch("nhitac", &nhitac, "nhitac/I");
-    tree->Branch("apnmue", &apnmue, "apnmue/I");
-    tree->Branch("ndcy", &ndcy, "ndcy/I");
     tree->Branch("broken", &broken, "broken/I");
     tree->Branch("trgtype", &trgtype, "trgtype/I");
     tree->Branch("lasthit", &lasthit, "lasthit/F");
@@ -172,7 +183,7 @@ void NTagInfo::CreateBranchesToTree (TTree *tree)
 	tree->Branch("tvy",	tvy, "tvy[np]/F");
 	tree->Branch("tvz",	tvz, "tvz[np]/F");
     tree->Branch("N10", N10, "N10[np]/I");
-    tree->Branch("sumQ", sumQ, "sumQ[np]/F");
+    tree->Branch("wall", &towall, "wall/F");
     tree->Branch("N10n", N10n, "N10n[np]/I");
     tree->Branch("Nc", Nc, "Nc[np]/I");
     tree->Branch("Ncluster", Ncluster, "Ncluster[np]/I");
@@ -230,14 +241,6 @@ void NTagInfo::CreateBranchesToTree (TTree *tree)
 	tree->Branch("tbsovaq",	tbsovaq, "tbsovaq[np]/F");
 	tree->Branch("g2d2", g2d2, "g2d2[np]/F");
 	tree->Branch("goodn", goodn, "goodn[np]/I");
-	tree->Branch("realneutron",realneutron, "realneutron[np]/I");
-	tree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
-	tree->Branch("nGd", nGd, "nGd[np]/I");
-	tree->Branch("truth_vx", truth_vx, "truth_vx[np]/F");
-	tree->Branch("truth_vy", truth_vy, "truth_vy[np]/F");
-	tree->Branch("truth_vz", truth_vz, "truth_vz[np]/F");
-	tree->Branch("doubleCount",	doubleCount, "doubleCount[np]/I");
-	tree->Branch("timeRes",	timeRes, "timeRes[np]/F");
 	tree->Branch("beta14", beta14, "beta14[np]/F");
 	tree->Branch("beta14_40", beta14_40, "beta14_40[np]/F");
 	tree->Branch("beta1", beta1, "beta1[np]/F");
@@ -258,8 +261,12 @@ void NTagInfo::CreateBranchesToTree (TTree *tree)
 	tree->Branch("ndiry", ndiry, "ndiry[np]/F");
 	tree->Branch("ndirz", ndirz, "ndirz[np]/F");
 	tree->Branch("summedWeight", summedWeight, "summedWeight[np]/F");
-	tree->Branch("mctrue_nn", &mctrue_nn, "mctrue_nn/I");
 	tree->Branch("ip0", &ip0, "ip0/I");
 	tree->Branch("nring", &nring, "nring/I");
 	tree->Branch("evis", &evis, "evis/F");
+
+	if(forTruth){
+		tree->Branch("mctrue_nn", &mctrue_nn, "mctrue_nn/I");
+		tree->Branch("realneutron",realneutron, "realneutron[np]/I");
+	}
 }
