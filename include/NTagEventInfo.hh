@@ -5,6 +5,7 @@
 #define kMaxCT (4000)
 #define MAXNSCNDPRT (4000)
 
+#include "apmringC.h"
 #include "skparmC.h"
 
 class NTagEventInfo
@@ -13,10 +14,17 @@ class NTagEventInfo
 		NTagEventInfo();
 		virtual ~NTagEventInfo();
 
-		// Calculations
-		float GetDWall(float& x, float& y, float& z);
+		// Event handling
+		virtual void SetEventHeader();
+		virtual void SetAPFitInfo();
+		virtual void SetToFSubtractedTQ();
+		virtual void SetTruthInfo();
 
 		virtual void Clear();
+
+	private:
+		const float (*xyz)[3];	// PMT positions
+		const float C_WATER;	// Speed-of-light in water [cm/ns]
 
 	protected:
 
@@ -36,7 +44,7 @@ class NTagEventInfo
         /**/    int   	apip[APNMAXRG];
         /**/    float 	apamom[APNMAXRG], amome[APNMAXRG], amomm[APNMAXRG];
 		/**/
-		/**/	// Variables for neutron capture candidates
+		/**/		// Variables for neutron capture candidates
     	/**/		int   	np, N200M;
 		/**/		int		tindex[MAXNP], n40index[MAXNP];
     	/**/		int   	N10[MAXNP], N10n[MAXNP], N50[MAXNP], N200[MAXNP], N1300[MAXNP];
@@ -71,6 +79,10 @@ class NTagEventInfo
 		/**/			
     	/**/	float 	px, py, pz, npx[MAXNP], npy[MAXNP], npz[MAXNP],
 		/**/			dirx, diry, dirz, ndirx[MAXNP], ndiry[MAXNP], ndirz[MAXNP];
+		/**/
+        /**/    // TMVA output
+    	/**/    float 	TMVAoutput[MAXNP];
+		/**/
 		/******************************************************************************************/
 
 		/******************************************************************************************/
@@ -100,8 +112,6 @@ class NTagEventInfo
         /**/    int   	nvect, ip[MAXNSCNDPRT];
         /**/    float  	pos[3], pin[MAXNSCNDPRT][3], pabs[MAXNSCNDPRT];
 		/**/
-        /**/    // TMVA output
-    	/**/    float 	TMVAoutput[MAXNP];
 		/******************************************************************************************/
 };
 

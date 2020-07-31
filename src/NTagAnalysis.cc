@@ -1,17 +1,13 @@
 #include <math.h>
+#include <stdlib.h>
 
-#include <apmringC.h>
-#include <apmueC.h>
-#include <appatspC.h>
-#include <geotnkC.h>
 #include <skheadC.h>
-#include <sktqC.h>
 
 #include <SKIOLib.hh>
 #include "NTagAnalysis.hh"
 
 NTagAnalysis::NTagAnalysis(const char* fileName, bool useData)
-: bData(useData)
+: bData(useData), lun(10)
 {
     ntvarTree = new TTree("ntvar", "ntag variables");
     CreateBranchesToNTvarTree();
@@ -76,85 +72,17 @@ void NTagAnalysis::ReadEvent()
 {
 	Clear();
     SetEventHeader();
-    SetTQ();
     SetAPFitInfo();
+    SetToFSubtractedTQ();
+
+    if(!bData){
+        SetTruthInfo();
+    }
 }
 
-void NTagAnalysis::SetEventHeader()
+void NTagAnalysis::SearchNeutron()
 {
-    nrun = skhead_.nrunsk;
-    nsub = skhead_.nsubsk;
-    nev = skhead_.nevsk;
 
-	// Get number of OD hits
-    odpc_2nd_s_(&nhitac);
-
-    trginfo_(&trgofst);
-    qismsk = skq_.qismsk;
-}
-
-void NTagAnalysis::SetTQ()
-{
-    int   cabiz2[sktqz_.nqiskz];//, cabiz40[1000];
-    float tiskz2[sktqz_.nqiskz];//, tiskz40[1000];
-    float qiskz2[sktqz_.nqiskz];//, qiskz40[1000];
-    int   index[sktqz_.nqiskz];
-
-    float tof;
-    int icab ; 
-
-    for (int i=0; i<sktqz_.nqiskz; i++) //subtract TOF from PMT raw timing
-      {
-	
-	//if (i % 100 == 0)	cout << "Hit timing : " << TQI->T[i] << endl;
-        cabiz2[i] = sktqz_.icabiz[i];
-        tiskz2[i] = sktqz_.tiskz[i];
-        //qiskz2[i] = sktqz_.qiskz[i];
-	icab = sktqz_.icabiz[i]-1 ;
-        tof = sqrt((vx - xyz[icab][0]) * (vx - xyz[icab][0])
-		   +(vy - xyz[icab][1]) * (vy - xyz[icab][1])
-		   +(vz - xyz[icab][2]) * (vz - xyz[icab][2])) / C_WATER;
-        tiskz2[i] -= tof;
-    }
-    TMath::Sort(sktqz_.nqiskz, tiskz2, index, kFALSE);
-    for (int i=0; i<sktqz_.nqiskz; i++){
-        cabiz3[i] = cabiz2[ index[i] ];
-        tiskz3[i] = tiskz2[ index[i] ];
-        //qiskz3[i] = qiskz2[ index[i] ];	
-        qiskz3[i] = sktqz_.qiskz[ index[i] ];	
-    } 
-}
-
-void NTagAnalysis::SetAPFitInfo()
-{
-    // Get apcommul bank
-	int bank = 0;
-    aprstbnk_(&bank);
-
-	// Get APFit vertex
-	vx = apcommul_.appos[0];
-	vy = apcommul_.appos[1];
-	vz = apcommul_.appos[2];
-    towall = GetDWall(vx, vy, vz);
-
-    // E_vis
-    evis = apcomene_.apevis;
-
-    // AP ring information
-    nring = apcommul_.apnring;
-    for (int i=0; i < nring; i++) {
-      apip[i] = apcommul_.apip[i];          // PID
-      apamom[i] = apcommul_.apamom[i];      // Reconstructed momentum
-      amome[i] = appatsp2_.apmsamom[i][1];  // e-like momentum
-      amomm[i] = appatsp2_.apmsamom[i][2];  // mu-like momentum
-    }
-
-    // mu-e check
-    nmue = apmue_.apnmue; ndcy = 0;
-    for (int i = 0; i < nmue; i++) {
-      if (i == 10) break;
-      if (apmue_.apmuetype[i] == 1 || apmue_.apmuetype[i] == 4) ndcy++;
-    }
 }
 
 void NTagAnalysis::CreateBranchesToTruthTree()
@@ -312,6 +240,6 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("apamom", apamom, "apamom[apnring]/F");
     ntvarTree->Branch("amome", amome, "amome[apnring]/F");
     ntvarTree->Branch("amomm", amomm, "amomm[apnring]/F");
-    ntvarTree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
     ntvarTree->Branch("sumQ", sumQ, "sumQ[np]/F");
+    ntvarTree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
 }

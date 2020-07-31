@@ -15,19 +15,14 @@ class NTagAnalysis : public NTagEventInfo
 		void ReadFile();
 		void ReadEvent();
 
-        // Event handling
-		virtual void Clear();
-		virtual void SetEventHeader();
-		virtual void SetAPFitInfo();
-		virtual void SetTruthInfo();
-		virtual void SetTQ();
+        // TMVA
 		virtual void SearchNeutron();
 
 		// Tree-related
 		virtual void CreateBranchesToTruthTree();
 		virtual void CreateBranchesToNTvarTree();
-		virtual void SetBranchAddressToTruthTree(TTree* tree);
-		virtual void SetBranchAddressToNTvarTree(TTree* tree);
+		//virtual void SetBranchAddressToTruthTree(TTree* tree);
+		//virtual void SetBranchAddressToNTvarTree(TTree* tree);
 
     private:
         TMVA::Reader* reader;
@@ -36,7 +31,7 @@ class NTagAnalysis : public NTagEventInfo
         bool bData;
 
 		// File I/O (logical unit)
-		int lun = 10;
+		int lun;
 };
 
 #endif

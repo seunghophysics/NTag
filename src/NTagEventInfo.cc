@@ -1,24 +1,185 @@
-
 #include <math.h>
 
+#include <TMath.h>
+
+#include <skparmC.h>
+#include <apmringC.h>
+#include <apmueC.h>
+#include <appatspC.h>
 #include <geotnkC.h>
+#include <skheadC.h>
+#include <sktqC.h>
+#include <geopmtC.h>
+#include <skvectC.h>
+#include <neworkC.h>
+#include <apflscndprtC.h>
 
 #include <NTagEventInfo.hh>
+#include <SKIOLib.hh>
 
-NTagEventInfo::NTagEventInfo() {}
+NTagEventInfo::NTagEventInfo()
+:xyz(geopmt_.xyzpm), C_WATER(21.5833) {}
 NTagEventInfo::~NTagEventInfo() {}
 
-float NTagEventInfo::GetDWall(float& x, float& y, float& z)
+void NTagEventInfo::SetEventHeader()
 {
-	float r2 = x*x + y*y;
-    float r = sqrt(r2);
-    float d_wall = RINTK - r;
-    float z1 = ZPINTK - z;
-    float z2 = z - ZMINTK;
+    nrun = skhead_.nrunsk;
+    nsub = skhead_.nsubsk;
+    nev = skhead_.nevsk;
 
-    if(z1 < d_wall) d_wall = z1;
-    if(z2 < d_wall) d_wall = z2;
-    return d_wall;
+	// Get number of OD hits
+    odpc_2nd_s_(&nhitac);
+
+    trginfo_(&trgofst);
+    qismsk = skq_.qismsk;
+}
+
+void NTagEventInfo::SetAPFitInfo()
+{
+    // Get apcommul bank
+	int bank = 0;
+    aprstbnk_(&bank);
+
+	// Get APFit vertex
+	vx = apcommul_.appos[0];
+	vy = apcommul_.appos[1];
+	vz = apcommul_.appos[2];
+	float tmp_v[3]; tmp_v[0] = vx; tmp_v[1] = vy; tmp_v[2] = vz;
+    towall = wallsk_(tmp_v);
+
+    // E_vis
+    evis = apcomene_.apevis;
+
+    // AP ring information
+    nring = apcommul_.apnring;
+    for (int i=0; i < nring; i++) {
+      apip[i] = apcommul_.apip[i];          // PID
+      apamom[i] = apcommul_.apamom[i];      // Reconstructed momentum
+      amome[i] = appatsp2_.apmsamom[i][1];  // e-like momentum
+      amomm[i] = appatsp2_.apmsamom[i][2];  // mu-like momentum
+    }
+
+    // mu-e check
+    nmue = apmue_.apnmue; ndcy = 0;
+    for (int i = 0; i < nmue; i++) {
+      if (i == 10) break;
+      if (apmue_.apmuetype[i] == 1 || apmue_.apmuetype[i] == 4) ndcy++;
+    }
+}
+
+void NTagEventInfo::SetToFSubtractedTQ()
+{
+    float tmpHitTime[sktqz_.nqiskz], ToF;
+    int   sortedIndex[sktqz_.nqiskz], pmtID;
+
+	// Subtract TOF from PMT hit time
+    for(int i = 0; i < sktqz_.nqiskz; i++){
+		pmtID = sktqz_.icabiz[i] - 1;
+        tmpHitTime[i] = sktqz_.tiskz[i];
+
+        ToF = sqrt((vx - xyz[pmtID][0]) * (vx - xyz[pmtID][0])
+		   		 + (vy - xyz[pmtID][1]) * (vy - xyz[pmtID][1])
+		   		 + (vz - xyz[pmtID][2]) * (vz - xyz[pmtID][2])) / C_WATER;
+
+        tmpHitTime[i] -= ToF;
+    }
+
+	// Sort: first hit first
+    TMath::Sort(sktqz_.nqiskz, tmpHitTime, sortedIndex, kFALSE);
+
+    for (int i = 0; i < sktqz_.nqiskz; i++){
+        cabiz3[i] = sktqz_.icabiz[ sortedIndex[i] ];
+        tiskz3[i] = tmpHitTime[ sortedIndex[i] ];
+        qiskz3[i] = sktqz_.qiskz[ sortedIndex[i] ];	
+    } 
+}
+
+void NTagEventInfo::SetTruthInfo()
+{
+	// Read NEUT vector
+  	float posnu[3]; 
+  	nerdnebk_(posnu);
+	  
+  	// Read SKVECT vector
+  	skgetv_();
+  	// Read secondary bank
+  	apflscndprt_();
+
+  	float ZBLST = 5.30;
+
+  	float dr = RINTK-ZBLST;
+  	float dz = 0.5*HIINTK-ZBLST;
+
+  	// Read primaries
+  	nvect = skvect_.nvect;
+  	pos[0] = skvect_.pos[0]; 
+	pos[1] = skvect_.pos[1]; 
+	pos[2] = skvect_.pos[2];
+
+  	for(int i = 0; i < nvect; i++){
+  	  	ip[i] = skvect_.ip[i];
+  	  	pin[i][0] = skvect_.pin[i][0];
+		pin[i][1] = skvect_.pin[i][1];
+		pin[i][2] = skvect_.pin[i][2];
+  	  	pabs[i] = skvect_.pabs[i];
+  	}
+
+  	//event loop to read neutrino interaction
+  	modene=nework_.modene;
+  	numne=nework_.numne;
+  	nN=0;
+  	pnu=sqrt(nework_.pne[0][0]*nework_.pne[0][0]+nework_.pne[0][1]*nework_.pne[0][1]+nework_.pne[0][2]*nework_.pne[0][2]);
+  	for (int i=0;i<numne;i++) {
+  	  ipne[i]=nework_.ipne[i];
+  	  // count neutron in input vector
+  	  if (ipne[i]==2112&&i>=3) nN++;
+  	}
+
+  	//get bank containing reconstructed vertex information
+
+  	nCT = 0;
+
+  	//event loop to read seconadries
+  	for(int i=0;i<secndprc_.nscndprtc;i++) {
+  	  iprtscnd[i] = secndprc_.iprtscndc[i];
+  	  //record only deutrons, gammas and neutrons
+  	  if (iprtscnd[i]==100045||iprtscnd[i]==22||iprtscnd[i]==2112) {
+  	    lmecscnd[i]=secndprc_.lmecscndc[i];
+  	    iprntprt[i]=secndprc_.iprntprtc[i];
+  	    vtxscnd[i][0]=secndprc_.vtxscndc[i][0];
+  	    vtxscnd[i][1]=secndprc_.vtxscndc[i][1];
+  	    vtxscnd[i][2]=secndprc_.vtxscndc[i][2];
+  	    wallscnd[i]=wallsk_(vtxscnd[i]);
+  	    pscnd[i][0]=secndprc_.pscndc[i][0];
+  	    pscnd[i][1]=secndprc_.pscndc[i][1];
+  	    pscnd[i][2]=secndprc_.pscndc[i][2];
+  	    pabsscnd[i]=sqrt(pscnd[i][0]*pscnd[i][0]+pscnd[i][1]*pscnd[i][1]+pscnd[i][2]*pscnd[i][2]);
+  	    tscnd[i]=secndprc_.tscndc[i];
+  	    capId[i]=-1;
+  	    int pmtn;
+  	    inpmt_(vtxscnd[i],pmtn);
+  	    if (iprtscnd[i]==2112) {i+=1;} //record all neutron produced
+  	    //record only deutrons and gammas produced inside ID by capture
+  	    else if (vtxscnd[i][0]*vtxscnd[i][0]+vtxscnd[i][1]*vtxscnd[i][1]<dr*dr&&fabs(vtxscnd[i][2])<dz&&pmtn==0) {
+  	      if (lmecscnd[i]==18) {//particle produced by n-capture
+  	        bool newTime = true;
+  	        for (int j=0;j<nCT;j++) {
+  	          if (fabs((double)(tscnd[i]-captureTime[j]))<1.e-7) {//judge whether this is a new n-capture
+  	            newTime=false;
+  	            if(iprtscnd[i]==22) {nGam[j]+=1;totGamEn[j]+=pabsscnd[i];capId[i]=j;}//count gammas produced in capture
+  	          }
+  	        }
+  	        if (newTime) { //record new capture event
+  	          captureTime[nCT]=tscnd[i];
+  	          capPos[nCT][0]=vtxscnd[i][0];capPos[nCT][1]=vtxscnd[i][1];capPos[nCT][2]=vtxscnd[i][2];
+  	          if (iprtscnd[i]==22) {nGam[nCT]=1;totGamEn[nCT]=pabsscnd[i];capId[i]=nCT;} //count gammas produced in capture
+  	          else {nGam[nCT]=0;totGamEn[nCT]=0.;}
+  	          nCT+=1;
+  	        }
+  	      }
+  	    }
+  	  }
+  	}
 }
 
 void NTagEventInfo::Clear()
