@@ -1,5 +1,6 @@
 #include <string.h>
 #include <iostream>
+#include <sstream>
 
 #include <skparmC.h>
 #include <skheadC.h>
@@ -11,7 +12,15 @@
 int main(int argc, char** argv)
 {
     const char* fileName = argv[1];
-    NTagAnalysis nt(fileName, false);
+    
+    unsigned int verbose;
+    if(argc == 1) verbose = vDefault;
+    else{
+        std::stringstream strValue(argv[2]);
+        strValue >> verbose;
+    }
+    
+    NTagAnalysis nt(fileName, false, verbose);
 
     return 0;
 }

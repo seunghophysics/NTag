@@ -3,12 +3,14 @@
 
 #include <skheadC.h>
 
-#include <SKIOLib.hh>
+#include <SKLibs.hh>
 #include "NTagAnalysis.hh"
 
-NTagAnalysis::NTagAnalysis(const char* fileName, bool useData)
+NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verbose)
 : bData(useData), lun(10)
 {
+    fVerbosity = verbose;
+    
     ntvarTree = new TTree("ntvar", "ntag variables");
     CreateBranchesToNTvarTree();
 
@@ -54,14 +56,14 @@ void NTagAnalysis::ReadFile()
     
     while(1){
 	    readStatus = skread_(&lun);
-	    switch (readStatus){
+	    switch(readStatus){
 	        case 0: // event read
                 ReadEvent();
                 break;
             case 1: // read-error
                 break;
             case 2: // end of input
-                std::cout << "Reached the end of input. Closing file..." << std::endl;
+                PrintMessage(Form("Reached the end of input. Closing file..."), vDefault);
                 skclosef_(&lun);
                 break;
         }
@@ -70,12 +72,17 @@ void NTagAnalysis::ReadFile()
 
 void NTagAnalysis::ReadEvent()
 {
+    PrintMessage(Form("Clearing..."), vDebug);
 	Clear();
+    PrintMessage(Form("EVHEADER..."), vDebug);
     SetEventHeader();
+    PrintMessage(Form("APFITINFO..."), vDebug);
     SetAPFitInfo();
+    PrintMessage(Form("TQ..."), vDebug);
     SetToFSubtractedTQ();
 
     if(!bData){
+        PrintMessage(Form("Truth Info..."), vDebug);
         SetTruthInfo();
     }
 }

@@ -1,12 +1,18 @@
 #ifndef NTAGEVENTINFO_HH
 #define NTAGEVENTINFO_HH 1
 
-#define MAXNP (500)
-#define kMaxCT (4000)
-#define MAXNSCNDPRT (4000)
+#define SECMAXRNG (4000)
 
+#include <TString.h>
+
+#include "apscndryC.h"
 #include "apmringC.h"
 #include "skparmC.h"
+
+#define MAXNP (500)
+#define kMaxCT (4000)
+
+enum {vDefault, vError, vDebug};
 
 class NTagEventInfo
 {
@@ -22,11 +28,19 @@ class NTagEventInfo
 
 		virtual void Clear();
 
+		// Calculator
+		float Norm(float vec[3]);
+
+		// Message
+		virtual void PrintTag(unsigned int);
+		virtual void PrintMessage(TString, unsigned int);
+
 	private:
 		const float (*xyz)[3];	// PMT positions
 		const float C_WATER;	// Speed-of-light in water [cm/ns]
 
 	protected:
+		unsigned int fVerbosity;
 
 		/******************************************************************************************/
 		// Data/fit info
@@ -99,18 +113,18 @@ class NTagEventInfo
 		/**/
         /**/    // Variables from secondaries
 		/**/	int		nscndprt; 
-        /**/    int 	iprtscnd[MAXNSCNDPRT], lmecscnd[MAXNSCNDPRT], iprntprt[MAXNSCNDPRT];
-        /**/    float 	vtxscnd[MAXNSCNDPRT][3], pscnd[MAXNSCNDPRT][3];
-        /**/    float 	wallscnd[MAXNSCNDPRT], pabsscnd[MAXNSCNDPRT], tscnd[MAXNSCNDPRT];
-        /**/    int 	capId[MAXNSCNDPRT];
+        /**/    int 	iprtscnd[SECMAXRNG], lmecscnd[SECMAXRNG], iprntprt[SECMAXRNG];
+        /**/    float 	vtxscnd[SECMAXRNG][3], pscnd[SECMAXRNG][3];
+        /**/    float 	wallscnd[SECMAXRNG], pabsscnd[SECMAXRNG], tscnd[SECMAXRNG];
+        /**/    int 	capId[SECMAXRNG];
 		/**/
         /**/    // Variables for neutrino interaction
         /**/    int    	nN, modene, numne, ipne[kMaxCT];
         /**/    float  	pnu;
 		/**/
         /**/    // Variables from primary stack
-        /**/    int   	nvect, ip[MAXNSCNDPRT];
-        /**/    float  	pos[3], pin[MAXNSCNDPRT][3], pabs[MAXNSCNDPRT];
+        /**/    int   	nvect, ip[SECMAXRNG];
+        /**/    float  	pos[3], pin[SECMAXRNG][3], pabs[SECMAXRNG];
 		/**/
 		/******************************************************************************************/
 };

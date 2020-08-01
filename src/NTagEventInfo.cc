@@ -1,4 +1,5 @@
 #include <math.h>
+#include <iostream>
 
 #include <TMath.h>
 
@@ -12,10 +13,9 @@
 #include <geopmtC.h>
 #include <skvectC.h>
 #include <neworkC.h>
-#include <apflscndprtC.h>
 
 #include <NTagEventInfo.hh>
-#include <SKIOLib.hh>
+#include <SKLibs.hh>
 
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833) {}
@@ -77,9 +77,13 @@ void NTagEventInfo::SetToFSubtractedTQ()
 		pmtID = sktqz_.icabiz[i] - 1;
         tmpHitTime[i] = sktqz_.tiskz[i];
 
-        ToF = sqrt((vx - xyz[pmtID][0]) * (vx - xyz[pmtID][0])
-		   		 + (vy - xyz[pmtID][1]) * (vy - xyz[pmtID][1])
-		   		 + (vz - xyz[pmtID][2]) * (vz - xyz[pmtID][2])) / C_WATER;
+		float vecVtxFromPMT[3];
+
+		vecVtxFromPMT[0] = vx - xyz[pmtID][0];
+		vecVtxFromPMT[1] = vy - xyz[pmtID][1];
+		vecVtxFromPMT[2] = vz - xyz[pmtID][2];
+
+        ToF = Norm(vecVtxFromPMT) / C_WATER;
 
         tmpHitTime[i] -= ToF;
     }
@@ -95,90 +99,112 @@ void NTagEventInfo::SetToFSubtractedTQ()
 }
 
 void NTagEventInfo::SetTruthInfo()
-{
-	// Read NEUT vector
-  	float posnu[3]; 
-  	nerdnebk_(posnu);
-	  
-  	// Read SKVECT vector
+{ 
+  	// Read SKVECT (primaries)
   	skgetv_();
-  	// Read secondary bank
-  	apflscndprt_();
-
-  	float ZBLST = 5.30;
-
-  	float dr = RINTK-ZBLST;
-  	float dz = 0.5*HIINTK-ZBLST;
-
-  	// Read primaries
-  	nvect = skvect_.nvect;
-  	pos[0] = skvect_.pos[0]; 
+  	nvect = skvect_.nvect;					// number of primaries
+  	pos[0] = skvect_.pos[0]; 				// initial vertex of primaries
 	pos[1] = skvect_.pos[1]; 
 	pos[2] = skvect_.pos[2];
 
   	for(int i = 0; i < nvect; i++){
-  	  	ip[i] = skvect_.ip[i];
-  	  	pin[i][0] = skvect_.pin[i][0];
-		pin[i][1] = skvect_.pin[i][1];
+  	  	ip[i] = skvect_.ip[i];				// PID of primaries
+  	  	pin[i][0] = skvect_.pin[i][0];		// momentum vector of primaries
+		pin[i][1] = skvect_.pin[i][1];		
 		pin[i][2] = skvect_.pin[i][2];
-  	  	pabs[i] = skvect_.pabs[i];
+  	  	pabs[i] = skvect_.pabs[i];			// momentum of primaries
   	}
 
-  	//event loop to read neutrino interaction
-  	modene=nework_.modene;
-  	numne=nework_.numne;
-  	nN=0;
-  	pnu=sqrt(nework_.pne[0][0]*nework_.pne[0][0]+nework_.pne[0][1]*nework_.pne[0][1]+nework_.pne[0][2]*nework_.pne[0][2]);
-  	for (int i=0;i<numne;i++) {
-  	  ipne[i]=nework_.ipne[i];
-  	  // count neutron in input vector
-  	  if (ipne[i]==2112&&i>=3) nN++;
+  	// Read neutrino interaction vector
+  	float posnu[3];
+  	nerdnebk_(posnu);
+
+  	modene = nework_.modene;				// neutrino interaction mode
+  	numne = nework_.numne;					// number of particles in vector
+  	nN = 0; 								// number of neutrons
+	pnu = Norm(nework_.pne[0]);
+
+  	for(int i = 0; i < numne; i++){
+  	  ipne[i] = nework_.ipne[i];			// check particle code
+  	  if(ipne[i] == 2112 && i >= 3) nN++;	// count neutrons
   	}
 
-  	//get bank containing reconstructed vertex information
+	PrintMessage(Form("modene: %d", modene), vDebug);
+	PrintMessage(Form("pnu: %f", pnu), vDebug);
+	PrintMessage(Form("nN: %d", nN), vDebug);
+	
+  	// Get bank containing reconstructed vertex information
 
   	nCT = 0;
 
-  	//event loop to read seconadries
-  	for(int i=0;i<secndprc_.nscndprtc;i++) {
-  	  iprtscnd[i] = secndprc_.iprtscndc[i];
-  	  //record only deutrons, gammas and neutrons
-  	  if (iprtscnd[i]==100045||iprtscnd[i]==22||iprtscnd[i]==2112) {
-  	    lmecscnd[i]=secndprc_.lmecscndc[i];
-  	    iprntprt[i]=secndprc_.iprntprtc[i];
-  	    vtxscnd[i][0]=secndprc_.vtxscndc[i][0];
-  	    vtxscnd[i][1]=secndprc_.vtxscndc[i][1];
-  	    vtxscnd[i][2]=secndprc_.vtxscndc[i][2];
-  	    wallscnd[i]=wallsk_(vtxscnd[i]);
-  	    pscnd[i][0]=secndprc_.pscndc[i][0];
-  	    pscnd[i][1]=secndprc_.pscndc[i][1];
-  	    pscnd[i][2]=secndprc_.pscndc[i][2];
-  	    pabsscnd[i]=sqrt(pscnd[i][0]*pscnd[i][0]+pscnd[i][1]*pscnd[i][1]+pscnd[i][2]*pscnd[i][2]);
-  	    tscnd[i]=secndprc_.tscndc[i];
-  	    capId[i]=-1;
-  	    int pmtn;
-  	    inpmt_(vtxscnd[i],pmtn);
-  	    if (iprtscnd[i]==2112) {i+=1;} //record all neutron produced
-  	    //record only deutrons and gammas produced inside ID by capture
-  	    else if (vtxscnd[i][0]*vtxscnd[i][0]+vtxscnd[i][1]*vtxscnd[i][1]<dr*dr&&fabs(vtxscnd[i][2])<dz&&pmtn==0) {
-  	      if (lmecscnd[i]==18) {//particle produced by n-capture
-  	        bool newTime = true;
-  	        for (int j=0;j<nCT;j++) {
-  	          if (fabs((double)(tscnd[i]-captureTime[j]))<1.e-7) {//judge whether this is a new n-capture
-  	            newTime=false;
-  	            if(iprtscnd[i]==22) {nGam[j]+=1;totGamEn[j]+=pabsscnd[i];capId[i]=j;}//count gammas produced in capture
-  	          }
-  	        }
-  	        if (newTime) { //record new capture event
-  	          captureTime[nCT]=tscnd[i];
-  	          capPos[nCT][0]=vtxscnd[i][0];capPos[nCT][1]=vtxscnd[i][1];capPos[nCT][2]=vtxscnd[i][2];
-  	          if (iprtscnd[i]==22) {nGam[nCT]=1;totGamEn[nCT]=pabsscnd[i];capId[i]=nCT;} //count gammas produced in capture
-  	          else {nGam[nCT]=0;totGamEn[nCT]=0.;}
-  	          nCT+=1;
-  	        }
-  	      }
-  	    }
-  	  }
+  	float ZBLST = 5.30;
+  	float dr = RINTK - ZBLST;
+  	float dz = 0.5 * HIINTK - ZBLST;
+
+	PrintMessage(Form("Reading aflscndprt..."), vDebug);
+  	// Read secondary bank
+  	apflscndprt_();
+	PrintMessage(Form("aflscndprt done, nscndprt: %d", secndprt_.nscndprt), vDebug);
+  	for(int i = 0; i < secndprt_.nscndprt; i++) {
+  	  	iprtscnd[i] = secndprt_.iprtscnd[i];				// PID of secondaries
+		PrintMessage(Form("secondary PID: %d", secndprt_.iprtscnd[i]), vDebug);
+		PrintMessage(Form("secondary mom: %f", secndprt_.pscnd[i][0]), vDebug);
+		PrintMessage(Form("secondary time: %f", secndprt_.tscnd[i]), vDebug);
+	  	// save secondary info if PID is:
+  	  	//                deutron                  gamma               neutron
+  	  	if(iprtscnd[i] == 100045 || iprtscnd[i] == 22|| iprtscnd[i] == 2112){
+  	    	lmecscnd[i] = secndprt_.lmecscnd[i];			// creation process
+  	    	iprntprt[i] = secndprt_.iprntprt[i];			// parent PID
+  	    	vtxscnd[i][0] = secndprt_.vtxscnd[i][0];		// creation vertex
+  	    	vtxscnd[i][1] = secndprt_.vtxscnd[i][1];
+  	    	vtxscnd[i][2] = secndprt_.vtxscnd[i][2];
+  	    	wallscnd[i] = wallsk_(vtxscnd[i]);				// distance from wall to creation vertex
+  	    	pscnd[i][0] = secndprt_.pscnd[i][0];			// momentum vector
+  	    	pscnd[i][1] = secndprt_.pscnd[i][1];
+  	    	pscnd[i][2] = secndprt_.pscnd[i][2];
+  	    	pabsscnd[i] = Norm(pscnd[i]);					// momentum
+  	    	tscnd[i] = secndprt_.tscnd[i];					// time created
+  	    	capId[i] = -1;									// initialize capture index (-1: not from n capture) 
+  	    	
+			int inPMT;
+  	    	inpmt_(vtxscnd[i], inPMT);
+			
+			// record all neutron produced
+  	    	if(iprtscnd[i] == 2112) { i += 1; PrintMessage(Form("Now i is %d", i), vDebug); }
+			
+  	    	// record only deutrons and gammas produced inside ID by capture
+  	    	else if(Norm(vtxscnd[i]) < dr*dr && fabs(vtxscnd[i][2]) < dz && !inPMT) {
+  	      		if(lmecscnd[i] == 18){		//particle produced by n-capture
+  	        		bool isNewCapture = true;
+  	       			 for(int j = 0; j < nCT; j++){
+						// judge whether this is a new n-capture
+  	          			if(fabs((double)(tscnd[i]-captureTime[j])) < 1.e-7) {
+  	            			isNewCapture = false;
+							// count gammas produced in capture
+  	            			if(iprtscnd[i] == 22){
+								  nGam[j] += 1;
+								  totGamEn[j] += pabsscnd[i];
+								  capId[i] = j;}
+  	          			}
+  	        		}
+					// save new capture
+  	        		if(isNewCapture){
+  	          			captureTime[nCT] = tscnd[i];
+  	          			capPos[nCT][0] = vtxscnd[i][0];
+						capPos[nCT][1] = vtxscnd[i][1];
+						capPos[nCT][2] = vtxscnd[i][2];
+						//count gammas produced in capture
+  	          			if(iprtscnd[i] == 22){
+								nGam[nCT] = 1; 
+								totGamEn[nCT] = pabsscnd[i]; 
+								capId[i] = nCT; 
+						}
+  	          			else { nGam[nCT] = 0; totGamEn[nCT] = 0.; }
+  	          			nCT += 1;
+  	        		}
+  	      		}
+  	    	}
+  	  	}
   	}
 }
 
@@ -255,7 +281,7 @@ void NTagEventInfo::Clear()
 		}
 	}
 
-	for(int i = 0; i < MAXNSCNDPRT; i++){
+	for(int i = 0; i < SECMAXRNG; i++){
 		iprtscnd[i] = lmecscnd[i] = iprntprt[i] = 0;
 		wallscnd[i] = pabsscnd[i] = tscnd[i] = 0.;
 		capId[i] = 0;
@@ -265,5 +291,33 @@ void NTagEventInfo::Clear()
 		for(int j = 0; j < 3; j++){
 			vtxscnd[i][j] = pscnd[i][j] = pin[i][j] = 0.;
 		}
+	}
+}
+
+float NTagEventInfo::Norm(float vec[3])
+{
+	return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+}
+
+void NTagEventInfo::PrintTag(unsigned int vType){
+	switch(vType){
+		case vDefault:
+			std::cout << "[NTag] ";
+			break;
+		case vError:
+			std::cerr << "\033[1;31m" << "[Error in NTag] ";
+			break;
+		case vDebug:
+			std::cout << "\033[0;34m" << "[NTag DEBUG] ";
+			break;
+	}
+}
+
+void NTagEventInfo::PrintMessage(TString msg, unsigned int vType)
+{
+    if(vType <= fVerbosity){
+		PrintTag(vType);
+		if(vType == vError) std::cerr << "\033[m" << msg << std::endl;
+		else std::cout << "\033[m" << msg << std::endl;
 	}
 }
