@@ -1,5 +1,5 @@
-#ifndef SKIOLIB_HH
-#define SKIOLIB_HH 1
+#ifndef SKLIBS_HH
+#define SKLIBS_HH 1
 
 // SK I/O
 extern "C" {
@@ -14,7 +14,7 @@ extern "C" {
     void skclosef_(int*);
 }
 
-// bank control
+// data control
 extern "C" {
     void nerdnebk_(float*);
     void skgetv_();
