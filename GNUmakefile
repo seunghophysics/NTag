@@ -1,6 +1,6 @@
 include $(ATMPD_ROOT)/config.gmk
 
-SHELL := /bin/bash
+#SHELL := /bin/bash
 
 NTAG_GD_ROOT = $(shell pwd)
 
@@ -47,7 +47,7 @@ obj/main.o: main.cc obj
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 obj/%.o: src/%.cc obj
-	@echo "[NTagGd] Building $*..."
+	@echo "[NTag] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 bin obj:

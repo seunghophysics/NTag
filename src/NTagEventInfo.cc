@@ -59,9 +59,12 @@ void NTagEventInfo::SetAPFitInfo()
     vz = apcommul_.appos[2];
     float tmp_v[3]; tmp_v[0] = vx; tmp_v[1] = vy; tmp_v[2] = vz;
     towall = wallsk_(tmp_v);
+    PrintMessage(Form("APFit vertex: %f, %f, %f", vx, vy, vz), vDebug);
+    PrintMessage(Form("d_wall: %f", towall), vDebug);
 
     // E_vis
     evis = apcomene_.apevis;
+    PrintMessage(Form("e_vis: %f", evis));
 
     // AP ring information
     nring = apcommul_.apnring;
@@ -71,7 +74,8 @@ void NTagEventInfo::SetAPFitInfo()
         amome[iRing] = appatsp2_.apmsamom[iRing][1];  // e-like momentum
         amomm[iRing] = appatsp2_.apmsamom[iRing][2];  // mu-like momentum
     }
-
+    PrintMessage(Form("APFit number of rings: %d", nring), vDebug);
+    
     // mu-e check
     nmue = apmue_.apnmue; ndcy = 0;
     for(int iMuE = 0; iMuE < nmue; iMuE++){
@@ -84,7 +88,9 @@ void NTagEventInfo::SetToFSubtractedTQ()
 {
     nqiskz = sktqz_.nqiskz;
     int sortedIndex[nqiskz], pmtID;
-
+    
+    PrintMessage(Form("NQISKZ: %d", nqiskz), vDebug);
+    
     // Subtract TOF from PMT hit time
     float apfitVertex[3];
     apfitVertex[0] = vx; apfitVertex[1] = vy; apfitVertex[2] = vz;
@@ -99,6 +105,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
         sortedPMTID[iHit] = sktqz_.icabiz[ sortedIndex[iHit] ];
         sortedT_ToF[iHit] = unsortedT_ToF[ sortedIndex[iHit] ];
         sortedQ[iHit] = sktqz_.qiskz[ sortedIndex[iHit] ];
+        //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, sortedT_ToF[iHit]), vDebug);
     }
 }
 
@@ -181,7 +188,8 @@ void NTagEventInfo::SetMCInfo()
 
             // Check if the capture is within ID volume
             else if(Norm(vtxscnd[iSec]) < dr*dr && fabs(vtxscnd[iSec][2]) < dz && !inPMT){
-                if(lmecscnd[iSec] == 18){		//particle produced by n-capture
+                // particle produced by n-capture
+                if(lmecscnd[iSec] == 18){
                     bool isNewCapture = true;
                     for(int j = 0; j < nCT; j++){
                         // If this capture is already saved:
@@ -698,7 +706,10 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(int PMTID[], int tID, int nHits
 float NTagEventInfo::GetLegendreP(int i, float& x)
 {
     float result = 0.;
-
+    
+    if(i < 0 || i > 5){
+        PrintMessage(Form("Incompatible i (%d) is passed to GetLegendreP.", i), vError);
+    }
     switch(i){
         case 1:
             result = x; break;
@@ -709,7 +720,7 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
         case 4:
             result = (35*x*x*x*x-30*x*x+3)/8.; break;
         case 5:
-            (63*x*x*x*x*x-70*x*x*x+15*x)/8.; break;
+            result = (63*x*x*x*x*x-70*x*x*x+15*x)/8.; break;
     }
 
     return result;
@@ -806,61 +817,65 @@ int NTagEventInfo::IsTrueGdCapture(int capID)
 
 void NTagEventInfo::Clear()
 {   
-    nrun = nsub = nev = trgtype = nhitac = nqiskz = np = 0;
-    trgofst = timnsk = qismsk = 0.;
-    nring = nmue = ndcy = 0;
-    evis = vx = vy = vz = towall = 0.;
+    nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
+    np = 0; trgofst = 0; timnsk = 0; qismsk = 0; 
+    nring = 0; nmue = 0; ndcy = 0; evis = 0;
+    vx = 0; vy = 0; vz = 0;
+    towall = 0;
     N200M = 0;
-    mctrue_nn = ip0 = nscndprt = broken = 0;
-    lasthit = firsthit = firstflz = 0.;
-    px = py = pz = 0.;
-    dirx = diry = dirz = 0.;
+    mctrue_nn = 0;
+    ip0 = 0;
+    nscndprt = 0;
+    broken = 0;
+    lasthit = 0; firsthit = 0; firstflz = 0;
+    px = 0; py = 0; pz = 0;
+    dirx = diry = dirz = 0;
     nCT = 0;
     nN = modene = numne = 0;
-    pnu = 0.;
+    pnu = 0;
     nvect = 0;
     bt = 1000000;
     T200M = -9999.;
-    pos[0] = pos[1] = pos[2] = 0.;
+    pos[0] = 0; pos[1] = 0; pos[2] = 0;
 
     for(int i = 0; i < 30*MAXNP; i++){
         sortedPMTID[i] = 0;
-        sortedT_ToF[i] = sortedQ[i] = unsortedT_ToF[i] = 0.;
+        sortedT_ToF[i] = 0; sortedQ[i] = 0; unsortedT_ToF[i] = 0;
     }
 
     for(int i = 0; i < APNMAXRG; i++){
         apip[i] = 0;
-        apamom[i] = amome[i] = amomm[i] = 0.;
+        apamom[i] = 0; amome[i] = 0; amomm[i] = 0;
     }
 
     for(int i = 0; i < MAXNP; i++){
         tindex[i] = 0;
-        N10[i] =  N10n[i] =  N50[i] =  N200[i] =  N1300[i] = 0;
-        sumQ[i] =  spread[i] =  trms[i] =  trmsold[i] =  trms50[i] = 0.;
-        mintrms_3[i] =  mintrms_4[i] =  mintrms_5[i] =  mintrms_6[i] = 0.;
-        dt[i] =  dtn[i] = 0.;
-        nvx[i] =  nvy[i] =  nvz[i] =  nwall[i] = 0.;
-        tvx[i] =  tvy[i] =  tvz[i] = 0.;
-        doubleCount[i] =  goodn[i] = 0.;
-        tbsenergy[i] =  tbsenergy2[i] = 0.;
-        tbsvx[i] =  tbsvy[i] =  tbsvz[i] =  tbsvt[i] = 0.;
-        tbswall[i] =  tbsgood[i] = 0.;
-        tbspatlik[i] =  tbsdirks[i] =  tbsovaq[i] = 0.;
-        bsenergy[i] =  bsenergy2[i] = 0.;
-        bsvertex0[i] =  bsvertex1[i] =  bsvertex2[i] = 0.;
-        bsgood[i] = 0.;
+        N10[i] =  0; N10n[i] =  0; N50[i] =  0; N200[i] =  0; N1300[i] = 0;
+        sumQ[i] =  0; spread[i] = 0; trms[i] = 0; trmsold[i] = 0; trms50[i] = 0;
+        mintrms_3[i] = 0; mintrms_4[i] = 0; mintrms_5[i] = 0; mintrms_6[i] = 0;
+        dt[i] = 0; dtn[i] = 0;
+        nvx[i] = 0; nvy[i] = 0; nvz[i] = 0; nwall[i] = 0;
+        tvx[i] = 0; tvy[i] = 0; tvz[i] = 0;
+        doubleCount[i] = 0; goodn[i] = 0;
+        tbsenergy[i] = 0; tbsenergy2[i] = 0;
+        tbsvx[i] = 0; tbsvy[i] = 0; tbsvz[i] = 0; tbsvt[i] = 0;
+        tbswall[i] = 0; tbsgood[i] = 0;
+        tbspatlik[i] = 0; tbsdirks[i] = 0; tbsovaq[i] = 0;
+        bsenergy[i] = 0; bsenergy2[i] = 0;
+        bsvertex0[i] = 0; bsvertex1[i] = 0; bsvertex2[i] = 0;
+        bsgood[i] = 0;
 
-        beta14_10[i] =  beta14_50[i] = 0.;
-        beta1_50[i] =  beta2_50[i] =  beta3_50[i] =  beta4_50[i] =  beta5_50[i] = 0.;
-        ratio[i] =  phirms[i] =  thetam[i] =  summedWeight[i] =  g2d2[i] = 0.;
-        Nback[i] =  Neff[i] =  Nc1[i] =  NhighQ[i] = 0;
-        Nc[i] =  Ncluster[i] =  Nc8[i] =  Ncluster8[i] = 0;
-        Nc7[i] =  Ncluster7[i] =  N12[i] =  N20[i] =  N300[i] = 0;
-        npx[i] =  npy[i] =  npz[i] = 0.;
-        ndirx[i] =  ndiry[i] =  ndirz[i] = 0.;
+        beta14_10[i] = 0; beta14_50[i] = 0;
+        beta1_50[i] = 0; beta2_50[i] = 0; beta3_50[i] = 0; beta4_50[i] = 0; beta5_50[i] = 0;
+        ratio[i] = 0; phirms[i] = 0; thetam[i] = 0; summedWeight[i] = 0; g2d2[i] = 0;
+        Nback[i] = 0; Neff[i] = 0; Nc1[i] = 0; NhighQ[i] = 0;
+        Nc[i] = 0; Ncluster[i] = 0; Nc8[i] = 0; Ncluster8[i] = 0;
+        Nc7[i] = 0; Ncluster7[i] = 0; N12[i] = 0; N20[i] = 0; N300[i] = 0;
+        npx[i] = 0; npy[i] = 0; npz[i] = 0;
+        ndirx[i] = 0; ndiry[i] = 0; ndirz[i] = 0;
 
-        nGd[i] =  realneutron[i] = 0;
-        truth_vx[i] =  truth_vy[i] =  truth_vz[i] =  timeRes[i] = 0.;
+        nGd[i] = 0; realneutron[i] = 0;
+        truth_vx[i] = 0; truth_vy[i] = 0; truth_vz[i] = 0; timeRes[i] = 0;
 
         TMVAoutput[i] = -9999.;
 
@@ -869,23 +884,23 @@ void NTagEventInfo::Clear()
 
     for(int i = 0; i < kMaxCT; i++){
         nGam[i] = 0;
-        captureTime[i] = totGamEn[i] = 0.;
+        captureTime[i] = 0; totGamEn[i] = 0;
         ipne[i] = 0;
 
         for(int j = 0; j < 3; j++){
-            capPos[i][j] = 0.;
+            capPos[i][j] = 0;
         }
     }
 
     for(int i = 0; i < SECMAXRNG; i++){
-        iprtscnd[i] = lmecscnd[i] = iprntprt[i] = 0;
-        wallscnd[i] = pabsscnd[i] = tscnd[i] = 0.;
+        iprtscnd[i] = 0; lmecscnd[i] = 0; iprntprt[i] = 0;
+        wallscnd[i] = 0; pabsscnd[i] = 0; tscnd[i] = 0;
         capId[i] = 0;
         ip[i] = 0;
-        pabs[i] = 0.;
+        pabs[i] = 0;
 
         for(int j = 0; j < 3; j++){
-            vtxscnd[i][j] = pscnd[i][j] = pin[i][j] = 0.;
+            vtxscnd[i][j] = 0; pscnd[i][j] = 0; pin[i][j] = 0;
         }
     }
 }

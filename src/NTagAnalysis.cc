@@ -4,6 +4,7 @@
 #include <TFile.h>
 
 #include <skheadC.h>
+#include <skvectC.h>
 
 #include <SKLibs.hh>
 #include "NTagAnalysis.hh"
@@ -65,8 +66,10 @@ void NTagAnalysis::ReadFile()
     // Read data event-by-event
     int readStatus;
     int eventID = 0;
+    bool bEOF = false;
 
-    while(1){
+    while(!bEOF){
+        Clear();
         readStatus = skread_(&lun);
         switch(readStatus){
             case 0: // event read
@@ -75,6 +78,13 @@ void NTagAnalysis::ReadFile()
                 PrintMessage("###########################", vDebug);
                 PrintMessage(Form("Event ID: %d", eventID), vDebug);
                 PrintMessage("###########################", vDebug);
+                int inPMT;
+                if(!bData){
+                    skgetv_();
+                    inpmt_(skvect_.pos, inPMT);
+                    PrintMessage(Form("True vertex is in PMT. Skipping event %d...", eventID), vDebug);
+                    if(inPMT) break;
+                }
                 ReadEvent();
                 break;
             case 1: // read-error
@@ -83,6 +93,7 @@ void NTagAnalysis::ReadFile()
                 PrintMessage(Form("Reached the end of input. Closing file..."), vDefault);
                 skclosef_(&lun);
                 WriteOutput();
+                bEOF = true;
                 break;
         }
     }
@@ -90,7 +101,6 @@ void NTagAnalysis::ReadFile()
 
 void NTagAnalysis::ReadEvent()
 {
-    Clear();
     SetEventHeader();
     SetAPFitInfo();
     SetToFSubtractedTQ();

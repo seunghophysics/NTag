@@ -67,7 +67,7 @@ class NTagEventInfo
 
     private:
         const float (*xyz)[3];        // PMT positions
-        const float C_WATER;	        // Speed-of-light in water [cm/ns]
+        const float C_WATER;          // Speed-of-light in water [cm/ns]
 
         int N10TH, N10MX, N200MX;     // N_hits cut
         float T0TH;                   // T0 threshold
