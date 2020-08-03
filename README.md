@@ -10,6 +10,11 @@
 ```
 git clone https://github.com/seunghophysics/NTag.git
 ```
+```
 cd NTag; make
 ```
-Before using the program, you must source setup.sh of TMVA-v4.2.0.
+
+### How to run
+```
+./bin/main (input zbs)
+```
