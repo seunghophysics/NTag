@@ -1,6 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include <TFile.h>
+
 #include <skheadC.h>
 
 #include <SKLibs.hh>
@@ -9,14 +11,14 @@
 NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verbose)
 : lun(10)
 {
-	bData = useData;
+    bData = useData;
     fVerbosity = verbose;
 
-	SetN10Limits(5, 50);
-	SetN200Max(140);
-	SetT0Threshold(1.);		// [us]
-	SetDistanceCut(4000.);	// [cm]
-	SetTMatchWindow(40.);	// [ns]
+    SetN10Limits(5, 50);
+    SetN200Max(140);
+    SetT0Threshold(1.);		// [us]
+    SetDistanceCut(4000.);	// [cm]
+    SetTMatchWindow(40.);	// [ns]
 
     
     ntvarTree = new TTree("ntvar", "ntag variables");
@@ -27,24 +29,22 @@ NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verb
         CreateBranchesToTruthTree();
     }
 
-    reader = new TMVA::Reader("!Color:!Silent");
-
     OpenFile(fileName);
-	ReadFile();
+    ReadFile();
 }
 
 NTagAnalysis::~NTagAnalysis() {}
 
 void NTagAnalysis::OpenFile(const char* fileName)
 {
-	kzinit_();
+    kzinit_();
 
     // Set rflist and open file
     int ipt = 1;
     int openError;
 
     set_rflist_(&lun, fileName, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
-			    strlen(fileName),5,0,3,0,0,20,0,0);
+                strlen(fileName),5,0,3,0,0,20,0,0);
     skopenf_(&lun, &ipt, "Z", &openError);
 
     if(openError){
@@ -59,14 +59,14 @@ void NTagAnalysis::OpenFile(const char* fileName)
 
 void NTagAnalysis::ReadFile()
 {
-	// Read data event-by-event
+    // Read data event-by-event
     int readStatus;
     int eventID = 0;
 
     while(1){
-	    readStatus = skread_(&lun);
-	    switch(readStatus){
-	        case 0: // event read
+        readStatus = skread_(&lun);
+        switch(readStatus){
+            case 0: // event read
                 eventID++;
                 std::cout << "\n" << std::endl;
                 PrintMessage("###########################", vDebug);
@@ -79,6 +79,7 @@ void NTagAnalysis::ReadFile()
             case 2: // end of input
                 PrintMessage(Form("Reached the end of input. Closing file..."), vDefault);
                 skclosef_(&lun);
+
                 break;
         }
     }
@@ -86,23 +87,26 @@ void NTagAnalysis::ReadFile()
 
 void NTagAnalysis::ReadEvent()
 {
-	Clear();
+    Clear();
     SetEventHeader();
     SetAPFitInfo();
     SetToFSubtractedTQ();
-	SearchCaptureCandidates();
+    SearchCaptureCandidates();
 
     if(!bData){
         SetMCInfo();
     }
 
-    truthTree->Fill();
     ntvarTree->Fill();
+    if(!bData) truthTree->Fill();
 }
 
-void NTagAnalysis::SearchNeutron()
+void NTagAnalysis::WriteOutput()
 {
-
+    TFile* file = new TFile("nTagOutput.root", "recreate");
+    ntvarTree->Write();
+    if(!bData) truthTree->Write();
+    file->Close();
 }
 
 void NTagAnalysis::CreateBranchesToTruthTree()
@@ -132,15 +136,6 @@ void NTagAnalysis::CreateBranchesToTruthTree()
     truthTree->Branch("ip", ip, "ip[nvect]/I");
     truthTree->Branch("pin", pin , "pin[nvect][3]/F");
     truthTree->Branch("pabs", &pabs, "pabs[nvect]/I");
-    truthTree->Branch("np", &np, "np/I");
-	truthTree->Branch("nGd", nGd, "nGd[np]/I");
-    truthTree->Branch("timeRes",	timeRes, "timeRes[np]/F");
-    truthTree->Branch("doubleCount",	doubleCount, "doubleCount[np]/I");
-    truthTree->Branch("mctrue_nn", &mctrue_nn, "mctrue_nn/I");
-	truthTree->Branch("realneutron",realneutron, "realneutron[np]/I");
-    truthTree->Branch("truth_vx", truth_vx, "truth_vx[np]/F");
-	truthTree->Branch("truth_vy", truth_vy, "truth_vy[np]/F");
-	truthTree->Branch("truth_vz", truth_vz, "truth_vz[np]/F");
 }
 
 void NTagAnalysis::CreateBranchesToNTvarTree()
@@ -159,16 +154,16 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("bt", &bt, "bt/F");
     ntvarTree->Branch("N200M", &N200M, "N200M/I");
     ntvarTree->Branch("T200M", &T200M, "T200M/F");
-	ntvarTree->Branch("vx", &vx, "vx/F");
-	ntvarTree->Branch("vy", &vy, "vy/F");
-	ntvarTree->Branch("vz", &vz, "vz/F");
-	ntvarTree->Branch("nvx",	nvx, "nvx[np]/F");
-	ntvarTree->Branch("nvy",	nvy, "nvy[np]/F");
-	ntvarTree->Branch("nvz",	nvz, "nvz[np]/F");
-	ntvarTree->Branch("nwall", nwall, "nwall[np]/F");
-	ntvarTree->Branch("tvx",	tvx, "tvx[np]/F");
-	ntvarTree->Branch("tvy",	tvy, "tvy[np]/F");
-	ntvarTree->Branch("tvz",	tvz, "tvz[np]/F");
+    ntvarTree->Branch("vx", &vx, "vx/F");
+    ntvarTree->Branch("vy", &vy, "vy/F");
+    ntvarTree->Branch("vz", &vz, "vz/F");
+    ntvarTree->Branch("nvx",	nvx, "nvx[np]/F");
+    ntvarTree->Branch("nvy",	nvy, "nvy[np]/F");
+    ntvarTree->Branch("nvz",	nvz, "nvz[np]/F");
+    ntvarTree->Branch("nwall", nwall, "nwall[np]/F");
+    ntvarTree->Branch("tvx",	tvx, "tvx[np]/F");
+    ntvarTree->Branch("tvy",	tvy, "tvy[np]/F");
+    ntvarTree->Branch("tvz",	tvz, "tvz[np]/F");
     ntvarTree->Branch("N10", N10, "N10[np]/I");
     ntvarTree->Branch("wall", &towall, "wall/F");
     ntvarTree->Branch("N10n", N10n, "N10n[np]/I");
@@ -210,47 +205,47 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("Nlow7", Nlow[6], "Nlow7[np]/I");
     ntvarTree->Branch("Nlow8", Nlow[7], "Nlow8[np]/I");
     ntvarTree->Branch("Nlow9", Nlow[8], "Nlow9[np]/I");
-	ntvarTree->Branch("bsenergy", bsenergy, "bsenergy[np]/F");
-	ntvarTree->Branch("bsvertex0", bsvertex0, "bsvertex0[np]/F");
-	ntvarTree->Branch("bsvertex1", bsvertex1, "bsvertex1[np]/F");
-	ntvarTree->Branch("bsvertex2", bsvertex2, "bsvertex2[np]/F");
-	ntvarTree->Branch("bsgood", bsgood, "bsgood[np]/F");
-	ntvarTree->Branch("tbsenergy", tbsenergy, "tbsenergy[np]/F");
-	ntvarTree->Branch("tbsenergy2", tbsenergy2, "tbsenergy2[np]/F");
-	ntvarTree->Branch("tbsvx", tbsvx, "tbsvx[np]/F");
-	ntvarTree->Branch("tbsvy", tbsvy, "tbsvy[np]/F");
-	ntvarTree->Branch("tbsvz", tbsvz, "tbsvz[np]/F");
-	ntvarTree->Branch("tbsvt", tbsvt, "tbsvt[np]/F");
-	ntvarTree->Branch("tbswall",	tbswall, "tbswall[np]/F");
-	ntvarTree->Branch("tbsgood",	tbsgood, "tbsgood[np]/F");
-	ntvarTree->Branch("tbsdirks", tbsdirks, "tbsdirks[np]/F");
-	ntvarTree->Branch("tbspatlik", tbspatlik, "tbspatlik[np]/F");
-	ntvarTree->Branch("tbsovaq",	tbsovaq, "tbsovaq[np]/F");
-	ntvarTree->Branch("g2d2", g2d2, "g2d2[np]/F");
-	ntvarTree->Branch("goodn", goodn, "goodn[np]/I");
-	ntvarTree->Branch("beta14", beta14_10, "beta14[np]/F");
-	ntvarTree->Branch("beta14_40", beta14_50, "beta14_40[np]/F");
-	ntvarTree->Branch("beta1", beta1_50, "beta1[np]/F");
-	ntvarTree->Branch("beta2", beta2_50, "beta2[np]/F");
-	ntvarTree->Branch("beta3", beta3_50, "beta3[np]/F");
-	ntvarTree->Branch("beta4", beta4_50, "beta4[np]/F");
-	ntvarTree->Branch("beta5", beta5_50, "beta5[np]/F");
-	ntvarTree->Branch("px", &px, "px/F");
-	ntvarTree->Branch("py", &py, "py/F");
-	ntvarTree->Branch("pz", &pz, "pz/F");
-	ntvarTree->Branch("npx", npx, "npx[np]/F");
-	ntvarTree->Branch("npy", npy, "npy[np]/F");
-	ntvarTree->Branch("npz", npz, "npz[np]/F");
-	ntvarTree->Branch("dirx", &dirx, "dirx/F");
-	ntvarTree->Branch("diry", &diry, "diry/F");
-	ntvarTree->Branch("dirz", &dirz, "dirz/F");
-	ntvarTree->Branch("ndirx", ndirx, "ndirx[np]/F");
-	ntvarTree->Branch("ndiry", ndiry, "ndiry[np]/F");
-	ntvarTree->Branch("ndirz", ndirz, "ndirz[np]/F");
-	ntvarTree->Branch("summedWeight", summedWeight, "summedWeight[np]/F");
-	ntvarTree->Branch("ip0", &ip0, "ip0/I");
-	ntvarTree->Branch("nring", &nring, "nring/I");
-	ntvarTree->Branch("evis", &evis, "evis/F");
+    ntvarTree->Branch("bsenergy", bsenergy, "bsenergy[np]/F");
+    ntvarTree->Branch("bsvertex0", bsvertex0, "bsvertex0[np]/F");
+    ntvarTree->Branch("bsvertex1", bsvertex1, "bsvertex1[np]/F");
+    ntvarTree->Branch("bsvertex2", bsvertex2, "bsvertex2[np]/F");
+    ntvarTree->Branch("bsgood", bsgood, "bsgood[np]/F");
+    ntvarTree->Branch("tbsenergy", tbsenergy, "tbsenergy[np]/F");
+    ntvarTree->Branch("tbsenergy2", tbsenergy2, "tbsenergy2[np]/F");
+    ntvarTree->Branch("tbsvx", tbsvx, "tbsvx[np]/F");
+    ntvarTree->Branch("tbsvy", tbsvy, "tbsvy[np]/F");
+    ntvarTree->Branch("tbsvz", tbsvz, "tbsvz[np]/F");
+    ntvarTree->Branch("tbsvt", tbsvt, "tbsvt[np]/F");
+    ntvarTree->Branch("tbswall",	tbswall, "tbswall[np]/F");
+    ntvarTree->Branch("tbsgood",	tbsgood, "tbsgood[np]/F");
+    ntvarTree->Branch("tbsdirks", tbsdirks, "tbsdirks[np]/F");
+    ntvarTree->Branch("tbspatlik", tbspatlik, "tbspatlik[np]/F");
+    ntvarTree->Branch("tbsovaq",	tbsovaq, "tbsovaq[np]/F");
+    ntvarTree->Branch("g2d2", g2d2, "g2d2[np]/F");
+    ntvarTree->Branch("goodn", goodn, "goodn[np]/I");
+    ntvarTree->Branch("beta14", beta14_10, "beta14[np]/F");
+    ntvarTree->Branch("beta14_40", beta14_50, "beta14_40[np]/F");
+    ntvarTree->Branch("beta1", beta1_50, "beta1[np]/F");
+    ntvarTree->Branch("beta2", beta2_50, "beta2[np]/F");
+    ntvarTree->Branch("beta3", beta3_50, "beta3[np]/F");
+    ntvarTree->Branch("beta4", beta4_50, "beta4[np]/F");
+    ntvarTree->Branch("beta5", beta5_50, "beta5[np]/F");
+    ntvarTree->Branch("px", &px, "px/F");
+    ntvarTree->Branch("py", &py, "py/F");
+    ntvarTree->Branch("pz", &pz, "pz/F");
+    ntvarTree->Branch("npx", npx, "npx[np]/F");
+    ntvarTree->Branch("npy", npy, "npy[np]/F");
+    ntvarTree->Branch("npz", npz, "npz[np]/F");
+    ntvarTree->Branch("dirx", &dirx, "dirx/F");
+    ntvarTree->Branch("diry", &diry, "diry/F");
+    ntvarTree->Branch("dirz", &dirz, "dirz/F");
+    ntvarTree->Branch("ndirx", ndirx, "ndirx[np]/F");
+    ntvarTree->Branch("ndiry", ndiry, "ndiry[np]/F");
+    ntvarTree->Branch("ndirz", ndirz, "ndirz[np]/F");
+    ntvarTree->Branch("summedWeight", summedWeight, "summedWeight[np]/F");
+    ntvarTree->Branch("ip0", &ip0, "ip0/I");
+    ntvarTree->Branch("nring", &nring, "nring/I");
+    ntvarTree->Branch("evis", &evis, "evis/F");
     ntvarTree->Branch("nhitac", &nhitac, "nhitac/I");
     ntvarTree->Branch("ndcy", &ndcy, "ndcy/I");
     ntvarTree->Branch("qismsk", &qismsk, "qismsk/I");
@@ -262,9 +257,15 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("amomm", amomm, "amomm[apnring]/F");
     ntvarTree->Branch("sumQ", sumQ, "sumQ[np]/F");
     ntvarTree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
-}
-
-void NTagAnalysis::FillTrees()
-{
-
+    
+    if(!bData){
+        ntvarTree->Branch("nGd", nGd, "nGd[np]/I");
+        ntvarTree->Branch("timeRes",	timeRes, "timeRes[np]/F");
+        ntvarTree->Branch("doubleCount",	doubleCount, "doubleCount[np]/I");
+        ntvarTree->Branch("mctrue_nn", &mctrue_nn, "mctrue_nn/I");
+        ntvarTree->Branch("realneutron",realneutron, "realneutron[np]/I");
+        ntvarTree->Branch("truth_vx", truth_vx, "truth_vx[np]/F");
+        ntvarTree->Branch("truth_vy", truth_vy, "truth_vy[np]/F");
+        ntvarTree->Branch("truth_vz", truth_vz, "truth_vz[np]/F");
+    }
 }

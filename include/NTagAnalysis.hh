@@ -11,27 +11,23 @@ class NTagAnalysis : public NTagEventInfo
         virtual ~NTagAnalysis();
 
         // File I/O
-		void OpenFile(const char* fileName);
-		void ReadFile();
-		void ReadEvent();
+        virtual void OpenFile(const char* fileName);
+        virtual void ReadFile();
+        virtual void ReadEvent();
+        virtual void WriteOutput();
 
-        // TMVA
-		virtual void SearchNeutron();
-
-		// Tree-related
-		virtual void CreateBranchesToTruthTree();
-		virtual void CreateBranchesToNTvarTree();
-		virtual void FillTrees();
-		//virtual void SetBranchAddressToTruthTree(TTree* tree);
-		//virtual void SetBranchAddressToNTvarTree(TTree* tree);
+        // Tree-related
+        virtual void CreateBranchesToTruthTree();
+        virtual void CreateBranchesToNTvarTree();
+        //virtual void SetBranchAddressToTruthTree(TTree* tree);
+        //virtual void SetBranchAddressToNTvarTree(TTree* tree);
 
     private:
-        TMVA::Reader* reader;
         TTree* truthTree;
         TTree* ntvarTree;
 
-		// File I/O (logical unit)
-		int lun;
+        // File I/O (logical unit)
+        int lun;
 };
 
 #endif
