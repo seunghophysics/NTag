@@ -59,7 +59,7 @@ bin obj out:
 
 setup:
 	@echo "[NTag] Setting up TMVA install directory..."
-	@. setup/setup.sh $(TMVASYS)
+	@. setup/setup.sh $(TMVASYS) >/dev/null
 	
 clean:
 	@$(RM) -rf *.o *~ .rootrc *.rootmap *.C *.log obj bin

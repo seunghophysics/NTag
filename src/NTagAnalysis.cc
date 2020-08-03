@@ -82,8 +82,10 @@ void NTagAnalysis::ReadFile()
                 if(!bData){
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
-                    PrintMessage(Form("True vertex is in PMT. Skipping event %d...", eventID), vDebug);
-                    if(inPMT) break;
+                    if(inPMT){
+                        PrintMessage(Form("True vertex is in PMT. Skipping event %d...", eventID), vDebug);
+                    break;
+                    }
                 }
                 ReadEvent();
                 break;
