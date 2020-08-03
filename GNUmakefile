@@ -1,6 +1,7 @@
 include $(ATMPD_ROOT)/config.gmk
 
-#SHELL := /bin/bash
+SHELL = /bin/bash
+shelltype = setup
 
 NTAG_GD_ROOT = $(shell pwd)
 
@@ -33,7 +34,7 @@ CXXFLAGS += -std=c++11
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
-bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out
+bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out setup
 	@echo "[NTag] Building the main program..."
 	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
 	@echo "[NTag] Done!"
@@ -53,6 +54,12 @@ obj/%.o: src/%.cc obj
 bin obj out:
 	@mkdir $@
 
-.PHONY: clean
+
+.PHONY: clean setup
+
+setup:
+	@echo "[NTag] Setting up TMVA install directory..."
+	@. setup/setup.sh $(TMVASYS)
+	
 clean:
-	@$(RM) -rf *.o *~ .rootrc .rootmap *.log obj bin
+	@$(RM) -rf *.o *~ .rootrc *.rootmap *.C *.log obj bin
