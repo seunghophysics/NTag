@@ -21,6 +21,7 @@ int main(int argc, char** argv)
     }
     
     NTagAnalysis nt(fileName, false, verbose);
+    nt.PrintMessage("Done!");
 
     return 0;
 }

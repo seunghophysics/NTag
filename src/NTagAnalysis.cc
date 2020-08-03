@@ -7,9 +7,17 @@
 #include "NTagAnalysis.hh"
 
 NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verbose)
-: bData(useData), lun(10)
+: lun(10)
 {
+	bData = useData;
     fVerbosity = verbose;
+
+	SetN10Limits(5, 50);
+	SetN200Max(140);
+	SetT0Threshold(1.);		// [us]
+	SetDistanceCut(4000.);	// [cm]
+	SetTMatchWindow(40.);	// [ns]
+
     
     ntvarTree = new TTree("ntvar", "ntag variables");
     CreateBranchesToNTvarTree();
@@ -53,11 +61,17 @@ void NTagAnalysis::ReadFile()
 {
 	// Read data event-by-event
     int readStatus;
-    
+    int eventID = 0;
+
     while(1){
 	    readStatus = skread_(&lun);
 	    switch(readStatus){
 	        case 0: // event read
+                eventID++;
+                std::cout << "\n" << std::endl;
+                PrintMessage("###########################", vDebug);
+                PrintMessage(Form("Event ID: %d", eventID), vDebug);
+                PrintMessage("###########################", vDebug);
                 ReadEvent();
                 break;
             case 1: // read-error
@@ -72,19 +86,18 @@ void NTagAnalysis::ReadFile()
 
 void NTagAnalysis::ReadEvent()
 {
-    PrintMessage(Form("Clearing..."), vDebug);
 	Clear();
-    PrintMessage(Form("EVHEADER..."), vDebug);
     SetEventHeader();
-    PrintMessage(Form("APFITINFO..."), vDebug);
     SetAPFitInfo();
-    PrintMessage(Form("TQ..."), vDebug);
     SetToFSubtractedTQ();
+	SearchCaptureCandidates();
 
     if(!bData){
-        PrintMessage(Form("Truth Info..."), vDebug);
-        SetTruthInfo();
+        SetMCInfo();
     }
+
+    truthTree->Fill();
+    ntvarTree->Fill();
 }
 
 void NTagAnalysis::SearchNeutron()
@@ -174,7 +187,7 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("N20", N20, "N20[np]/I");
     ntvarTree->Branch("trms", trms, "trms[np]/F");
     ntvarTree->Branch("trmsold", trmsold, "trmsold[np]/F");
-    ntvarTree->Branch("trms40", trms40, "trms40[np]/F");
+    ntvarTree->Branch("trms40", trms50, "trms40[np]/F");
     ntvarTree->Branch("mintrms_3", mintrms_3, "mintrms_3[np]/F");
     ntvarTree->Branch("mintrms_4", mintrms_4, "mintrms_4[np]/F");
     ntvarTree->Branch("mintrms_5", mintrms_5, "mintrms_5[np]/F");
@@ -215,13 +228,13 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
 	ntvarTree->Branch("tbsovaq",	tbsovaq, "tbsovaq[np]/F");
 	ntvarTree->Branch("g2d2", g2d2, "g2d2[np]/F");
 	ntvarTree->Branch("goodn", goodn, "goodn[np]/I");
-	ntvarTree->Branch("beta14", beta14, "beta14[np]/F");
-	ntvarTree->Branch("beta14_40", beta14_40, "beta14_40[np]/F");
-	ntvarTree->Branch("beta1", beta1, "beta1[np]/F");
-	ntvarTree->Branch("beta2", beta2, "beta2[np]/F");
-	ntvarTree->Branch("beta3", beta3, "beta3[np]/F");
-	ntvarTree->Branch("beta4", beta4, "beta4[np]/F");
-	ntvarTree->Branch("beta5", beta5, "beta5[np]/F");
+	ntvarTree->Branch("beta14", beta14_10, "beta14[np]/F");
+	ntvarTree->Branch("beta14_40", beta14_50, "beta14_40[np]/F");
+	ntvarTree->Branch("beta1", beta1_50, "beta1[np]/F");
+	ntvarTree->Branch("beta2", beta2_50, "beta2[np]/F");
+	ntvarTree->Branch("beta3", beta3_50, "beta3[np]/F");
+	ntvarTree->Branch("beta4", beta4_50, "beta4[np]/F");
+	ntvarTree->Branch("beta5", beta5_50, "beta5[np]/F");
 	ntvarTree->Branch("px", &px, "px/F");
 	ntvarTree->Branch("py", &py, "py/F");
 	ntvarTree->Branch("pz", &pz, "pz/F");
@@ -249,4 +262,9 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("amomm", amomm, "amomm[apnring]/F");
     ntvarTree->Branch("sumQ", sumQ, "sumQ[np]/F");
     ntvarTree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
+}
+
+void NTagAnalysis::FillTrees()
+{
+
 }

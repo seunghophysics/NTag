@@ -32,7 +32,6 @@ extern "C" {
     void bonsai_fit_(float*, float*, float*, int*, int*, float*, float*, float*, 
                      float*, float*, float*, float*, float*, float*);
     void bonsai_end_();
-    void bonsai_energy_(float*, float*, float*, float*, int*, int*, float*);
 }
 
 #endif

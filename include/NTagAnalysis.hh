@@ -21,6 +21,7 @@ class NTagAnalysis : public NTagEventInfo
 		// Tree-related
 		virtual void CreateBranchesToTruthTree();
 		virtual void CreateBranchesToNTvarTree();
+		virtual void FillTrees();
 		//virtual void SetBranchAddressToTruthTree(TTree* tree);
 		//virtual void SetBranchAddressToNTvarTree(TTree* tree);
 
@@ -28,7 +29,6 @@ class NTagAnalysis : public NTagEventInfo
         TMVA::Reader* reader;
         TTree* truthTree;
         TTree* ntvarTree;
-        bool bData;
 
 		// File I/O (logical unit)
 		int lun;
