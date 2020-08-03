@@ -26,12 +26,12 @@ OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
 bin/main: obj/bonsai.o $(OBJS) obj/main.o bin
 	@echo "[NTagGd] Building the main program..."
-	LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/main.o $(LDLIBS)
+	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
 	@echo "[NTagGd] Done!"
 
 obj/bonsai.o: src/bonsai.F obj
 	@echo "[NTagGd] Building BONSAI..."
-	$(FC) $(FCFLAGS) -c $< -o $@
+	@$(FC) $(FCFLAGS) -c $< -o $@
 
 obj/main.o: main.cc obj
 	@echo "[NTagGd] Building main..."

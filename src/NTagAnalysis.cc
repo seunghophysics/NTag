@@ -79,7 +79,7 @@ void NTagAnalysis::ReadFile()
             case 2: // end of input
                 PrintMessage(Form("Reached the end of input. Closing file..."), vDefault);
                 skclosef_(&lun);
-
+                WriteOutput();
                 break;
         }
     }
