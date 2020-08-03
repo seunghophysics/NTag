@@ -39,19 +39,18 @@ class NTagEventInfo
         inline float ReconCaptureTime(int capID);
         float TrueCaptureTime(int capID);
         std::array<float, 3> TrueCaptureVertex(int capID);
-        float SubtractToF(float t_ToF[], float T[], int PMTID[], float vertex[3], bool doSort=false);
-        float MinimizeTRMS(float T[], int PMTID[], float fitVertex[3]);
+        float SubtractToF(float t_ToF[], float T[], int PMTID[], int nHits, float vertex[3], bool doSort=false);
+        float MinimizeTRMS(float T[], int PMTID[], int nHits, float fitVertex[3]);
         float GetLegendreP(int i, float& x); // Legendre polynomials for beta calculation
         std::array<float, 6> GetBetaArray(int PMTID[], int tID, int n10);
 
-        int GetNhitsFromStartIndex(float T[], int startIndex, float tWidth);
+        int GetNhitsFromStartIndex(float T[], int nHits, int startIndex, float tWidth);
         float GetQhitsFromStartIndex(int startIndex, float tWidth);
         float GetTRMSFromStartIndex(float T[], int startIndex, float tWidth);
         int GetNhitsFromCenterTime(float centerTime, float searchTWidth);
 
         int IsTrueCapture(int capID);
         int IsTrueGdCapture(int capID);
-        void CheckSavedTQSize(int startIndex);
         virtual void Clear();
 
         virtual void SetTMVAReader();
@@ -99,7 +98,7 @@ class NTagEventInfo
         /**/
         /**/        // Variables for neutron capture candidates
         /**/        int     np, N200M;
-        /**/        int     tindex[MAXNP], n40index[MAXNP];
+        /**/        int     tindex[MAXNP];
         /**/        int     N10[MAXNP], N10n[MAXNP], N50[MAXNP], N200[MAXNP], N1300[MAXNP];
         /**/        float   T200M;
         /**/        float   sumQ[MAXNP], spread[MAXNP], trms[MAXNP], trmsold[MAXNP], trms50[MAXNP];
@@ -134,7 +133,7 @@ class NTagEventInfo
         /**/    		dirx, diry, dirz, ndirx[MAXNP], ndiry[MAXNP], ndirz[MAXNP];
         /**/
         /**/    // TMVA inputs and output
-        /**/    int     mva_N10, mva_N50, mva_N200;
+        /**/    float   mva_N10, mva_N50, mva_N200;
         /**/    float 	mva_evis, mva_dt, mva_sumQ, mva_spread, mva_trmsold, mva_nwall, mva_trms50;
         /**/    float	mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
         /**/    float 	mva_tbsenergy, mva_tbswall, mva_tbsgood, mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;

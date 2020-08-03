@@ -26,22 +26,25 @@ fVerbosity(vDefault), bData(false)
 {
     reader = new TMVA::Reader("!Color:!Silent");
     SetTMVAReader();
-    bonsai_ini_();
 }
 
-NTagEventInfo::~NTagEventInfo() { bonsai_end_(); }
+NTagEventInfo::~NTagEventInfo() {}
 
 void NTagEventInfo::SetEventHeader()
 {
     nrun = skhead_.nrunsk;
     nsub = skhead_.nsubsk;
     nev = skhead_.nevsk;
-
+    PrintMessage(Form("RUN %d SUBRUN %d EVENT %d", nrun, nsub, nev), vDebug);
+    
     // Get number of OD hits
     odpc_2nd_s_(&nhitac);
+    PrintMessage(Form("Number of OD hits: %d", nhitac), vDebug);
 
     trginfo_(&trgofst);
     qismsk = skq_.qismsk;
+    PrintMessage(Form("Trigger offset: %f", trgofst), vDebug);
+    PrintMessage(Form("Total charge in ID: %f", qismsk), vDebug);
 }
 
 void NTagEventInfo::SetAPFitInfo()
@@ -86,7 +89,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     float apfitVertex[3];
     apfitVertex[0] = vx; apfitVertex[1] = vy; apfitVertex[2] = vz;
 
-    SubtractToF(unsortedT_ToF, sktqz_.tiskz, sktqz_.icabiz, apfitVertex);
+    SubtractToF(unsortedT_ToF, sktqz_.tiskz, sktqz_.icabiz, nqiskz, apfitVertex);
 
     // Sort: first hit first
     TMath::Sort(nqiskz, unsortedT_ToF, sortedIndex, false);
@@ -226,16 +229,16 @@ void NTagEventInfo::SearchCaptureCandidates()
     bool 	isFirstPeak = true;
     float	t0Previous = 0.;
     int    	N10i = 0;
-
+    
     // Loop over the saved TQ hit array from current event
     for(int iHit = 0; iHit < nqiskz; iHit++){
 
         // Save time of first hit
         if(firsthit == 0.) firsthit = sortedT_ToF[iHit];
-
+        
         // Calculate N10i:
         // number of hits in 10 ns window from the i-th hit
-          N10i = GetNhitsFromStartIndex(sortedT_ToF, iHit, 10.);
+        N10i = GetNhitsFromStartIndex(sortedT_ToF, nqiskz, iHit, 10.);
 
         // If N10TH <= N10i <= N10MX:
         if((N10i < N10TH) || (N10i > N10MX)) continue;
@@ -265,7 +268,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             // Calculate betas
             auto beta = GetBetaArray(sortedPMTID, iHit, N10i);
 
-              // Save info to the member variables
+            // Save info to the member variables
             nvx[np]			= vx;
             nvy[np] 		= vy;
             nvz[np] 		= vz;
@@ -374,7 +377,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         tbsovaq[iCapture] 	= tmptbsovaq;
 
         float nv[3];	// vertex to fit by minimizing tRMS
-        float minTRMS = MinimizeTRMS(tiskz50, cabiz50, nv);
+        float minTRMS = MinimizeTRMS(tiskz50, cabiz50, n50hits, nv);
 
         nvx[iCapture] = nv[0];
         nvy[iCapture] = nv[1];
@@ -382,7 +385,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         nwall[iCapture] = wallsk_(nv);
         trms50[iCapture] = minTRMS;
 
-        SubtractToF(tiskz50, tiskz50, cabiz50, nv, true);
+        SubtractToF(tiskz50, tiskz50, cabiz50, n50hits, nv, true);
 
         int N10in, tmpN10n = 0;
         float t0n = 0.;
@@ -390,7 +393,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Search for a new best N10 (N10n) from these new ToF corrected hits
         int n10index = 0;
         for(int iHit50 = 0; iHit50 < n50hits; iHit50++){
-            N10in = GetNhitsFromStartIndex(tiskz50, iHit50, 10.);
+            N10in = GetNhitsFromStartIndex(tiskz50, n50hits, iHit50, 10.);
             if(N10in > tmpN10n){
                 tmpN10n = N10in; n10index = iHit50;
                 t0n = (tiskz50[iHit50] + tiskz50[iHit50+tmpN10n-1]) / 2.;
@@ -561,12 +564,8 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int capID)
     return trueCaptureVertex;
 }
 
-float NTagEventInfo::SubtractToF(float t_ToF[], float T[], int PMTID[], float vertex[3], bool doSort)
+float NTagEventInfo::SubtractToF(float t_ToF[], float T[], int PMTID[], int nHits, float vertex[3], bool doSort)
 {
-    int nHits = sizeof(T) / sizeof(T[0]);
-    assert(nHits == sizeof(PMTID) / sizeof(PMTID[0]));
-    assert(nHits == sizeof(t_ToF) / sizeof(t_ToF[0]));
-
     // Subtract TOF from PMT hit time
     for(int iHit = 0; iHit < nHits; iHit++){
         int pmtID = PMTID[iHit] - 1;
@@ -599,11 +598,8 @@ float NTagEventInfo::SubtractToF(float t_ToF[], float T[], int PMTID[], float ve
     return sqrt(tVar);
 }
 
-float NTagEventInfo::MinimizeTRMS(float T[], int PMTID[], float rmsFitVertex[])
+float NTagEventInfo::MinimizeTRMS(float T[], int PMTID[], int nHits, float rmsFitVertex[])
 {
-    int nHits = sizeof(T) / sizeof(T[0]);
-    assert(nHits == sizeof(PMTID) / sizeof(PMTID[0]));
-
     float delta;
     bool doSort = true;
     (distanceCut > 200) ? delta = 100 : delta = distanceCut / 2.;
@@ -635,7 +631,7 @@ float NTagEventInfo::MinimizeTRMS(float T[], int PMTID[], float rmsFitVertex[])
 
                     float t_ToF[nHits];
                     float sV[3]; sV[0] = sVX; sV[1] = sVY; sV[2] = sVZ;
-                    tRMS = SubtractToF(t_ToF, T, PMTID, sV, doSort);
+                    tRMS = SubtractToF(t_ToF, T, PMTID, nHits, sV, doSort);
 
                     if(tRMS < minTRMS){
                         minTRMS = tRMS;
@@ -719,12 +715,8 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
     return result;
 }
 
-int NTagEventInfo::GetNhitsFromStartIndex(float T[], int startIndex, float tWidth)
+int NTagEventInfo::GetNhitsFromStartIndex(float T[], int nHits, int startIndex, float tWidth)
 {
-    try{ CheckSavedTQSize(startIndex); }
-    catch(int isError) { if(!isError) return 0; }
-
-    int nHits = sizeof(T) / sizeof(T[0]);
     int i = startIndex;
 
     while(1){
@@ -738,9 +730,6 @@ int NTagEventInfo::GetNhitsFromStartIndex(float T[], int startIndex, float tWidt
 
 float NTagEventInfo::GetQhitsFromStartIndex(int startIndex, float tWidth)
 {
-    try{ CheckSavedTQSize(startIndex); }
-    catch(int isError) { if(!isError) return 0.; }
-
     int i = startIndex;
     float sumQ = 0.;
     while(1){
@@ -755,9 +744,6 @@ float NTagEventInfo::GetQhitsFromStartIndex(int startIndex, float tWidth)
 
 float NTagEventInfo::GetTRMSFromStartIndex(float T[], int startIndex, float tWidth)
 {
-    try{ CheckSavedTQSize(startIndex); }
-    catch(int isError) { if(!isError) return 0.; }
-
     int nHits = sizeof(T) / sizeof(T[0]);
     int i = startIndex;
     std::vector<float> tList;
@@ -818,20 +804,9 @@ int NTagEventInfo::IsTrueGdCapture(int capID)
     return -9999;
 }
 
-void NTagEventInfo::CheckSavedTQSize(int startIndex)
-{
-    if(nqiskz == 0 && startIndex == 0){
-        PrintMessage("No hit saved in NTagEventInfo.", vDefault);
-        throw 0;
-    }
-    else if(startIndex >= nqiskz){
-        PrintMessage("Search start index is larger than the hit array size.", vError);
-    }
-}
-
 void NTagEventInfo::Clear()
-{
-    nrun = nsub = nev = trgtype = nhitac = 0;
+{   
+    nrun = nsub = nev = trgtype = nhitac = nqiskz = np = 0;
     trgofst = timnsk = qismsk = 0.;
     nring = nmue = ndcy = 0;
     evis = vx = vy = vz = towall = 0.;
@@ -850,7 +825,7 @@ void NTagEventInfo::Clear()
 
     for(int i = 0; i < 30*MAXNP; i++){
         sortedPMTID[i] = 0;
-        sortedT_ToF[i] = sortedQ[i] = 0.;
+        sortedT_ToF[i] = sortedQ[i] = unsortedT_ToF[i] = 0.;
     }
 
     for(int i = 0; i < APNMAXRG; i++){
@@ -859,7 +834,7 @@ void NTagEventInfo::Clear()
     }
 
     for(int i = 0; i < MAXNP; i++){
-        tindex[i] = n40index[i] = 0;
+        tindex[i] = 0;
         N10[i] =  N10n[i] =  N50[i] =  N200[i] =  N1300[i] = 0;
         sumQ[i] =  spread[i] =  trms[i] =  trmsold[i] =  trms50[i] = 0.;
         mintrms_3[i] =  mintrms_4[i] =  mintrms_5[i] =  mintrms_6[i] = 0.;
@@ -917,8 +892,6 @@ void NTagEventInfo::Clear()
 
 void NTagEventInfo::SetTMVAReader()
 {
-    reader->BookMVA("BDT method", "weights/BDT_Gd0.2p.xml");
-
     reader->AddVariable("evis", 		&evis);
     reader->AddVariable("N10", 			&mva_N10);
     reader->AddVariable("N200", 		&mva_N200);
@@ -932,17 +905,19 @@ void NTagEventInfo::SetTMVAReader()
     reader->AddVariable("beta3", 		&mva_beta3_50);
     reader->AddVariable("beta4", 		&mva_beta4_50);
     reader->AddVariable("beta5", 		&mva_beta5_50);
-    reader->AddVariable("AP_Nfit", 		&mva_AP_Nfit);
+    reader->AddVariable("AP_Nfit:=sqrt((vx-nvx)*(vx-nvx)+(vy-nvy)*(vy-nvy)+(vz-nvz)*(vz-nvz))", &mva_AP_Nfit);
     reader->AddVariable("tbsenergy", 	&mva_tbsenergy);
     reader->AddVariable("tbswall", 		&mva_tbswall);
     reader->AddVariable("tbsgood", 		&mva_tbsgood);
     reader->AddVariable("tbsdirks", 	&mva_tbsdirks);
     reader->AddVariable("tbspatlik", 	&mva_tbspatlik);
     reader->AddVariable("tbsovaq", 		&mva_tbsovaq);
-    reader->AddVariable("AP_BONSAI", 	&mva_AP_BONSAI);
+    reader->AddVariable("AP_BONSAI:=sqrt((vx-tbsvx)*(vx-tbsvx)+(vy-tbsvy)*(vy-tbsvy)+(vz-tbsvz)*(vz-tbsvz))", &mva_AP_BONSAI);
     reader->AddVariable("nwall", 		&mva_nwall);
     reader->AddVariable("trms40", 		&mva_trms50);
-    reader->AddVariable("Nfit_BONSAI",	&mva_Nfit_BONSAI);
+    reader->AddVariable("Nfit_BONSAI:=sqrt((nvx-tbsvx)*(nvx-tbsvx)+(nvy-tbsvy)*(nvy-tbsvy)+(nvz-tbsvz)*(nvz-tbsvz))", &mva_Nfit_BONSAI);
+    
+    reader->BookMVA("BDT method", "weights/BDT_Gd0.2p.xml");
 }
 
 void NTagEventInfo::PrintTag(unsigned int vType)
@@ -953,6 +928,7 @@ void NTagEventInfo::PrintTag(unsigned int vType)
             break;
         case vWarning:
             std::cout << "\033[4;33m" << "[NTag WARNING] ";
+            break;
         case vError:
             std::cerr << "\033[4;31m" << "[Error in NTag] ";
             break;
