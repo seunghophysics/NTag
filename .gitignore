@@ -3,3 +3,6 @@ obj/
 
 # binaries
 bin/
+
+# root-related
+*.root*
