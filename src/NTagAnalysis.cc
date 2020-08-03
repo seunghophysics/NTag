@@ -54,7 +54,10 @@ void NTagAnalysis::OpenFile(const char* fileName)
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
-    skheadg_.sk_geometry = 5; geoset_();
+    skheadg_.sk_geometry = 4; geoset_();
+    
+    // Initialize BONSAI
+    bonsai_ini_();
 }
 
 void NTagAnalysis::ReadFile()
@@ -103,10 +106,12 @@ void NTagAnalysis::ReadEvent()
 
 void NTagAnalysis::WriteOutput()
 {
-    TFile* file = new TFile("nTagOutput.root", "recreate");
+    TFile* file = new TFile("out/nTagOutput.root", "recreate");
     ntvarTree->Write();
     if(!bData) truthTree->Write();
     file->Close();
+    
+    bonsai_end_();
 }
 
 void NTagAnalysis::CreateBranchesToTruthTree()
@@ -216,11 +221,11 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("tbsvy", tbsvy, "tbsvy[np]/F");
     ntvarTree->Branch("tbsvz", tbsvz, "tbsvz[np]/F");
     ntvarTree->Branch("tbsvt", tbsvt, "tbsvt[np]/F");
-    ntvarTree->Branch("tbswall",	tbswall, "tbswall[np]/F");
-    ntvarTree->Branch("tbsgood",	tbsgood, "tbsgood[np]/F");
+    ntvarTree->Branch("tbswall", tbswall, "tbswall[np]/F");
+    ntvarTree->Branch("tbsgood", tbsgood, "tbsgood[np]/F");
     ntvarTree->Branch("tbsdirks", tbsdirks, "tbsdirks[np]/F");
     ntvarTree->Branch("tbspatlik", tbspatlik, "tbspatlik[np]/F");
-    ntvarTree->Branch("tbsovaq",	tbsovaq, "tbsovaq[np]/F");
+    ntvarTree->Branch("tbsovaq", tbsovaq, "tbsovaq[np]/F");
     ntvarTree->Branch("g2d2", g2d2, "g2d2[np]/F");
     ntvarTree->Branch("goodn", goodn, "goodn[np]/I");
     ntvarTree->Branch("beta14", beta14_10, "beta14[np]/F");
@@ -248,7 +253,7 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("evis", &evis, "evis/F");
     ntvarTree->Branch("nhitac", &nhitac, "nhitac/I");
     ntvarTree->Branch("ndcy", &ndcy, "ndcy/I");
-    ntvarTree->Branch("qismsk", &qismsk, "qismsk/I");
+    ntvarTree->Branch("qismsk", &qismsk, "qismsk/F");
     ntvarTree->Branch("apnmue", &nmue, "apnmue/I");
     ntvarTree->Branch("apnring", &nring, "apnring/I");
     ntvarTree->Branch("apip", apip, "apip[apnring]/I");
@@ -260,8 +265,8 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     
     if(!bData){
         ntvarTree->Branch("nGd", nGd, "nGd[np]/I");
-        ntvarTree->Branch("timeRes",	timeRes, "timeRes[np]/F");
-        ntvarTree->Branch("doubleCount",	doubleCount, "doubleCount[np]/I");
+        ntvarTree->Branch("timeRes", timeRes, "timeRes[np]/F");
+        ntvarTree->Branch("doubleCount", doubleCount, "doubleCount[np]/I");
         ntvarTree->Branch("mctrue_nn", &mctrue_nn, "mctrue_nn/I");
         ntvarTree->Branch("realneutron",realneutron, "realneutron[np]/I");
         ntvarTree->Branch("truth_vx", truth_vx, "truth_vx[np]/F");
