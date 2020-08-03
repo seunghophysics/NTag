@@ -33,7 +33,7 @@ CXXFLAGS += -std=c++11
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
-bin/main: obj/bonsai.o $(OBJS) obj/main.o bin
+bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out
 	@echo "[NTag] Building the main program..."
 	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
 	@echo "[NTag] Done!"
@@ -50,7 +50,7 @@ obj/%.o: src/%.cc obj
 	@echo "[NTag] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-bin obj:
+bin obj out:
 	@mkdir $@
 
 .PHONY: clean
