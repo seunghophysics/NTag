@@ -1,40 +1,49 @@
 include $(ATMPD_ROOT)/config.gmk
 
+SHELL := /bin/bash
+
 NTAG_GD_ROOT = $(shell pwd)
 
 ROOT_INC     = $(shell root-config --cflags)
 ROOT_LIBS    = $(shell root-config --libs)
 
-LOCAL_INC = -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/recon/fitqun \
-			-I$(ATMPD_ROOT)/src/analysis/neutron/ntag_gd
+OLD_ROOT     = $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd
+TMVASYS      = /disk02/usr6/han/Apps/TMVA
+#TMVASETUP   := $(shell . ${TMVASYS}/test/setup.sh ${TMVASYS})
+#$(info [NTag] $$TMVASYS is ${TMVASYS})
+
+LOCAL_INC    = -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/recon/fitqun \
+			   -I$(OLD_ROOT) \
+			   -I$(TMVASYS)/inc
 
 FORTRANINCLUDES += -I$(SKOFL_FORTRAN_INCDIR)/lowe
 
-LOCAL_LIBS = $(APLIB) \
-			-lsklowe_7.0 -lsollib_4.0 -lwtlib_5.1 -lbonsai_3.3 \
-			-L/home/iida/relic/lib -lrelic \
-			-lTMVA -lMinuit -lXMLIO -lMLP
+LOCAL_LIBS   = $(APLIB) \
+			   -lsklowe_7.0 -lsollib_4.0 -lwtlib_5.1 -lbonsai_3.3 -lstmu -lska \
+			   -L$(TMVASYS)/lib -lTMVA.1 \
+			   $(ROOT_LIBS) -lMinuit -lXMLIO -lMLP
 
-APLIB =  -lapdrlib -laplib -lringlib  -ltp -ltf -lringlib \
+
+APLIB =  -lapdrlib -laplib -lringlib -ltp -ltf -lringlib \
 	 -laplib -lmsfit -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
 	 -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k
 
-CXXFLAGS += -std=c++11 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.2/ -lgfortran
+CXXFLAGS += -std=c++11
 
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
 bin/main: obj/bonsai.o $(OBJS) obj/main.o bin
-	@echo "[NTagGd] Building the main program..."
+	@echo "[NTag] Building the main program..."
 	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
-	@echo "[NTagGd] Done!"
+	@echo "[NTag] Done!"
 
 obj/bonsai.o: src/bonsai.F obj
-	@echo "[NTagGd] Building BONSAI..."
+	@echo "[NTag] Building BONSAI..."
 	@$(FC) $(FCFLAGS) -c $< -o $@
 
 obj/main.o: main.cc obj
-	@echo "[NTagGd] Building main..."
+	@echo "[NTag] Building main..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 obj/%.o: src/%.cc obj
@@ -46,4 +55,4 @@ bin obj:
 
 .PHONY: clean
 clean:
-	@$(RM) -r *.o *~ *.log obj bin
+	@$(RM) -rf *.o *~ .rootrc .rootmap *.log obj bin
