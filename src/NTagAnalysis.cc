@@ -133,7 +133,7 @@ void NTagAnalysis::CreateBranchesToTruthTree()
     truthTree->Branch("capPos", capPos, "capPos[nCT][3]/F");
     truthTree->Branch("nGam", nGam, "nGam[nCT]/I");
     truthTree->Branch("totGamEn", totGamEn, "totGamEn[nCT]/F");
-    truthTree->Branch("nscnd", &nscndprt, "nscnd/I");
+    truthTree->Branch("nscnd", &nscnd, "nscnd/I");
     truthTree->Branch("iprtscnd", iprtscnd, "iprtscnd[nscnd]/I");
     truthTree->Branch("lmecscnd", lmecscnd, "lmecscnd[nscnd]/I");
     truthTree->Branch("iprntprt", iprntprt, "iprntprt[nscnd]/I");

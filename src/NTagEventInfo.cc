@@ -64,7 +64,7 @@ void NTagEventInfo::SetAPFitInfo()
 
     // E_vis
     evis = apcomene_.apevis;
-    PrintMessage(Form("e_vis: %f", evis));
+    PrintMessage(Form("e_vis: %f", evis), vDebug);
 
     // AP ring information
     nring = apcommul_.apnring;
@@ -143,6 +143,7 @@ void NTagEventInfo::SetMCInfo()
 
     // initialize number of n captures
     nCT = 0;
+    nscnd = 0;
 
     // ?
     float ZBLST = 5.30;
@@ -153,73 +154,89 @@ void NTagEventInfo::SetMCInfo()
     apflscndprt_();
     int nSecNeutron = 0;
     nscndprt = secndprt_.nscndprt;
-
+    
     for(int iSec = 0; iSec < secndprt_.nscndprt; iSec++){
 
-        iprtscnd[iSec] = secndprt_.iprtscnd[iSec];              // PID of secondaries
+        iprtscnd[nscnd] = secndprt_.iprtscnd[iSec];              // PID of secondaries
 
         // Save secondary info if PID is either deuteron, gamma, or neutron
         // (no capture electrons?)
-        if(iprtscnd[iSec] == 100045 || iprtscnd[iSec] == 22|| iprtscnd[iSec] == 2112){
-            lmecscnd[iSec] = secndprt_.lmecscnd[iSec];          // creation process
-            iprntprt[iSec] = secndprt_.iprntprt[iSec];          // parent PID
-            vtxscnd[iSec][0] = secndprt_.vtxscnd[iSec][0];      // creation vertex
-            vtxscnd[iSec][1] = secndprt_.vtxscnd[iSec][1];
-            vtxscnd[iSec][2] = secndprt_.vtxscnd[iSec][2];
-            wallscnd[iSec] = wallsk_(vtxscnd[iSec]);            // distance from wall to creation vertex
-            pscnd[iSec][0] = secndprt_.pscnd[iSec][0];          // momentum vector
-            pscnd[iSec][1] = secndprt_.pscnd[iSec][1];
-            pscnd[iSec][2] = secndprt_.pscnd[iSec][2];
-            pabsscnd[iSec] = Norm(pscnd[iSec]);                 // momentum
-            tscnd[iSec] = secndprt_.tscnd[iSec];                // time created
-            capId[iSec] = -1;                                   // initialize capture index
-                                                                // (-1: not from n capture)
-
+        if(iprtscnd[nscnd] == 100045 || iprtscnd[nscnd] == 22|| iprtscnd[nscnd] == 2112){
+            lmecscnd[nscnd] = secndprt_.lmecscnd[iSec];          // creation process
+            iprntprt[nscnd] = secndprt_.iprntprt[iSec];          // parent PID
+            vtxscnd[nscnd][0] = secndprt_.vtxscnd[iSec][0];      // creation vertex
+            vtxscnd[nscnd][1] = secndprt_.vtxscnd[iSec][1];
+            vtxscnd[nscnd][2] = secndprt_.vtxscnd[iSec][2];
+            wallscnd[nscnd] = wallsk_(vtxscnd[nscnd]);           // distance from wall to creation vertex
+            pscnd[nscnd][0] = secndprt_.pscnd[iSec][0];          // momentum vector
+            pscnd[nscnd][1] = secndprt_.pscnd[iSec][1];
+            pscnd[nscnd][2] = secndprt_.pscnd[iSec][2];
+            pabsscnd[nscnd] = Norm(pscnd[nscnd]);                // momentum
+            tscnd[nscnd] = secndprt_.tscnd[iSec];                // time created
+            capId[nscnd] = -1;                                   // initialize capture index
+                                                                 // (-1: not from n capture)
+            
+            float vtxR2 = vtxscnd[nscnd][0]*vtxscnd[nscnd][0] + vtxscnd[nscnd][1]*vtxscnd[nscnd][1]; 
+            
             int inPMT;
-            inpmt_(vtxscnd[iSec], inPMT);
+            inpmt_(vtxscnd[nscnd], inPMT);
 
-            // ?
-            if(iprtscnd[iSec] == 2112){
-                /*iSec += 1;*/
+            // Save all neutrons
+            if(iprtscnd[nscnd] == 2112){
                 nSecNeutron++;
                 PrintMessage(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
-                             nSecNeutron, tscnd[iSec]*1e-3, pabsscnd[iSec]), vDebug);
+                             nSecNeutron, tscnd[nscnd]*1e-3, pabsscnd[iSec]), vDebug);
+                nscnd += 1;
             }
 
             // Check if the capture is within ID volume
-            else if(Norm(vtxscnd[iSec]) < dr*dr && fabs(vtxscnd[iSec][2]) < dz && !inPMT){
+            else if(vtxR2 < dr*dr && fabs(vtxscnd[nscnd][2]) < dz && inPMT == 0){
+            
                 // particle produced by n-capture
-                if(lmecscnd[iSec] == 18){
+                if(lmecscnd[nscnd] == 18){
+                
                     bool isNewCapture = true;
-                    for(int j = 0; j < nCT; j++){
+                    
+                    for(int iCheckedCT = 0; iCheckedCT < nCT; iCheckedCT++){
+                    
                         // If this capture is already saved:
-                        if(fabs((double)(tscnd[iSec]-captureTime[j])) < 1.e-7) {
-                          isNewCapture = false;
+                        if(fabs((double)(tscnd[nscnd] - captureTime[iCheckedCT])) < 1.e-7) {
+                            
+                            isNewCapture = false;
+                            
                             // Add capture product gammas to the pre-existing stack
-                            if(iprtscnd[iSec] == 22){
-                                nGam[j] += 1;
-                                totGamEn[j] += pabsscnd[iSec];
-                                capId[iSec] = j;}
+                            if(iprtscnd[nscnd] == 22){
+                                PrintMessage(Form("Gamma from already saved capture... capId %d", iCheckedCT), vDebug);
+                                nGam[iCheckedCT] += 1;
+                                totGamEn[iCheckedCT] += pabsscnd[nscnd];
+                                capId[nscnd] = iCheckedCT;
+                            }
                         }
-                  }
+                    }
+                  
                     // If this capture product is new,
                     // save it as a new element in each array
                     if(isNewCapture){
-                        captureTime[nCT] = tscnd[iSec];
-                        capPos[nCT][0] = vtxscnd[iSec][0];
-                        capPos[nCT][1] = vtxscnd[iSec][1];
-                        capPos[nCT][2] = vtxscnd[iSec][2];
+                        captureTime[nCT] = tscnd[nscnd];
+                        capPos[nCT][0] = vtxscnd[nscnd][0];
+                        capPos[nCT][1] = vtxscnd[nscnd][1];
+                        capPos[nCT][2] = vtxscnd[nscnd][2];
+                        
                         // Add capture product gamma to the new elements
-                        if(iprtscnd[iSec] == 22){
+                        if(iprtscnd[nscnd] == 22){
+                            PrintMessage(Form("Gamma from new capture... capId %d", nCT), vDebug);
                             nGam[nCT] = 1;
-                            totGamEn[nCT] = pabsscnd[iSec];
-                            capId[iSec] = nCT;
+                            totGamEn[nCT] = pabsscnd[nscnd];
+                            capId[nscnd] = nCT;
                         }
+                        
                         else { nGam[nCT] = 0; totGamEn[nCT] = 0.; }
                         // Increment number of neutron captures
                         nCT += 1;
                     }
                 }
+            // Save deuterons and gammas within ID volume
+            nscnd += 1;
             }
         }
     }
@@ -251,27 +268,30 @@ void NTagEventInfo::SearchCaptureCandidates()
         // If N10TH <= N10i <= N10MX:
         if((N10i < N10TH) || (N10i > N10MX)) continue;
         // We've found a new peak.
-
+        
+        // t0 of new peak
+        float t0New = sortedT_ToF[iHit];
+        
         // Save maximum N200 and its t0
-        float tmpN200 = GetNhitsFromCenterTime(sortedT_ToF[iHit] + 5., 200.);
-        if(sortedT_ToF[iHit] > 2.e4 && tmpN200 > N200M){
+        float tmpN200 = GetNhitsFromCenterTime(t0New + 5., 200.);
+        if(t0New > 2.e4 && tmpN200 > N200M){
             N200M = tmpN200;
-            T200M = sortedT_ToF[iHit];
+            T200M = t0New;
           }
 
         // Skip the first peak in event
         if(isFirstPeak){
             isFirstPeak = false;
-            t0Previous = sortedT_ToF[iHit];
+            t0Previous = t0New;
             continue;
         }
 
         // If peak t0 diff = t0_new - t0_previous > 20 ns, save.
         // Also check if N200 is below N200 cut and if t0 is over t0 threshold
-        if(sortedT_ToF[iHit] - t0Previous > 20. && tmpN200 < N200MX && sortedT_ToF[iHit]*1.e-3 > T0TH+1){
+        if(t0New - t0Previous > 50. && tmpN200 < N200MX && t0New*1.e-3 > T0TH+1){
 
             // Set t0Previous for the next peak
-            t0Previous = sortedT_ToF[iHit];
+            t0Previous = t0New;
 
             // Calculate betas
             auto beta = GetBetaArray(sortedPMTID, iHit, N10i);
@@ -732,7 +752,7 @@ int NTagEventInfo::GetNhitsFromStartIndex(float T[], int nHits, int startIndex, 
 
     while(1){
         i++;
-        if((i > nHits -1) || (TMath::Abs((T[i] - T[startIndex])) > tWidth))
+        if((i > nHits-1) || (TMath::Abs((T[i] - T[startIndex])) > tWidth))
             break;
     }
     // Return number of hits within the time window
@@ -825,7 +845,7 @@ void NTagEventInfo::Clear()
     N200M = 0;
     mctrue_nn = 0;
     ip0 = 0;
-    nscndprt = 0;
+    nscnd = 0; nscndprt = 0;
     broken = 0;
     lasthit = 0; firsthit = 0; firstflz = 0;
     px = 0; py = 0; pz = 0;

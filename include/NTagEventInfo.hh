@@ -155,7 +155,7 @@ class NTagEventInfo
         /**/    float   truth_vx[MAXNP], truth_vy[MAXNP], truth_vz[MAXNP], timeRes[MAXNP];
         /**/
         /**/    // Variables from secondaries
-        /**/    int     nscndprt; 
+        /**/    int     nscnd, nscndprt; 
         /**/    int 	iprtscnd[SECMAXRNG], lmecscnd[SECMAXRNG], iprntprt[SECMAXRNG];
         /**/    float 	vtxscnd[SECMAXRNG][3], pscnd[SECMAXRNG][3];
         /**/    float 	wallscnd[SECMAXRNG], pabsscnd[SECMAXRNG], tscnd[SECMAXRNG];
