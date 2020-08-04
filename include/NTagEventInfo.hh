@@ -81,93 +81,78 @@ class NTagEventInfo
         bool bData;
 
         /******************************************************************************************/
-        // Data/fit info
+        // Data/fit event info
         /******************************************************************************************/
         /**/
         /**/    // SK data variables
-        /**/    int     nrun, nsub, nev, trgtype, nhitac;
-        /**/    float   trgofst, timnsk, qismsk;
-        /**/    int     nqiskz, sortedPMTID[30*MAXPM];
-        /**/    float   sortedT_ToF[30*MAXPM], unsortedT_ToF[30*MAXPM], sortedQ[30*MAXPM];
+        /**/    int                 nrun, nsub, nev, trgtype, nhitac;
+        /**/    float               trgofst, timnsk, qismsk;
+        /**/    int                 nqiskz;
+        /**/    std::vector<int>    vSortedPMTID;
+        /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
         /**/    // APFit variables
-        /**/    int     nring, nmue, ndcy;
-        /**/    float   evis, vx, vy, vz, towall;
-        /**/    int     apip[APNMAXRG];
-        /**/    float   apamom[APNMAXRG], amome[APNMAXRG], amomm[APNMAXRG];
+        /**/    int                 nring, nmue, ndcy;
+        /**/    float               evis, apvx, apvy, apvz, towall;
+        /**/    std::vector<int>    vApip;
+        /**/    std::vector<float>  vApamom, vApmome, vApmomm;
         /**/
         /**/        // Variables for neutron capture candidates
-        /**/        int     np, N200M;
-        /**/        int     tindex[MAXNP];
-        /**/        int     N10[MAXNP], N10n[MAXNP], N50[MAXNP], N200[MAXNP], N1300[MAXNP];
-        /**/        float   T200M;
-        /**/        float   sumQ[MAXNP], spread[MAXNP], trms[MAXNP], trmsold[MAXNP], trms50[MAXNP];
-        /**/        float   mintrms_3[MAXNP], mintrms_4[MAXNP], mintrms_5[MAXNP], mintrms_6[MAXNP];
-        /**/        float   dt[MAXNP], dtn[MAXNP];
-        /**/        float   nvx[MAXNP], nvy[MAXNP], nvz[MAXNP], nwall[MAXNP];
-        /**/        float   tvx[MAXNP], tvy[MAXNP], tvz[MAXNP]; 
-        /**/        int     doubleCount[MAXNP], goodn[MAXNP];
+        /**/        int                 np, N200M;
+        /**/        float               T200M, firsthit;
+        /**/        std::vector<int>    vTindex, vN10, vN10n, vN50, vN200, vN1300;
+        /**/        std::vector<float>  vSumQ, vSpread, vTrms, vTrmsold, vTrms50;
+        /**/        std::vector<float>  vDt, vDtn, vNvx, vNvy, vNvz, vNwall;
+        /**/        std::vector<float>  vDoubleCount;
         /**/
         /**/        // BONSAI variables
-        /**/        float   tbsenergy[MAXNP], tbsenergy2[MAXNP];
-        /**/        float   tbsvx[MAXNP], tbsvy[MAXNP], tbsvz[MAXNP], tbsvt[MAXNP];
-        /**/        float   tbswall[MAXNP], tbsgood[MAXNP];
-        /**/        float   tbspatlik[MAXNP], tbsdirks[MAXNP], tbsovaq[MAXNP];
-        /**/        float   bsenergy[MAXNP], bsenergy2[MAXNP], 
-        /**/                bsvertex0[MAXNP], bsvertex1[MAXNP], bsvertex2[MAXNP];
-        /**/        float   bsgood[MAXNP];
+        /**/        std::vector<float>  vBenergy, vBvx, vBvy, vBvz, vBvt;
+        /**/        std::vector<float>  vBwall, vBgood, vBpatlik, vBdirks, vBovaq;
         /**/
         /**/        // Beta variables
-        /**/        float   beta14_10[MAXNP], beta14_50[MAXNP];
-        /**/        float   beta1_50[MAXNP], beta2_50[MAXNP], beta3_50[MAXNP], beta4_50[MAXNP], beta5_50[MAXNP];
-        /**/
-        /**/    // probably obsolete or not needed
-        /**/    int     mctrue_nn, ip0, broken;
-        /**/    float   lasthit, firsthit, firstflz, bt;
-        /**/    float   ratio[MAXNP], phirms[MAXNP], thetam[MAXNP], summedWeight[MAXNP], g2d2[MAXNP];
-        /**/    int     Nback[MAXNP], Neff[MAXNP], Nc1[MAXNP], NhighQ[MAXNP], Nlow[9][MAXNP], 
-        /**/            Nc[MAXNP], Ncluster[MAXNP], Nc8[MAXNP], Ncluster8[MAXNP], 
-        /**/            Nc7[MAXNP], Ncluster7[MAXNP], N12[MAXNP], N20[MAXNP], N300[MAXNP];
-        /**/		
-        /**/    float 	px, py, pz, npx[MAXNP], npy[MAXNP], npz[MAXNP],
-        /**/    		dirx, diry, dirz, ndirx[MAXNP], ndiry[MAXNP], ndirz[MAXNP];
+        /**/        std::vector<float>  vBeta14_10, vBeta14_50;
+        /**/        std::vector<float>  vBeta1_50, vBeta2_50, vBeta3_50, vBeta4_50, vBeta5_50;
         /**/
         /**/    // TMVA inputs and output
-        /**/    float   mva_N10, mva_N50, mva_N200;
-        /**/    float 	mva_evis, mva_dt, mva_sumQ, mva_spread, mva_trmsold, mva_nwall, mva_trms50;
-        /**/    float	mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
-        /**/    float 	mva_tbsenergy, mva_tbswall, mva_tbsgood, mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
-        /**/    float 	mva_AP_Nfit, mva_AP_BONSAI, mva_Nfit_BONSAI;
-        /**/    float   TMVAoutput[MAXNP];
+        /**/    float               mva_N10, mva_N50, mva_N200;
+        /**/    float               mva_dt, mva_trmsold, mva_trms50;
+        /**/    float               mva_nwall, mva_evis, mva_sumQ, mva_spread;
+        /**/    float               mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
+        /**/    float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
+        /**/    float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
+        /**/    float               mva_AP_Nfit, mva_AP_BONSAI, mva_Nfit_BONSAI;
+        /**/    std::vector<float>  TMVAoutput;
         /**/
         /******************************************************************************************/
 
         /******************************************************************************************/
-        // MC truth info
+        // MC truth event info
         /******************************************************************************************/
         /**/
         /**/    // Variables for true neutron capture
-        /**/    int     nCT, nGam[kMaxCT];
-        /**/    float   captureTime[kMaxCT], capPos[kMaxCT][3], totGamEn[kMaxCT];
+        /**/    int                 nCT;
+        /**/    std::vector<int>    vNGam;
+        /**/    std::vector<float>  vCaptureTime, vCapPosx, vCapPosy, vCapPosz, vTotGamE;
         /**/
         /**/    // Variables for neutron capture candidates
-        /**/    int     nGd[MAXNP], realneutron[MAXNP];
-        /**/    float   truth_vx[MAXNP], truth_vy[MAXNP], truth_vz[MAXNP], timeRes[MAXNP];
+        /**/    std::vector<int>    vIsGdCapture, vIsTrueCapture;
+        /**/    std::vector<float>  vTruth_vx, vTruth_vy, vTruth_vz, vTimeDiff;
         /**/
         /**/    // Variables from secondaries
-        /**/    int     nscnd, nscndprt; 
-        /**/    int 	iprtscnd[SECMAXRNG], lmecscnd[SECMAXRNG], iprntprt[SECMAXRNG];
-        /**/    float 	vtxscnd[SECMAXRNG][3], pscnd[SECMAXRNG][3];
-        /**/    float 	wallscnd[SECMAXRNG], pabsscnd[SECMAXRNG], tscnd[SECMAXRNG];
-        /**/    int 	capId[SECMAXRNG];
+        /**/    int                 nscnd, nscndprt;
+        /**/    std::vector<int> 	vIprtscnd, vLmecscnd, vIprntprt, vCaptureID;
+        /**/    std::vector<float> 	vVtxscndx, vVtxscndy, vVtxscndz, vPscndx, vPscndy, vPscndz;
+        /**/    std::vector<float> 	vWallscnd, vPabsscnd, vTscnd;
         /**/
         /**/    // Variables for neutrino interaction
-        /**/    int    	nN, modene, numne, ipne[kMaxCT];
-        /**/    float  	pnu;
+        /**/    int    	            nN, modene, numne;
+        /**/    float  	            pnu;
+        /**/    std::vector<int>    vIpne;
         /**/
         /**/    // Variables from primary stack
-        /**/    int   	nvect, ip[SECMAXRNG];
-        /**/    float  	pos[3], pin[SECMAXRNG][3], pabs[SECMAXRNG];
+        /**/    int                 nvect;
+        /**/    std::vector<int>    vIp;
+        /**/    std::vector<float>  vPosx, vPosy, vPosz, vPinx, vPiny, vPinz, vPabs;
         /**/
         /******************************************************************************************/
 };
