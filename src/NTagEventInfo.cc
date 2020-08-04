@@ -22,7 +22,7 @@
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(5), N10MX(50), N200MX(140), T0TH(2.), distanceCut(4000.), tMatchWindow(40.),
-fVerbosity(vDefault), bData(false)
+fVerbosity(pDEFAULT), bData(false)
 {
     reader = new TMVA::Reader("!Color:!Silent");
     SetTMVAReader();
@@ -35,16 +35,16 @@ void NTagEventInfo::SetEventHeader()
     nrun = skhead_.nrunsk;
     nsub = skhead_.nsubsk;
     nev = skhead_.nevsk;
-    PrintMessage(Form("RUN %d SUBRUN %d EVENT %d", nrun, nsub, nev), vDebug);
+    PrintMessage(Form("RUN %d SUBRUN %d EVENT %d", nrun, nsub, nev), pDEBUG);
     
     // Get number of OD hits
     odpc_2nd_s_(&nhitac);
-    PrintMessage(Form("Number of OD hits: %d", nhitac), vDebug);
+    PrintMessage(Form("Number of OD hits: %d", nhitac), pDEBUG);
 
     trginfo_(&trgofst);
     qismsk = skq_.qismsk;
-    PrintMessage(Form("Trigger offset: %f", trgofst), vDebug);
-    PrintMessage(Form("Total charge in ID: %f", qismsk), vDebug);
+    PrintMessage(Form("Trigger offset: %f", trgofst), pDEBUG);
+    PrintMessage(Form("Total charge in ID: %f", qismsk), pDEBUG);
 }
 
 void NTagEventInfo::SetAPFitInfo()
@@ -61,12 +61,12 @@ void NTagEventInfo::SetAPFitInfo()
     float tmp_v[3] = {apvx, apvy, apvz};
     towall = wallsk_(tmp_v);
     
-    PrintMessage(Form("APFit vertex: %f, %f, %f", apvx, apvy, apvz), vDebug);
-    PrintMessage(Form("d_wall: %f", towall), vDebug);
+    PrintMessage(Form("APFit vertex: %f, %f, %f", apvx, apvy, apvz), pDEBUG);
+    PrintMessage(Form("d_wall: %f", towall), pDEBUG);
 
     // E_vis
     evis = apcomene_.apevis;
-    PrintMessage(Form("e_vis: %f", evis), vDebug);
+    PrintMessage(Form("e_vis: %f", evis), pDEBUG);
 
     // AP ring information
     nring = apcommul_.apnring;
@@ -76,7 +76,7 @@ void NTagEventInfo::SetAPFitInfo()
         vApmome[iRing].push_back( appatsp2_.apmsamom[iRing][1] );  // e-like momentum
         vApmomm[iRing].push_back( appatsp2_.apmsamom[iRing][2] );  // mu-like momentum
     }
-    PrintMessage(Form("APFit number of rings: %d", nring), vDebug);
+    PrintMessage(Form("APFit number of rings: %d", nring), pDEBUG);
     
     // mu-e check
     nmue = apmue_.apnmue; ndcy = 0;
@@ -91,7 +91,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     nqiskz = sktqz_.nqiskz;
     int sortedIndex[nqiskz], pmtID;
     
-    PrintMessage(Form("NQISKZ: %d", nqiskz), vDebug);
+    PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
     
     // Subtract TOF from PMT hit time
     float apfitVertex[3] = {apvx, apvy, apvz};
@@ -105,7 +105,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
         vSortedPMTID[iHit].push_back(sktqz_.icabiz[ sortedIndex[iHit] ]);
         vSortedT_ToF[iHit].push_back(vUnsortedT_ToF[ sortedIndex[iHit] ]);
         vSortedQ[iHit].push_back([ sortedIndex[iHit] ]);
-        //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), vDebug);
+        //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
     }
 }
 
@@ -139,7 +139,7 @@ void NTagEventInfo::SetMCInfo()
         vIpne[i] = nework_.ipne[i];          // check particle code
         if(vIpne[i] == 2112 && i >= 3) nN++; // count neutrons
     }
-    PrintMessage(Form("Number of neutrons in primary stack: %d", nN), vDebug);
+    PrintMessage(Form("Number of neutrons in primary stack: %d", nN), pDEBUG);
 
     // initialize number of n captures
     nCT = 0;
@@ -185,7 +185,7 @@ void NTagEventInfo::SetMCInfo()
             if(vIprtscnd[nscnd] == 2112){
                 nSecNeutron++;
                 PrintMessage(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
-                             nSecNeutron, vTscnd[nscnd]*1e-3, vPabsscnd[iSec]), vDebug);
+                             nSecNeutron, vTscnd[nscnd]*1e-3, vPabsscnd[iSec]), pDEBUG);
                 nscnd += 1;
             }
 
@@ -206,7 +206,7 @@ void NTagEventInfo::SetMCInfo()
                             
                             // Add capture product gammas to the pre-existing stack
                             if(vIprtscnd[nscnd] == 22){
-                                PrintMessage(Form("Gamma from already saved capture... vCaptureID %d", iCheckedCT), vDebug);
+                                PrintMessage(Form("Gamma from already saved capture... vCaptureID %d", iCheckedCT), pDEBUG);
                                 vNGam[iCheckedCT] += 1;
                                 vTotGamE[iCheckedCT] += vPabsscnd[nscnd];
                                 vCaptureID[nscnd] = iCheckedCT;
@@ -224,7 +224,7 @@ void NTagEventInfo::SetMCInfo()
                         
                         // Add capture product gamma to the new elements
                         if(vIprtscnd[nscnd] == 22){
-                            PrintMessage(Form("Gamma from new capture... vCaptureID %d", nCT), vDebug);
+                            PrintMessage(Form("Gamma from new capture... vCaptureID %d", nCT), pDEBUG);
                             vNGam[nCT] = 1;
                             vTotGamE[nCT] = vPabsscnd[nscnd];
                             vCaptureID[nscnd] = nCT;
@@ -243,10 +243,10 @@ void NTagEventInfo::SetMCInfo()
 
     for(int i = 0; i < nCT; i++){
         PrintMessage(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV]",
-                          i, vCaptureTime[i]*1e-3, vTotGamE[i]), vDebug);
+                          i, vCaptureTime[i]*1e-3, vTotGamE[i]), pDEBUG);
     }
-    PrintMessage(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), vDebug);
-    PrintMessage(Form("Number of captures: %d", nCT), vDebug);
+    PrintMessage(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
+    PrintMessage(Form("Number of captures: %d", nCT), pDEBUG);
 }
 
 void NTagEventInfo::SearchCaptureCandidates()
@@ -316,9 +316,9 @@ void NTagEventInfo::SearchCaptureCandidates()
             np++;
 
             if(np >= MAXNP-1){
-                PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), vWarning);
-                PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), vWarning);
-                PrintMessage(Form("Skipping remaining neutrons..."), vWarning);
+                PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), pWARNING);
+                PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), pWARNING);
+                PrintMessage(Form("Skipping remaining neutrons..."), pWARNING);
                 break;
             }
         }
@@ -577,7 +577,7 @@ float NTagEventInfo::TrueCaptureTime(int candidateID)
             return vCaptureTime[iCapture];
     }
     if(!IsTrueCapture(candidateID))
-        PrintMessage("A false neutron signal is passsed to TrueCaptureTime!", vError);
+        PrintMessage("A false neutron signal is passsed to TrueCaptureTime!", pERROR);
 
     return 0.;
 }
@@ -594,7 +594,7 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
         }
     }
     if(!IsTrueCapture(candidateID))
-        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", vError);
+        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", pERROR);
 
     return trueCaptureVertex;
 }
@@ -733,7 +733,7 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
     float result = 0.;
     
     if(i < 0 || i > 5){
-        PrintMessage(Form("Incompatible i (%d) is passed to GetLegendreP.", i), vError);
+        PrintMessage(Form("Incompatible i (%d) is passed to GetLegendreP.", i), pERROR);
     }
     switch(i){
         case 1:
@@ -966,13 +966,13 @@ void NTagEventInfo::SetTMVAReader()
 void NTagEventInfo::PrintTag(unsigned int vType)
 {
     switch(vType){
-        case vDefault:
+        case pDEFAULT:
             std::cout << "[NTag] "; break;
-        case vWarning:
+        case pWARNING:
             std::cout << "\033[4;33m" << "[NTag WARNING] "; break;
-        case vError:
+        case pERROR:
             std::cerr << "\033[4;31m" << "[Error in NTag] "; break;
-        case vDebug:
+        case pDEBUG:
             std::cout << "\033[0;34m" << "[NTag DEBUG] "; break;
     }
 }
@@ -981,7 +981,7 @@ void NTagEventInfo::PrintMessage(TString msg, unsigned int vType)
 {
     if(vType <= fVerbosity){
         PrintTag(vType);
-        if(vType == vError){
+        if(vType == pERROR){
             std::cerr << "\033[m" << msg << std::endl;
             exit(1);
         }
@@ -993,7 +993,7 @@ void NTagEventInfo::PrintMessage(const char* msg, unsigned int vType)
 {
     if(vType <= fVerbosity){
         PrintTag(vType);
-        if(vType == vError) std::cerr << "\033[m" << msg << std::endl;
+        if(vType == pERROR) std::cerr << "\033[m" << msg << std::endl;
         else std::cout << "\033[m" << msg << std::endl;
     }
 }

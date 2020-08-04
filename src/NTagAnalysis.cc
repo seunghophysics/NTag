@@ -75,9 +75,9 @@ void NTagAnalysis::ReadFile()
             case 0: // event read
                 eventID++;
                 std::cout << "\n" << std::endl;
-                PrintMessage("###########################", vDebug);
-                PrintMessage(Form("Event ID: %d", eventID), vDebug);
-                PrintMessage("###########################", vDebug);
+                PrintMessage("###########################", pDEBUG);
+                PrintMessage(Form("Event ID: %d", eventID), pDEBUG);
+                PrintMessage("###########################", pDEBUG);
                 int inPMT;
                 if(!bData){
                     skgetv_();
@@ -85,7 +85,7 @@ void NTagAnalysis::ReadFile()
                     if(inPMT){
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...", 
-                                 eventID), vDebug);
+                                 eventID), pDEBUG);
                     break;
                     }
                 }
@@ -94,7 +94,7 @@ void NTagAnalysis::ReadFile()
             case 1: // read-error
                 break;
             case 2: // end of input
-                PrintMessage(Form("Reached the end of input. Closing file..."), vDefault);
+                PrintMessage(Form("Reached the end of input. Closing file..."), pDEFAULT);
                 skclosef_(&lun);
                 WriteOutput();
                 bEOF = true;

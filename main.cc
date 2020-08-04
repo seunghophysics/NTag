@@ -16,14 +16,14 @@ int main(int argc, char** argv)
     /* Harada test*/
     /*
     unsigned int verbose;
-    if(argc == 1) verbose = vDefault;
+    if(argc == 1) verbose = pDEFAULT;
     else{
         std::stringstream strValue(argv[2]);
         strValue >> verbose;
     }
     */
     
-    NTagAnalysis nt(fileName, false, vDebug);
+    NTagAnalysis nt(fileName, false, pDEBUG);
     nt.PrintMessage("Done!");
 
     return 0;

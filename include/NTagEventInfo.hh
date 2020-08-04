@@ -15,7 +15,7 @@
 #define MAXNP (500)
 #define kMaxCT (4000)
 
-enum {vDefault, vWarning, vError, vDebug};
+enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
 
 class NTagEventInfo
 {
@@ -62,8 +62,8 @@ class NTagEventInfo
 
         // Message
         virtual void PrintTag(unsigned int);
-        virtual void PrintMessage(TString, unsigned int vType=vDefault);
-        virtual void PrintMessage(const char*, unsigned int vType=vDefault);
+        virtual void PrintMessage(TString, unsigned int vType=pDEFAULT);
+        virtual void PrintMessage(const char*, unsigned int vType=pDEFAULT);
 
     private:
         const float (*xyz)[3];        // PMT positions
