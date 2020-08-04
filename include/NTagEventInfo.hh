@@ -4,6 +4,7 @@
 #define SECMAXRNG (4000)
 
 #include <array>
+#include <vector>
 
 #include <TString.h>
 #include <TMVA/Reader.h>
@@ -24,55 +25,70 @@ class NTagEventInfo
         virtual ~NTagEventInfo();
 
         // Event handling
-        virtual void SetEventHeader();
-        virtual void SetAPFitInfo();
-        virtual void SetToFSubtractedTQ();
-        virtual void SetMCInfo();
-        virtual void SearchCaptureCandidates();
-        virtual void SetTrueCaptureInfo();
-        virtual void GetTMVAoutput();
+        virtual void         SetEventHeader();
+        virtual void         SetAPFitInfo();
+        virtual void         SetToFSubtractedTQ();
+        virtual void         SetMCInfo();
+        virtual void         SearchCaptureCandidates();
+        virtual void         SetTrueCaptureInfo();
+        virtual void         GetTMVAoutput();
 
         // Calculator
-        inline float Norm(float vec[3]);
-        inline float Norm(float x, float y, float z);
-        float GetDistance(const float vec1[3], float vec2[3]);
-        inline float ReconCaptureTime(int candidateID);
-        float TrueCaptureTime(int candidateID);
-        std::array<float, 3> TrueCaptureVertex(int candidateID);
-        float SubtractToF(float t_ToF[], float T[], int PMTID[], int nHits, float vertex[3], bool doSort=false);
-        float MinimizeTRMS(float T[], int PMTID[], int nHits, float fitVertex[3]);
-        float GetLegendreP(int i, float& x); // Legendre polynomials for beta calculation
+        inline float         Norm(float vec[3]);
+        inline float         Norm(float x, float y, float z);
+        float                GetDistance(const float vec1[3], float vec2[3]);
+        float                GetLegendreP(int i, float& x); // Legendre polynomials for betas
         std::array<float, 6> GetBetaArray(int PMTID[], int tID, int n10);
 
-        int GetNhitsFromStartIndex(float T[], int nHits, int startIndex, float tWidth);
-        float GetQhitsFromStartIndex(int startIndex, float tWidth);
-        float GetTRMSFromStartIndex(float T[], int startIndex, float tWidth);
-        int GetNhitsFromCenterTime(float centerTime, float searchTWidth);
+        // Variable-related functions
 
-        int IsTrueCapture(int candidateID);
-        int IsTrueGdCapture(int candidateID);
-        virtual void Clear();
+            /* functions on capture candidates */
+            inline float         ReconCaptureTime(int candidateID);
+            int                  IsTrueCapture(int candidateID);
+            int                  IsTrueGdCapture(int candidateID);
+            float                TrueCaptureTime(int candidateID);
+            std::array<float, 3> TrueCaptureVertex(int candidateID);
 
-        virtual void SetTMVAReader();
-        inline void SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
-        inline void SetN200Max(int max) { N200MX = max; }
-        inline void SetT0Threshold(float th) { T0TH = th; }
-        inline void SetDistanceCut(float cut) { distanceCut = cut; }
-        inline void SetTMatchWindow(float t) { tMatchWindow = t; }
+            /* functions on hits */
+            int                  GetNhitsFromStartIndex(std::vector<float>& T, int startIndex, float tWidth);
+            int                  GetNhitsFromCenterTime(std::vector<float>& T, float centerTime, float searchTWidth);
+            float                GetQhitsFromStartIndex(std::vector<float>& T, std::vector<float>& Q, int startIndex, float tWidth);
+            float                GetToF(float vertex[3], int pmtID);
+            float                GetTRMS(std::vector<float>& T);
+            float                GetTRMSFromStartIndex(std::vector<float>& T, int startIndex, float tWidth);
+            float                MinimizeTRMS(std::vector<float>& T, std::vector<int>& PMTID, float fitVertex[3]);
+            std::vector<float>   GetToFSubtracted(std::vector<float>& T, std::vector<int>& PMTID,
+                                                  float vertex[3], bool doSort=false);
+
+        // Member variable control
+        virtual void         Clear();
+        virtual void         SaveSecondary(int secID);
+        virtual void         SavePeakFromHit(int hitID);
+
+        // Set tag conditions
+        virtual void         SetTMVAReader();
+        inline void          SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
+        inline void          SetN200Max(int max) { N200MX = max; }
+        inline void          SetT0Threshold(float th) { T0TH = th; }
+        inline void          SetDistanceCut(float cut) { DISTCUT = cut; }
+        inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
+        inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
 
         // Message
-        virtual void PrintTag(unsigned int);
-        virtual void PrintMessage(TString, unsigned int vType=pDEFAULT);
-        virtual void PrintMessage(const char*, unsigned int vType=pDEFAULT);
+        virtual void         PrintTag(unsigned int);
+        virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
+        virtual void         PrintMessage(const char*, unsigned int vType=pDEFAULT);
 
     private:
-        const float (*xyz)[3];        // PMT positions
-        const float C_WATER;          // Speed-of-light in water [cm/ns]
-
-        int N10TH, N10MX, N200MX;     // N_hits cut
-        float T0TH;                   // T0 threshold
-        float distanceCut;
-        float tMatchWindow;           // used in function IsTrueCapture
+        const float (*xyz)[3];              // PMT positions
+        const float C_WATER;                // Speed-of-light in water [cm/ns]
+        
+        // Tag conditions
+        int         N10TH, N10MX, N200MX;   // N_hits cut
+        float       T0TH;                   // T0 threshold
+        float       DISTCUT;
+        float       TMATCHWINDOW;           // used in function IsTrueCapture
+        float       TMINPEAKSEP;            // minimum peak separation in time 
 
         TMVA::Reader* reader;
 
@@ -80,9 +96,9 @@ class NTagEventInfo
         unsigned int fVerbosity;
         bool bData;
 
-        /******************************************************************************************/
+        /************************************************************************************************/
         // Data/fit event info
-        /******************************************************************************************/
+        /************************************************************************************************/
         /**/
         /**/    // SK data variables
         /**/    int                 nrun, nsub, nev, trgtype, nhitac;
@@ -98,7 +114,7 @@ class NTagEventInfo
         /**/    std::vector<float>  vApamom, vApmome, vApmomm;
         /**/
         /**/        // Variables for neutron capture candidates
-        /**/        int                 np, N200M;
+        /**/        int                 nCandidates, N200M;
         /**/        float               T200M, firsthit;
         /**/        std::vector<int>    vTindex, vN10, vN10n, vN50, vN200, vN1300;
         /**/        std::vector<float>  vSumQ, vSpread, vTrms, vTrmsold, vTrms50;
@@ -121,13 +137,13 @@ class NTagEventInfo
         /**/    float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
         /**/    float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
         /**/    float               mva_AP_Nfit, mva_AP_BONSAI, mva_Nfit_BONSAI;
-        /**/    std::vector<float>  TMVAoutput;
+        /**/    std::vector<float>  vTMVAoutput;
         /**/
-        /******************************************************************************************/
+        /************************************************************************************************/
 
-        /******************************************************************************************/
+        /************************************************************************************************/
         // MC truth event info
-        /******************************************************************************************/
+        /************************************************************************************************/
         /**/
         /**/    // Variables for true neutron capture
         /**/    int                 nCT;
@@ -151,10 +167,11 @@ class NTagEventInfo
         /**/
         /**/    // Variables from primary stack
         /**/    int                 nvect;
+        /**/    float               truevx, truevy, truevz;
         /**/    std::vector<int>    vIp;
-        /**/    std::vector<float>  vPosx, vPosy, vPosz, vPinx, vPiny, vPinz, vPabs;
+        /**/    std::vector<float>  vPinx, vPiny, vPinz, vPabs;
         /**/
-        /******************************************************************************************/
+        /************************************************************************************************/
 };
 
 typedef NTagEventInfo Res_t;

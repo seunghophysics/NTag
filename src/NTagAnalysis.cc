@@ -17,15 +17,15 @@ NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verb
 
     SetN10Limits(5, 50);
     SetN200Max(140);
-    SetT0Threshold(2.);		// [us]
-    SetDistanceCut(4000.);	// [cm]
-    SetTMatchWindow(40.);	// [ns]
+    SetT0Threshold(2.);		 // [us]
+    SetDistanceCut(4000.);	 // [cm]
+    SetTMatchWindow(40.);	 // [ns]
+    SetTPeakSeparation(50.); // [us]
 
-    
     ntvarTree = new TTree("ntvar", "ntag variables");
     CreateBranchesToNTvarTree();
 
-    if(!bData){
+    if (!bData) {
         truthTree = new TTree("truth", "true variables");
         CreateBranchesToTruthTree();
     }
@@ -48,7 +48,7 @@ void NTagAnalysis::OpenFile(const char* fileName)
                 strlen(fileName),5,0,3,0,0,20,0,0);
     skopenf_(&lun, &ipt, "Z", &openError);
 
-    if(openError){
+    if (openError) {
         std::cerr << "[NTagAnalysis]: File open error." << std::endl;
         exit(1);
     }
@@ -68,10 +68,10 @@ void NTagAnalysis::ReadFile()
     int eventID = 0;
     bool bEOF = false;
 
-    while(!bEOF){
+    while (!bEOF) {
         Clear();
         readStatus = skread_(&lun);
-        switch(readStatus){
+        switch (readStatus) {
             case 0: // event read
                 eventID++;
                 std::cout << "\n" << std::endl;
@@ -79,10 +79,10 @@ void NTagAnalysis::ReadFile()
                 PrintMessage(Form("Event ID: %d", eventID), pDEBUG);
                 PrintMessage("###########################", pDEBUG);
                 int inPMT;
-                if(!bData){
+                if (!bData) {
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
-                    if(inPMT){
+                    if (inPMT) {
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...", 
                                  eventID), pDEBUG);
@@ -111,19 +111,19 @@ void NTagAnalysis::ReadEvent()
     SearchCaptureCandidates();
     GetTMVAoutput();
     
-    if(!bData){
+    if (!bData) {
         SetMCInfo();
     }
     
     ntvarTree->Fill();
-    if(!bData) truthTree->Fill();
+    if (!bData) truthTree->Fill();
 }
 
 void NTagAnalysis::WriteOutput()
 {
     TFile* file = new TFile("out/nTagOutput.root", "recreate");
     ntvarTree->Write();
-    if(!bData) truthTree->Write();
+    if (!bData) truthTree->Write();
     file->Close();
     
     bonsai_end_();
@@ -160,7 +160,7 @@ void NTagAnalysis::CreateBranchesToTruthTree()
 
 void NTagAnalysis::CreateBranchesToNTvarTree()
 {
-    ntvarTree->Branch("np", &np, "np/I");
+    ntvarTree->Branch("np", &nCandidates, "np/I");
     ntvarTree->Branch("nrun", &nrun, "nrun/I");
     ntvarTree->Branch("nsub", &nsub, "nsub/I");
     ntvarTree->Branch("nev", &nev, "nev/I");
@@ -270,9 +270,9 @@ void NTagAnalysis::CreateBranchesToNTvarTree()
     ntvarTree->Branch("amome", vApmome, "amome[apnring]/F");
     ntvarTree->Branch("amomm", vApmomm, "amomm[apnring]/F");
     ntvarTree->Branch("sumQ", vSumQ, "sumQ[np]/F");
-    ntvarTree->Branch("TMVAoutput", TMVAoutput, "TMVAoutput[np]/F");
+    ntvarTree->Branch("TMVAoutput", vTMVAoutput, "TMVAoutput[np]/F");
     
-    if(!bData){
+    if (!bData) {
         ntvarTree->Branch("nGd", vIsGdCapture, "nGd[np]/I");
         ntvarTree->Branch("timeRes", vTimeDiff, "timeRes[np]/F");
         ntvarTree->Branch("doubleCount", vDoubleCount, "doubleCount[np]/I");
