@@ -21,7 +21,7 @@
 
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833),
-N10TH(5), N10MX(50), N200MX(140), T0TH(1.), distanceCut(4000.), tMatchWindow(40.),
+N10TH(5), N10MX(50), N200MX(140), T0TH(2.), distanceCut(4000.), tMatchWindow(40.),
 fVerbosity(vDefault), bData(false)
 {
     reader = new TMVA::Reader("!Color:!Silent");
@@ -57,8 +57,10 @@ void NTagEventInfo::SetAPFitInfo()
     vx = apcommul_.appos[0];
     vy = apcommul_.appos[1];
     vz = apcommul_.appos[2];
-    float tmp_v[3]; tmp_v[0] = vx; tmp_v[1] = vy; tmp_v[2] = vz;
+    
+    float tmp_v[3] = {vx, vy, vz};
     towall = wallsk_(tmp_v);
+    
     PrintMessage(Form("APFit vertex: %f, %f, %f", vx, vy, vz), vDebug);
     PrintMessage(Form("d_wall: %f", towall), vDebug);
 
@@ -92,9 +94,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     PrintMessage(Form("NQISKZ: %d", nqiskz), vDebug);
     
     // Subtract TOF from PMT hit time
-    float apfitVertex[3];
-    apfitVertex[0] = vx; apfitVertex[1] = vy; apfitVertex[2] = vz;
-
+    float apfitVertex[3] = {vx, vy, vz};
     SubtractToF(unsortedT_ToF, sktqz_.tiskz, sktqz_.icabiz, nqiskz, apfitVertex);
 
     // Sort: first hit first
@@ -251,7 +251,7 @@ void NTagEventInfo::SetMCInfo()
 
 void NTagEventInfo::SearchCaptureCandidates()
 {
-    bool 	isFirstPeak = true;
+    bool 	isLastPeak
     float	t0Previous = 0.;
     int    	N10i = 0;
     
@@ -286,9 +286,9 @@ void NTagEventInfo::SearchCaptureCandidates()
             continue;
         }
 
-        // If peak t0 diff = t0_new - t0_previous > 20 ns, save.
+        // If peak t0 diff = t0_new - t0_previous > 20 ns, save the previous peak.
         // Also check if N200 is below N200 cut and if t0 is over t0 threshold
-        if(t0New - t0Previous > 50. && tmpN200 < N200MX && t0New*1.e-3 > T0TH+1){
+        if(t0New - t0Previous > 50. && tmpN200 < N200MX && t0New*1.e-3 > T0TH){
 
             // Set t0Previous for the next peak
             t0Previous = t0New;
@@ -296,6 +296,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             // Calculate betas
             auto beta = GetBetaArray(sortedPMTID, iHit, N10i);
 
+            float tEndNew = sortedT_ToF[iHit+N10i-1];
             // Save info to the member variables
             nvx[np]			= vx;
             nvy[np] 		= vy;
@@ -304,10 +305,10 @@ void NTagEventInfo::SearchCaptureCandidates()
             N10n[np]   		= N10i;
             N200[np]   		= tmpN200;
             sumQ[np]   		= GetQhitsFromStartIndex(iHit, 10.);
-            dt[np]     		= (sortedT_ToF[iHit] + sortedT_ToF[iHit+N10i-1]) / 2.;
-            dtn[np]    		= (sortedT_ToF[iHit] + sortedT_ToF[iHit+N10i-1]) / 2.;
+            dt[np]     		= (t0New + tEndNew) / 2.;
+            dtn[np]    		= (t0New + tEndNew) / 2.;
             tindex[np] 		= iHit;
-            spread[np] 		= sortedT_ToF[iHit+N10i-1] - sortedT_ToF[iHit];
+            spread[np] 		= tEndNew - t0New;
             trmsold[np] 	= GetTRMSFromStartIndex(sortedT_ToF, iHit, 10.);
             beta14_10[np] 	= beta[1] + 4*beta[4];
 
@@ -389,7 +390,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         bonsai_fit_(&time0, tiskz1300, qiskz1300, cabiz1300, &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
         &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
 
-        float tbsvertex[3];
+        float tbsvertex[3] = {tmptbsvx, };
         tbsvertex[0] = tmptbsvx; tbsvertex[1] = tmptbsvy; tbsvertex[2] = tmptbsvz;
 
         // Save BONSAI fit results
@@ -407,11 +408,11 @@ void NTagEventInfo::SearchCaptureCandidates()
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS = MinimizeTRMS(tiskz50, cabiz50, n50hits, nv);
 
-        nvx[iCapture] = nv[0];
-        nvy[iCapture] = nv[1];
-        nvz[iCapture] = nv[2];
-        nwall[iCapture] = wallsk_(nv);
-        trms50[iCapture] = minTRMS;
+        nvx[iCapture]       = nv[0];
+        nvy[iCapture]       = nv[1];
+        nvz[iCapture]       = nv[2];
+        nwall[iCapture]     = wallsk_(nv);
+        trms50[iCapture]    = minTRMS;
 
         SubtractToF(tiskz50, tiskz50, cabiz50, n50hits, nv, true);
 
@@ -430,7 +431,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         trms[iCapture] = GetTRMSFromStartIndex(tiskz50, n10index, 10.);
         N10n[iCapture] = tmpN10n;
-        dtn[iCapture] = t0n;
+        dtn[iCapture]  = t0n;
     }
 
     if(!bData){
@@ -458,8 +459,8 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
             bool newCaptureFound = true;
 
-            for(int iCheckedCapture = 0; iCheckedCapture < nCheckedCaptures; iCheckedCapture++){
-                if(fabs(TrueCaptureTime(iCapture) - checkedTrueCaptureTime[iCheckedCapture]) < 1.e-3){
+            for(int iCheck = 0; iCheck < nCheckedCaptures; iCheck++){
+                if(fabs(TrueCaptureTime(iCapture) - checkedTrueCaptureTime[iCheck]) < 1.e-3){
                     newCaptureFound = false; break;
                 }
             }
@@ -524,8 +525,12 @@ void NTagEventInfo::GetTMVAoutput()
         mva_nwall 		= nwall[iCapture];
         mva_trms50 		= trms50[iCapture];
 
-        mva_AP_BONSAI 	= Norm(vx - tbsvx[iCapture], vy - tbsvy[iCapture], vz - tbsvz[iCapture]);
-        mva_AP_Nfit 	= Norm(vx - nvx[iCapture], vy - nvy[iCapture], vz - nvz[iCapture]);
+        mva_AP_BONSAI 	= Norm(vx - tbsvx[iCapture], 
+                               vy - tbsvy[iCapture], 
+                               vz - tbsvz[iCapture]);
+        mva_AP_Nfit 	= Norm(vx - nvx[iCapture], 
+                               vy - nvy[iCapture], 
+                               vz - nvz[iCapture]);
         mva_Nfit_BONSAI = Norm(nvx[iCapture] - tbsvx[iCapture],
                                nvy[iCapture] - tbsvy[iCapture],
                                nvz[iCapture] - tbsvz[iCapture]);
@@ -554,31 +559,31 @@ float NTagEventInfo::GetDistance(const float vec1[3], float vec2[3])
     return Norm(tmpVec);
 }
 
-float NTagEventInfo::ReconCaptureTime(int capID)
+float NTagEventInfo::ReconCaptureTime(int candidateID)
 {
     // for skedsim before 13p90 use -trgofst, 13p90 and after use +trgofst
-    return dt[capID] - 1000 + trgofst;
+    return dt[candidateID] - 1000 + trgofst;
 }
 
-float NTagEventInfo::TrueCaptureTime(int capID)
+float NTagEventInfo::TrueCaptureTime(int candidateID)
 {
-    float tRecon = ReconCaptureTime(capID);
+    float tRecon = ReconCaptureTime(candidateID);
 
     if(nscndprt >= SECMAXRNG) return -1;
     for(int iCapture = 0; iCapture < nCT; iCapture++){
         if(fabs(captureTime[iCapture] - tRecon) < tMatchWindow)
             return captureTime[iCapture];
     }
-    if(!IsTrueCapture(capID))
+    if(!IsTrueCapture(candidateID))
         PrintMessage("A false neutron signal is passsed to TrueCaptureTime!", vError);
 
     return 0.;
 }
 
-std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int capID)
+std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
 {
     std::array<float, 3> trueCaptureVertex = {0., 0., 0.};
-    float tRecon = ReconCaptureTime(capID);
+    float tRecon = ReconCaptureTime(candidateID);
 
     for(int iCapture = 0; iCapture < nCT; iCapture++){
         if(fabs(captureTime[iCapture] - tRecon) < tMatchWindow){
@@ -586,8 +591,8 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int capID)
                 trueCaptureVertex[k] = capPos[iCapture][k];
         }
     }
-    if(!IsTrueCapture(capID))
-        PrintMessage("A false neutron signal is passsed to TrueCaptureTime!", vError);
+    if(!IsTrueCapture(candidateID))
+        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", vError);
 
     return trueCaptureVertex;
 }
@@ -634,38 +639,38 @@ float NTagEventInfo::MinimizeTRMS(float T[], int PMTID[], int nHits, float rmsFi
     float tiskzmin[nHits];
     int cabizmin[nHits];
 
-    int maxScanR, maxScanZ;
-    maxScanZ = (int)(2*ZPINTK / (float)delta);
-    maxScanR = (int)(2*RINTK / (float)delta);
+    int rMax, zMax;
+    zMax = (int)(2*ZPINTK / (float)delta);
+    rMax = (int)(2*RINTK / (float)delta);
 
-    float VX, VY, VZ;                   // main search vertex
-    VX = VY = VZ = 0.;                  // search start from tank center
-    float tVX = 0., tVY = 0., tVZ = 0.; // temp vertex
-    float sVX = 0., sVY = 0., sVZ = 0.; // loop search vertex
+    // main search position starts from tank center
+    std::array<float, 3> vecR = {0., 0., 0.};
+    std::array<float, 3> tmpVertex = {0., 0., 0.};      // temp vertex
+    std::array<float, 3> srcVertex;                     // loop search vertex
 
     float minTRMS = 9999.;
     float tRMS;
 
     while(delta > 0.5){
-        for(float x = 0; x < maxScanR; x++){
-            sVX = delta * (x - maxScanR/2.) + VX;
-            for(float y = 0; y < maxScanR; y++){
-                sVY = delta * (y - maxScanR/2.) + VY;
-                if(TMath::Sqrt(sVX*sVX + sVY*sVY) > RINTK) continue;
-                for(float z = 0; z < maxScanZ; z++){
-                    sVZ = delta * (z - maxScanZ/2.) + VZ;
-                    if(sVZ > ZPINTK || sVZ < -ZPINTK) continue;
-                    if(Norm(sVX - vx, sVY - vy, sVZ - vz) > distanceCut) continue;
+    
+        for(float x = 0; x < rMax; x++){
+            srcVertex[0] = delta * (x - rMax/2.) + vecR[0];
+            for(float y = 0; y < rMax; y++){
+                srcVertex[1] = delta * (y - rMax/2.) + vecR[1];
+                
+                if(TMath::Sqrt(srcVertex[0]*srcVertex[0] + srcVertex[1]*srcVertex[1]) > RINTK) continue;
+                for(float z = 0; z < zMax; z++){
+                    srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
+                    if(srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
+                    if(Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > distanceCut) continue;
 
                     float t_ToF[nHits];
-                    float sV[3]; sV[0] = sVX; sV[1] = sVY; sV[2] = sVZ;
-                    tRMS = SubtractToF(t_ToF, T, PMTID, nHits, sV, doSort);
+                    tRMS = SubtractToF(t_ToF, T, PMTID, nHits, srcVertex, doSort);
 
                     if(tRMS < minTRMS){
                         minTRMS = tRMS;
-                        tVX = sVY;
-                        tVY = sVY;
-                        tVZ = sVZ;
+                        tmpVertex = srcVertex;
+                        
                         for(int i = 0; i < nHits; i++){
                             tiskzmin[i] = t_ToF[i];
                         }
@@ -673,18 +678,16 @@ float NTagEventInfo::MinimizeTRMS(float T[], int PMTID[], int nHits, float rmsFi
                 }
             }
         }
-        VX = tVX;
-        VY = tVY;
-        VZ = tVZ;
+        vecR = tmpVertex;
         delta = delta / 2.;
     }
 
     int index[1000];
     TMath::Sort(nHits, tiskzmin, index, false);
 
-    rmsFitVertex[0] = VX;
-    rmsFitVertex[1] = VY;
-    rmsFitVertex[2] = VZ;
+    rmsFitVertex[0] = vecR[0];
+    rmsFitVertex[1] = vecR[1];
+    rmsFitVertex[2] = vecR[2];
 
     return minTRMS;
 }
@@ -809,9 +812,9 @@ int NTagEventInfo::GetNhitsFromCenterTime(float centerTime, float tWidth)
     return nHits;
 }
 
-int NTagEventInfo::IsTrueCapture(int capID)
+int NTagEventInfo::IsTrueCapture(int candidateID)
 {
-    float tRecon = ReconCaptureTime(capID);
+    float tRecon = ReconCaptureTime(candidateID);
 
     if(nscndprt >= SECMAXRNG) return -1;
     for(int iCapture = 0; iCapture < nCT; iCapture++){
@@ -820,9 +823,9 @@ int NTagEventInfo::IsTrueCapture(int capID)
     return 0;
 }
 
-int NTagEventInfo::IsTrueGdCapture(int capID)
+int NTagEventInfo::IsTrueGdCapture(int candidateID)
 {
-    float tRecon = ReconCaptureTime(capID);
+    float tRecon = ReconCaptureTime(candidateID);
 
     if(nscndprt >= SECMAXRNG) return -1;
     for(int iCapture = 0; iCapture < nCT; iCapture++){
@@ -875,10 +878,10 @@ void NTagEventInfo::Clear()
         mintrms_3[i] = 0; mintrms_4[i] = 0; mintrms_5[i] = 0; mintrms_6[i] = 0;
         dt[i] = 0; dtn[i] = 0;
         nvx[i] = 0; nvy[i] = 0; nvz[i] = 0; nwall[i] = 0;
-        tvx[i] = 0; tvy[i] = 0; tvz[i] = 0;
+        tmpVertex[0][i] = 0; tmpVertex[1][i] = 0; tmpVertex[2][i] = 0;
         doubleCount[i] = 0; goodn[i] = 0;
         tbsenergy[i] = 0; tbsenergy2[i] = 0;
-        tbsvx[i] = 0; tbsvy[i] = 0; tbsvz[i] = 0; tbsvt[i] = 0;
+        tbsvx[i] = 0; tbsvy[i] = 0; tbsrcVertex[2][i] = 0; tbsvt[i] = 0;
         tbswall[i] = 0; tbsgood[i] = 0;
         tbspatlik[i] = 0; tbsdirks[i] = 0; tbsovaq[i] = 0;
         bsenergy[i] = 0; bsenergy2[i] = 0;
@@ -959,17 +962,13 @@ void NTagEventInfo::PrintTag(unsigned int vType)
 {
     switch(vType){
         case vDefault:
-            std::cout << "[NTag] ";
-            break;
+            std::cout << "[NTag] "; break;
         case vWarning:
-            std::cout << "\033[4;33m" << "[NTag WARNING] ";
-            break;
+            std::cout << "\033[4;33m" << "[NTag WARNING] "; break;
         case vError:
-            std::cerr << "\033[4;31m" << "[Error in NTag] ";
-            break;
+            std::cerr << "\033[4;31m" << "[Error in NTag] "; break;
         case vDebug:
-            std::cout << "\033[0;34m" << "[NTag DEBUG] ";
-            break;
+            std::cout << "\033[0;34m" << "[NTag DEBUG] "; break;
     }
 }
 

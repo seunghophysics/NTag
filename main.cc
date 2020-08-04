@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     }
     */
     
-    NTagAnalysis nt(fileName, false, 4);
+    NTagAnalysis nt(fileName, false, vDebug);
     nt.PrintMessage("Done!");
 
     return 0;
