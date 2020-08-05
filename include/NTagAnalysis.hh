@@ -7,7 +7,7 @@
 class NTagAnalysis : public NTagEventInfo
 {
     public:
-        NTagAnalysis(const char* fileName, bool useData=false, unsigned int verbose=vDefault);
+        NTagAnalysis(const char* fileName, bool useData=false, unsigned int verbose=pDEFAULT);
         virtual ~NTagAnalysis();
 
         // File I/O
