@@ -120,7 +120,6 @@ class NTagEventInfo
         /**/        std::vector<int>    vTindex, vN10, vN10n, vN50, vN200, vN1300;
         /**/        std::vector<float>  vSumQ, vSpread, vTrms, vTrmsold, vTrms50;
         /**/        std::vector<float>  vDt, vDtn, vNvx, vNvy, vNvz, vNwall;
-        /**/        std::vector<float>  vDoubleCount;
         /**/
         /**/        // BONSAI variables
         /**/        std::vector<float>  vBenergy, vBvx, vBvy, vBvz, vBvt;
@@ -152,7 +151,7 @@ class NTagEventInfo
         /**/    std::vector<float>  vCaptureTime, vCapPosx, vCapPosy, vCapPosz, vTotGamE;
         /**/
         /**/    // Variables for neutron capture candidates
-        /**/    std::vector<int>    vIsGdCapture, vIsTrueCapture;
+        /**/    std::vector<int>    vIsGdCapture, vIsTrueCapture, vDoubleCount;
         /**/    std::vector<float>  vTruth_vx, vTruth_vy, vTruth_vz, vTimeDiff;
         /**/
         /**/    // Variables from secondaries

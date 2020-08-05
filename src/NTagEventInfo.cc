@@ -114,7 +114,7 @@ void NTagEventInfo::SetMCInfo()
     // Read trigger offset
     trginfo_(&trgofst);
     PrintMessage(Form("Trigger offset: %f", trgofst), pDEBUG);
-    
+
     // Read SKVECT (primaries)
     skgetv_();
     nvect  = skvect_.nvect;                       // number of primaries
@@ -177,14 +177,14 @@ void NTagEventInfo::SetMCInfo()
                         + secndprt_.vtxscnd[iSec][1] * secndprt_.vtxscnd[iSec][1];
             int inPMT;
             inpmt_(secndprt_.vtxscnd[iSec], inPMT);
-        
+
             // Check if the capture is within ID volume
             if (vtxR2 < dr*dr && fabs(secndprt_.vtxscnd[iSec][2]) < dz && !inPMT) {
 
                 // Save secondary (deuteron, gamma)
                 SaveSecondary(iSec);
                 bool isNewCapture = true;
-                
+
                 // particle produced by n-capture
                 if (secndprt_.lmecscnd[iSec] == 18) {
 
@@ -253,7 +253,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // If N10TH <= N10i <= N10MX:
         if ((N10i < N10TH) || (N10i > N10MX+1)) continue;
-        
+
         // We've found a new peak.
         N10New = N10i;
         float t0New = vSortedT_ToF[iHit];
@@ -269,7 +269,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
-            
+
                 SavePeakFromHit(iHitPrevious);
 
                 if (nCandidates >= MAXNP-1) {
@@ -283,10 +283,10 @@ void NTagEventInfo::SearchCaptureCandidates()
             // if peaks are separated enough
             N10Previous = 0;
         }
-        
+
         // If N10 is not greater than previous, skip
         if ( N10New <= N10Previous ) continue;
-        
+
         iHitPrevious = iHit;
         t0Previous   = t0New;
         N10Previous  = N10New;
@@ -465,6 +465,14 @@ void NTagEventInfo::SetTrueCaptureInfo()
             // Check whether capture is on Gd or H
             vIsGdCapture.push_back( IsTrueGdCapture(iCapture) );
         }
+        else {
+            vDoubleCount.push_back(0);
+            vTimeDiff.push_back(0.);
+            vTruth_vx.push_back(0.);
+            vTruth_vy.push_back(0.);
+            vTruth_vz.push_back(0.);
+            vIsGdCapture.push_back(0.);
+        }
     }
 }
 
@@ -547,16 +555,19 @@ float NTagEventInfo::ReconCaptureTime(int candidateID)
 float NTagEventInfo::TrueCaptureTime(int candidateID)
 {
     float tRecon = ReconCaptureTime(candidateID);
+    float tClosest = 1.e8;
 
     if (nscndprt >= SECMAXRNG) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW)
+        if ( fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW) {
             return vCaptureTime[iCapture];
+        }
     }
-    if (!IsTrueCapture(candidateID))
-        PrintMessage("A false neutron signal is passsed to TrueCaptureTime!", pERROR);
 
-    return 0.;
+    if (!IsTrueCapture(candidateID))
+        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", pWARNING);
+
+    return -9999.;
 }
 
 std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
@@ -569,10 +580,11 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
                 trueCaptureVertex[0] = vCapPosx[iCapture];
                 trueCaptureVertex[1] = vCapPosy[iCapture];
                 trueCaptureVertex[2] = vCapPosz[iCapture];
+                return trueCaptureVertex;
         }
     }
     if (!IsTrueCapture(candidateID))
-        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", pERROR);
+        PrintMessage("A false neutron signal is passsed to TrueCaptureVertex!", pWARNING);
 
     return trueCaptureVertex;
 }
@@ -858,7 +870,7 @@ void NTagEventInfo::Clear()
 
     vNGam.clear();
     vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
-    vIsGdCapture, vIsTrueCapture;
+    vIsGdCapture.clear(); vIsTrueCapture.clear();
     vTruth_vx.clear(); vTruth_vy.clear(); vTruth_vz.clear(); vTimeDiff.clear();
     vIprtscnd.clear(); vLmecscnd.clear(); vIprntprt.clear(); vCaptureID.clear();
     vVtxscndx.clear(); vVtxscndy.clear(); vVtxscndz.clear(); vPscndx.clear(); vPscndy.clear(); vPscndz.clear();
@@ -903,7 +915,7 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     vNvy.push_back(       apvy                   );
     vNvz.push_back(       apvz                   );
     vN10.push_back(       N10i                   );
-    vN10n.push_back(       N10i                   );
+    vN10n.push_back(       N10i                  );
     vN200.push_back(      N200                   );
     vSumQ.push_back(      sumQ                   );
     vDt.push_back(        (t0 + tEnd) / 2.       );
@@ -915,9 +927,9 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
     // Increment number of neutron candidates
     nCandidates++;
-    
+
     // Debug
-    PrintMessage(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
+    //PrintMessage(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }
 
 void NTagEventInfo::SetTMVAReader()
