@@ -147,7 +147,7 @@ class NTagEventInfo
         /************************************************************************************************/
         /**/
         /**/    // Variables for true neutron capture
-        /**/    int                 nCT;
+        /**/    int                 nTrueCaptures;
         /**/    std::vector<int>    vNGam;
         /**/    std::vector<float>  vCaptureTime, vCapPosx, vCapPosy, vCapPosz, vTotGamE;
         /**/
@@ -156,7 +156,7 @@ class NTagEventInfo
         /**/    std::vector<float>  vTruth_vx, vTruth_vy, vTruth_vz, vTimeDiff;
         /**/
         /**/    // Variables from secondaries
-        /**/    int                 nscnd, nscndprt;
+        /**/    int                 nSavedSec, nscndprt;
         /**/    std::vector<int> 	vIprtscnd, vLmecscnd, vIprntprt, vCaptureID;
         /**/    std::vector<float> 	vVtxscndx, vVtxscndy, vVtxscndz, vPscndx, vPscndy, vPscndz;
         /**/    std::vector<float> 	vWallscnd, vPabsscnd, vTscnd;

@@ -144,8 +144,8 @@ void NTagEventInfo::SetMCInfo()
     PrintMessage(Form("Number of neutrons in primary stack: %d", nN), pDEBUG);
 
     // Initialize number of n captures
-    nCT   = 0;
-    nscnd = 0;
+    nTrueCaptures = 0;
+    nSavedSec = 0;
 
     // ?
     float ZBLST = 5.30;
@@ -162,7 +162,7 @@ void NTagEventInfo::SetMCInfo()
         // Save all neutrons
         if (secndprt_.iprtscnd[iSec] == 2112) {
             SaveSecondary(iSec);
-            nSecNeutron++; nscnd++;
+            nSecNeutron++;
             PrintMessage(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
                          nSecNeutron, secndprt_.tscnd[iSec]*1e-3, Norm(secndprt_.pscnd[iSec])), pDEBUG);
         }
@@ -170,34 +170,33 @@ void NTagEventInfo::SetMCInfo()
         // deuteron, gamma (no capture electrons?)
         else if (secndprt_.iprtscnd[iSec] == 100045 || secndprt_.iprtscnd[iSec] == 22) {
 
-            // particle produced by n-capture
-            if (secndprt_.lmecscnd[iSec] == 18) {
+            /* Save capture info from below */
+            float vtxR2 = secndprt_.vtxscnd[iSec][0] * secndprt_.vtxscnd[iSec][0]
+                        + secndprt_.vtxscnd[iSec][1] * secndprt_.vtxscnd[iSec][1];
+            int inPMT;
+            inpmt_(secndprt_.vtxscnd[iSec], inPMT);
+        
+            // Check if the capture is within ID volume
+            if (vtxR2 < dr*dr && fabs(secndprt_.vtxscnd[iSec][2]) < dz && !inPMT) {
 
-                // Save secondary
+                // Save secondary (deuteron, gamma)
                 SaveSecondary(iSec);
-                nscnd++;
-
-                /* Save capture info from below */
-                float vtxR2 = secndprt_.vtxscnd[iSec][0] * secndprt_.vtxscnd[iSec][0]
-                            + secndprt_.vtxscnd[iSec][1] * secndprt_.vtxscnd[iSec][1];
-                int inPMT;
-                inpmt_(secndprt_.vtxscnd[iSec], inPMT);
-
-                // Check if the capture is within ID volume
-                if (vtxR2 < dr*dr && fabs(secndprt_.vtxscnd[iSec][2]) < dz && !inPMT) {
-
-                    bool isNewCapture = true;
+                bool isNewCapture = true;
+                
+                // particle produced by n-capture
+                if (secndprt_.lmecscnd[iSec] == 18) {
 
                     // Check saved capture stack
-                    for (int iCheckedCT = 0; iCheckedCT < nCT; iCheckedCT++) {
+                    for (int iCheckedCT = 0; iCheckedCT < nTrueCaptures; iCheckedCT++) {
                         // If this capture is already saved:
                         if (fabs((double)(secndprt_.tscnd[iSec] - vCaptureTime[iCheckedCT])) < 1.e-7) {
                             isNewCapture = false;
                             // Add capture product gammas to the pre-existing stack
                             if (secndprt_.iprtscnd[iSec] == 22) {
-                                PrintMessage(Form("Gamma from already saved capture... vCaptureID %d", iCheckedCT), pDEBUG);
-                                vTotGamE[iCheckedCT] += vPabsscnd[nscnd];
-                                vCaptureID[nscnd] = iCheckedCT;
+                                PrintMessage(Form("Gamma from already saved capture... captureID %d", iCheckedCT), pDEBUG);
+                                vNGam[iCheckedCT]++;
+                                vTotGamE[iCheckedCT] +=  Norm( secndprt_.pscnd[iSec] );
+                                vCaptureID[nSavedSec-1] = iCheckedCT;
                             }
                         }
                     }
@@ -208,28 +207,28 @@ void NTagEventInfo::SetMCInfo()
                         vCapPosz.push_back( secndprt_.vtxscnd[iSec][2] );
                         // Add capture product gamma
                         if (secndprt_.iprtscnd[iSec] == 22) {
-                            PrintMessage(Form("Gamma from new capture... vCaptureID %d", nCT), pDEBUG);
-                            vNGam.push_back(      1                           );
-                            vTotGamE.push_back(   Norm(secndprt_.pscnd[iSec] ));
-                            vCaptureID[nscnd] = nCT;
+                            PrintMessage(Form("Gamma from new capture... vCaptureID %d", nTrueCaptures), pDEBUG);
+                            vNGam.push_back(1);
+                            vTotGamE.push_back( Norm( secndprt_.pscnd[iSec] ) );
+                            vCaptureID[nSavedSec-1] = nTrueCaptures;
                         }
                         else { vNGam.push_back(0); vTotGamE.push_back(0.); }
-                        // nCT++ with new capture
-                        nCT++;
+                        // increment total number of captures
+                        nTrueCaptures++;
                     }
                 }
             }
         }
     }
-    assert((unsigned)nscnd == vIprtscnd.size());
-    assert((unsigned)nscnd == vCaptureID.size());
+    assert((unsigned)nSavedSec == vIprtscnd.size());
+    assert((unsigned)nSavedSec == vCaptureID.size());
 
-    for (int iCapture = 0; iCapture < nCT; iCapture++) {
+    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         PrintMessage(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV]",
                           iCapture, vCaptureTime[iCapture]*1e-3, vTotGamE[iCapture]), pDEBUG);
     }
     PrintMessage(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
-    PrintMessage(Form("Number of captures: %d", nCT), pDEBUG);
+    PrintMessage(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
 }
 
 void NTagEventInfo::SearchCaptureCandidates()
@@ -538,7 +537,7 @@ float NTagEventInfo::TrueCaptureTime(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
 
     if (nscndprt >= SECMAXRNG) return -1;
-    for (int iCapture = 0; iCapture < nCT; iCapture++) {
+    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW)
             return vCaptureTime[iCapture];
     }
@@ -553,7 +552,7 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
     std::array<float, 3> trueCaptureVertex = {0., 0., 0.};
     float tRecon = ReconCaptureTime(candidateID);
 
-    for (int iCapture = 0; iCapture < nCT; iCapture++) {
+    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW) {
                 trueCaptureVertex[0] = vCapPosx[iCapture];
                 trueCaptureVertex[1] = vCapPosy[iCapture];
@@ -795,7 +794,7 @@ int NTagEventInfo::IsTrueCapture(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
 
     if (nscndprt >= SECMAXRNG) return -1;
-    for (int iCapture = 0; iCapture < nCT; iCapture++) {
+    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) return 1;
     }
     return 0;
@@ -806,7 +805,7 @@ int NTagEventInfo::IsTrueGdCapture(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
 
     if (nscndprt >= SECMAXRNG) return -1;
-    for (int iCapture = 0; iCapture < nCT; iCapture++) {
+    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (vTotGamE[iCapture] > 6.) return 1;
             else return 0;
@@ -825,8 +824,8 @@ void NTagEventInfo::Clear()
     nCandidates = 0; N200M = 0;
     T200M = -9999.; firsthit = -9999.;
 
-    nCT = 0;
-    nscnd = 0; nscndprt = 0;
+    nTrueCaptures = 0;
+    nSavedSec = 0; nscndprt = 0;
     nN = modene = numne = 0;
     pnu = 0;
     nvect = 0;
@@ -866,13 +865,14 @@ void NTagEventInfo::SaveSecondary(int secID)
     vVtxscndx.push_back(  secndprt_.vtxscnd[secID][0] ); // creation vertex
     vVtxscndy.push_back(  secndprt_.vtxscnd[secID][1] );
     vVtxscndz.push_back(  secndprt_.vtxscnd[secID][2] );
-    vWallscnd.push_back(  wallsk_(secndprt_.vtxscnd[nscnd])    ); // distance from wall to creation vertex
+    vWallscnd.push_back(  wallsk_(secndprt_.vtxscnd[secID])    ); // distance from wall to creation vertex
     vPscndx.push_back(    secndprt_.pscnd[secID][0]   ); // momentum vector
     vPscndy.push_back(    secndprt_.pscnd[secID][1]   );
     vPscndz.push_back(    secndprt_.pscnd[secID][2]   );
-    vPabsscnd.push_back(  Norm(secndprt_.pscnd[nscnd])         ); // momentum
+    vPabsscnd.push_back(  Norm(secndprt_.pscnd[secID])         ); // momentum
     vTscnd.push_back(     secndprt_.tscnd[secID]     ); // time created
     vCaptureID.push_back( -1                         );
+    nSavedSec++;
 }
 
 void NTagEventInfo::SavePeakFromHit(int hitID)

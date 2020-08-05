@@ -131,14 +131,14 @@ void NTagAnalysis::WriteOutput()
 
 void NTagAnalysis::CreateBranchesToTruthTree()
 {
-    truthTree->Branch("nCT", &nCT);
+    truthTree->Branch("nCT", &nTrueCaptures);
     truthTree->Branch("captureTime", &vCaptureTime);
     truthTree->Branch("capPosx", &vCapPosx);
     truthTree->Branch("capPosy", &vCapPosy);
     truthTree->Branch("capPosz", &vCapPosz);
     truthTree->Branch("nGam", &vNGam);
     truthTree->Branch("totGamEn", &vTotGamE);
-    truthTree->Branch("nscnd", &nscnd);
+    truthTree->Branch("nscnd", &nSavedSec);
     truthTree->Branch("iprtscnd", &vIprtscnd);
     truthTree->Branch("lmecscnd", &vLmecscnd);
     truthTree->Branch("iprntprt", &vIprntprt);
