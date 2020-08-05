@@ -43,10 +43,8 @@ void NTagZBS::OpenFile(const char* fileName)
                 strlen(fileName),5,0,3,0,0,20,0,0);
     skopenf_(&lun, &ipt, "Z", &openError);
 
-    if (openError) {
-        std::cerr << "[NTagAnalysis]: File open error." << std::endl;
-        exit(1);
-    }
+    if (openError)
+        PrintMessage("File open error.", pERROR);
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));

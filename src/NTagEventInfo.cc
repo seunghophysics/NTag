@@ -233,9 +233,11 @@ void NTagEventInfo::SetMCInfo()
 
 void NTagEventInfo::SearchCaptureCandidates()
 {
-    int     iHitPrevious    = 0;
-    float	t0Previous      = 0;
-    float   N200Previous    = 0;
+    int   iHitPrevious    = 0;
+    int   N10New          = 0;
+    int   N10Previous     = 0;
+    int   N200Previous    = 0;
+    float t0Previous      = -1.;
 
     // Loop over the saved TQ hit array from current event
     for (int iHit = 0; iHit < nqiskz; iHit++) {
@@ -243,15 +245,15 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Save time of first hit
         if (firsthit == 0.) firsthit = vSortedT_ToF[iHit];
 
-        // Calculate N10i:
+        // Calculate N10New:
         // number of hits in 10 ns window from the i-th hit
         int N10i = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
 
         // If N10TH <= N10i <= N10MX:
         if ((N10i < N10TH) || (N10i > N10MX+1)) continue;
+        
         // We've found a new peak.
-
-        // t0 of new peak
+        N10New = N10i;
         float t0New = vSortedT_ToF[iHit];
 
         // Save maximum N200 and its t0
@@ -263,21 +265,29 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
-        if (   t0New - t0Previous > TMINPEAKSEP
-           && N200Previous < N200MX
-           && t0Previous*1.e-3 > T0TH) {
+        if (t0New - t0Previous > TMINPEAKSEP) {
+            if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
+            
+                SavePeakFromHit(iHitPrevious);
 
-            SavePeakFromHit(iHitPrevious);
-
-            if (nCandidates >= MAXNP-1) {
-                PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), pWARNING);
-                PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), pWARNING);
-                PrintMessage(Form("Skipping remaining neutrons..."), pWARNING);
-                break;
+                if (nCandidates >= MAXNP-1) {
+                    PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), pWARNING);
+                    PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), pWARNING);
+                    PrintMessage(Form("Skipping remaining neutrons..."), pWARNING);
+                    break;
+                }
             }
+            // Reset N10Previous,
+            // if peaks are separated enough
+            N10Previous = 0;
         }
+        
+        // If N10 is not greater than previous, skip
+        if ( N10New <= N10Previous ) continue;
+        
         iHitPrevious = iHit;
         t0Previous   = t0New;
+        N10Previous  = N10New;
         N200Previous = N200New;
     }
     // Save the last peak
@@ -708,16 +718,16 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
 
 int NTagEventInfo::GetNhitsFromStartIndex(std::vector<float>& T, int startIndex, float tWidth)
 {
-    int i     = startIndex;
-    int nHits = T.size();
+    int searchIndex = startIndex;
+    int nHits       = T.size();
 
     while (1) {
-        i++;
-        if ((i > nHits-1) || (TMath::Abs((T[i] - T[startIndex])) > tWidth))
+        searchIndex++;
+        if ((searchIndex > nHits-1) || (TMath::Abs((T[searchIndex] - T[startIndex])) > tWidth))
             break;
     }
     // Return number of hits within the time window
-    return TMath::Abs(i - startIndex);
+    return TMath::Abs(searchIndex - startIndex);
 }
 
 float NTagEventInfo::GetQhitsFromStartIndex(std::vector<float>& T, std::vector<float>& Q, int startIndex, float tWidth)
@@ -834,7 +844,7 @@ void NTagEventInfo::Clear()
     vSortedPMTID.clear();
     vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
     vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
-    vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN1300.clear();
+    vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
     vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
     vDt.clear(); vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear(); vNwall.clear();
     vDoubleCount.clear();
@@ -903,6 +913,9 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
     // Increment number of neutron candidates
     nCandidates++;
+    
+    // Debug
+    PrintMessage(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }
 
 void NTagEventInfo::SetTMVAReader()
