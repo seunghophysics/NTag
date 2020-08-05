@@ -5,6 +5,7 @@
 
 #include <array>
 #include <vector>
+#include <ctime>
 
 #include <TString.h>
 #include <TMVA/Reader.h>
@@ -38,7 +39,7 @@ class NTagEventInfo
         inline float         Norm(float x, float y, float z);
         float                GetDistance(const float vec1[3], float vec2[3]);
         float                GetLegendreP(int i, float& x); // Legendre polynomials for betas
-        std::array<float, 6> GetBetaArray(int PMTID[], int tID, int n10);
+        std::array<float, 6> GetBetaArray(std::vector<int>& PMTID, int tID, int nHits);
 
         // Variable-related functions
 
@@ -78,6 +79,7 @@ class NTagEventInfo
         virtual void         PrintTag(unsigned int);
         virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
         virtual void         PrintMessage(const char*, unsigned int vType=pDEFAULT);
+        virtual float        Timer(TString, std::clock_t tStart);
 
     private:
         const float (*xyz)[3];              // PMT positions
@@ -101,9 +103,8 @@ class NTagEventInfo
         /************************************************************************************************/
         /**/
         /**/    // SK data variables
-        /**/    int                 nrun, nsub, nev, trgtype, nhitac;
-        /**/    float               trgofst, timnsk, qismsk;
-        /**/    int                 nqiskz;
+        /**/    int                 nrun, nsub, nev, trgtype, nhitac, nqiskz;
+        /**/    float               trgofst, qismsk;
         /**/    std::vector<int>    vSortedPMTID;
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
