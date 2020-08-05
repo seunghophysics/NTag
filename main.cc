@@ -1,13 +1,8 @@
 #include <string.h>
 #include <iostream>
-#include <sstream>
-
-#include <skparmC.h>
-#include <skheadC.h>
-#include <sktqC.h>
+//#include <sstream>
 
 #include "NTagAnalysis.hh"
-#include "SKLibs.hh"
 
 int main(int argc, char** argv)
 {
@@ -22,7 +17,7 @@ int main(int argc, char** argv)
     }
     */
     
-    NTagAnalysis nt(fileName, false, 4);
+    NTagAnalysis nt(fileName, false, vDebug);
     nt.PrintMessage("Done!");
 
     return 0;

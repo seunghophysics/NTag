@@ -101,7 +101,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     TMath::Sort(nqiskz, unsortedT_ToF, sortedIndex, false);
 
     // Save hit info, sorted in (T - ToF)
-    for (int iHit = 0; iHit < nqiskz; iHit++){
+    for(int iHit = 0; iHit < nqiskz; iHit++){
         sortedPMTID[iHit] = sktqz_.icabiz[ sortedIndex[iHit] ];
         sortedT_ToF[iHit] = unsortedT_ToF[ sortedIndex[iHit] ];
         sortedQ[iHit] = sktqz_.qiskz[ sortedIndex[iHit] ];
@@ -277,7 +277,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         if(t0New > 2.e4 && tmpN200 > N200M){
             N200M = tmpN200;
             T200M = t0New;
-          }
+        }
 
         // Skip the first peak in event
         if(isFirstPeak){
