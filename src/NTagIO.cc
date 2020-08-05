@@ -38,15 +38,15 @@ void NTagIO::Initialize()
 
 void NTagIO::ReadEvent()
 {
+    if (!bData) {
+        SetMCInfo();
+    }
+    
     SetEventHeader();
     SetAPFitInfo();
     SetToFSubtractedTQ();
     SearchCaptureCandidates();
     GetTMVAoutput();
-
-    if (!bData) {
-        SetMCInfo();
-    }
 
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
@@ -69,6 +69,7 @@ void NTagIO::CreateBranchesToTruthTree()
     truthTree->Branch("capPosz", &vCapPosz);
     truthTree->Branch("nGam", &vNGam);
     truthTree->Branch("totGamEn", &vTotGamE);
+    truthTree->Branch("trgofst", &trgofst);
     truthTree->Branch("nscnd", &nSavedSec);
     truthTree->Branch("iprtscnd", &vIprtscnd);
     truthTree->Branch("lmecscnd", &vLmecscnd);
@@ -106,7 +107,6 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("nsub", &nsub);
     ntvarTree->Branch("nev", &nev);
     ntvarTree->Branch("trgtype", &trgtype);
-    ntvarTree->Branch("trgofst", &trgofst);
     ntvarTree->Branch("firsthit", &firsthit);
     ntvarTree->Branch("N200M", &N200M);
     ntvarTree->Branch("T200M", &T200M);

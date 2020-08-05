@@ -40,9 +40,7 @@ void NTagEventInfo::SetEventHeader()
     odpc_2nd_s_(&nhitac);
     PrintMessage(Form("Number of OD hits: %d", nhitac), pDEBUG);
 
-    trginfo_(&trgofst);
     qismsk = skq_.qismsk;
-    PrintMessage(Form("Trigger offset: %f", trgofst), pDEBUG);
     PrintMessage(Form("Total charge in ID: %f", qismsk), pDEBUG);
 }
 
@@ -113,6 +111,10 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
 void NTagEventInfo::SetMCInfo()
 {
+    // Read trigger offset
+    trginfo_(&trgofst);
+    PrintMessage(Form("Trigger offset: %f", trgofst), pDEBUG);
+    
     // Read SKVECT (primaries)
     skgetv_();
     nvect  = skvect_.nvect;                       // number of primaries
@@ -538,8 +540,8 @@ float NTagEventInfo::GetDistance(const float vec1[3], float vec2[3])
 
 float NTagEventInfo::ReconCaptureTime(int candidateID)
 {
-    // for skedsim before 13p90 use -trgofst, 13p90 and after use +trgofst
-    return vDt[candidateID] - 1000 + trgofst;
+    // trgofst may change with skdetsim version (13p90)
+    return vDt[candidateID] - trgofst;
 }
 
 float NTagEventInfo::TrueCaptureTime(int candidateID)
