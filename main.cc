@@ -2,12 +2,24 @@
 #include <iostream>
 //#include <sstream>
 
-#include "NTagAnalysis.hh"
+#include "NTagROOT.hh"
+#include "NTagZBS.hh"
 
 int main(int argc, char** argv)
 {
-    const char* fileName = argv[1];
-
+    const char* inputName = argv[1];
+    
+    if (TString(inputName).EndsWith(".root")) {
+        NTagROOT nt(inputName, false, pDEBUG);
+        nt.Initialize();
+        nt.PrintMessage("Done!");
+    }
+    else {
+        NTagZBS nt(inputName, false, pDEBUG);
+        nt.Initialize();
+        nt.PrintMessage("Done!");
+    }
+    
     /* Harada test*/
     /*
     unsigned int verbose;
@@ -17,9 +29,6 @@ int main(int argc, char** argv)
         strValue >> verbose;
     }
     */
-    
-    NTagAnalysis nt(fileName, false, pDEBUG);
-    nt.PrintMessage("Done!");
 
     return 0;
 }

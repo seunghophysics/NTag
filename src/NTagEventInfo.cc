@@ -248,7 +248,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         int N10i = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
 
         // If N10TH <= N10i <= N10MX:
-        if ((N10i < N10TH) || (N10i > N10MX)) continue;
+        if ((N10i < N10TH) || (N10i > N10MX+1)) continue;
         // We've found a new peak.
 
         // t0 of new peak

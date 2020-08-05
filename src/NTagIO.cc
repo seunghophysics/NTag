@@ -7,20 +7,13 @@
 #include <skvectC.h>
 
 #include <SKLibs.hh>
-#include "NTagAnalysis.hh"
+#include "NTagIO.hh"
 
-NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verbose)
-: lun(10)
+NTagIO::NTagIO(const char* fileName, bool useData, unsigned int verbose)
+: fFileName(fileName)
 {
     bData = useData;
     fVerbosity = verbose;
-
-    SetN10Limits(5, 50);
-    SetN200Max(140);
-    SetT0Threshold(2.);		 // [us]
-    SetDistanceCut(4000.);	 // [cm]
-    SetTMatchWindow(40.);	 // [ns]
-    SetTPeakSeparation(50.); // [us]
 
     ntvarTree = new TTree("ntvar", "ntag variables");
     CreateBranchesToNTvarTree();
@@ -29,81 +22,21 @@ NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verb
         truthTree = new TTree("truth", "true variables");
         CreateBranchesToTruthTree();
     }
-
-    OpenFile(fileName);
-    ReadFile();
 }
 
-NTagAnalysis::~NTagAnalysis() {}
+NTagIO::~NTagIO() { WriteOutput(); }
 
-void NTagAnalysis::OpenFile(const char* fileName)
+void NTagIO::Initialize()
 {
-    kzinit_();
-
-    // Set rflist and open file
-    int ipt = 1;
-    int openError;
-
-    set_rflist_(&lun, fileName, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
-                strlen(fileName),5,0,3,0,0,20,0,0);
-    skopenf_(&lun, &ipt, "Z", &openError);
-
-    if (openError) {
-        std::cerr << "[NTagAnalysis]: File open error." << std::endl;
-        exit(1);
-    }
-
-    // Set SK options and SK geometry
-    const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
-    skheadg_.sk_geometry = 4; geoset_();
-
-    // Initialize BONSAI
-    bonsai_ini_();
+    SetN10Limits(5, 50);
+    SetN200Max(140);
+    SetT0Threshold(2.);		 // [us]
+    SetDistanceCut(4000.);	 // [cm]
+    SetTMatchWindow(40.);	 // [ns]
+    SetTPeakSeparation(50.); // [us]
 }
 
-void NTagAnalysis::ReadFile()
-{
-    // Read data event-by-event
-    int readStatus;
-    int eventID = 0;
-    bool bEOF = false;
-
-    while (!bEOF) {
-        Clear();
-        readStatus = skread_(&lun);
-        switch (readStatus) {
-            case 0: // event read
-                eventID++;
-                std::cout << "\n" << std::endl;
-                PrintMessage("###########################", pDEBUG);
-                PrintMessage(Form("Event ID: %d", eventID), pDEBUG);
-                PrintMessage("###########################", pDEBUG);
-                int inPMT;
-                if (!bData) {
-                    skgetv_();
-                    inpmt_(skvect_.pos, inPMT);
-                    if (inPMT) {
-                        PrintMessage(
-                            Form("True vertex is in PMT. Skipping event %d...",
-                                 eventID), pDEBUG);
-                    break;
-                    }
-                }
-                ReadEvent();
-                break;
-            case 1: // read-error
-                break;
-            case 2: // end of input
-                PrintMessage(Form("Reached the end of input. Closing file..."), pDEFAULT);
-                skclosef_(&lun);
-                WriteOutput();
-                bEOF = true;
-                break;
-        }
-    }
-}
-
-void NTagAnalysis::ReadEvent()
+void NTagIO::ReadEvent()
 {
     SetEventHeader();
     SetAPFitInfo();
@@ -119,17 +52,15 @@ void NTagAnalysis::ReadEvent()
     if (!bData) truthTree->Fill();
 }
 
-void NTagAnalysis::WriteOutput()
+void NTagIO::WriteOutput()
 {
     TFile* file = new TFile("out/nTagOutput.root", "recreate");
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     file->Close();
-
-    bonsai_end_();
 }
 
-void NTagAnalysis::CreateBranchesToTruthTree()
+void NTagIO::CreateBranchesToTruthTree()
 {
     truthTree->Branch("nCT", &nTrueCaptures);
     truthTree->Branch("captureTime", &vCaptureTime);
@@ -168,7 +99,7 @@ void NTagAnalysis::CreateBranchesToTruthTree()
     truthTree->Branch("pabs", &vPabs);
 }
 
-void NTagAnalysis::CreateBranchesToNTvarTree()
+void NTagIO::CreateBranchesToNTvarTree()
 {
     ntvarTree->Branch("np", &nCandidates);
     ntvarTree->Branch("nrun", &nrun);

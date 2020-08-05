@@ -1,18 +1,21 @@
-#ifndef NTAGANALYSIS_HH
-#define NTAGANALYSIS_HH 1
+#ifndef NTAGIO_HH
+#define NTAGIO_HH 1
 
 #include <TMVA/Reader.h>
 #include "NTagEventInfo.hh"
 
-class NTagAnalysis : public NTagEventInfo
+class NTagIO : public NTagEventInfo
 {
     public:
-        NTagAnalysis(const char* fileName, bool useData=false, unsigned int verbose=pDEFAULT);
-        virtual ~NTagAnalysis();
-
+        NTagIO(const char* fileName, bool useData=false, unsigned int verbose=pDEFAULT);
+        ~NTagIO();
+        
+        // Initialize
+        virtual void Initialize();
+        
         // File I/O
-        virtual void OpenFile(const char* fileName);
-        virtual void ReadFile();
+        virtual void OpenFile(const char* fileName) = 0;
+        virtual void ReadFile() = 0;
         virtual void ReadEvent();
         virtual void WriteOutput();
 
@@ -22,12 +25,11 @@ class NTagAnalysis : public NTagEventInfo
         //virtual void SetBranchAddressToTruthTree(TTree* tree);
         //virtual void SetBranchAddressToNTvarTree(TTree* tree);
 
-    private:
+    protected:
+        const char* fFileName;
+        
         TTree* truthTree;
         TTree* ntvarTree;
-
-        // File I/O (logical unit)
-        int lun;
 };
 
 #endif
