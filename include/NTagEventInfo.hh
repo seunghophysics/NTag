@@ -39,7 +39,7 @@ class NTagEventInfo
         inline float         Norm(float x, float y, float z);
         float                GetDistance(const float vec1[3], float vec2[3]);
         float                GetLegendreP(int i, float& x); // Legendre polynomials for betas
-        std::array<float, 6> GetBetaArray(std::vector<int>& PMTID, int tID, int nHits);
+        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, int tID, int nHits);
 
         // Variable-related functions
 
@@ -51,14 +51,14 @@ class NTagEventInfo
             std::array<float, 3> TrueCaptureVertex(int candidateID);
 
             /* functions on hits */
-            int                  GetNhitsFromStartIndex(std::vector<float>& T, int startIndex, float tWidth);
-            int                  GetNhitsFromCenterTime(std::vector<float>& T, float centerTime, float searchTWidth);
-            float                GetQhitsFromStartIndex(std::vector<float>& T, std::vector<float>& Q, int startIndex, float tWidth);
+            int                  GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
+            int                  GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float searchTWidth);
+            float                GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth);
             float                GetToF(float vertex[3], int pmtID);
-            float                GetTRMS(std::vector<float>& T);
-            float                GetTRMSFromStartIndex(std::vector<float>& T, int startIndex, float tWidth);
-            float                MinimizeTRMS(std::vector<float>& T, std::vector<int>& PMTID, float fitVertex[3]);
-            std::vector<float>   GetToFSubtracted(std::vector<float>& T, std::vector<int>& PMTID,
+            float                GetTRMS(const std::vector<float>& T);
+            float                GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
+            float                MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float fitVertex[3]);
+            std::vector<float>   GetToFSubtracted(const std::vector<float>& T, const std::vector<int>& PMTID,
                                                   float vertex[3], bool doSort=false);
 
         // Member variable control

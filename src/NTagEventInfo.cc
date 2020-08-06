@@ -102,10 +102,11 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
     // Save hit info, sorted in (T - ToF)
     for (int iHit = 0; iHit < nqiskz; iHit++) {
-        vSortedPMTID.push_back( cabiz[ sortedIndex[iHit] ]  );
+        vSortedPMTID.push_back( cabiz[ sortedIndex[iHit] ]          );
         vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
         vSortedQ.push_back(     sktqz_.qiskz[ sortedIndex[iHit] ]   );
         //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
+        //PrintMessage(Form("iHit: %d    unsortT: %f", iHit, vUnsortedT_ToF[iHit]), pDEBUG);
     }
 }
 
@@ -320,14 +321,16 @@ void NTagEventInfo::SearchCaptureCandidates()
         for (int iHit = 0; iHit < nqiskz; iHit++) {
 
             // Count N50 and save hit indices in vSortedT_ToF
-            if (fabs(vUnsortedT_ToF[iHit] - vDtn[iCapture]) < 25.) {
+            //if (fabs(vUnsortedT_ToF[iHit] - vDtn[iCapture]) < 25.) {
+            if (fabs(vSortedT_ToF[iHit] - vDtn[iCapture]) < 25.) {
                   index50.push_back(iHit);
                   n50hits++;
             }
 
             // Count N1300 and save hit indices in vSortedT_ToF
-            if (vUnsortedT_ToF[iHit] > vDtn[iCapture] - 520.8
-            &&  vUnsortedT_ToF[iHit] < vDtn[iCapture] + 779.2) {
+            //if (vUnsortedT_ToF[iHit] > vDtn[iCapture] - 520.8
+            if (vSortedT_ToF[iHit] > vDtn[iCapture] - 520.8
+            &&  vSortedT_ToF[iHit] < vDtn[iCapture] + 779.2) {
                 if (n1300hits < 1000) {
                     index1300.push_back(iHit);
                     n1300hits++;
@@ -345,6 +348,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             cabiz1300.push_back( sktqz_.icabiz[ index1300[iHit1300] ] );
             tiskz1300.push_back( sktqz_.tiskz[ index1300[iHit1300] ]  );
             qiskz1300.push_back( sktqz_.qiskz[ index1300[iHit1300] ]  );
+            //PrintMessage(Form("cabiz: %d tiskz: %f qiskz: %f", cabiz1300[iHit1300], tiskz1300[iHit1300], qiskz1300[iHit1300]), pDEBUG);
         }
 
         // Calculate betas for N50 hits
@@ -365,7 +369,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         float time0 = vDtn[iCapture];
 
         bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
-        &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+                    &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
 
@@ -589,7 +593,7 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
     return trueCaptureVertex;
 }
 
-std::vector<float> NTagEventInfo::GetToFSubtracted(std::vector<float>& T, std::vector<int>& PMTID, float vertex[3], bool doSort)
+std::vector<float> NTagEventInfo::GetToFSubtracted(const std::vector<float>& T, const std::vector<int>& PMTID, float vertex[3], bool doSort)
 {
     std::vector<float> t_ToF;
 
@@ -612,7 +616,7 @@ std::vector<float> NTagEventInfo::GetToFSubtracted(std::vector<float>& T, std::v
     return t_ToF;
 }
 
-float NTagEventInfo::MinimizeTRMS(std::vector<float>& T, std::vector<int>& PMTID, float rmsFitVertex[])
+float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float rmsFitVertex[])
 {
     float delta;
     bool doSort = true;
@@ -642,14 +646,15 @@ float NTagEventInfo::MinimizeTRMS(std::vector<float>& T, std::vector<int>& PMTID
             for (float y = 0; y < rMax; y++) {
                 srcVertex[1] = delta * (y - rMax/2.) + vecR[1];
 
-                if (TMath::Sqrt(srcVertex[0]*srcVertex[0] + srcVertex[1]*srcVertex[1]) > RINTK) continue;
+                if (sqrt(srcVertex[0]*srcVertex[0] + srcVertex[1]*srcVertex[1]) > RINTK) continue;
                 for (float z = 0; z < zMax; z++) {
                     srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
                     if (srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
                     if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > DISTCUT) continue;
-
+                    //PrintMessage(Form("srcVertex: %f %f %f", srcVertex[0], srcVertex[1], srcVertex[2]), pDEBUG);
                     t_ToF = GetToFSubtracted(T, PMTID, srcVertex.data(), doSort);
                     tRMS = GetTRMS(t_ToF);
+                    //PrintMessage(Form("tRMS: %f", tRMS), pDEBUG);
 
                     if (tRMS < minTRMS) {
                         minTRMS = tRMS;
@@ -673,7 +678,7 @@ float NTagEventInfo::MinimizeTRMS(std::vector<float>& T, std::vector<int>& PMTID
     return minTRMS;
 }
 
-std::array<float, 6> NTagEventInfo::GetBetaArray(std::vector<int>& PMTID, int tID, int nHits)
+std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, int tID, int nHits)
 {
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
 
@@ -730,7 +735,7 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
     return result;
 }
 
-int NTagEventInfo::GetNhitsFromStartIndex(std::vector<float>& T, int startIndex, float tWidth)
+int NTagEventInfo::GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
 {
     int searchIndex = startIndex;
     int nHits       = T.size();
@@ -744,7 +749,7 @@ int NTagEventInfo::GetNhitsFromStartIndex(std::vector<float>& T, int startIndex,
     return TMath::Abs(searchIndex - startIndex);
 }
 
-float NTagEventInfo::GetQhitsFromStartIndex(std::vector<float>& T, std::vector<float>& Q, int startIndex, float tWidth)
+float NTagEventInfo::GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth)
 {
     int nHits       = Q.size();
     int searchIndex = startIndex;
@@ -770,7 +775,7 @@ float NTagEventInfo::GetToF(float vertex[3], int pmtID)
     return GetDistance(xyz[pmtID], vertex) / C_WATER;
 }
 
-float NTagEventInfo::GetTRMS(std::vector<float>& T)
+float NTagEventInfo::GetTRMS(const std::vector<float>& T)
 {
     int   nHits  = T.size();
     float tMean = 0.;
@@ -784,7 +789,7 @@ float NTagEventInfo::GetTRMS(std::vector<float>& T)
     return sqrt(tVar);
 }
 
-float NTagEventInfo::GetTRMSFromStartIndex(std::vector<float>& T, int startIndex, float tWidth)
+float NTagEventInfo::GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
 {
     int nHits = T.size();
     int searchIndex = startIndex;
@@ -800,7 +805,7 @@ float NTagEventInfo::GetTRMSFromStartIndex(std::vector<float>& T, int startIndex
     return GetTRMS(tList);
 }
 
-int NTagEventInfo::GetNhitsFromCenterTime(std::vector<float>& T, float centerTime, float tWidth)
+int NTagEventInfo::GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth)
 {
     int NXX = 0;
 
