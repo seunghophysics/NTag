@@ -10,8 +10,7 @@ ROOT_LIBS    = $(shell root-config --libs)
 
 OLD_ROOT     = $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd
 TMVASYS      = /disk02/usr6/han/Apps/TMVA
-#TMVASETUP   := $(shell . ${TMVASYS}/test/setup.sh ${TMVASYS})
-#$(info [NTag] $$TMVASYS is ${TMVASYS})
+TMVALIB      = $(TMVASYS)/lib
 
 LOCAL_INC    = -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/recon/fitqun \
 			   -I$(OLD_ROOT) \
@@ -34,9 +33,9 @@ CXXFLAGS += -std=c++11
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
-bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out setup
+bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out
 	@echo "[NTag] Building the main program..."
-	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
+	@LD_RUN_PATH=$(SKOFL_LIBDIR):$(A_LIBDIR):$(TMVALIB) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
 	@echo "[NTag] Done!"
 
 obj/bonsai.o: src/bonsai.F obj
@@ -55,11 +54,7 @@ bin obj out:
 	@mkdir $@
 
 
-.PHONY: clean setup
-
-setup:
-	@echo "[NTag] Setting up TMVA install directory..."
-	@. setup/setup.sh $(TMVASYS) >/dev/null
+.PHONY: clean
 	
 clean:
-	@$(RM) -rf *.o *~ .rootrc *.rootmap *.C *.log obj bin
+	@$(RM) -rf *.o *~ .rootrc .rootmap setup/*.rootmap setup/*.rootrc setup/*.C *.log obj bin
