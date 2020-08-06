@@ -1,6 +1,7 @@
-include $(ATMPD_ROOT)/config.gmk
+include $(SKOFL_ROOT)/config.gmk
+#include $(ATMPD_ROOT)/config.gmk
 
-SHELL = /bin/bash
+#SHELL = /bin/bash
 shelltype = setup
 
 NTAG_GD_ROOT = $(shell pwd)
@@ -15,7 +16,9 @@ TMVASYS      = /disk02/usr6/han/Apps/TMVA
 
 LOCAL_INC    = -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/recon/fitqun \
 			   -I$(OLD_ROOT) \
-			   -I$(TMVASYS)/inc
+			   -I$(TMVASYS)/inc \
+				 -I$(SKOFL_ROOT)/include -I$(SKOFL_ROOT)/inc/lowe
+
 
 FORTRANINCLUDES += -I$(SKOFL_FORTRAN_INCDIR)/lowe
 
@@ -23,7 +26,6 @@ LOCAL_LIBS   = $(APLIB) \
 			   -lsklowe_7.0 -lsollib_4.0 -lwtlib_5.1 -lbonsai_3.3 -lstmu -lska \
 			   -L$(TMVASYS)/lib -lTMVA.1 \
 			   $(ROOT_LIBS) -lMinuit -lXMLIO -lMLP
-
 
 APLIB =  -lapdrlib -laplib -lringlib -ltp -ltf -lringlib \
 	 -laplib -lmsfit -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
@@ -49,7 +51,8 @@ obj/main.o: main.cc obj
 
 obj/%.o: src/%.cc obj
 	@echo "[NTag] Building $*..."
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@LD_RUN_PATH=$(A_LIBDIR) $(CXX) $(CXXFLAGS) -c $< -o $@
+
 
 bin obj out:
 	@mkdir $@

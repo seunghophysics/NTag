@@ -13,7 +13,8 @@ class NTagZBS : public NTagIO
         void Initialize();
         
          // File I/O
-        void OpenFile(const char* fileName);
+        void OpenFile(const char* iFileName);
+        void OpenFile(const char* iFileName, const char* oFileName);
         void ReadFile();
 
         // Tree-related

@@ -9,8 +9,39 @@
 #include <SKLibs.hh>
 #include "NTagIO.hh"
 
-NTagIO::NTagIO(const char* fileName, bool useData, unsigned int verbose)
-: fFileName(fileName)
+//NTagIO::NTagIO(const char* iFileName, const char* oFileName, bool useData, unsigned int verbose)
+//: fInFileName(iFileName)
+//{
+//    bData = useData;
+//    fVerbosity = verbose;
+//
+//    ntvarTree = new TTree("ntvar", "ntag variables");
+//    CreateBranchesToNTvarTree();
+//
+//    if (!bData) {
+//        truthTree = new TTree("truth", "true variables");
+//        CreateBranchesToTruthTree();
+//    }
+//}
+
+
+NTagIO::NTagIO(const char* ifileName, bool useData, unsigned int verbose)
+: fInFileName(ifileName)
+{
+    bData = useData;
+    fVerbosity = verbose;
+
+    ntvarTree = new TTree("ntvar", "ntag variables");
+    CreateBranchesToNTvarTree();
+
+    if (!bData) {
+        truthTree = new TTree("truth", "true variables");
+        CreateBranchesToTruthTree();
+    }
+}
+
+NTagIO::NTagIO(const char* ifileName, const char* ofileName, bool useData, unsigned int verbose)
+: fInFileName(ifileName), fOutFileName(ofileName)
 {
     bData = useData;
     fVerbosity = verbose;
@@ -41,6 +72,7 @@ void NTagIO::ReadEvent()
     SetEventHeader();
     SetAPFitInfo();
     SetToFSubtractedTQ();
+
     SearchCaptureCandidates();
     GetTMVAoutput();
 
@@ -110,9 +142,9 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("firsthit", &firsthit);
     ntvarTree->Branch("N200M", &N200M);
     ntvarTree->Branch("T200M", &T200M);
-    ntvarTree->Branch("vx", &apvx);
-    ntvarTree->Branch("vy", &apvy);
-    ntvarTree->Branch("vz", &apvz);
+    ntvarTree->Branch("vx", &pvx);
+    ntvarTree->Branch("vy", &pvy);
+    ntvarTree->Branch("vz", &pvz);
     ntvarTree->Branch("nvx", &vNvx);
     ntvarTree->Branch("nvy", &vNvy);
     ntvarTree->Branch("nvz", &vNvz);
