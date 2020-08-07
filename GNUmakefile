@@ -57,4 +57,4 @@ bin obj out:
 .PHONY: clean
 	
 clean:
-	@$(RM) -rf *.o *~ .rootrc .rootmap setup/*.rootmap setup/*.rootrc setup/*.C *.log obj bin
+	@$(RM) -rf *.o *~ .rootrc *.rootmap *.C *.log obj bin
