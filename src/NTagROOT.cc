@@ -24,7 +24,7 @@ void NTagROOT::Initialize()
 {
     // default setting
     NTagIO::Initialize();
-    
+
     // custom settings
     SetN10Limits(5, 50);
     SetN200Max(140);
@@ -32,48 +32,16 @@ void NTagROOT::Initialize()
     SetDistanceCut(4000.);	 // [cm]
     SetTMatchWindow(40.);	 // [ns]
     SetTPeakSeparation(50.); // [us]
-    
-    OpenFile(fInFileName, fOutFileName);
+
+    OpenFile();
     ReadFile();
 }
 
-void NTagROOT::OpenFile(const char* ifileName, const char* ofileName)
+void NTagROOT::OpenFile()
 {
-    kzinit_();
-
-    // Set rflist and open file
-    int ipt = 1;
-
-		std::string sInFile(ifileName);
-		std::string sOutFile(ofileName);
-		skroot_open_(&lun, ofileName, sOutFile.length());
-
-		skroot_set_input_file_(&lun, ifileName, sInFile.length());
-
-		skroot_initialize_(&lun);
-
-    // Set SK options and SK geometry
-    const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
-    skheadg_.sk_geometry = 4; geoset_();
-
-    // Initialize BONSAI
-    bonsai_ini_();
-}
-
-void NTagROOT::OpenFile(const char* ifileName)
-{
-    kzinit_();
-
-    // Set rflist and open file
-    int ipt = 1;
-    int openError;
-
-	std::string sInFile(ifileName);
-	std::string sOutFile("output_Ntag.root");
-	
-	skroot_open_(&lun, sOutFile.c_str(), sOutFile.length());
-	skroot_set_input_file_(&lun, ifileName, sInFile.length());
-	skroot_initialize_(&lun);
+    skroot_open_(&lun, fOutFileName, strlen(fOutFileName));
+    skroot_set_input_file_(&lun, fInFileName, strlen(fInFileName));
+    skroot_initialize_(&lun);
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
@@ -119,8 +87,8 @@ void NTagROOT::ReadFile()
 
             case 2: // end of input
                 PrintMessage(Form("Reached the end of input. Closing file..."), pDEFAULT);
-								skroot_close_(&lun);
-								skroot_end_();
+                skroot_close_(&lun);
+                skroot_end_();
                 bEOF = true;
                 break;
         }
@@ -142,33 +110,5 @@ void NTagROOT::ReadEvent()
 
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
-}
-
-
-void NTagROOT::SetLowFitInfo()
-{
-		int readStatus;
-
-		skroot_get_lowe_(&lun, &readStatus, bsvertex, bsresult, bsdir, bsgood, &bsdirks, bseffhit, &bsenergy, &bsn50, &bscossun, 
-		  clvertex, clresult, cldir, &clgoodness, &cldirks, cleffhit, &clenergy, &cln50,  &clcossun, 
-			&latmnum, &latmh, &lmx24, &ltimediff, &lnsratio, lsdir,
-			&spaevnum, &spaloglike, &sparesq, &spadt, &spadll, &spadlt, &spamuyn, &spamugdn, 
-			posmc, dirmc, pabsmc, energymc, &darkmc, 
-			&islekeep, &bspatlik, &clpatlik, &lwatert, &lninfo, linfo);
-			
-    // Get LowFit vertex
-    pvx = bsvertex[0];
-    pvy = bsvertex[1];
-    pvz = bsvertex[2];
-
-    float tmp_v[3] = {pvx, pvy, pvz};
-    towall = wallsk_(tmp_v);
-
-    PrintMessage(Form("LowFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
-    PrintMessage(Form("d_wall: %f", towall), pDEBUG);
-
-    // E_vis
-    evis = bsenergy;
-    PrintMessage(Form("e_vis: %f", evis), pDEBUG);
 }
 
