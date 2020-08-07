@@ -4,7 +4,8 @@
 
 #include <TMath.h>
 
-#include <skparmC.h>
+#include <skroot.h>
+#undef MAXHWSK
 #include <apmringC.h>
 #include <apmueC.h>
 #include <appatspC.h>
@@ -85,19 +86,22 @@ void NTagEventInfo::SetAPFitInfo()
 
 void NTagEventInfo::SetLowFitInfo()
 {
-    int readStatus;
-    int lun = 10;
-    float bsenergy, bsvertex[3];
+    int    readStatus;
+    int    lun = 10;
+    float  bsenergy, bsvertex[4];
+    int    idummy;
+    float  fdummy, adummy[3];
+    double ddummy;
     
-    skroot_get_lowe_(&lun, &readStatus, bsvertex, nullptr, nullptr, 
-                     nullptr,  nullptr, nullptr, &bsenergy, nullptr, 
-                     nullptr, nullptr, nullptr, nullptr, nullptr,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, 
-                     nullptr, nullptr, nullptr, nullptr, nullptr,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, 
-                     nullptr, nullptr, nullptr, nullptr, nullptr,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, 
-                     nullptr, nullptr, nullptr, nullptr, nullptr);
+    skroot_get_lowe_(&lun, &readStatus, bsvertex, &fdummy, &fdummy, 
+                     &fdummy, &fdummy, &fdummy, &bsenergy, &idummy, 
+                     &fdummy, &fdummy, &fdummy, &fdummy, &fdummy,
+                     &fdummy, &fdummy, &fdummy, &idummy, &fdummy, 
+                     &idummy, &idummy, &idummy, &ddummy, &fdummy,
+                     &fdummy, &idummy, &fdummy, &fdummy, &fdummy, 
+                     &fdummy, &fdummy, &idummy, &fdummy, &fdummy,
+                     &adummy, &fdummy, &fdummy, &fdummy, &idummy, 
+                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);
             
     // Get LowFit vertex
     pvx = bsvertex[0];

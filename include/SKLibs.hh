@@ -1,8 +1,6 @@
 #ifndef SKLIBS_HH
 #define SKLIBS_HH 1
 
-#include "fortran_interface.h"
-
 // SK I/O
 extern "C" {
     void kzinit_();
@@ -12,20 +10,29 @@ extern "C" {
                      int, int, int, int, int, int, int, int, int);
     void skopenf_(int*, int*, const char*, int*);
     void skoptn_(const char*, int);
-    int skread_(int*);
+    int  skread_(int*);
     void skclosef_(int*);
 }
 
 // data control
 extern "C" {
-    void nerdnebk_(float*);
-    void skgetv_();
-    void apflscndprt_();
-    void trginfo_(float*);
-    void aprstbnk_(int*);
-    void odpc_2nd_s_(int*);
-    void inpmt_(float*, int&);
+    void  nerdnebk_(float*);
+    void  skgetv_();
+    void  apflscndprt_();
+    void  trginfo_(float*);
+    void  aprstbnk_(int*);
+    void  odpc_2nd_s_(int*);
+    void  inpmt_(float*, int&);
     float wallsk_(float*);
+    /*void  skroot_get_lowe_(int*, int*, float*, float*, float*, 
+                     float*, float*, float*, float*, int*, 
+                     float*, float*, float*, float*, float*,
+                     float*, float*, float*, int*, float*, 
+                     int*, int*, int*, double*, float*,
+                     float*, int*, float*, float*, float*, 
+                     float*, float*, int*, float*, float*,
+                     float*, float*, float*, float*, int*, 
+                     float*, float*, float*, int*, int*);*/
 }
 
 // BONSAI
