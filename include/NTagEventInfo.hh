@@ -26,7 +26,7 @@ class NTagEventInfo
         // Event handling
         virtual void         SetEventHeader();
         virtual void         SetAPFitInfo();
-        virtual void         SetLowFitInfo(){};
+        virtual void         SetLowFitInfo();
         virtual void         SetToFSubtractedTQ();
         virtual void         SetMCInfo();
         virtual void         SearchCaptureCandidates();
@@ -107,9 +107,9 @@ class NTagEventInfo
         /**/    std::vector<int>    vSortedPMTID;
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
-        /**/ /*M.Harada */
-        /**/  /* vx, vy, vz, towall should be same for both ATMPD and LOWE,*/
-        /**/  /* because for using same Ntag algorithm.*/
+        /**/    /* M.Harada */
+        /**/    /* vx, vy, vz, towall should be same for both ATMPD and LOWE,*/
+        /**/    /* because for using same Ntag algorithm.*/
         /**/    // Fit variables
         /**/    float               pvx, pvy, pvz, towall;
         /**/
@@ -120,7 +120,7 @@ class NTagEventInfo
         /**/    std::vector<float>  vApamom, vApmome, vApmomm;
         /**/
         /**/    // LowFit variables
-        /**/    float               bsenergy;
+        /**/    //float               bsenergy;
         /**/
         /**/        // Variables for neutron capture candidates
         /**/        int                 nCandidates, N200M;
