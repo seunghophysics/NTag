@@ -268,13 +268,6 @@ void NTagEventInfo::SearchCaptureCandidates()
            && t0Previous*1.e-3 > T0TH) {
 
             SavePeakFromHit(iHitPrevious);
-
-            if (nCandidates >= MAXNP-1) {
-                PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), pWARNING);
-                PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), pWARNING);
-                PrintMessage(Form("Skipping remaining neutrons..."), pWARNING);
-                break;
-            }
         }
         iHitPrevious = iHit;
         t0Previous   = t0New;
