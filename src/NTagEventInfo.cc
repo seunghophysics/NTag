@@ -85,6 +85,38 @@ void NTagEventInfo::SetAPFitInfo()
     }
 }
 
+void NTagEventInfo::SetLowFitInfo()
+{
+    int readStatus;
+    int lun = 10;
+    float bsenergy, bsvertex[3];
+    
+    skroot_get_lowe_(&lun, &readStatus, bsvertex, nullptr, nullptr, 
+                     nullptr,  nullptr, nullptr, &bsenergy, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr);
+            
+    // Get LowFit vertex
+    pvx = bsvertex[0];
+    pvy = bsvertex[1];
+    pvz = bsvertex[2];
+
+    float tmp_v[3] = {pvx, pvy, pvz};
+    towall = wallsk_(tmp_v);
+
+    PrintMessage(Form("LowFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
+    PrintMessage(Form("d_wall: %f", towall), pDEBUG);
+
+    // E_vis
+    evis = bsenergy;
+    PrintMessage(Form("e_vis: %f", evis), pDEBUG);
+}
+
 void NTagEventInfo::SetToFSubtractedTQ()
 {
     nqiskz = sktqz_.nqiskz;

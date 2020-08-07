@@ -2,39 +2,8 @@
 
 #include "NTagIO.hh"
 
-//NTagIO::NTagIO(const char* iFileName, const char* oFileName, bool useData, unsigned int verbose)
-//: fInFileName(iFileName)
-//{
-//    bData = useData;
-//    fVerbosity = verbose;
-//
-//    ntvarTree = new TTree("ntvar", "ntag variables");
-//    CreateBranchesToNTvarTree();
-//
-//    if (!bData) {
-//        truthTree = new TTree("truth", "true variables");
-//        CreateBranchesToTruthTree();
-//    }
-//}
-
-
-NTagIO::NTagIO(const char* ifileName, bool useData, unsigned int verbose)
-: fInFileName(ifileName)
-{
-    bData = useData;
-    fVerbosity = verbose;
-
-    ntvarTree = new TTree("ntvar", "ntag variables");
-    CreateBranchesToNTvarTree();
-
-    if (!bData) {
-        truthTree = new TTree("truth", "true variables");
-        CreateBranchesToTruthTree();
-    }
-}
-
-NTagIO::NTagIO(const char* ifileName, const char* ofileName, bool useData, unsigned int verbose)
-: fInFileName(ifileName), fOutFileName(ofileName)
+NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
+: fInFileName(inFileName), fOutFileName(outFileName)
 {
     bData = useData;
     fVerbosity = verbose;
@@ -60,26 +29,9 @@ void NTagIO::Initialize()
     SetTPeakSeparation(50.); // [us]
 }
 
-void NTagIO::ReadEvent()
-{
-    SetEventHeader();
-    SetAPFitInfo();
-    SetToFSubtractedTQ();
-
-    SearchCaptureCandidates();
-    GetTMVAoutput();
-
-    if (!bData) {
-        SetMCInfo();
-    }
-
-    ntvarTree->Fill();
-    if (!bData) truthTree->Fill();
-}
-
 void NTagIO::WriteOutput()
 {
-    TFile* file = new TFile("out/nTagOutput.root", "recreate");
+    TFile* file = new TFile(fOutFileName, "recreate");
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     file->Close();
