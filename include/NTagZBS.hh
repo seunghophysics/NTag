@@ -6,15 +6,17 @@
 class NTagZBS : public NTagIO
 {
     public:
-        NTagZBS(const char* fileName, bool useData, unsigned int verbose);
+        NTagZBS(const char* inFileName, const char* outFileName="out/NTagOutput.root", 
+                bool useData=false, unsigned int verbose=pDEFAULT);
         ~NTagZBS();
         
         // Initialize
         void Initialize();
         
          // File I/O
-        void OpenFile(const char* fileName);
+        void OpenFile();
         void ReadFile();
+        void ReadEvent();
 
         // Tree-related
         //void CreateBranchesToTruthTree();
@@ -25,7 +27,6 @@ class NTagZBS : public NTagIO
     private:
         // File I/O (logical unit)
         int lun;
-    
 };
 
 #endif

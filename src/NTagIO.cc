@@ -1,16 +1,9 @@
-#include <math.h>
-#include <stdlib.h>
-
 #include <TFile.h>
 
-#include <skheadC.h>
-#include <skvectC.h>
-
-#include <SKLibs.hh>
 #include "NTagIO.hh"
 
-NTagIO::NTagIO(const char* fileName, bool useData, unsigned int verbose)
-: fFileName(fileName)
+NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
+: fInFileName(inFileName), fOutFileName(outFileName)
 {
     bData = useData;
     fVerbosity = verbose;
@@ -36,25 +29,9 @@ void NTagIO::Initialize()
     SetTPeakSeparation(50.); // [us]
 }
 
-void NTagIO::ReadEvent()
-{
-    if (!bData) {
-        SetMCInfo();
-    }
-    
-    SetEventHeader();
-    SetAPFitInfo();
-    SetToFSubtractedTQ();
-    SearchCaptureCandidates();
-    GetTMVAoutput();
-
-    ntvarTree->Fill();
-    if (!bData) truthTree->Fill();
-}
-
 void NTagIO::WriteOutput()
 {
-    TFile* file = new TFile("out/nTagOutput.root", "recreate");
+    TFile* file = new TFile(fOutFileName, "recreate");
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     file->Close();
@@ -110,9 +87,9 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("firsthit", &firsthit);
     ntvarTree->Branch("N200M", &N200M);
     ntvarTree->Branch("T200M", &T200M);
-    ntvarTree->Branch("vx", &apvx);
-    ntvarTree->Branch("vy", &apvy);
-    ntvarTree->Branch("vz", &apvz);
+    ntvarTree->Branch("vx", &pvx);
+    ntvarTree->Branch("vy", &pvy);
+    ntvarTree->Branch("vz", &pvz);
     ntvarTree->Branch("nvx", &vNvx);
     ntvarTree->Branch("nvy", &vNvy);
     ntvarTree->Branch("nvz", &vNvz);

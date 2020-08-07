@@ -1,24 +1,29 @@
 #include <math.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include <TFile.h>
 
 #include <skheadC.h>
 #include <skvectC.h>
-
+#undef MAXHWSK
+#include <skroot.h>
 #include <SKLibs.hh>
+
 #include "NTagROOT.hh"
+//#include "SKLowe_root.h"
+//#include "loweroot.h"
 
-NTagROOT::NTagROOT(const char* fileName, bool useData, unsigned int verbose)
-: NTagIO(fileName, useData, verbose), lun(10) {}
+NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
+: NTagIO(inFileName, outFileName, useData, verbose), lun(10) {}
 
-NTagROOT::~NTagROOT() {}
+NTagROOT::~NTagROOT() { bonsai_end_(); }
 
 void NTagROOT::Initialize()
 {
     // default setting
     NTagIO::Initialize();
-    
+
     // custom settings
     SetN10Limits(5, 50);
     SetN200Max(140);
@@ -26,27 +31,16 @@ void NTagROOT::Initialize()
     SetDistanceCut(4000.);	 // [cm]
     SetTMatchWindow(40.);	 // [ns]
     SetTPeakSeparation(50.); // [us]
-    
-    OpenFile(fFileName);
+
+    OpenFile();
     ReadFile();
 }
 
-void NTagROOT::OpenFile(const char* fileName)
+void NTagROOT::OpenFile()
 {
-    kzinit_();
-
-    // Set rflist and open file
-    int ipt = 1;
-    int openError;
-
-    set_rflist_(&lun, fileName, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
-                strlen(fileName),5,0,3,0,0,20,0,0);
-    skopenf_(&lun, &ipt, "Z", &openError);
-
-    if (openError) {
-        std::cerr << "[NTagROOT]: File open error." << std::endl;
-        exit(1);
-    }
+    skroot_open_(&lun, fOutFileName, strlen(fOutFileName));
+    skroot_set_input_file_(&lun, fInFileName, strlen(fInFileName));
+    skroot_initialize_(&lun);
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
@@ -86,13 +80,34 @@ void NTagROOT::ReadFile()
                 }
                 ReadEvent();
                 break;
+
             case 1: // read-error
                 break;
+
             case 2: // end of input
                 PrintMessage(Form("Reached the end of input. Closing file..."), pDEFAULT);
-                skclosef_(&lun);
+                skroot_close_(&lun);
+                skroot_end_();
                 bEOF = true;
                 break;
         }
     }
 }
+
+void NTagROOT::ReadEvent()
+{
+    SetEventHeader();
+    SetLowFitInfo();
+    SetToFSubtractedTQ();
+
+    SearchCaptureCandidates();
+    GetTMVAoutput();
+
+    if (!bData) {
+        SetMCInfo();
+    }
+
+    ntvarTree->Fill();
+    if (!bData) truthTree->Fill();
+}
+

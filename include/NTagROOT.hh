@@ -6,15 +6,17 @@
 class NTagROOT : public NTagIO
 {
     public:
-        NTagROOT(const char* fileName, bool useData, unsigned int verbose);
+        NTagROOT(const char* inFileName, const char* outFileName="out/NTagOut.root", 
+                 bool useData=false, unsigned int verbose=pDEFAULT);
         ~NTagROOT();
         
         // Initialize
         void Initialize();
         
         // File I/O
-        void OpenFile(const char* fileName);
+        void OpenFile();
         void ReadFile();
+        void ReadEvent();
 
         // Tree-related 
         //void CreateBranchesToTruthTree();

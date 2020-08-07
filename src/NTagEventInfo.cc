@@ -51,14 +51,14 @@ void NTagEventInfo::SetAPFitInfo()
     aprstbnk_(&bank);
 
     // Get APFit vertex
-    apvx = apcommul_.appos[0];
-    apvy = apcommul_.appos[1];
-    apvz = apcommul_.appos[2];
+    pvx = apcommul_.appos[0];
+    pvy = apcommul_.appos[1];
+    pvz = apcommul_.appos[2];
 
-    float tmp_v[3] = {apvx, apvy, apvz};
+    float tmp_v[3] = {pvx, pvy, pvz};
     towall = wallsk_(tmp_v);
 
-    PrintMessage(Form("APFit vertex: %f, %f, %f", apvx, apvy, apvz), pDEBUG);
+    PrintMessage(Form("APFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
     PrintMessage(Form("d_wall: %f", towall), pDEBUG);
 
     // E_vis
@@ -83,6 +83,38 @@ void NTagEventInfo::SetAPFitInfo()
     }
 }
 
+void NTagEventInfo::SetLowFitInfo()
+{
+    int readStatus;
+    int lun = 10;
+    float bsenergy, bsvertex[3];
+    
+    skroot_get_lowe_(&lun, &readStatus, bsvertex, nullptr, nullptr, 
+                     nullptr,  nullptr, nullptr, &bsenergy, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, 
+                     nullptr, nullptr, nullptr, nullptr, nullptr);
+            
+    // Get LowFit vertex
+    pvx = bsvertex[0];
+    pvy = bsvertex[1];
+    pvz = bsvertex[2];
+
+    float tmp_v[3] = {pvx, pvy, pvz};
+    towall = wallsk_(tmp_v);
+
+    PrintMessage(Form("LowFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
+    PrintMessage(Form("d_wall: %f", towall), pDEBUG);
+
+    // E_vis
+    evis = bsenergy;
+    PrintMessage(Form("e_vis: %f", evis), pDEBUG);
+}
+
 void NTagEventInfo::SetToFSubtractedTQ()
 {
     nqiskz = sktqz_.nqiskz;
@@ -94,8 +126,8 @@ void NTagEventInfo::SetToFSubtractedTQ()
     PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
 
     // Subtract TOF from PMT hit time
-    float apfitVertex[3] = {apvx, apvy, apvz};
-    vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, apfitVertex);
+    float fitVertex[3] = {pvx, pvy, pvz};
+    vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex);
 
     // Sort: first hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
@@ -270,15 +302,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
-
                 SavePeakFromHit(iHitPrevious);
-
-                if (nCandidates >= MAXNP-1) {
-                    PrintMessage(Form("Run %d Subrun %d Event %d", nrun, nsub, nev), pWARNING);
-                    PrintMessage(Form("Number of neutron candidates reached limit (MAXNP=%d)", MAXNP), pWARNING);
-                    PrintMessage(Form("Skipping remaining neutrons..."), pWARNING);
-                    break;
-                }
             }
             // Reset N10Previous,
             // if peaks are separated enough
@@ -516,12 +540,12 @@ void NTagEventInfo::GetTMVAoutput()
         mva_nwall 		= vNwall[iCapture];
         mva_trms50 		= vTrms50[iCapture];
 
-        mva_AP_BONSAI 	= Norm(apvx - vBvx[iCapture],
-                               apvy - vBvy[iCapture],
-                               apvz - vBvz[iCapture]);
-        mva_AP_Nfit 	= Norm(apvx - vNvx[iCapture],
-                               apvy - vNvy[iCapture],
-                               apvz - vNvz[iCapture]);
+        mva_AP_BONSAI 	= Norm(pvx - vBvx[iCapture],
+                               pvy - vBvy[iCapture],
+                               pvz - vBvz[iCapture]);
+        mva_AP_Nfit 	= Norm(pvx - vNvx[iCapture],
+                               pvy - vNvy[iCapture],
+                               pvz - vNvz[iCapture]);
         mva_Nfit_BONSAI = Norm(vNvx[iCapture] - vBvx[iCapture],
                                vNvy[iCapture] - vBvy[iCapture],
                                vNvz[iCapture] - vBvz[iCapture]);
@@ -687,9 +711,9 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     for (int i = 0; i < nHits; i++) {
         float distFromVertexToPMT;
         float vecFromVertexToPMT[3];
-        vecFromVertexToPMT[0] = xyz[PMTID[tID+i]-1][0] - apvx;
-        vecFromVertexToPMT[1] = xyz[PMTID[tID+i]-1][1] - apvy;
-        vecFromVertexToPMT[2] = xyz[PMTID[tID+i]-1][2] - apvz;
+        vecFromVertexToPMT[0] = xyz[PMTID[tID+i]-1][0] - pvx;
+        vecFromVertexToPMT[1] = xyz[PMTID[tID+i]-1][1] - pvy;
+        vecFromVertexToPMT[2] = xyz[PMTID[tID+i]-1][2] - pvz;
         distFromVertexToPMT = Norm(vecFromVertexToPMT);
         uvx[i] = vecFromVertexToPMT[0] / distFromVertexToPMT;
         uvy[i] = vecFromVertexToPMT[1] / distFromVertexToPMT;
@@ -849,7 +873,7 @@ void NTagEventInfo::Clear()
     nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
     trgofst = 0; qismsk = 0;
     nring = 0; nmue = 0; ndcy = 0;
-    evis = 0; apvx = 0; apvy = 0; apvz = 0; towall = 0;
+    evis = 0; pvx = 0; pvy = 0; pvz = 0; towall = 0;
     nCandidates = 0; N200M = 0;
     T200M = -9999.; firsthit = -9999.;
 
@@ -916,9 +940,9 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
     // Save info to the member variables
-    vNvx.push_back(       apvx                   );
-    vNvy.push_back(       apvy                   );
-    vNvz.push_back(       apvz                   );
+    vNvx.push_back(       pvx                   );
+    vNvy.push_back(       pvy                   );
+    vNvz.push_back(       pvz                   );
     vN10.push_back(       N10i                   );
     vN10n.push_back(       N10i                  );
     vN200.push_back(      N200                   );

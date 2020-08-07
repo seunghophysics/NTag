@@ -1,6 +1,8 @@
 #ifndef SKLIBS_HH
 #define SKLIBS_HH 1
 
+#include "fortran_interface.h"
+
 // SK I/O
 extern "C" {
     void kzinit_();
