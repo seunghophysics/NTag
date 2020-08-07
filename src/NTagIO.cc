@@ -1,12 +1,5 @@
-#include <math.h>
-#include <stdlib.h>
-
 #include <TFile.h>
 
-#include <skheadC.h>
-#include <skvectC.h>
-
-#include <SKLibs.hh>
 #include "NTagIO.hh"
 
 //NTagIO::NTagIO(const char* iFileName, const char* oFileName, bool useData, unsigned int verbose)

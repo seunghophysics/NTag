@@ -14,10 +14,6 @@
 #include "apmringC.h"
 
 #include "loweroot.h"
-#include "skparmC.h"
-
-#define MAXNP (500)
-#define kMaxCT (4000)
 
 enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
 
@@ -87,13 +83,13 @@ class NTagEventInfo
     private:
         const float (*xyz)[3];              // PMT positions
         const float C_WATER;                // Speed-of-light in water [cm/ns]
-        
+
         // Tag conditions
         int         N10TH, N10MX, N200MX;   // N_hits cut
         float       T0TH;                   // T0 threshold
         float       DISTCUT;
         float       TMATCHWINDOW;           // used in function IsTrueCapture
-        float       TMINPEAKSEP;            // minimum peak separation in time 
+        float       TMINPEAKSEP;            // minimum peak separation in time
 
         TMVA::Reader* reader;
 
@@ -112,8 +108,8 @@ class NTagEventInfo
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
         /**/ /*M.Harada */
-				/**/  /* vx, vy, vz, towall should be same for both ATMPD and LOWE,*/
-			  /**/  /* because for using same Ntag algorithm.*/
+        /**/  /* vx, vy, vz, towall should be same for both ATMPD and LOWE,*/
+        /**/  /* because for using same Ntag algorithm.*/
         /**/    // Fit variables
         /**/    float               pvx, pvy, pvz, towall;
         /**/

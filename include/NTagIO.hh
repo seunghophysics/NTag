@@ -1,9 +1,7 @@
 #ifndef NTAGIO_HH
 #define NTAGIO_HH 1
 
-#include <TMVA/Reader.h>
 #include "NTagEventInfo.hh"
-#include "skroot.h"
 
 class NTagIO : public NTagEventInfo
 {
