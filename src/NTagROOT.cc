@@ -42,7 +42,6 @@ void NTagROOT::OpenFile()
     skroot_set_input_file_(&lun, fInFileName, strlen(fInFileName));
     skroot_initialize_(&lun);
 
-    PrintMessage("SKROOT initialized.", pDEBUG);
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
     skheadg_.sk_geometry = 4; geoset_();

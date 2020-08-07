@@ -16,5 +16,5 @@ cd NTag; make
 
 ### How to run
 ```
-./bin/main (input zbs)
+./bin/main (output filename) (input filename)
 ```
