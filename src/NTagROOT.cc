@@ -7,6 +7,9 @@
 #include <skheadC.h>
 #include <skvectC.h>
 
+#undef MAXHWSK
+#include <skroot.h>
+
 #include <SKLibs.hh>
 #include "NTagROOT.hh"
 #include "SKLowe_root.h"
@@ -40,16 +43,10 @@ void NTagROOT::OpenFile(const char* ifileName, const char* ofileName)
 
     // Set rflist and open file
     int ipt = 1;
-    int openError;
 
 		std::string sInFile(ifileName);
 		std::string sOutFile(ofileName);
 		skroot_open_(&lun, ofileName, sOutFile.length());
-
-    if (openError) {
-        std::cerr << "[NTagROOT]: File open error." << std::endl;
-        exit(1);
-    }
 
 		skroot_set_input_file_(&lun, ifileName, sInFile.length());
 
@@ -71,18 +68,12 @@ void NTagROOT::OpenFile(const char* ifileName)
     int ipt = 1;
     int openError;
 
-		std::string sInFile(ifileName);
-		std::string sOutFile("output_Ntag.root");
-		skroot_open_(&lun, sOutFile.c_str(), sOutFile.length());
-
-    if (openError) {
-        std::cerr << "[NTagROOT]: File open error." << std::endl;
-        exit(1);
-    }
-
-		skroot_set_input_file_(&lun, ifileName, sInFile.length());
-
-		skroot_initialize_(&lun);
+	std::string sInFile(ifileName);
+	std::string sOutFile("output_Ntag.root");
+	
+	skroot_open_(&lun, sOutFile.c_str(), sOutFile.length());
+	skroot_set_input_file_(&lun, ifileName, sInFile.length());
+	skroot_initialize_(&lun);
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
@@ -164,6 +155,7 @@ void NTagROOT::SetLowFitInfo()
 			&spaevnum, &spaloglike, &sparesq, &spadt, &spadll, &spadlt, &spamuyn, &spamugdn, 
 			posmc, dirmc, pabsmc, energymc, &darkmc, 
 			&islekeep, &bspatlik, &clpatlik, &lwatert, &lninfo, linfo);
+			
     // Get LowFit vertex
     pvx = bsvertex[0];
     pvy = bsvertex[1];
