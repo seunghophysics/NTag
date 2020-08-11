@@ -6,18 +6,30 @@
 
 int main(int argc, char** argv)
 {
-	// argv 1 : output file
-	// argv 2 ~  : Input file ...
-    const char* outputName = argv[1];
-    const char* inputName = argv[2];
+	std::string inputName, outputName;
+	
+	if (argc == 1) {
+	    std::cerr << "[NTag] Usage: ./bin/main [output name] [input file]" << std::endl;
+	}
+	else if (argc == 2) {
+	    // argv 1    : input file
+	    outputName = "out/NTagOut.root";
+	    inputName  = argv[1];
+	}
+	else if (argc > 2) {
+	    // argv 1    : output file
+	    // argv 2 ~  : input file ...
+        outputName = argv[1];
+        inputName  = argv[2];
+	}
     
     if (TString(inputName).EndsWith(".root")) {
-        NTagROOT nt(inputName, outputName, false, pDEBUG);
+        NTagROOT nt(inputName.c_str(), outputName.c_str(), false, pDEBUG);
         nt.Initialize();
         nt.PrintMessage("Done!");
     }
     else {
-        NTagZBS nt(inputName, outputName, false, pDEBUG);
+        NTagZBS nt(inputName.c_str(), outputName.c_str(), false, pDEBUG);
         nt.Initialize();
         nt.PrintMessage("Done!");
     }
