@@ -116,7 +116,6 @@ void NTagEventInfo::SetLowFitInfo()
             
     // Get LowFit vertex
     if (bCustomVertex) {
-        PrintMessage(Form("CUSTOM vx: %f vy: %f vz: %f", customvx, customvy, customvz), pDEBUG);
         pvx = customvx;
         pvy = customvy;
         pvz = customvz;
@@ -359,7 +358,7 @@ void NTagEventInfo::SearchCaptureCandidates()
     PrintMessage("Finding new N10 from TRMS minimization...", pDEBUG);
 
     // Loop over all found capture candidates
-    for (int iCapture = 0; iCapture < nCandidates; iCapture++) {
+    for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
         index50.clear(); index1300.clear(); nindex.clear();
         cabiz50.clear(); cabiz1300.clear();
         tiskz50.clear(); qiskz50.clear(); tiskz1300.clear(); qiskz1300.clear();
@@ -371,16 +370,16 @@ void NTagEventInfo::SearchCaptureCandidates()
         for (int iHit = 0; iHit < nqiskz; iHit++) {
 
             // Count N50 and save hit indices in vSortedT_ToF
-            //if (fabs(vUnsortedT_ToF[iHit] - vDtn[iCapture]) < 25.) {
-            if (fabs(vSortedT_ToF[iHit] - vDtn[iCapture]) < 25.) {
+            //if (fabs(vUnsortedT_ToF[iHit] - vDtn[iCandidate]) < 25.) {
+            if (fabs(vSortedT_ToF[iHit] - vDtn[iCandidate]) < 25.) {
                   index50.push_back(iHit);
                   n50hits++;
             }
 
             // Count N1300 and save hit indices in vSortedT_ToF
-            //if (vUnsortedT_ToF[iHit] > vDtn[iCapture] - 520.8
-            if (vSortedT_ToF[iHit] > vDtn[iCapture] - 520.8
-            &&  vSortedT_ToF[iHit] < vDtn[iCapture] + 779.2) {
+            //if (vUnsortedT_ToF[iHit] > vDtn[iCandidate] - 520.8
+            if (vSortedT_ToF[iHit] > vDtn[iCandidate] - 520.8
+            &&  vSortedT_ToF[iHit] < vDtn[iCandidate] + 779.2) {
                 if (n1300hits < 1000) {
                     index1300.push_back(iHit);
                     n1300hits++;
@@ -416,7 +415,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // BONSAI fit to each capture candidate
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
-        float time0 = vDtn[iCapture];
+        float time0 = vDtn[iCandidate];
 
         bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
                     &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
@@ -475,49 +474,49 @@ void NTagEventInfo::SetTrueCaptureInfo()
     std::vector<float> checkedCT;
     int nCheckedCaptures = 0;
 
-    for (int iCapture = 0; iCapture < nCandidates; iCapture++) {
+    for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         // Check if a candidate is a true neutron capture (MC only)
-        vIsTrueCapture.push_back( IsTrueCapture(iCapture) );
+        vIsTrueCapture.push_back( IsTrueCapture(iCandidate) );
 
         // if a candidate is actually a true neutron capture
-        if (vIsTrueCapture[iCapture] == 1) {
+        if (vIsTrueCapture[iCandidate] == 1) {
 
             vDoubleCount.push_back(0);
             //time diff between true and reconstructed capture time
-            vTimeDiff.push_back( ReconCaptureTime(iCapture) - TrueCaptureTime(iCapture) );
+            vTimeDiff.push_back( ReconCaptureTime(iCandidate) - TrueCaptureTime(iCandidate) );
 
             bool newCaptureFound = true;
 
             if (!checkedCT.empty()) {
                 for (const auto& CTinList: checkedCT) {
-                    if (fabs(TrueCaptureTime(iCapture) - CTinList) < 1.e-3) {
+                    if (fabs(TrueCaptureTime(iCandidate) - CTinList) < 1.e-3) {
                         newCaptureFound = false; break;
                     }
                 }
             }
 
             if (newCaptureFound) {
-                checkedCT.push_back( TrueCaptureTime(iCapture) );
+                checkedCT.push_back( TrueCaptureTime(iCandidate) );
             }
 
             // Check whether two adjacent candidates should be saved as a single true capture
             else {
-                if (fabs(vTimeDiff[iCapture]) < fabs(vTimeDiff[iCapture-1])) {
-                    vDoubleCount[iCapture-1] = 1; vIsTrueCapture[iCapture-1] = 0;
+                if (fabs(vTimeDiff[iCandidate]) < fabs(vTimeDiff[iCandidate-1])) {
+                    vDoubleCount[iCandidate-1] = 1; vIsTrueCapture[iCandidate-1] = 0;
                 }
                 else {
-                    vDoubleCount[iCapture] = 1; vIsTrueCapture[iCapture] = 0;
+                    vDoubleCount[iCandidate] = 1; vIsTrueCapture[iCandidate] = 0;
                 }
             }
 
-            auto tmpTruthV = TrueCaptureVertex(iCapture);
+            auto tmpTruthV = TrueCaptureVertex(iCandidate);
             vTruth_vx.push_back( tmpTruthV[0] );
             vTruth_vy.push_back( tmpTruthV[1] );
             vTruth_vz.push_back( tmpTruthV[2] );
 
             // Check whether capture is on Gd or H
-            vIsGdCapture.push_back( IsTrueGdCapture(iCapture) );
+            vIsGdCapture.push_back( IsTrueGdCapture(iCandidate) );
         }
         else {
             vDoubleCount.push_back(0);
@@ -532,7 +531,7 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
 void NTagEventInfo::GetTMVAoutput()
 {
-    for (int iCapture = 0; iCapture < nCandidates; iCapture++) {
+    for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         // Check conditions for non-dummy TMVA output:
         // * Number of OD hits < 16
@@ -541,50 +540,50 @@ void NTagEventInfo::GetTMVAoutput()
         if (!(nhitac < 16)) {
             vTMVAoutput.push_back(-9999); continue;
         }
-        if (!(vN10[iCapture] >= 7 && 0 < vDt[iCapture] && vDt[iCapture] < 2.e5)) {
+        if (!(vN10[iCandidate] >= 7 && 0 < vDt[iCandidate] && vDt[iCandidate] < 2.e5)) {
             vTMVAoutput.push_back(-9999); continue;
         }
 
-        mva_N10 		= vN10[iCapture];
-        mva_N200 		= vN200[iCapture];
-        mva_N50 		= vN50[iCapture];
-        mva_dt 			= vDt[iCapture];
-        mva_sumQ 		= vSumQ[iCapture];
-        mva_spread 		= vSpread[iCapture];
-        mva_trmsold 	= vTrmsold[iCapture];
-        mva_beta1_50 	= vBeta1_50[iCapture];
-        mva_beta2_50 	= vBeta2_50[iCapture];
-        mva_beta3_50 	= vBeta3_50[iCapture];
-        mva_beta4_50 	= vBeta4_50[iCapture];
-        mva_beta5_50 	= vBeta5_50[iCapture];
-        mva_tbsenergy 	= vBenergy[iCapture];
-        mva_tbswall 	= vBwall[iCapture];
-        mva_tbsgood 	= vBgood[iCapture];
-        mva_tbsdirks 	= vBdirks[iCapture];
-        mva_tbspatlik 	= vBpatlik[iCapture];
-        mva_tbsovaq 	= vBovaq[iCapture];
-        mva_nwall 		= vNwall[iCapture];
-        mva_trms50 		= vTrms50[iCapture];
+        mva_N10 		= vN10[iCandidate];
+        mva_N200 		= vN200[iCandidate];
+        mva_N50 		= vN50[iCandidate];
+        mva_dt 			= vDt[iCandidate];
+        mva_sumQ 		= vSumQ[iCandidate];
+        mva_spread 		= vSpread[iCandidate];
+        mva_trmsold 	= vTrmsold[iCandidate];
+        mva_beta1_50 	= vBeta1_50[iCandidate];
+        mva_beta2_50 	= vBeta2_50[iCandidate];
+        mva_beta3_50 	= vBeta3_50[iCandidate];
+        mva_beta4_50 	= vBeta4_50[iCandidate];
+        mva_beta5_50 	= vBeta5_50[iCandidate];
+        mva_tbsenergy 	= vBenergy[iCandidate];
+        mva_tbswall 	= vBwall[iCandidate];
+        mva_tbsgood 	= vBgood[iCandidate];
+        mva_tbsdirks 	= vBdirks[iCandidate];
+        mva_tbspatlik 	= vBpatlik[iCandidate];
+        mva_tbsovaq 	= vBovaq[iCandidate];
+        mva_nwall 		= vNwall[iCandidate];
+        mva_trms50 		= vTrms50[iCandidate];
 
-        mva_AP_BONSAI 	= Norm(pvx - vBvx[iCapture],
-                               pvy - vBvy[iCapture],
-                               pvz - vBvz[iCapture]);
-        mva_AP_Nfit 	= Norm(pvx - vNvx[iCapture],
-                               pvy - vNvy[iCapture],
-                               pvz - vNvz[iCapture]);
-        mva_Nfit_BONSAI = Norm(vNvx[iCapture] - vBvx[iCapture],
-                               vNvy[iCapture] - vBvy[iCapture],
-                               vNvz[iCapture] - vBvz[iCapture]);
+        mva_AP_BONSAI 	= Norm(pvx - vBvx[iCandidate],
+                               pvy - vBvy[iCandidate],
+                               pvz - vBvz[iCandidate]);
+        mva_AP_Nfit 	= Norm(pvx - vNvx[iCandidate],
+                               pvy - vNvy[iCandidate],
+                               pvz - vNvz[iCandidate]);
+        mva_Nfit_BONSAI = Norm(vNvx[iCandidate] - vBvx[iCandidate],
+                               vNvy[iCandidate] - vBvy[iCandidate],
+                               vNvz[iCandidate] - vBvz[iCandidate]);
         
         float tmvaOutput = reader->EvaluateMVA("BDT method");
         
         TString trueCaptureInfo;
         if (!bData) {
-            if (vIsTrueCapture[iCapture]) trueCaptureInfo = "true";
+            if (vIsTrueCapture[iCandidate]) trueCaptureInfo = "true";
             else                          trueCaptureInfo = "false";
         }
         
-        PrintMessage(Form("iCapture: %d TMVAOutput: %f [%s]", iCapture, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+        PrintMessage(Form("iCandidate: %d TMVAOutput: %f [%s]", iCandidate, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
         vTMVAoutput.push_back( tmvaOutput );
     }
 }
