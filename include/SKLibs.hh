@@ -12,6 +12,7 @@ extern "C" {
     void skoptn_(const char*, int);
     int  skread_(int*);
     void skclosef_(int*);
+    void skroot_init_(int*);
 }
 
 // data control

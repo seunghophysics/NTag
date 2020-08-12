@@ -60,10 +60,12 @@ void NTagZBS::ReadFile()
     int readStatus;
     int eventID = 0;
     bool bEOF = false;
-
+    
     while (!bEOF) {
         Clear();
         readStatus = skread_(&lun);
+        CheckMC();
+        
         switch (readStatus) {
             case 0: // event read
                 eventID++;
@@ -97,6 +99,10 @@ void NTagZBS::ReadFile()
 
 void NTagZBS::ReadEvent()
 {
+    if (!bData) {
+        SetMCInfo();
+    }
+    
     SetEventHeader();
     SetAPFitInfo();
     SetToFSubtractedTQ();
@@ -104,9 +110,6 @@ void NTagZBS::ReadEvent()
     SearchCaptureCandidates();
     GetTMVAoutput();
 
-    if (!bData) {
-        SetMCInfo();
-    }
 
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();

@@ -22,7 +22,8 @@
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(5), N10MX(50), N200MX(140), T0TH(2.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
-fVerbosity(pDEFAULT), bData(false)
+customvx(0.), customvy(0.), customvz(0.),
+fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {
     reader = new TMVA::Reader("!Color:!Silent");
     SetTMVAReader();
@@ -52,9 +53,17 @@ void NTagEventInfo::SetAPFitInfo()
     aprstbnk_(&bank);
 
     // Get APFit vertex
-    pvx = apcommul_.appos[0];
-    pvy = apcommul_.appos[1];
-    pvz = apcommul_.appos[2];
+    if (bCustomVertex) {
+        pvx = customvx;
+        pvy = customvy;
+        pvz = customvz;
+    }
+    else
+    {
+        pvx = apcommul_.appos[0];
+        pvy = apcommul_.appos[1];
+        pvz = apcommul_.appos[2];
+    }
 
     float tmp_v[3] = {pvx, pvy, pvz};
     towall = wallsk_(tmp_v);
@@ -86,14 +95,16 @@ void NTagEventInfo::SetAPFitInfo()
 
 void NTagEventInfo::SetLowFitInfo()
 {
-    int    readStatus;
-    int    lun = 10;
-    float  bsenergy, bsvertex[4];
-    int    idummy;
-    float  fdummy, adummy[3];
-    double ddummy;
+    int lun = 10;
     
-    skroot_get_lowe_(&lun, &readStatus, bsvertex, &fdummy, &fdummy, 
+    TreeManager* mgr  = skroot_get_mgr(&lun);
+    TTree*       tree = mgr->GetTree();
+    LoweInfo*    LOWE = mgr->GetLOWE();
+    
+    static int iEntry = 0;
+    
+    tree->GetEntry(iEntry);
+    /*skroot_get_lowe_(&lun, &readStatus, bsvertex, &fdummy, &fdummy, 
                      &fdummy, &fdummy, &fdummy, &bsenergy, &idummy, 
                      &fdummy, &fdummy, &fdummy, &fdummy, &fdummy,
                      &fdummy, &fdummy, &fdummy, &idummy, &fdummy, 
@@ -101,13 +112,22 @@ void NTagEventInfo::SetLowFitInfo()
                      &fdummy, &idummy, &fdummy, &fdummy, &fdummy, 
                      &fdummy, &fdummy, &idummy, &fdummy, &fdummy,
                      &adummy, &fdummy, &fdummy, &fdummy, &idummy, 
-                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);
+                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);*/
             
     // Get LowFit vertex
-    pvx = bsvertex[0];
-    pvy = bsvertex[1];
-    pvz = bsvertex[2];
-
+    if (bCustomVertex) {
+        PrintMessage(Form("CUSTOM vx: %f vy: %f vz: %f", customvx, customvy, customvz), pDEBUG);
+        pvx = customvx;
+        pvy = customvy;
+        pvz = customvz;
+    }
+    else
+    {
+        pvx = LOWE->bsvertex[0];
+        pvy = LOWE->bsvertex[1];
+        pvz = LOWE->bsvertex[2];
+    }
+    
     float tmp_v[3] = {pvx, pvy, pvz};
     towall = wallsk_(tmp_v);
 
@@ -115,8 +135,10 @@ void NTagEventInfo::SetLowFitInfo()
     PrintMessage(Form("d_wall: %f", towall), pDEBUG);
 
     // E_vis
-    evis = bsenergy;
+    evis = LOWE->bsenergy;
     PrintMessage(Form("e_vis: %f", evis), pDEBUG);
+    
+    iEntry++;
 }
 
 void NTagEventInfo::SetToFSubtractedTQ()
@@ -553,8 +575,17 @@ void NTagEventInfo::GetTMVAoutput()
         mva_Nfit_BONSAI = Norm(vNvx[iCapture] - vBvx[iCapture],
                                vNvy[iCapture] - vBvy[iCapture],
                                vNvz[iCapture] - vBvz[iCapture]);
-
-        vTMVAoutput.push_back( reader->EvaluateMVA("BDT method") );
+        
+        float tmvaOutput = reader->EvaluateMVA("BDT method");
+        
+        TString trueCaptureInfo;
+        if (!bData) {
+            if (vIsTrueCapture[iCapture]) trueCaptureInfo = "true";
+            else                          trueCaptureInfo = "false";
+        }
+        
+        PrintMessage(Form("iCapture: %d TMVAOutput: %f [%s]", iCapture, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+        vTMVAoutput.push_back( tmvaOutput );
     }
 }
 
@@ -1035,4 +1066,15 @@ float NTagEventInfo::Timer(TString msg, std::clock_t tStart)
     float tDuration = (std::clock() - tStart) / (float) CLOCKS_PER_SEC;
     PrintMessage(msg + Form(" took %f sec", tDuration), pDEBUG);
     return tDuration;
+}
+
+void NTagEventInfo::CheckMC()
+{
+    std::cout << "\n" << std::endl;
+    
+    if (skhead_.nrunsk != 999999) {
+        bData = true;
+        PrintMessage("Reading event from data...");
+    }
+    else PrintMessage("Reading event from MC...");
 }

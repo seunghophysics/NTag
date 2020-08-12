@@ -73,12 +73,14 @@ class NTagEventInfo
         inline void          SetDistanceCut(float cut) { DISTCUT = cut; }
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
-
+        inline void          SetCustomVertex(float x, float y, float z) { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
+        
         // Message
         virtual void         PrintTag(unsigned int);
         virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
         virtual void         PrintMessage(const char*, unsigned int vType=pDEFAULT);
         virtual float        Timer(TString, std::clock_t tStart);
+        virtual void         CheckMC();
 
     private:
         const float (*xyz)[3];              // PMT positions
@@ -91,11 +93,13 @@ class NTagEventInfo
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
 
+        float       customvx, customvy, customvz;
+        
         TMVA::Reader* reader;
 
     protected:
         unsigned int fVerbosity;
-        bool bData;
+        bool bData, bCustomVertex;
 
         /************************************************************************************************/
         // Data/fit event info

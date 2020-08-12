@@ -38,15 +38,16 @@ void NTagROOT::Initialize()
 
 void NTagROOT::OpenFile()
 {
-    skroot_open_(&lun, fOutFileName, strlen(fOutFileName));
+    skroot_open_read_(&lun);
     skroot_set_input_file_(&lun, fInFileName, strlen(fInFileName));
-    skroot_initialize_(&lun);
+    skroot_init_(&lun);
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
     skheadg_.sk_geometry = 4; geoset_();
-
+    
     // Initialize BONSAI
+    kzinit_();
     bonsai_ini_();
 }
 
@@ -56,10 +57,13 @@ void NTagROOT::ReadFile()
     int readStatus;
     int eventID = 0;
     bool bEOF = false;
-
+    
     while (!bEOF) {
+    
         Clear();
         readStatus = skread_(&lun);
+        CheckMC();
+        
         switch (readStatus) {
             case 0: // event read
                 eventID++;
@@ -96,6 +100,10 @@ void NTagROOT::ReadFile()
 
 void NTagROOT::ReadEvent()
 {
+    if (!bData) {
+        SetMCInfo();
+    }
+    
     SetEventHeader();
     SetLowFitInfo();
     SetToFSubtractedTQ();
@@ -103,9 +111,6 @@ void NTagROOT::ReadEvent()
     SearchCaptureCandidates();
     GetTMVAoutput();
 
-    if (!bData) {
-        SetMCInfo();
-    }
 
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
