@@ -110,7 +110,7 @@ c            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihca
          nqisk = ntisksend
 
          call lfclear_all()
-c         write(*,*) 'before lfallfit'
+         write(*,*) 'before lfallfit',mxqisk
          call lfallfit_sk4_data(watert, NHITCUT, lfflag)
 c         call lfallfit_sk4_data(watert, ntisksend, lfflag)
 c         write(*,*) 'after lfallfit'

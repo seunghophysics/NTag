@@ -311,7 +311,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         int N10i = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
 
         // If N10TH <= N10i <= N10MX:
-        if ((N10i < N10TH) || (N10i > N10MX+1)) continue;
+        if ((N10i < N10TH) || (N10i >= N10MX+1)) continue;
 
         // We've found a new peak.
         N10New = N10i;
@@ -357,9 +357,12 @@ void NTagEventInfo::SearchCaptureCandidates()
     vTrms.resize(nCandidates);
 
     PrintMessage("Finding new N10 from TRMS minimization...", pDEBUG);
+    PrintMessage("Number of Candidate : "+to_string(nCandidates), pDEBUG);
+
 
     // Loop over all found capture candidates
     for (int iCapture = 0; iCapture < nCandidates; iCapture++) {
+    		PrintMessage(to_string(iCapture)+" Candidate...", pDEBUG);
         index50.clear(); index1300.clear(); nindex.clear();
         cabiz50.clear(); cabiz1300.clear();
         tiskz50.clear(); qiskz50.clear(); tiskz1300.clear(); qiskz1300.clear();
@@ -387,6 +390,8 @@ void NTagEventInfo::SearchCaptureCandidates()
                 }
             }
         }
+    		PrintMessage("n50 Hits : "+to_string(n50hits), pDEBUG);
+    		PrintMessage("n1300 Hits : "+to_string(n1300hits), pDEBUG);
 
         for (int iHit50 = 0; iHit50 < n50hits; iHit50++) {
             cabiz50.push_back( sktqz_.icabiz[ index50[iHit50] ] );
@@ -418,8 +423,21 @@ void NTagEventInfo::SearchCaptureCandidates()
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
         float time0 = vDtn[iCapture];
 
-        bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
-                    &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+				if(n1300hits>999||n1300hits<10){//Maybe high or low hit noise.
+					tmptbsenergy = 0.;
+					tmptbsvx = 9999.;
+					tmptbsvy = 9999.;
+					tmptbsvz = 9999.;
+					tmptbsvt = 0.;
+					tmptbsgood = 0.;
+					tmptbsdirks = 1.;
+					tmptbspatlik = 0.;
+					tmptbsovaq = -1.;	
+				}
+				else{
+					bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy,
+					            &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+				}
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
 
@@ -742,6 +760,7 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
 
     float uvx[nHits], uvy[nHits], uvz[nHits];	// direction vector from vertex to each hit PMT
+		if (nHits == 0) return beta;
 
     for (int i = 0; i < nHits; i++) {
         float distFromVertexToPMT;
@@ -974,24 +993,25 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     float sumQ    = GetQhitsFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
     float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
-    // Save info to the member variables
-    vNvx.push_back(       pvx                   );
-    vNvy.push_back(       pvy                   );
-    vNvz.push_back(       pvz                   );
-    vN10.push_back(       N10i                   );
-    vN10n.push_back(       N10i                  );
-    vN200.push_back(      N200                   );
-    vSumQ.push_back(      sumQ                   );
-    vDt.push_back(        (t0 + tEnd) / 2.       );
-    vDtn.push_back(       (t0 + tEnd) / 2.       );
-    vTindex.push_back(    hitID                  );
-    vSpread.push_back(    tEnd - t0              );
-    vTrmsold.push_back(   trmsold                );
-    vBeta14_10.push_back( beta[1] + 4*beta[4]    );
+		if ((N10i >= N10TH) && (N10i < N10MX+1)) {
+			// Save info to the member variables
+			vNvx.push_back(       pvx                   );
+			vNvy.push_back(       pvy                   );
+			vNvz.push_back(       pvz                   );
+			vN10.push_back(       N10i                   );
+			vN10n.push_back(       N10i                  );
+			vN200.push_back(      N200                   );
+			vSumQ.push_back(      sumQ                   );
+			vDt.push_back(        (t0 + tEnd) / 2.       );
+			vDtn.push_back(       (t0 + tEnd) / 2.       );
+			vTindex.push_back(    hitID                  );
+			vSpread.push_back(    tEnd - t0              );
+			vTrmsold.push_back(   trmsold                );
+			vBeta14_10.push_back( beta[1] + 4*beta[4]    );
 
-    // Increment number of neutron candidates
-    nCandidates++;
-
+			// Increment number of neutron candidates
+			nCandidates++;
+		}
     // Debug
     //PrintMessage(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }
