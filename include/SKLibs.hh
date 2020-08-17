@@ -39,7 +39,7 @@ extern "C" {
 // BONSAI
 extern "C" {
     void bonsai_ini_();
-    void bonsai_fit_(float*, float*, float*, int*, int*, float*, float*, float*, 
+    void bonsai_fit_(bool*, float*, float*, float*, int*, int*, float*, float*, float*, 
                      float*, float*, float*, float*, float*, float*);
     void bonsai_end_();
 }

@@ -181,6 +181,8 @@ void NTagEventInfo::SetMCInfo()
     truevy = skvect_.pos[1];
     truevz = skvect_.pos[2];
 
+    PrintMessage(Form("True Vector: %d", nvect), pDEBUG);
+
     for (int iVec = 0; iVec < nvect; iVec++) {
         vIp.push_back(   skvect_.ip[iVec]     );  // PID of primaries
         vPinx.push_back( skvect_.pin[iVec][0] );  // momentum vector of primaries
@@ -362,7 +364,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
     // Loop over all found capture candidates
     for (int iCapture = 0; iCapture < nCandidates; iCapture++) {
-    		PrintMessage(to_string(iCapture)+" Candidate...", pDEBUG);
+    		//PrintMessage(to_string(iCapture)+" Candidate...", pDEBUG);
         index50.clear(); index1300.clear(); nindex.clear();
         cabiz50.clear(); cabiz1300.clear();
         tiskz50.clear(); qiskz50.clear(); tiskz1300.clear(); qiskz1300.clear();
@@ -390,8 +392,8 @@ void NTagEventInfo::SearchCaptureCandidates()
                 }
             }
         }
-    		PrintMessage("n50 Hits : "+to_string(n50hits), pDEBUG);
-    		PrintMessage("n1300 Hits : "+to_string(n1300hits), pDEBUG);
+    		//PrintMessage("n50 Hits : "+to_string(n50hits), pDEBUG);
+    		//PrintMessage("n1300 Hits : "+to_string(n1300hits), pDEBUG);
 
         for (int iHit50 = 0; iHit50 < n50hits; iHit50++) {
             cabiz50.push_back( sktqz_.icabiz[ index50[iHit50] ] );
@@ -435,8 +437,8 @@ void NTagEventInfo::SearchCaptureCandidates()
 					tmptbsovaq = -1.;	
 				}
 				else{
-					bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy,
-					            &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+					bonsai_fit_( &bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, 
+					             &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
 				}
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
