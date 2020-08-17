@@ -70,6 +70,8 @@ class NTagEventInfo
         inline void          SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
         inline void          SetN200Max(int max) { N200MX = max; }
         inline void          SetT0Threshold(float th) { T0TH = th; }
+        inline void          SetTEndLimit(int tend) { TEND = tend; }
+        inline void          SetTOffset(int toffset) { TOFFSET = toffset; }
         inline void          SetDistanceCut(float cut) { DISTCUT = cut; }
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
@@ -89,6 +91,8 @@ class NTagEventInfo
         // Tag conditions
         int         N10TH, N10MX, N200MX;   // N_hits cut
         float       T0TH;                   // T0 threshold
+        float       TEND;                   // Last timing limit
+        float       TOFFSET;                   // Timing offset of dt
         float       DISTCUT;
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time

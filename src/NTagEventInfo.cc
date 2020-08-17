@@ -21,7 +21,7 @@
 
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833),
-N10TH(5), N10MX(50), N200MX(140), T0TH(2.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
+N10TH(5), N10MX(50), N200MX(140), T0TH(2.), TEND(535.e3), TOFFSET(0.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {
@@ -294,6 +294,7 @@ void NTagEventInfo::SetMCInfo()
     PrintMessage(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
 }
 
+
 void NTagEventInfo::SearchCaptureCandidates()
 {
     int   iHitPrevious    = 0;
@@ -304,6 +305,9 @@ void NTagEventInfo::SearchCaptureCandidates()
 
     // Loop over the saved TQ hit array from current event
     for (int iHit = 0; iHit < nqiskz; iHit++) {
+
+				// the Hit timing w/o TOF is larger than limit, or less smaller than t0
+				if (vSortedT_ToF[iHit] > TEND-10. || vSortedT_ToF[iHit] < T0TH) continue;	
 
         // Save time of first hit
         if (firsthit == 0.) firsthit = vSortedT_ToF[iHit];
@@ -489,6 +493,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         SetTrueCaptureInfo();
     }
 }
+
 
 void NTagEventInfo::SetTrueCaptureInfo()
 {
@@ -997,19 +1002,19 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
 		if ((N10i >= N10TH) && (N10i < N10MX+1)) {
 			// Save info to the member variables
-			vNvx.push_back(       pvx                   );
-			vNvy.push_back(       pvy                   );
-			vNvz.push_back(       pvz                   );
-			vN10.push_back(       N10i                   );
-			vN10n.push_back(       N10i                  );
-			vN200.push_back(      N200                   );
-			vSumQ.push_back(      sumQ                   );
-			vDt.push_back(        (t0 + tEnd) / 2.       );
-			vDtn.push_back(       (t0 + tEnd) / 2.       );
-			vTindex.push_back(    hitID                  );
-			vSpread.push_back(    tEnd - t0              );
-			vTrmsold.push_back(   trmsold                );
-			vBeta14_10.push_back( beta[1] + 4*beta[4]    );
+			vNvx.push_back(       pvx                         );
+			vNvy.push_back(       pvy                         );
+			vNvz.push_back(       pvz                         );
+			vN10.push_back(       N10i                         );
+			vN10n.push_back(       N10i                        );
+			vN200.push_back(      N200                         );
+			vSumQ.push_back(      sumQ                         );
+			vDt.push_back(        (t0 + tEnd) / 2. + TOFFSET   );
+			vDtn.push_back(       (t0 + tEnd) / 2. + TOFFSET   );
+			vTindex.push_back(    hitID                        );
+			vSpread.push_back(    tEnd - t0                    );
+			vTrmsold.push_back(   trmsold                      );
+			vBeta14_10.push_back( beta[1] + 4*beta[4]          );
 
 			// Increment number of neutron candidates
 			nCandidates++;

@@ -102,6 +102,11 @@ void NTagROOT::ReadEvent()
 {
     if (!bData) {
         SetMCInfo();
+
+			//Set Time setting	
+			SetT0Threshold(2.);// [us]
+			SetTEndLimit(5.35e5);// [ns]
+			SetTOffset(0.);// [ns]
     }
     
     SetEventHeader();
