@@ -33,8 +33,6 @@ class NTagEventInfo
         virtual void         SetTrueCaptureInfo();
         virtual void         GetTMVAoutput();
 
-				void                 SKRoot_SetLowE(); 
-
         // Calculator
         inline float         Norm(float vec[3]);
         inline float         Norm(float x, float y, float z);
@@ -112,7 +110,7 @@ class NTagEventInfo
     protected:
         unsigned int fVerbosity;
         bool bData, bCustomVertex, bSaveWait, bSHEFlag;
-				int PreEvent;
+        int PreEvent;
 
         /************************************************************************************************/
         // Data/fit event info

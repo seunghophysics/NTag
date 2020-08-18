@@ -26,7 +26,7 @@ void NTagROOT::Initialize()
     NTagIO::Initialize();
 
     // custom settings
-    SetN10Limits(5, 50);
+    SetN10Limits(7, 60);
     SetN200Max(140);
     SetT0Threshold(2.);		 // [us]
     SetDistanceCut(4000.);	 // [cm]
@@ -81,7 +81,7 @@ void NTagROOT::ReadFile()
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...",
                                  eventID), pDEBUG);
-                    		break;
+                        break;
                     }
                 }
                 ReadEvent();

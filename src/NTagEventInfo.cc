@@ -163,8 +163,8 @@ void NTagEventInfo::SetToFSubtractedTQ()
         vSortedPMTID.push_back( cabiz[ sortedIndex[iHit] ]          );
         vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
         vSortedQ.push_back(     sktqz_.qiskz[ sortedIndex[iHit] ]   );
-        PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
-        PrintMessage(Form("iHit: %d    unsortT: %f", iHit, vUnsortedT_ToF[iHit]), pDEBUG);
+        //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
+        //PrintMessage(Form("iHit: %d    unsortT: %f", iHit, vUnsortedT_ToF[iHit]), pDEBUG);
     }
 }
 
