@@ -7,6 +7,7 @@
 #include <skroot.h>
 #undef MAXHWSK
 #include <skheadC.h>
+#include <sktqC.h>
 #include <skvectC.h>
 
 #include <SKLibs.hh>
@@ -59,10 +60,11 @@ void NTagROOT::ReadFile()
     bool bEOF = false;
     
     while (!bEOF) {
-    
+
         Clear();
         readStatus = skread_(&lun);
         CheckMC();
+				cout<<" Initial read  "<<sktqz_.nqiskz<<"  "<<sktqz_.tiskz[0]<<endl;
         
         switch (readStatus) {
             case 0: // event read
@@ -79,7 +81,7 @@ void NTagROOT::ReadFile()
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...",
                                  eventID), pDEBUG);
-                    break;
+                    		break;
                     }
                 }
                 ReadEvent();
@@ -100,24 +102,66 @@ void NTagROOT::ReadFile()
 
 void NTagROOT::ReadEvent()
 {
+
     if (!bData) {
-        SetMCInfo();
+    	ClearOutputVariable();
+
+    	SetEventHeader();
+      SetMCInfo();
+    	SetLowFitInfo();
 
 			//Set Time setting	
 			SetT0Threshold(2.);// [us]
 			SetTEndLimit(5.35e5);// [ns]
 			SetTOffset(0.);// [ns]
     }
+		else {
+    	SetEventHeader();
+
+			if ((skhead_.idtgsk & 1<<28)) {//SHE event
+        ClearOutputVariable();
+    		SetLowFitInfo();
+				SetT0Threshold(2.);// [us]
+				SetTEndLimit(4.e4);// [ns]
+				SetTOffset(0.);// [ns]
+				
+				SetSHEFlag(true);
+			}
+			else if ((skhead_.idtgsk & 1<<29)) {//AFT event
+				if (PreEvent - nev != -1) {
+					SetPreEvent(nev);
+					return;
+				}
+				SetT0Threshold(0.);// [us]
+				SetTEndLimit(5.e5);// [ns]
+				SetTOffset(3.5e4);// [ns]
+				
+				SetSHEFlag(false);
+			}
+		}
     
-    SetEventHeader();
-    SetLowFitInfo();
     SetToFSubtractedTQ();
 
     SearchCaptureCandidates();
     GetTMVAoutput();
 
 
-    ntvarTree->Fill();
-    if (!bData) truthTree->Fill();
+    if (bData) {
+			if (bSHEFlag) {
+				SetSaveWait(true);
+				SetPreEvent(nev);
+			} 
+			else {
+				ntvarTree->Fill();
+				SetSaveWait(false);
+			}
+		}
+
+    if (!bData) {
+			ntvarTree->Fill();
+			truthTree->Fill();
+		}
+
+		SetPreEvent(nev);
 }
 

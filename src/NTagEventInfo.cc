@@ -101,18 +101,19 @@ void NTagEventInfo::SetLowFitInfo()
     TTree*       tree = mgr->GetTree();
     LoweInfo*    LOWE = mgr->GetLOWE();
     
-    static int iEntry = 0;
-    
-    tree->GetEntry(iEntry);
-    /*skroot_get_lowe_(&lun, &readStatus, bsvertex, &fdummy, &fdummy, 
-                     &fdummy, &fdummy, &fdummy, &bsenergy, &idummy, 
+    mgr->GetEntry();
+
+		/*
+    skroot_get_lowe_(&lun, &readStatus, bsvtx, &fdummy, &fdummy, 
+                     &fdummy, &fdummy, &fdummy, &bsene, &idummy, 
                      &fdummy, &fdummy, &fdummy, &fdummy, &fdummy,
                      &fdummy, &fdummy, &fdummy, &idummy, &fdummy, 
                      &idummy, &idummy, &idummy, &ddummy, &fdummy,
                      &fdummy, &idummy, &fdummy, &fdummy, &fdummy, 
                      &fdummy, &fdummy, &idummy, &fdummy, &fdummy,
                      &adummy, &fdummy, &fdummy, &fdummy, &idummy, 
-                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);*/
+                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);
+		*/
             
     // Get LowFit vertex
     if (bCustomVertex) {
@@ -137,8 +138,6 @@ void NTagEventInfo::SetLowFitInfo()
     // E_vis
     evis = LOWE->bsenergy;
     PrintMessage(Form("e_vis: %f", evis), pDEBUG);
-    
-    iEntry++;
 }
 
 void NTagEventInfo::SetToFSubtractedTQ()
@@ -155,6 +154,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     float fitVertex[3] = {pvx, pvy, pvz};
     vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex);
 
+
     // Sort: first hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
 
@@ -163,8 +163,8 @@ void NTagEventInfo::SetToFSubtractedTQ()
         vSortedPMTID.push_back( cabiz[ sortedIndex[iHit] ]          );
         vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
         vSortedQ.push_back(     sktqz_.qiskz[ sortedIndex[iHit] ]   );
-        //PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
-        //PrintMessage(Form("iHit: %d    unsortT: %f", iHit, vUnsortedT_ToF[iHit]), pDEBUG);
+        PrintMessage(Form("iHit: %d    sortedT: %f", iHit, vSortedT_ToF[iHit]), pDEBUG);
+        PrintMessage(Form("iHit: %d    unsortT: %f", iHit, vUnsortedT_ToF[iHit]), pDEBUG);
     }
 }
 
@@ -307,7 +307,7 @@ void NTagEventInfo::SearchCaptureCandidates()
     for (int iHit = 0; iHit < nqiskz; iHit++) {
 
 				// the Hit timing w/o TOF is larger than limit, or less smaller than t0
-				if (vSortedT_ToF[iHit] > TEND-10. || vSortedT_ToF[iHit] < T0TH) continue;	
+				if (vSortedT_ToF[iHit] > TEND-10. || vSortedT_ToF[iHit]*1.e-3 < T0TH) continue;	
 
         // Save time of first hit
         if (firsthit == 0.) firsthit = vSortedT_ToF[iHit];
@@ -315,6 +315,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Calculate N10New:
         // number of hits in 10 ns window from the i-th hit
         int N10i = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
+				//cout<<N10i<<endl;
 
         // If N10TH <= N10i <= N10MX:
         if ((N10i < N10TH) || (N10i >= N10MX+1)) continue;
@@ -931,6 +932,48 @@ int NTagEventInfo::IsTrueGdCapture(int candidateID)
 
 void NTagEventInfo::Clear()
 {
+//    nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
+//    trgofst = 0; qismsk = 0;
+//    nring = 0; nmue = 0; ndcy = 0;
+//    evis = 0; pvx = 0; pvy = 0; pvz = 0; towall = 0;
+//    nCandidates = 0; N200M = 0;
+//    T200M = -9999.; firsthit = -9999.;
+//
+//    nTrueCaptures = 0;
+//    nSavedSec = 0; nscndprt = 0;
+//    nN = modene = numne = 0;
+//    pnu = 0;
+//    nvect = 0;
+//    truevx = 0; truevy = 0; truevz = 0;
+
+    vSortedPMTID.clear();
+    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+//    vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
+//    vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
+//    vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
+//    vDt.clear(); vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear(); vNwall.clear();
+//    vDoubleCount.clear();
+//    vBenergy.clear(); vBvx.clear(); vBvy.clear(); vBvz.clear(); vBvt.clear();
+//    vBwall.clear(); vBgood.clear(); vBpatlik.clear(); vBdirks.clear(); vBovaq.clear();
+//    vBeta14_10.clear(); vBeta14_50.clear();
+//    vBeta1_50.clear(); vBeta2_50.clear(); vBeta3_50.clear(); vBeta4_50.clear(); vBeta5_50.clear();
+//    vTMVAoutput.clear();
+//
+//    vNGam.clear();
+//    vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
+//    vIsGdCapture.clear(); vIsTrueCapture.clear();
+//    vTruth_vx.clear(); vTruth_vy.clear(); vTruth_vz.clear(); vTimeDiff.clear();
+//    vIprtscnd.clear(); vLmecscnd.clear(); vIprntprt.clear(); vCaptureID.clear();
+//    vVtxscndx.clear(); vVtxscndy.clear(); vVtxscndz.clear(); vPscndx.clear(); vPscndy.clear(); vPscndz.clear();
+//    vWallscnd.clear(); vPabsscnd.clear(); vTscnd.clear();
+//
+//    vIpne.clear();
+//    vIp.clear();
+//    vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
+}
+
+void NTagEventInfo::ClearOutputVariable()
+{
     nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
     trgofst = 0; qismsk = 0;
     nring = 0; nmue = 0; ndcy = 0;
@@ -945,8 +988,8 @@ void NTagEventInfo::Clear()
     nvect = 0;
     truevx = 0; truevy = 0; truevz = 0;
 
-    vSortedPMTID.clear();
-    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+//    vSortedPMTID.clear();
+//    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
     vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
     vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
     vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
@@ -970,6 +1013,7 @@ void NTagEventInfo::Clear()
     vIp.clear();
     vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
 }
+
 
 void NTagEventInfo::SaveSecondary(int secID)
 {

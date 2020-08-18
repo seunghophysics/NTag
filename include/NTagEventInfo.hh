@@ -33,6 +33,8 @@ class NTagEventInfo
         virtual void         SetTrueCaptureInfo();
         virtual void         GetTMVAoutput();
 
+				void                 SKRoot_SetLowE(); 
+
         // Calculator
         inline float         Norm(float vec[3]);
         inline float         Norm(float x, float y, float z);
@@ -62,6 +64,7 @@ class NTagEventInfo
 
         // Member variable control
         virtual void         Clear();
+        virtual void         ClearOutputVariable();
         virtual void         SaveSecondary(int secID);
         virtual void         SavePeakFromHit(int hitID);
 
@@ -76,6 +79,11 @@ class NTagEventInfo
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
         inline void          SetCustomVertex(float x, float y, float z) { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
+				
+				inline void          SetSaveWait(bool b) { bSaveWait = b; }
+				inline void          SetSHEFlag(bool b) { bSHEFlag = b; }
+				inline void          SetPreEvent(bool ev) { PreEvent = ev; }
+
         
         // Message
         virtual void         PrintTag(unsigned int);
@@ -103,7 +111,8 @@ class NTagEventInfo
 
     protected:
         unsigned int fVerbosity;
-        bool bData, bCustomVertex;
+        bool bData, bCustomVertex, bSaveWait, bSHEFlag;
+				int PreEvent;
 
         /************************************************************************************************/
         // Data/fit event info
