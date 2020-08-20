@@ -152,7 +152,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
     // Subtract TOF from PMT hit time
     float fitVertex[3] = {pvx, pvy, pvz};
-    vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex);
+    vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex, false);
 
     // Sort: first hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
@@ -353,8 +353,6 @@ void NTagEventInfo::SearchCaptureCandidates()
     std::vector<int>    cabiz50, cabiz1300;
     std::vector<float>  tiskz50, qiskz50, tiskz1300, qiskz1300;
 
-    vTrms.resize(nCandidates);
-
     PrintMessage("Finding new N10 from TRMS minimization...", pDEBUG);
 
     // Loop over all found capture candidates
@@ -370,16 +368,17 @@ void NTagEventInfo::SearchCaptureCandidates()
         for (int iHit = 0; iHit < nqiskz; iHit++) {
 
             // Count N50 and save hit indices in vSortedT_ToF
-            //if (fabs(vUnsortedT_ToF[iHit] - vDtn[iCandidate]) < 25.) {
-            if (fabs(vSortedT_ToF[iHit] - vDtn[iCandidate]) < 25.) {
+            //if (fabs(vUnsortedT_ToF[iHit] - vDt[iCandidate]) < 25.) {
+            if (fabs(vUnsortedT_ToF[iHit] - vDt[iCandidate]) < 25.) {
                   index50.push_back(iHit);
                   n50hits++;
+                  //PrintMessage(Form("index50: %d", iHit), pDEBUG);
             }
 
             // Count N1300 and save hit indices in vSortedT_ToF
-            //if (vUnsortedT_ToF[iHit] > vDtn[iCandidate] - 520.8
-            if (vSortedT_ToF[iHit] > vDtn[iCandidate] - 520.8
-            &&  vSortedT_ToF[iHit] < vDtn[iCandidate] + 779.2) {
+            //if (vUnsortedT_ToF[iHit] > vDt[iCandidate] - 520.8
+            if (vUnsortedT_ToF[iHit] > vDt[iCandidate] - 520.8
+            &&  vUnsortedT_ToF[iHit] < vDt[iCandidate] + 779.2) {
                 if (n1300hits < 1000) {
                     index1300.push_back(iHit);
                     n1300hits++;
@@ -391,6 +390,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             cabiz50.push_back( sktqz_.icabiz[ index50[iHit50] ] );
             tiskz50.push_back( sktqz_.tiskz[ index50[iHit50] ]  );
             qiskz50.push_back( sktqz_.qiskz[ index50[iHit50] ]  );
+        //    PrintMessage(Form("tiskz50: %f", tiskz50[iHit50]), pDEBUG);
         }
 
         for (int iHit1300 = 0; iHit1300 < n1300hits; iHit1300++) {
@@ -415,7 +415,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // BONSAI fit to each capture candidate
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
-        float time0 = vDtn[iCandidate];
+        float time0 = vDt[iCandidate];
 
         bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
                     &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
@@ -436,7 +436,8 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS = MinimizeTRMS(tiskz50, cabiz50, nv);
-
+        //PrintMessage(Form("nv: %f %f %f", nv[0], nv[1], nv[2]));
+        
         vNvx.push_back(    nv[0]       );
         vNvy.push_back(    nv[1]       );
         vNvz.push_back(    nv[2]       );
@@ -444,7 +445,12 @@ void NTagEventInfo::SearchCaptureCandidates()
         vTrms50.push_back( minTRMS     );
 
         auto tiskz50_ToF = GetToFSubtracted(tiskz50, cabiz50, nv, true);
-
+        
+        //for(const auto& t: tiskz50)
+        //    PrintMessage(Form("torig: %f", t), pDEBUG);
+        //for(const auto& t: tiskz50_ToF)
+        //    PrintMessage(Form("tcorr: %f", t), pDEBUG);
+        
         int N10in, tmpN10n = 0;
         float t0n = 0.;
 
@@ -654,6 +660,7 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
 std::vector<float> NTagEventInfo::GetToFSubtracted(const std::vector<float>& T, const std::vector<int>& PMTID, float vertex[3], bool doSort)
 {
     std::vector<float> t_ToF;
+    std::vector<float> doSortT_ToF;
 
     int nHits = T.size();
     assert((unsigned)nHits == PMTID.size());
@@ -663,15 +670,15 @@ std::vector<float> NTagEventInfo::GetToFSubtracted(const std::vector<float>& T, 
         int pmtID = PMTID[iHit] - 1;
         t_ToF.push_back( T[iHit] - GetToF(vertex, pmtID) );
     }
-
+    
     if (doSort) {
         int sortedIndex[nHits];
         TMath::Sort(nHits, t_ToF.data(), sortedIndex, false);
         for (int iHit = 0; iHit < nHits; iHit++)
-            t_ToF[iHit] = t_ToF[ sortedIndex[iHit] ];
+           doSortT_ToF.push_back( t_ToF[ sortedIndex[iHit] ] );
+        return doSortT_ToF;
     }
-
-    return t_ToF;
+    else return t_ToF;
 }
 
 float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float rmsFitVertex[])
@@ -707,10 +714,13 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
                 if (sqrt(srcVertex[0]*srcVertex[0] + srcVertex[1]*srcVertex[1]) > RINTK) continue;
                 for (float z = 0; z < zMax; z++) {
                     srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
+                    
                     if (srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
                     if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > DISTCUT) continue;
+                    
                     //PrintMessage(Form("srcVertex: %f %f %f", srcVertex[0], srcVertex[1], srcVertex[2]), pDEBUG);
                     t_ToF = GetToFSubtracted(T, PMTID, srcVertex.data(), doSort);
+
                     tRMS = GetTRMS(t_ToF);
                     //PrintMessage(Form("tRMS: %f", tRMS), pDEBUG);
 
@@ -974,15 +984,15 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
     // Save info to the member variables
-    vNvx.push_back(       pvx                   );
-    vNvy.push_back(       pvy                   );
-    vNvz.push_back(       pvz                   );
+    //vNvx.push_back(       pvx                   );
+    //vNvy.push_back(       pvy                   );
+    //vNvz.push_back(       pvz                   );
     vN10.push_back(       N10i                   );
-    vN10n.push_back(       N10i                  );
+    //vN10n.push_back(       N10i                  );
     vN200.push_back(      N200                   );
     vSumQ.push_back(      sumQ                   );
     vDt.push_back(        (t0 + tEnd) / 2.       );
-    vDtn.push_back(       (t0 + tEnd) / 2.       );
+    //vDtn.push_back(       (t0 + tEnd) / 2.       );
     vTindex.push_back(    hitID                  );
     vSpread.push_back(    tEnd - t0              );
     vTrmsold.push_back(   trmsold                );
