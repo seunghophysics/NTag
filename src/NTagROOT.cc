@@ -12,7 +12,6 @@
 
 #include <SKLibs.hh>
 #include <NTagROOT.hh>
-//#include "SKLowe_root.h"
 //#include "loweroot.h"
 
 NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
