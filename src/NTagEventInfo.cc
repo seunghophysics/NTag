@@ -4,6 +4,9 @@
 
 #include <TMath.h>
 
+// Size limit of secondary tree/bank
+#define SECMAXRNG (4000)
+
 #include <skroot.h>
 #undef MAXHWSK
 #include <apmringC.h>
@@ -15,13 +18,16 @@
 #include <geopmtC.h>
 #include <skvectC.h>
 #include <neworkC.h>
+#include <apscndryC.h>
+#include <loweroot.h>
 
 #include <NTagEventInfo.hh>
 #include <SKLibs.hh>
 
 NTagEventInfo::NTagEventInfo()
-:xyz(geopmt_.xyzpm), C_WATER(21.5833),
-N10TH(5), N10MX(50), N200MX(140), T0TH(2.), TEND(535.e3), TOFFSET(0.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
+:PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
+N10TH(5), N10MX(50), N200MX(140), VTXSRCRANGE(4000.), 
+T0TH(2.), TEND(535.e3), TOFFSET(0.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {
@@ -713,7 +719,7 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
     int nHits = T.size();
     assert((unsigned)nHits == PMTID.size());
 
-    (DISTCUT > 200) ? delta = 100 : delta = DISTCUT / 2.;
+    (VTXSRCRANGE > 200) ? delta = 100 : delta = VTXSRCRANGE / 2.;
     std::vector<float>  t_ToF;
     std::vector<float>* minTPointer;
 
@@ -723,7 +729,7 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
 
     // main search position starts from tank center
     std::array<float, 3> vecR = {0., 0., 0.};
-    std::array<float, 3> tmpVertex = {0., 0., 0.};      // temp vertex
+    std::array<float, 3> tmpVertex = {0., 0., 0.};      // temp vertex to save minimizing vertex
     std::array<float, 3> srcVertex;                     // loop search vertex
 
     float minTRMS = 9999.;
@@ -741,7 +747,7 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
                     srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
                     
                     if (srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
-                    if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > DISTCUT) continue;
+                    if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > VTXSRCRANGE) continue;
                     
                     //PrintMessage(Form("srcVertex: %f %f %f", srcVertex[0], srcVertex[1], srcVertex[2]), pDEBUG);
                     t_ToF = GetToFSubtracted(T, PMTID, srcVertex.data(), doSort);
@@ -781,9 +787,9 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     for (int i = 0; i < nHits; i++) {
         float distFromVertexToPMT;
         float vecFromVertexToPMT[3];
-        vecFromVertexToPMT[0] = xyz[PMTID[tID+i]-1][0] - pvx;
-        vecFromVertexToPMT[1] = xyz[PMTID[tID+i]-1][1] - pvy;
-        vecFromVertexToPMT[2] = xyz[PMTID[tID+i]-1][2] - pvz;
+        vecFromVertexToPMT[0] = PMTXYZ[PMTID[tID+i]-1][0] - pvx;
+        vecFromVertexToPMT[1] = PMTXYZ[PMTID[tID+i]-1][1] - pvy;
+        vecFromVertexToPMT[2] = PMTXYZ[PMTID[tID+i]-1][2] - pvz;
         distFromVertexToPMT = Norm(vecFromVertexToPMT);
         uvx[i] = vecFromVertexToPMT[0] / distFromVertexToPMT;
         uvy[i] = vecFromVertexToPMT[1] / distFromVertexToPMT;
@@ -864,9 +870,9 @@ float NTagEventInfo::GetToF(float vertex[3], int pmtID)
     float vecFromVertexToPMT[3];
 
     for (int i = 0; i < 3; i++)
-        vecFromVertexToPMT[i] = vertex[i] - xyz[pmtID][i];
+        vecFromVertexToPMT[i] = vertex[i] - PMTXYZ[pmtID][i];
 
-    return GetDistance(xyz[pmtID], vertex) / C_WATER;
+    return GetDistance(PMTXYZ[pmtID], vertex) / C_WATER;
 }
 
 float NTagEventInfo::GetTRMS(const std::vector<float>& T)

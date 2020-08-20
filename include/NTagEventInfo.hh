@@ -1,19 +1,12 @@
 #ifndef NTAGEVENTINFO_HH
 #define NTAGEVENTINFO_HH 1
 
-#define SECMAXRNG (4000)
-
 #include <array>
 #include <vector>
 #include <ctime>
 
 #include <TString.h>
 #include <TMVA/Reader.h>
-
-#include "apscndryC.h"
-#include "apmringC.h"
-
-#include "loweroot.h"
 
 enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
 
@@ -52,7 +45,8 @@ class NTagEventInfo
             /* functions on hits */
             int                  GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
             int                  GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float searchTWidth);
-            float                GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth);
+            float                GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q,
+                                                        int startIndex, float tWidth);
             float                GetToF(float vertex[3], int pmtID);
             float                GetTRMS(const std::vector<float>& T);
             float                GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
@@ -73,16 +67,17 @@ class NTagEventInfo
         inline void          SetT0Threshold(float th) { T0TH = th; }
         inline void          SetTEndLimit(int tend) { TEND = tend; }
         inline void          SetTOffset(int toffset) { TOFFSET = toffset; }
-        inline void          SetDistanceCut(float cut) { DISTCUT = cut; }
+        inline void          SetDistanceCut(float cut) { VTXSRCRANGE = cut; }
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
-        inline void          SetCustomVertex(float x, float y, float z) { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
-				
-				inline void          SetSaveWait(bool b) { bSaveWait = b; }
-				inline void          SetSHEFlag(bool b) { bSHEFlag = b; }
-				inline void          SetPreEvent(bool ev) { PreEvent = ev; }
+        inline void          SetCustomVertex(float x, float y, float z)
+                                            { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
 
-        
+        // Trigger control for data
+        inline void          SetSaveWait(bool b) { bSaveWait = b; }
+        inline void          SetSHEFlag(bool b) { bSHEFlag = b; }
+        inline void          SetPreEvent(bool ev) { PreEvent = ev; }
+
         // Message
         virtual void         PrintTag(unsigned int);
         virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
@@ -91,26 +86,28 @@ class NTagEventInfo
         virtual void         CheckMC();
 
     private:
-        const float (*xyz)[3];              // PMT positions
-        const float C_WATER;                // Speed-of-light in water [cm/ns]
+        TMVA::Reader* reader;
+
+        const float (*PMTXYZ)[3];           // PMT positions
+        const float C_WATER;                // speed-of-light in water [cm/ns]
 
         // Tag conditions
         int         N10TH, N10MX, N200MX;   // N_hits cut
+        float       VTXSRCRANGE;            // vertex search range in MinimizeTRMS
         float       T0TH;                   // T0 threshold
-        float       TEND;                   // Last timing limit
-        float       TOFFSET;                   // Timing offset of dt
-        float       DISTCUT;
+        float       TEND;                   // last timing limit
+        float       TOFFSET;                // timing offset of dt
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
 
+        // Custom prompt vertex
         float       customvx, customvy, customvz;
-        
-        TMVA::Reader* reader;
 
     protected:
         unsigned int fVerbosity;
-        bool bData, bCustomVertex, bSaveWait, bSHEFlag;
-        int PreEvent;
+        bool         bData, bCustomVertex;
+        bool         bSaveWait, bSHEFlag;
+        int          PreEvent;
 
         /************************************************************************************************/
         // Data/fit event info
@@ -122,20 +119,14 @@ class NTagEventInfo
         /**/    std::vector<int>    vSortedPMTID;
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
-        /**/    /* M.Harada */
-        /**/    /* vx, vy, vz, towall should be same for both ATMPD and LOWE,*/
-        /**/    /* because for using same Ntag algorithm.*/
-        /**/    // Fit variables
+        /**/    // Prompt-peak fit variables (extractable from both APFit and BONSAI)
         /**/    float               pvx, pvy, pvz, towall;
+        /**/    float               evis;
         /**/
         /**/    // APFit variables
         /**/    int                 nring, nmue, ndcy;
-        /**/    float               evis;
         /**/    std::vector<int>    vApip;
         /**/    std::vector<float>  vApamom, vApmome, vApmomm;
-        /**/
-        /**/    // LowFit variables
-        /**/    //float               bsenergy;
         /**/
         /**/        // Variables for neutron capture candidates
         /**/        int                 nCandidates, N200M;
