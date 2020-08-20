@@ -82,7 +82,7 @@ class NTagEventInfo
         virtual void         PrintTag(unsigned int);
         virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
         virtual void         PrintMessage(const char*, unsigned int vType=pDEFAULT);
-        virtual float        Timer(TString, std::clock_t tStart);
+        virtual float        Timer(TString, std::clock_t tStart, unsigned int vType=pDEFAULT);
         virtual void         CheckMC();
 
     private:
