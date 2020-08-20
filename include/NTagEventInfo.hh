@@ -62,6 +62,7 @@ class NTagEventInfo
 
         // Member variable control
         virtual void         Clear();
+        virtual void         ClearOutputVariable();
         virtual void         SaveSecondary(int secID);
         virtual void         SavePeakFromHit(int hitID);
 
@@ -70,10 +71,17 @@ class NTagEventInfo
         inline void          SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
         inline void          SetN200Max(int max) { N200MX = max; }
         inline void          SetT0Threshold(float th) { T0TH = th; }
+        inline void          SetTEndLimit(int tend) { TEND = tend; }
+        inline void          SetTOffset(int toffset) { TOFFSET = toffset; }
         inline void          SetDistanceCut(float cut) { DISTCUT = cut; }
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
         inline void          SetCustomVertex(float x, float y, float z) { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
+				
+				inline void          SetSaveWait(bool b) { bSaveWait = b; }
+				inline void          SetSHEFlag(bool b) { bSHEFlag = b; }
+				inline void          SetPreEvent(bool ev) { PreEvent = ev; }
+
         
         // Message
         virtual void         PrintTag(unsigned int);
@@ -89,6 +97,8 @@ class NTagEventInfo
         // Tag conditions
         int         N10TH, N10MX, N200MX;   // N_hits cut
         float       T0TH;                   // T0 threshold
+        float       TEND;                   // Last timing limit
+        float       TOFFSET;                   // Timing offset of dt
         float       DISTCUT;
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
@@ -99,7 +109,8 @@ class NTagEventInfo
 
     protected:
         unsigned int fVerbosity;
-        bool bData, bCustomVertex;
+        bool bData, bCustomVertex, bSaveWait, bSHEFlag;
+        int PreEvent;
 
         /************************************************************************************************/
         // Data/fit event info

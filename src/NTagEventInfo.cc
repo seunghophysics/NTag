@@ -21,7 +21,7 @@
 
 NTagEventInfo::NTagEventInfo()
 :xyz(geopmt_.xyzpm), C_WATER(21.5833),
-N10TH(5), N10MX(50), N200MX(140), T0TH(2.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
+N10TH(5), N10MX(50), N200MX(140), T0TH(2.), TEND(535.e3), TOFFSET(0.), DISTCUT(4000.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {
@@ -101,18 +101,19 @@ void NTagEventInfo::SetLowFitInfo()
     TTree*       tree = mgr->GetTree();
     LoweInfo*    LOWE = mgr->GetLOWE();
     
-    static int iEntry = 0;
-    
-    tree->GetEntry(iEntry);
-    /*skroot_get_lowe_(&lun, &readStatus, bsvertex, &fdummy, &fdummy, 
-                     &fdummy, &fdummy, &fdummy, &bsenergy, &idummy, 
+    mgr->GetEntry();
+
+		/*
+    skroot_get_lowe_(&lun, &readStatus, bsvtx, &fdummy, &fdummy, 
+                     &fdummy, &fdummy, &fdummy, &bsene, &idummy, 
                      &fdummy, &fdummy, &fdummy, &fdummy, &fdummy,
                      &fdummy, &fdummy, &fdummy, &idummy, &fdummy, 
                      &idummy, &idummy, &idummy, &ddummy, &fdummy,
                      &fdummy, &idummy, &fdummy, &fdummy, &fdummy, 
                      &fdummy, &fdummy, &idummy, &fdummy, &fdummy,
                      &adummy, &fdummy, &fdummy, &fdummy, &idummy, 
-                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);*/
+                     &fdummy, &fdummy, &fdummy, &idummy, &idummy);
+		*/
             
     // Get LowFit vertex
     if (bCustomVertex) {
@@ -136,8 +137,6 @@ void NTagEventInfo::SetLowFitInfo()
     // E_vis
     evis = LOWE->bsenergy;
     PrintMessage(Form("e_vis: %f", evis), pDEBUG);
-    
-    iEntry++;
 }
 
 void NTagEventInfo::SetToFSubtractedTQ()
@@ -153,6 +152,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     // Subtract TOF from PMT hit time
     float fitVertex[3] = {pvx, pvy, pvz};
     vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex, false);
+
 
     // Sort: first hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
@@ -179,6 +179,8 @@ void NTagEventInfo::SetMCInfo()
     truevx = skvect_.pos[0];                      // initial vertex of primaries
     truevy = skvect_.pos[1];
     truevz = skvect_.pos[2];
+
+    PrintMessage(Form("True Vector: %d", nvect), pDEBUG);
 
     for (int iVec = 0; iVec < nvect; iVec++) {
         vIp.push_back(   skvect_.ip[iVec]     );  // PID of primaries
@@ -291,6 +293,7 @@ void NTagEventInfo::SetMCInfo()
     PrintMessage(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
 }
 
+
 void NTagEventInfo::SearchCaptureCandidates()
 {
     int   iHitPrevious    = 0;
@@ -302,15 +305,19 @@ void NTagEventInfo::SearchCaptureCandidates()
     // Loop over the saved TQ hit array from current event
     for (int iHit = 0; iHit < nqiskz; iHit++) {
 
+				// the Hit timing w/o TOF is larger than limit, or less smaller than t0
+				if (vSortedT_ToF[iHit] > TEND-10. || vSortedT_ToF[iHit]*1.e-3 < T0TH) continue;	
+
         // Save time of first hit
         if (firsthit == 0.) firsthit = vSortedT_ToF[iHit];
 
         // Calculate N10New:
         // number of hits in 10 ns window from the i-th hit
         int N10i = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
+				//cout<<N10i<<endl;
 
         // If N10TH <= N10i <= N10MX:
-        if ((N10i < N10TH) || (N10i > N10MX+1)) continue;
+        if ((N10i < N10TH) || (N10i >= N10MX+1)) continue;
 
         // We've found a new peak.
         N10New = N10i;
@@ -354,6 +361,8 @@ void NTagEventInfo::SearchCaptureCandidates()
     std::vector<float>  tiskz50, qiskz50, tiskz1300, qiskz1300;
 
     PrintMessage("Finding new N10 from TRMS minimization...", pDEBUG);
+    PrintMessage("Number of Candidate : "+to_string(nCandidates), pDEBUG);
+
 
     // Loop over all found capture candidates
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
@@ -385,6 +394,8 @@ void NTagEventInfo::SearchCaptureCandidates()
                 }
             }
         }
+    		//PrintMessage("n50 Hits : "+to_string(n50hits), pDEBUG);
+    		//PrintMessage("n1300 Hits : "+to_string(n1300hits), pDEBUG);
 
         for (int iHit50 = 0; iHit50 < n50hits; iHit50++) {
             cabiz50.push_back( sktqz_.icabiz[ index50[iHit50] ] );
@@ -417,8 +428,21 @@ void NTagEventInfo::SearchCaptureCandidates()
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
         float time0 = vDt[iCandidate];
 
-        bonsai_fit_(&time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, &tmptbsvx, &tmptbsvy, &tmptbsvz,
-                    &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+				if(n1300hits>999||n1300hits<10){//Maybe high or low hit noise.
+					tmptbsenergy = 0.;
+					tmptbsvx = 9999.;
+					tmptbsvy = 9999.;
+					tmptbsvz = 9999.;
+					tmptbsvt = 0.;
+					tmptbsgood = 0.;
+					tmptbsdirks = 1.;
+					tmptbspatlik = 0.;
+					tmptbsovaq = -1.;	
+				}
+				else{
+					bonsai_fit_( &bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy, 
+					             &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+				}
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
 
@@ -474,6 +498,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         SetTrueCaptureInfo();
     }
 }
+
 
 void NTagEventInfo::SetTrueCaptureInfo()
 {
@@ -751,6 +776,7 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
 
     float uvx[nHits], uvy[nHits], uvz[nHits];	// direction vector from vertex to each hit PMT
+		if (nHits == 0) return beta;
 
     for (int i = 0; i < nHits; i++) {
         float distFromVertexToPMT;
@@ -914,6 +940,48 @@ int NTagEventInfo::IsTrueGdCapture(int candidateID)
 
 void NTagEventInfo::Clear()
 {
+//    nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
+//    trgofst = 0; qismsk = 0;
+//    nring = 0; nmue = 0; ndcy = 0;
+//    evis = 0; pvx = 0; pvy = 0; pvz = 0; towall = 0;
+//    nCandidates = 0; N200M = 0;
+//    T200M = -9999.; firsthit = -9999.;
+//
+//    nTrueCaptures = 0;
+//    nSavedSec = 0; nscndprt = 0;
+//    nN = modene = numne = 0;
+//    pnu = 0;
+//    nvect = 0;
+//    truevx = 0; truevy = 0; truevz = 0;
+
+    vSortedPMTID.clear();
+    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+//    vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
+//    vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
+//    vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
+//    vDt.clear(); vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear(); vNwall.clear();
+//    vDoubleCount.clear();
+//    vBenergy.clear(); vBvx.clear(); vBvy.clear(); vBvz.clear(); vBvt.clear();
+//    vBwall.clear(); vBgood.clear(); vBpatlik.clear(); vBdirks.clear(); vBovaq.clear();
+//    vBeta14_10.clear(); vBeta14_50.clear();
+//    vBeta1_50.clear(); vBeta2_50.clear(); vBeta3_50.clear(); vBeta4_50.clear(); vBeta5_50.clear();
+//    vTMVAoutput.clear();
+//
+//    vNGam.clear();
+//    vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
+//    vIsGdCapture.clear(); vIsTrueCapture.clear();
+//    vTruth_vx.clear(); vTruth_vy.clear(); vTruth_vz.clear(); vTimeDiff.clear();
+//    vIprtscnd.clear(); vLmecscnd.clear(); vIprntprt.clear(); vCaptureID.clear();
+//    vVtxscndx.clear(); vVtxscndy.clear(); vVtxscndz.clear(); vPscndx.clear(); vPscndy.clear(); vPscndz.clear();
+//    vWallscnd.clear(); vPabsscnd.clear(); vTscnd.clear();
+//
+//    vIpne.clear();
+//    vIp.clear();
+//    vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
+}
+
+void NTagEventInfo::ClearOutputVariable()
+{
     nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
     trgofst = 0; qismsk = 0;
     nring = 0; nmue = 0; ndcy = 0;
@@ -928,8 +996,8 @@ void NTagEventInfo::Clear()
     nvect = 0;
     truevx = 0; truevy = 0; truevz = 0;
 
-    vSortedPMTID.clear();
-    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+//    vSortedPMTID.clear();
+//    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
     vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
     vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
     vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
@@ -953,6 +1021,7 @@ void NTagEventInfo::Clear()
     vIp.clear();
     vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
 }
+
 
 void NTagEventInfo::SaveSecondary(int secID)
 {
@@ -983,24 +1052,25 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     float sumQ    = GetQhitsFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
     float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
-    // Save info to the member variables
-    //vNvx.push_back(       pvx                   );
-    //vNvy.push_back(       pvy                   );
-    //vNvz.push_back(       pvz                   );
-    vN10.push_back(       N10i                   );
-    //vN10n.push_back(       N10i                  );
-    vN200.push_back(      N200                   );
-    vSumQ.push_back(      sumQ                   );
-    vDt.push_back(        (t0 + tEnd) / 2.       );
-    //vDtn.push_back(       (t0 + tEnd) / 2.       );
-    vTindex.push_back(    hitID                  );
-    vSpread.push_back(    tEnd - t0              );
-    vTrmsold.push_back(   trmsold                );
-    vBeta14_10.push_back( beta[1] + 4*beta[4]    );
+		if ((N10i >= N10TH) && (N10i < N10MX+1)) {
+			// Save info to the member variables
+			//vNvx.push_back(       pvx                         );
+			//vNvy.push_back(       pvy                         );
+			//vNvz.push_back(       pvz                         );
+			vN10.push_back(       N10i                         );
+			//vN10n.push_back(       N10i                        );
+			vN200.push_back(      N200                         );
+			vSumQ.push_back(      sumQ                         );
+			vDt.push_back(        (t0 + tEnd) / 2. + TOFFSET   );
+			//vDtn.push_back(       (t0 + tEnd) / 2. + TOFFSET   );
+			vTindex.push_back(    hitID                        );
+			vSpread.push_back(    tEnd - t0                    );
+			vTrmsold.push_back(   trmsold                      );
+			vBeta14_10.push_back( beta[1] + 4*beta[4]          );
 
-    // Increment number of neutron candidates
-    nCandidates++;
-
+			// Increment number of neutron candidates
+			nCandidates++;
+		}
     // Debug
     //PrintMessage(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }

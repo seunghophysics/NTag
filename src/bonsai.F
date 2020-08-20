@@ -35,7 +35,7 @@ c*** init. bonsai
 
 c------------------------------------------------------------------------------
 
-      subroutine bonsai_fit(dt, tisksend, qisksend, cabsend, ntisksend,
+      subroutine bonsai_fit(bdata, dt, tisksend, qisksend, cabsend, ntisksend,
      & tenergy, tvx, tvy, tvz, tvt, tgood, tbsdirks, tbspatlik, tbsovaq)
 
       implicit none
@@ -51,6 +51,7 @@ c------------------------------------------------------------------------------
 
       integer lun
 
+      logical bdata
       real tisksend(1000), qisksend(1000)
       integer cabsend(1000)
       integer ntisksend, i, lfflag
@@ -110,8 +111,13 @@ c            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihca
          nqisk = ntisksend
 
          call lfclear_all()
-c         write(*,*) 'before lfallfit'
-         call lfallfit_sk4_data(watert, NHITCUT, lfflag)
+c         write(*,*) 'before lfallfit',mxqisk
+         if (bdata) then 
+           call lfallfit_sk4_data(watert, NHITCUT, lfflag)
+         else 
+           call lfallfit_sk4_mc(watert, NHITCUT, lfflag)
+         endif
+
 c         call lfallfit_sk4_data(watert, ntisksend, lfflag)
 c         write(*,*) 'after lfallfit'
          effwal = effwallf(1,bsvertex,bsdir,poswal)
