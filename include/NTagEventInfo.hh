@@ -36,9 +36,9 @@ class NTagEventInfo
         inline float Norm(float vec[3]);
         inline float Norm(float x, float y, float z);
         float GetDistance(const float vec1[3], float vec2[3]);
-        inline float ReconCaptureTime(int capID);
-        float TrueCaptureTime(int capID);
-        std::array<float, 3> TrueCaptureVertex(int capID);
+        inline float ReconCaptureTime(int candidateID);
+        float TrueCaptureTime(int candidateID);
+        std::array<float, 3> TrueCaptureVertex(int candidateID);
         float SubtractToF(float t_ToF[], float T[], int PMTID[], int nHits, float vertex[3], bool doSort=false);
         float MinimizeTRMS(float T[], int PMTID[], int nHits, float fitVertex[3]);
         float GetLegendreP(int i, float& x); // Legendre polynomials for beta calculation
@@ -49,8 +49,8 @@ class NTagEventInfo
         float GetTRMSFromStartIndex(float T[], int startIndex, float tWidth);
         int GetNhitsFromCenterTime(float centerTime, float searchTWidth);
 
-        int IsTrueCapture(int capID);
-        int IsTrueGdCapture(int capID);
+        int IsTrueCapture(int candidateID);
+        int IsTrueGdCapture(int candidateID);
         virtual void Clear();
 
         virtual void SetTMVAReader();

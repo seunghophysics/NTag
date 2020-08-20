@@ -17,7 +17,7 @@ NTagAnalysis::NTagAnalysis(const char* fileName, bool useData, unsigned int verb
 
     SetN10Limits(5, 50);
     SetN200Max(140);
-    SetT0Threshold(1.);		// [us]
+    SetT0Threshold(2.);		// [us]
     SetDistanceCut(4000.);	// [cm]
     SetTMatchWindow(40.);	// [ns]
 
@@ -83,7 +83,9 @@ void NTagAnalysis::ReadFile()
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
                     if(inPMT){
-                        PrintMessage(Form("True vertex is in PMT. Skipping event %d...", eventID), vDebug);
+                        PrintMessage(
+                            Form("True vertex is in PMT. Skipping event %d...", 
+                                 eventID), vDebug);
                     break;
                     }
                 }
@@ -107,11 +109,12 @@ void NTagAnalysis::ReadEvent()
     SetAPFitInfo();
     SetToFSubtractedTQ();
     SearchCaptureCandidates();
-
+    GetTMVAoutput();
+    
     if(!bData){
         SetMCInfo();
     }
-
+    
     ntvarTree->Fill();
     if(!bData) truthTree->Fill();
 }
