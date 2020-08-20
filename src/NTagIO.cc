@@ -3,7 +3,7 @@
 #include "NTagIO.hh"
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
-: fInFileName(inFileName), fOutFileName(outFileName)
+: fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0)
 {
     bData = useData;
     fVerbosity = verbose;

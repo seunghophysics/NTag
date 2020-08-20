@@ -12,7 +12,6 @@
 
 #include <SKLibs.hh>
 #include <NTagROOT.hh>
-//#include "loweroot.h"
 
 NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
 : NTagIO(inFileName, outFileName, useData, verbose), lun(10) {}
@@ -55,23 +54,20 @@ void NTagROOT::ReadFile()
 {
     // Read data event-by-event
     int readStatus;
-    int nProcessedEvents = 0;
     bool bEOF = false;
     auto startTime = std::clock();
     
     while (!bEOF) {
-
-        Clear();
+    
         readStatus = skread_(&lun);
         CheckMC();
         
         switch (readStatus) {
             case 0: // event read
-                nProcessedEvents++;
                 std::cout << "\n" << std::endl;
                 PrintMessage("###########################", pDEBUG);
                 PrintMessage(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
-                PrintMessage(Form("Process No.: %d", nProcessedEvents), pDEBUG);
+                PrintMessage(Form("Process No.: %d", nProcessedEvents+1), pDEBUG);
                 PrintMessage("###########################", pDEBUG);
                 
                 // If MC
@@ -90,10 +86,12 @@ void NTagROOT::ReadFile()
                 }
                 
                 ReadEvent();
+                nProcessedEvents++;
                 
                 break;
 
             case 1: // read-error
+                PrintMessage("FILE READ ERROR OCCURED!", pERROR);
                 break;
 
             case 2: // end of input
@@ -117,61 +115,82 @@ void NTagROOT::ReadEvent()
 
 void NTagROOT::ReadMCEvent()
 {
+    // DONT'T FORGET TO CLEAR!
+    Clear();
+    
+    // MC-only truth info
     SetMCInfo();
     
+    // Prompt-peak info
     SetEventHeader();
     SetLowFitInfo();
+    
+    // Hit info (all hits)
+    SetRawHitInfo();
     SetToFSubtractedTQ();
-
+    
+    // Tagging starts here!
     SearchCaptureCandidates();
     GetTMVAoutput();
 
+    // DONT'T FORGET TO FILL!
     ntvarTree->Fill();
     truthTree->Fill();
 }
 
 void NTagROOT::ReadDataEvent()
 {
-    	SetEventHeader();
-
-			if ((skhead_.idtgsk & 1<<28)) {//SHE event
-        ClearOutputVariable();
-    		SetLowFitInfo();
-				SetT0Threshold(2.);// [us]
-				SetTEndLimit(4.e4);// [ns]
-				SetTOffset(0.);// [ns]
-				
-				SetSHEFlag(true);
-			}
-			else if ((skhead_.idtgsk & 1<<29)) {//AFT event
-				if (PreEvent - nev != -1) {
-					SetPreEvent(nev);
-					return;
-				}
-				SetT0Threshold(0.);// [us]
-				SetTEndLimit(5.e5);// [ns]
-				SetTOffset(3.5e4);// [ns]
-				
-				SetSHEFlag(false);
-			}
+    // If current event is AFT, append TQ and fill output.
+    if (skhead_.idtgsk & 1<<29) {
+        ReadAFTEvent();
+    }
     
-    SetToFSubtractedTQ();
+    // If previous event was SHE without following AFT,
+    // just fill output because there's nothing to append.
+    else if (!vTISKZ.empty()) {
+        SetToFSubtractedTQ();
+    
+        // Tagging starts here!
+        SearchCaptureCandidates();
+        GetTMVAoutput();
+        
+        ntvarTree->Fill();
+    }
 
+    // If current event is SHE, 
+    // save raw hit info and don't fill output.
+    if (skhead_.idtgsk & 1<<28) {
+        ReadSHEEvent();
+    }
+}
+
+void NTagROOT::ReadSHEEvent()
+{
+    // DONT'T FORGET TO CLEAR!
+    Clear();
+    
+    // MC-only truth info
+    SetMCInfo();
+    
+    // Prompt-peak info
+    SetEventHeader();
+    SetLowFitInfo();
+    
+    // Hit info (SHE: close-to-prompt hits only)
+    SetRawHitInfo();
+}
+
+void NTagROOT::ReadAFTEvent()
+{
+    // Append hit info (AFT: delayed hits after prompt)
+    AppendRawHitInfo();
+    SetToFSubtractedTQ();
+    
+    // Tagging starts here!
     SearchCaptureCandidates();
     GetTMVAoutput();
 
-
-    if (bData) {
-			if (bSHEFlag) {
-				SetSaveWait(true);
-				SetPreEvent(nev);
-			} 
-			else {
-				ntvarTree->Fill();
-				SetSaveWait(false);
-			}
-		}
-
-		SetPreEvent(nev);
+    // DONT'T FORGET TO FILL! 
+    // (ntvar only for data)
+    ntvarTree->Fill();
 }
-

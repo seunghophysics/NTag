@@ -105,11 +105,12 @@ void NTagZBS::ReadEvent()
     
     SetEventHeader();
     SetAPFitInfo();
+    
+    SetRawHitInfo();
     SetToFSubtractedTQ();
 
     SearchCaptureCandidates();
     GetTMVAoutput();
-
 
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();

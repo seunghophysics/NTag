@@ -27,6 +27,7 @@ class NTagIO : public NTagEventInfo
     protected:
         const char* fInFileName;
         const char* fOutFileName;
+        int         nProcessedEvents;
         
         TTree*      truthTree;
         TTree*      ntvarTree;

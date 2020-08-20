@@ -20,6 +20,8 @@ class NTagEventInfo
         virtual void         SetEventHeader();
         virtual void         SetAPFitInfo();
         virtual void         SetLowFitInfo();
+        virtual void         SetRawHitInfo();
+        virtual void         AppendRawHitInfo();
         virtual void         SetToFSubtractedTQ();
         virtual void         SetMCInfo();
         virtual void         SearchCaptureCandidates();
@@ -43,6 +45,7 @@ class NTagEventInfo
             std::array<float, 3> TrueCaptureVertex(int candidateID);
 
             /* functions on hits */
+            void                 SortToFSubtractedTQ();
             int                  GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
             int                  GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float searchTWidth);
             float                GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q,
@@ -56,6 +59,7 @@ class NTagEventInfo
 
         // Member variable control
         virtual void         Clear();
+        virtual void         ClearRawHitInfo();
         virtual void         ClearOutputVariable();
         virtual void         SaveSecondary(int secID);
         virtual void         SavePeakFromHit(int hitID);
@@ -116,6 +120,8 @@ class NTagEventInfo
         /**/    // SK data variables
         /**/    int                 nrun, nsub, nev, trgtype, nhitac, nqiskz;
         /**/    float               trgofst, qismsk;
+        /**/    std::vector<int>    vCABIZ;
+        /**/    std::vector<float>  vTISKZ, vQISKZ;
         /**/    std::vector<int>    vSortedPMTID;
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/

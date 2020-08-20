@@ -42,7 +42,6 @@ void NTagEventInfo::SetEventHeader()
     nrun = skhead_.nrunsk;
     nsub = skhead_.nsubsk;
     nev = skhead_.nevsk;
-    PrintMessage(Form("RUN %d SUBRUN %d EVENT %d", nrun, nsub, nev), pDEBUG);
 
     // Get number of OD hits
     odpc_2nd_s_(&nhitac);
@@ -131,30 +130,31 @@ void NTagEventInfo::SetLowFitInfo()
     PrintMessage(Form("e_vis: %f", evis), pDEBUG);
 }
 
-void NTagEventInfo::SetToFSubtractedTQ()
+void NTagEventInfo::SetRawHitInfo()
 {
-    nqiskz = sktqz_.nqiskz;
-    int sortedIndex[nqiskz], pmtID;
+    vTISKZ = std::vector<float>(sktqz_.tiskz, sktqz_.tiskz + nqiskz);
+    vQISKZ = std::vector<float>(sktqz_.qiskz, sktqz_.qiskz + nqiskz);
+    vCABIZ = std::vector<int>(sktqz_.icabiz, sktqz_.icabiz + nqiskz);
+}
 
-    std::vector<float> tiskz(sktqz_.tiskz, sktqz_.tiskz + nqiskz);
-    std::vector<int> cabiz(sktqz_.icabiz, sktqz_.icabiz + nqiskz);
+void NTagEventInfo::AppendRawHitInfo()
+{   
+    vTISKZ.insert(std::end(vTISKZ), std::begin(sktqz_.tiskz), std::end(sktqz_.tiskz));
+    vQISKZ.insert(std::end(vQISKZ), std::begin(sktqz_.qiskz), std::end(sktqz_.qiskz));
+    vCABIZ.insert(std::end(vCABIZ), std::begin(sktqz_.icabiz), std::end(sktqz_.icabiz));
+}
 
-    PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
-
-    // Subtract TOF from PMT hit time
+void NTagEventInfo::SetToFSubtractedTQ()
+{   
+    // Subtract ToF from raw PMT hit time
     float fitVertex[3] = {pvx, pvy, pvz};
-    vUnsortedT_ToF = GetToFSubtracted(tiskz, cabiz, fitVertex, false);
-
-
-    // Sort: first hit first
-    TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
-
-    // Save hit info, sorted in (T - ToF)
-    for (int iHit = 0; iHit < nqiskz; iHit++) {
-        vSortedPMTID.push_back( cabiz[ sortedIndex[iHit] ]          );
-        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
-        vSortedQ.push_back(     sktqz_.qiskz[ sortedIndex[iHit] ]   );
-    }
+    vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
+    
+    SortToFSubtractedTQ(); // also sets nqiskz
+    PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
+    
+    // No need to save raw hit info for long
+    ClearRawHitInfo();
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -817,6 +817,22 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
     return result;
 }
 
+void NTagEventInfo::SortToFSubtractedTQ()
+{
+    nqiskz = vTISKZ.size();
+    int sortedIndex[nqiskz], pmtID;
+
+    // Sort: early hit first
+    TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
+
+    // Save hit info, sorted in (T - ToF)
+    for (int iHit = 0; iHit < nqiskz; iHit++) {
+        vSortedPMTID.push_back( vCABIZ[ sortedIndex[iHit] ]          );
+        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
+        vSortedQ.push_back(     vQISKZ[ sortedIndex[iHit] ]   );
+    }
+}
+
 int NTagEventInfo::GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
 {
     int searchIndex = startIndex;
@@ -941,7 +957,9 @@ void NTagEventInfo::Clear()
 //    pnu = 0;
 //    nvect = 0;
 //    truevx = 0; truevy = 0; truevz = 0;
-
+    vQISKZ.clear();
+    vTISKZ.clear();
+    vCABIZ.clear();
     vSortedPMTID.clear();
     vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
 //    vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
@@ -966,6 +984,11 @@ void NTagEventInfo::Clear()
 //    vIpne.clear();
 //    vIp.clear();
 //    vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
+}
+
+void NTagEventInfo::ClearRawHitInfo()
+{
+    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear();
 }
 
 void NTagEventInfo::ClearOutputVariable()

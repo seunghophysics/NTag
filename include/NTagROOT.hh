@@ -19,6 +19,10 @@ class NTagROOT : public NTagIO
         void ReadEvent();
         void ReadMCEvent();
         void ReadDataEvent();
+        
+        // Data I/O
+        void ReadSHEEvent();
+        void ReadAFTEvent();
 
         // Tree-related 
         //void CreateBranchesToTruthTree();
@@ -28,7 +32,7 @@ class NTagROOT : public NTagIO
     
     private:
         // File I/O (logical unit)
-        int lun; /* remove if unnecessary */
+        int lun;
 };
 
 #endif
