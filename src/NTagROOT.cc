@@ -55,35 +55,42 @@ void NTagROOT::ReadFile()
 {
     // Read data event-by-event
     int readStatus;
-    int eventID = 0;
+    int nProcessedEvents = 0;
     bool bEOF = false;
+    auto startTime = std::clock();
     
     while (!bEOF) {
 
         Clear();
         readStatus = skread_(&lun);
         CheckMC();
-				cout<<" Initial read  "<<sktqz_.nqiskz<<"  "<<sktqz_.tiskz[0]<<endl;
         
         switch (readStatus) {
             case 0: // event read
-                eventID++;
+                nProcessedEvents++;
                 std::cout << "\n" << std::endl;
                 PrintMessage("###########################", pDEBUG);
-                PrintMessage(Form("Event ID: %d", eventID), pDEBUG);
+                PrintMessage(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
+                PrintMessage(Form("Process No.: %d", nProcessedEvents), pDEBUG);
                 PrintMessage("###########################", pDEBUG);
-                int inPMT;
+                
+                // If MC
                 if (!bData) {
+                    int inPMT;
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
+                    
+                    // Skip event with vertex in PMT
                     if (inPMT) {
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...",
-                                 eventID), pDEBUG);
+                                 nProcessedEvents), pDEBUG);
                         break;
                     }
                 }
+                
                 ReadEvent();
+                
                 break;
 
             case 1: // read-error
@@ -94,6 +101,9 @@ void NTagROOT::ReadFile()
                 skroot_close_(&lun);
                 skroot_end_();
                 bEOF = true;
+                
+                PrintMessage(Form("Number of processed events: %d", nProcessedEvents), pDEFAULT);
+                Timer("Reading this file", startTime, pDEFAULT);
                 break;
         }
     }
@@ -101,20 +111,27 @@ void NTagROOT::ReadFile()
 
 void NTagROOT::ReadEvent()
 {
+    if (bData) ReadDataEvent(); // Data
+    else       ReadMCEvent();   // MC
+}
 
-    if (!bData) {
-    	ClearOutputVariable();
+void NTagROOT::ReadMCEvent()
+{
+    SetMCInfo();
+    
+    SetEventHeader();
+    SetLowFitInfo();
+    SetToFSubtractedTQ();
 
-    	SetEventHeader();
-      SetMCInfo();
-    	SetLowFitInfo();
+    SearchCaptureCandidates();
+    GetTMVAoutput();
 
-			//Set Time setting	
-			SetT0Threshold(2.);// [us]
-			SetTEndLimit(5.35e5);// [ns]
-			SetTOffset(0.);// [ns]
-    }
-		else {
+    ntvarTree->Fill();
+    truthTree->Fill();
+}
+
+void NTagROOT::ReadDataEvent()
+{
     	SetEventHeader();
 
 			if ((skhead_.idtgsk & 1<<28)) {//SHE event
@@ -137,7 +154,6 @@ void NTagROOT::ReadEvent()
 				
 				SetSHEFlag(false);
 			}
-		}
     
     SetToFSubtractedTQ();
 
@@ -154,11 +170,6 @@ void NTagROOT::ReadEvent()
 				ntvarTree->Fill();
 				SetSaveWait(false);
 			}
-		}
-
-    if (!bData) {
-			ntvarTree->Fill();
-			truthTree->Fill();
 		}
 
 		SetPreEvent(nev);

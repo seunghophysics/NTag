@@ -17,6 +17,8 @@ class NTagROOT : public NTagIO
         void OpenFile();
         void ReadFile();
         void ReadEvent();
+        void ReadMCEvent();
+        void ReadDataEvent();
 
         // Tree-related 
         //void CreateBranchesToTruthTree();
