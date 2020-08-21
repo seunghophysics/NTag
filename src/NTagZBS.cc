@@ -106,7 +106,7 @@ void NTagZBS::ReadEvent()
     SetEventHeader();
     SetAPFitInfo();
     
-    SetRawHitInfo();
+    AppendRawHitInfo();
     SetToFSubtractedTQ();
 
     SearchCaptureCandidates();

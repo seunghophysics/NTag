@@ -67,7 +67,7 @@ void NTagROOT::ReadFile()
                 std::cout << "\n" << std::endl;
                 PrintMessage("###########################", pDEBUG);
                 PrintMessage(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
-                PrintMessage(Form("Process No.: %d", nProcessedEvents+1), pDEBUG);
+                PrintMessage(Form("Process No. %d", nProcessedEvents+1), pDEBUG);
                 PrintMessage("###########################", pDEBUG);
                 
                 // If MC
@@ -126,7 +126,7 @@ void NTagROOT::ReadMCEvent()
     SetLowFitInfo();
     
     // Hit info (all hits)
-    SetRawHitInfo();
+    AppendRawHitInfo();
     SetToFSubtractedTQ();
     
     // Tagging starts here!
@@ -142,12 +142,14 @@ void NTagROOT::ReadDataEvent()
 {
     // If current event is AFT, append TQ and fill output.
     if (skhead_.idtgsk & 1<<29) {
+        PrintMessage("Saving SHE+AFT...", pDEBUG);
         ReadAFTEvent();
     }
     
     // If previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
     else if (!vTISKZ.empty()) {
+        PrintMessage("Saving SHE without AFT...", pDEBUG);
         SetToFSubtractedTQ();
     
         // Tagging starts here!
@@ -160,6 +162,7 @@ void NTagROOT::ReadDataEvent()
     // If current event is SHE, 
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
+        PrintMessage("Reading SHE...", pDEBUG);
         ReadSHEEvent();
     }
 }
@@ -169,15 +172,12 @@ void NTagROOT::ReadSHEEvent()
     // DONT'T FORGET TO CLEAR!
     Clear();
     
-    // MC-only truth info
-    SetMCInfo();
-    
     // Prompt-peak info
     SetEventHeader();
     SetLowFitInfo();
     
     // Hit info (SHE: close-to-prompt hits only)
-    SetRawHitInfo();
+    AppendRawHitInfo();
 }
 
 void NTagROOT::ReadAFTEvent()

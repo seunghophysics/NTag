@@ -1,5 +1,7 @@
 #include <TFile.h>
 
+#include "skheadC.h"
+
 #include "NTagIO.hh"
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
@@ -146,4 +148,13 @@ void NTagIO::CreateBranchesToNTvarTree()
         ntvarTree->Branch("truth_vy", &vTruth_vy);
         ntvarTree->Branch("truth_vz", &vTruth_vz);
     }
+}
+
+void NTagIO::CheckMC()
+{
+    if (skhead_.nrunsk != 999999) {
+        bData = true;
+        PrintMessage(Form("Reading event #%d from data...", nProcessedEvents+1));
+    }
+    else PrintMessage(Form("Reading event #%d from MC...", nProcessedEvents+1));
 }

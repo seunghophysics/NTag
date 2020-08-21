@@ -23,7 +23,9 @@ class NTagIO : public NTagEventInfo
         virtual void CreateBranchesToNTvarTree();
         //virtual void SetBranchAddressToTruthTree(TTree* tree);
         //virtual void SetBranchAddressToNTvarTree(TTree* tree);
-
+        
+        virtual void CheckMC();
+        
     protected:
         const char* fInFileName;
         const char* fOutFileName;
