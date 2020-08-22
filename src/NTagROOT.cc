@@ -44,7 +44,7 @@ void NTagROOT::OpenFile()
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
     skheadg_.sk_geometry = 5; geoset_();
-    
+
     // Initialize BONSAI
     kzinit_();
     bonsai_ini_();
@@ -56,12 +56,12 @@ void NTagROOT::ReadFile()
     int readStatus;
     bool bEOF = false;
     auto startTime = std::clock();
-    
+
     while (!bEOF) {
-    
+
         readStatus = skread_(&lun);
         CheckMC();
-        
+
         switch (readStatus) {
             case 0: // event read
                 std::cout << "\n" << std::endl;
@@ -69,25 +69,25 @@ void NTagROOT::ReadFile()
                 PrintMessage(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
                 PrintMessage(Form("Process No. %d", nProcessedEvents+1), pDEBUG);
                 PrintMessage("###########################", pDEBUG);
-                
+
                 // If MC
                 if (!bData) {
                     int inPMT;
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
-                    
+
                     // Skip event with vertex in PMT
                     if (inPMT) {
                         PrintMessage(
                             Form("True vertex is in PMT. Skipping event %d...",
-                                 nProcessedEvents), pDEBUG);
+                                 nProcessedEvents+1), pDEBUG);
                         break;
                     }
                 }
-                
+
                 ReadEvent();
                 nProcessedEvents++;
-                
+
                 break;
 
             case 1: // read-error
@@ -99,7 +99,7 @@ void NTagROOT::ReadFile()
                 skroot_close_(&lun);
                 skroot_end_();
                 bEOF = true;
-                
+
                 PrintMessage(Form("Number of processed events: %d", nProcessedEvents), pDEFAULT);
                 Timer("Reading this file", startTime, pDEFAULT);
                 break;
@@ -117,18 +117,18 @@ void NTagROOT::ReadMCEvent()
 {
     // DONT'T FORGET TO CLEAR!
     Clear();
-    
+
     // MC-only truth info
     SetMCInfo();
-    
+
     // Prompt-peak info
     SetEventHeader();
     SetLowFitInfo();
-    
+
     // Hit info (all hits)
     AppendRawHitInfo();
     SetToFSubtractedTQ();
-    
+
     // Tagging starts here!
     SearchCaptureCandidates();
     GetTMVAoutput();
@@ -145,21 +145,21 @@ void NTagROOT::ReadDataEvent()
         PrintMessage("Saving SHE+AFT...", pDEBUG);
         ReadAFTEvent();
     }
-    
+
     // If previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
     else if (!vTISKZ.empty()) {
         PrintMessage("Saving SHE without AFT...", pDEBUG);
         SetToFSubtractedTQ();
-    
+
         // Tagging starts here!
         SearchCaptureCandidates();
         GetTMVAoutput();
-        
+
         ntvarTree->Fill();
     }
 
-    // If current event is SHE, 
+    // If current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
         PrintMessage("Reading SHE...", pDEBUG);
@@ -171,11 +171,11 @@ void NTagROOT::ReadSHEEvent()
 {
     // DONT'T FORGET TO CLEAR!
     Clear();
-    
+
     // Prompt-peak info
     SetEventHeader();
     SetLowFitInfo();
-    
+
     // Hit info (SHE: close-to-prompt hits only)
     AppendRawHitInfo();
 }
@@ -185,12 +185,12 @@ void NTagROOT::ReadAFTEvent()
     // Append hit info (AFT: delayed hits after prompt)
     AppendRawHitInfo();
     SetToFSubtractedTQ();
-    
+
     // Tagging starts here!
     SearchCaptureCandidates();
     GetTMVAoutput();
 
-    // DONT'T FORGET TO FILL! 
+    // DONT'T FORGET TO FILL!
     // (ntvar only for data)
     ntvarTree->Fill();
 }
