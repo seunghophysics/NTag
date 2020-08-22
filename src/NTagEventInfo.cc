@@ -1,6 +1,7 @@
 #include <math.h>
 #include <cassert>
 #include <iostream>
+#include<numeric>
 
 #include <TMath.h>
 
@@ -175,9 +176,12 @@ void NTagEventInfo::SetToFSubtractedTQ()
     float fitVertex[3] = {pvx, pvy, pvz};
     vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
 
-    SortToFSubtractedTQ(); // also sets nqiskz
+    SortToFSubtractedTQ();
     PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
-
+    
+    // set qismsk as sum of all appended in-gate hits
+    qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
+    
     // No need to have raw hit info in memory for long
     ClearRawHitInfo();
 }
