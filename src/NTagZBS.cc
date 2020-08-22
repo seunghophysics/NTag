@@ -48,7 +48,7 @@ void NTagZBS::OpenFile()
 
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
-    skheadg_.sk_geometry = 4; geoset_();
+    skheadg_.sk_geometry = 5; geoset_();
 
     // Initialize BONSAI
     bonsai_ini_();
