@@ -10,29 +10,17 @@ class NTagZBS : public NTagIO
                 bool useData=false, unsigned int verbose=pDEFAULT);
         ~NTagZBS();
         
-        // Initialize
-        void Initialize();
-        
          // File I/O
         void OpenFile();
-        void ReadFile();
-        void ReadEvent();
-        void ReadMCEvent();
-        void ReadDataEvent();
+        void CloseFile();
         
-        // Data I/O
-        void ReadSHEEvent();
-        void ReadAFTEvent();
+        void SetFitInfo();
 
         // Tree-related
         //void CreateBranchesToTruthTree();
         //void CreateBranchesToNTvarTree();
         //void SetBranchAddressToTruthTree(TTree* tree);
         //void SetBranchAddressToNTvarTree(TTree* tree);
-
-    private:
-        // File I/O (logical unit)
-        int lun;
 };
 
 #endif

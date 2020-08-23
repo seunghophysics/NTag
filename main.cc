@@ -26,12 +26,13 @@ int main(int argc, char** argv)
     if (TString(inputName).EndsWith(".root")) {
         NTagROOT nt(inputName.c_str(), outputName.c_str(), true, pDEBUG);
         nt.SetCustomVertex(-400, 0, 0);
-        nt.Initialize();
+        nt.SetN10Limits(7, 50);
+        nt.ReadFile();
         nt.PrintMessage("Done!");
     }
     else {
         NTagZBS nt(inputName.c_str(), outputName.c_str(), false, pDEBUG);
-        nt.Initialize();
+        nt.ReadFile();
         nt.PrintMessage("Done!");
     }
 

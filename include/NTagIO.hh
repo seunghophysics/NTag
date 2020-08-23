@@ -13,10 +13,21 @@ class NTagIO : public NTagEventInfo
         virtual void Initialize();
         
         // File I/O
-        virtual void OpenFile() = 0;
-        virtual void ReadFile() = 0;
-        virtual void ReadEvent() = 0;
-        virtual void WriteOutput();
+        
+            /* format-specific */
+            virtual void OpenFile() = 0;
+            virtual void CloseFile() = 0;
+            virtual void SetFitInfo() = 0;
+        
+            /* format-independent */
+            virtual void SKInitialize();
+            virtual void ReadFile();
+            virtual void ReadEvent();
+            virtual void ReadMCEvent();
+            virtual void ReadDataEvent();
+            virtual void ReadSHEEvent();
+            virtual void ReadAFTEvent();
+            virtual void WriteOutput();
         
         // Tree-related
         virtual void CreateBranchesToTruthTree();
@@ -30,6 +41,7 @@ class NTagIO : public NTagEventInfo
         const char* fInFileName;
         const char* fOutFileName;
         int         nProcessedEvents;
+        int         lun;
         
         TTree*      truthTree;
         TTree*      ntvarTree;

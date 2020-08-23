@@ -100,7 +100,6 @@ c            qisk(ihcab(i)) = qisksend(i)
 cc            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihcab(i)), ihcab(i)
 c         end do
 
-
          do i = 1, ntisksend 
             ihcab(i) = cabsend(i)
             tisk(ihcab(i)) = tisksend(i) - dt + 1000
@@ -113,6 +112,7 @@ c            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihca
          call lfclear_all()
 c         write(*,*) 'before lfallfit',mxqisk
          if (bdata) then 
+c            print*, "watert/NHITCUT: ", watert, NHITCUT
            call lfallfit_sk4_data(watert, NHITCUT, lfflag)
          else 
            call lfallfit_sk4_mc(watert, NHITCUT, lfflag)

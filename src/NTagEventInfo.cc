@@ -453,8 +453,8 @@ void NTagEventInfo::SearchCaptureCandidates()
             tmptbsovaq = -1.;
         }
         else {
-            bonsai_fit_( &bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
-                         &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+            bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
+                        &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
         }
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};

@@ -10,29 +10,17 @@ class NTagROOT : public NTagIO
                  bool useData=false, unsigned int verbose=pDEFAULT);
         ~NTagROOT();
         
-        // Initialize
-        void Initialize();
-        
         // File I/O
         void OpenFile();
-        void ReadFile();
-        void ReadEvent();
-        void ReadMCEvent();
-        void ReadDataEvent();
-        
-        // Data I/O
-        void ReadSHEEvent();
-        void ReadAFTEvent();
+        void CloseFile();
+
+        void SetFitInfo();
 
         // Tree-related 
         //void CreateBranchesToTruthTree();
         //void CreateBranchesToNTvarTree();
         //virtual void SetBranchAddressToTruthTree(TTree* tree);
         //virtual void SetBranchAddressToNTvarTree(TTree* tree);    
-    
-    private:
-        // File I/O (logical unit)
-        int lun;
 };
 
 #endif
