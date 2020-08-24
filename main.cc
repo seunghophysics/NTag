@@ -32,6 +32,7 @@ int main(int argc, char** argv)
     }
     else {
         NTagZBS nt(inputName.c_str(), outputName.c_str(), false, pDEBUG);
+        nt.SetN10Limits(7, 50);
         nt.ReadFile();
         nt.PrintMessage("Done!");
     }
