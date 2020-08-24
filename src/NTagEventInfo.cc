@@ -181,9 +181,6 @@ void NTagEventInfo::SetToFSubtractedTQ()
     
     // set qismsk as sum of all appended in-gate hits
     qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
-    
-    // No need to have raw hit info in memory for long
-    ClearRawHitInfo();
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -400,7 +397,8 @@ void NTagEventInfo::SearchCaptureCandidates()
                   index50.push_back(iHit);
                   n50hits++;
             }
-
+            
+            // 1.3 us window to feed BONSAI
             // Count N1300 and save hit indices in vSortedT_ToF
             if (vUnsortedT_ToF[iHit] > vDt[iCandidate] - 520.8
             &&  vUnsortedT_ToF[iHit] < vDt[iCandidate] + 779.2) {
@@ -416,7 +414,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             tiskz50.push_back( vTISKZ[ index50[iHit50] ]  );
             qiskz50.push_back( vQISKZ[ index50[iHit50] ]  );
         }
-
+        
         for (int iHit1300 = 0; iHit1300 < n1300hits; iHit1300++) {
             cabiz1300.push_back( vCABIZ[ index1300[iHit1300] ] );
             tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ]  );
@@ -779,7 +777,7 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
     return minTRMS;
 }
 
-std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, int tID, int nHits)
+std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, int tStartIndex, int nHits)
 {
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
     if (nHits == 0) return beta;
@@ -789,9 +787,9 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     for (int iHit = 0; iHit < nHits; iHit++) {
         float distFromVertexToPMT;
         float vecFromVertexToPMT[3];
-        vecFromVertexToPMT[0] = PMTXYZ[PMTID[tID+iHit]-1][0] - pvx;
-        vecFromVertexToPMT[1] = PMTXYZ[PMTID[tID+iHit]-1][1] - pvy;
-        vecFromVertexToPMT[2] = PMTXYZ[PMTID[tID+iHit]-1][2] - pvz;
+        vecFromVertexToPMT[0] = PMTXYZ[PMTID[tStartIndex+iHit]-1][0] - pvx;
+        vecFromVertexToPMT[1] = PMTXYZ[PMTID[tStartIndex+iHit]-1][1] - pvy;
+        vecFromVertexToPMT[2] = PMTXYZ[PMTID[tStartIndex+iHit]-1][2] - pvz;
         distFromVertexToPMT = Norm(vecFromVertexToPMT);
         uvx[iHit] = vecFromVertexToPMT[0] / distFromVertexToPMT;
         uvy[iHit] = vecFromVertexToPMT[1] / distFromVertexToPMT;

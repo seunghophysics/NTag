@@ -37,8 +37,8 @@ class NTagEventInfo
         inline float         Norm(float vec[3]);
         inline float         Norm(float x, float y, float z);
         float                GetDistance(const float vec1[3], float vec2[3]);
-        float                GetLegendreP(int i, float& x); // Legendre polynomials for betas
-        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, int tID, int nHits);
+        float                GetLegendreP(int i, float& x); // legendre polynomials for betas
+        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, int tStartIndex, int nHits);
 
         // Variable-related functions
 
