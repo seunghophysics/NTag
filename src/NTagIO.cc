@@ -1,3 +1,5 @@
+#include <csignal>
+
 #include <TFile.h>
 
 #include <skheadC.h>
@@ -6,9 +8,13 @@
 #include <NTagIO.hh>
 #include <SKLibs.hh>
 
+NTagIO* NTagIO::instance; 
+
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
 : fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
+    instance = this;
+    
     bData = useData;
     fVerbosity = verbose;
 
@@ -50,6 +56,14 @@ void NTagIO::SKInitialize()
 
 void NTagIO::ReadFile()
 {
+    // SIGINT handler
+    struct sigaction sigHandler;
+    sigHandler.sa_handler = NTagIO::SIGINTHandler;
+    sigemptyset(&sigHandler.sa_mask);
+    sigHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigHandler, NULL);
+
     // Read data event-by-event
     int readStatus;
     bool bEOF = false;
@@ -201,6 +215,18 @@ void NTagIO::WriteOutput()
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     file->Close();
+}
+
+void NTagIO::DoWhenInterrupted()
+{
+    WriteOutput();
+    PrintMessage(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s.", nProcessedEvents, fOutFileName), pWARNING);
+    exit(1);
+}
+
+void NTagIO::SIGINTHandler(int sigNo)
+{
+    instance->DoWhenInterrupted();
 }
 
 void NTagIO::CreateBranchesToTruthTree()

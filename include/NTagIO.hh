@@ -15,9 +15,9 @@ class NTagIO : public NTagEventInfo
         // File I/O
 
             /* format-specific */
-            virtual void OpenFile() = 0;
-            virtual void CloseFile() = 0;
-            virtual void SetFitInfo() = 0;
+            virtual void OpenFile() {}
+            virtual void CloseFile() {}
+            virtual void SetFitInfo() {}
 
             /* format-independent */
             virtual void SKInitialize();
@@ -29,6 +29,9 @@ class NTagIO : public NTagEventInfo
             virtual void ReadAFTEvent();
             virtual void WriteOutput();
 
+            virtual void DoWhenInterrupted();
+            static void  SIGINTHandler(int sigNo);
+            
         // Tree-related
         virtual void CreateBranchesToTruthTree();
         virtual void CreateBranchesToNTvarTree();
@@ -45,6 +48,9 @@ class NTagIO : public NTagEventInfo
 
         TTree*      truthTree;
         TTree*      ntvarTree;
+    
+    private:
+        static NTagIO* instance;
 };
 
 #endif

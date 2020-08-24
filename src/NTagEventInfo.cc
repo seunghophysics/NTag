@@ -219,7 +219,7 @@ void NTagEventInfo::SetMCInfo()
         vIpne.push_back(nework_.ipne[i]);     // PIDs in vector
         if (vIpne[i] == 2112 && i >= 3) nN++; // count neutrons
     }
-    PrintMessage(Form("Number of neutrons in primary stack: %d", nN), pDEBUG);
+    PrintMessage(Form("Number of neutrons in NEUT primary stack: %d", nN), pDEBUG);
 
     // Initialize number of n captures
     nTrueCaptures = 0;
@@ -273,7 +273,7 @@ void NTagEventInfo::SetMCInfo()
                             isNewCapture = false;
                             // Add capture product gammas to the pre-existing stack
                             if (secndprt_.iprtscnd[iSec] == 22) {
-                                PrintMessage(Form("Gamma from already saved capture... captureID %d", iCheckedCT), pDEBUG);
+                                //PrintMessage(Form("Gamma from already saved capture... captureID %d", iCheckedCT), pDEBUG);
                                 vNGam[iCheckedCT]++;
                                 vTotGamE[iCheckedCT] +=  Norm( secndprt_.pscnd[iSec] );
                                 vCaptureID[nSavedSec-1] = iCheckedCT;
@@ -287,7 +287,7 @@ void NTagEventInfo::SetMCInfo()
                         vCapPosz.push_back( secndprt_.vtxscnd[iSec][2] );
                         // Add capture product gamma
                         if (secndprt_.iprtscnd[iSec] == 22) {
-                            PrintMessage(Form("Gamma from new capture... vCaptureID %d", nTrueCaptures), pDEBUG);
+                            //PrintMessage(Form("Gamma from new capture... vCaptureID %d", nTrueCaptures), pDEBUG);
                             vNGam.push_back(1);
                             vTotGamE.push_back( Norm( secndprt_.pscnd[iSec] ) );
                             vCaptureID[nSavedSec-1] = nTrueCaptures;
