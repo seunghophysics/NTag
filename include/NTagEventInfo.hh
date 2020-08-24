@@ -17,18 +17,18 @@ class NTagEventInfo
         virtual ~NTagEventInfo();
 
         // Functions to set variables
-        
+
             /* All types */
             virtual void         SetEventHeader();
             virtual void         SetAPFitInfo();
             virtual void         SetLowFitInfo();
             virtual void         AppendRawHitInfo();
             virtual void         SetToFSubtractedTQ();
-        
+
             /* MC-only */
             virtual void         SetMCInfo();
             virtual void         SetTrueCaptureInfo();
-        
+
         // Tagging
         virtual void         SearchCaptureCandidates();
         virtual void         GetTMVAoutput();

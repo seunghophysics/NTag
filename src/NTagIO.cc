@@ -28,14 +28,14 @@ void NTagIO::Initialize()
 {
     SetN10Limits(5, 50);
     SetN200Max(140);
-    SetT0Threshold(2.);		 // [us]
-    SetDistanceCut(4000.);	 // [cm]
-    SetTMatchWindow(40.);	 // [ns]
+    SetT0Threshold(2.);      // [us]
+    SetDistanceCut(4000.);   // [cm]
+    SetTMatchWindow(40.);    // [ns]
     SetTPeakSeparation(50.); // [us]
-    
+
     SKInitialize();
     OpenFile();
-}    
+}
 
 void NTagIO::SKInitialize()
 {
@@ -49,7 +49,7 @@ void NTagIO::SKInitialize()
 }
 
 void NTagIO::ReadFile()
-{    
+{
     // Read data event-by-event
     int readStatus;
     bool bEOF = false;
@@ -190,7 +190,7 @@ void NTagIO::ReadAFTEvent()
     // DONT'T FORGET TO FILL!
     // (ntvar only for data)
     ntvarTree->Fill();
-    
+
     // DONT'T FORGET TO CLEAR!
     Clear();
 }

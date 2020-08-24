@@ -133,39 +133,39 @@ void NTagEventInfo::SetLowFitInfo()
 }
 
 void NTagEventInfo::AppendRawHitInfo()
-{   
+{
     float tOffset = 0.;
     float tLast   = 0.;
     float qLast   = 0.;
     int   pmtLast = 0.;
-    
+
     bool  coincidenceFound = true;
-    
+
     if (!vTISKZ.empty()) {
         coincidenceFound = false;
         tLast   = vTISKZ.back();
         qLast   = vQISKZ.back();
         pmtLast = vCABIZ.back();
     }
-    
+
     PrintMessage(Form("nqiskz before append: %d", nqiskz), pDEBUG);
-    
+
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
-        
+
         if (!coincidenceFound && sktqz_.qiskz[iHit] == qLast && sktqz_.icabiz[iHit] == pmtLast) {
             tOffset = tLast - sktqz_.tiskz[iHit];
             coincidenceFound = true;
             PrintMessage(Form("Coincidence found: t = %f ns, (offset: %f ns)", tLast, tOffset), pDEBUG);
         }
-    
+
         if (sktqz_.ihtiflz[iHit] & (1<<1)) {
             //PrintMessage(Form("Saving hit at t = %f ns...", sktqz_.tiskz[iHit]), pDEBUG);
-            vTISKZ.push_back(sktqz_.tiskz[iHit] + tOffset);
-            vQISKZ.push_back(sktqz_.qiskz[iHit]);
-            vCABIZ.push_back(sktqz_.icabiz[iHit]);
+            vTISKZ.push_back( sktqz_.tiskz[iHit] + tOffset );
+            vQISKZ.push_back( sktqz_.qiskz[iHit]           );
+            vCABIZ.push_back( sktqz_.icabiz[iHit]          );
         }
     }
-    
+
     nqiskz = static_cast<int>(vTISKZ.size());
     PrintMessage(Form("nqiskz after append: %d", nqiskz), pDEBUG);
 }
@@ -178,7 +178,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
     SortToFSubtractedTQ();
     PrintMessage(Form("NQISKZ: %d", nqiskz), pDEBUG);
-    
+
     // set qismsk as sum of all appended in-gate hits
     qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
 }
@@ -191,8 +191,8 @@ void NTagEventInfo::SetMCInfo()
 
     // Read SKVECT (primaries)
     skgetv_();
-    nvect  = skvect_.nvect;                       // number of primaries
-    truevx = skvect_.pos[0];                      // initial vertex of primaries
+    nvect  = skvect_.nvect;    // number of primaries
+    truevx = skvect_.pos[0];   // initial vertex of primaries
     truevy = skvect_.pos[1];
     truevz = skvect_.pos[2];
 
@@ -397,7 +397,7 @@ void NTagEventInfo::SearchCaptureCandidates()
                   index50.push_back(iHit);
                   n50hits++;
             }
-            
+
             // 1.3 us window to feed BONSAI
             // Count N1300 and save hit indices in vSortedT_ToF
             if (vUnsortedT_ToF[iHit] > vDt[iCandidate] - 520.8
@@ -414,7 +414,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             tiskz50.push_back( vTISKZ[ index50[iHit50] ]  );
             qiskz50.push_back( vQISKZ[ index50[iHit50] ]  );
         }
-        
+
         for (int iHit1300 = 0; iHit1300 < n1300hits; iHit1300++) {
             cabiz1300.push_back( vCABIZ[ index1300[iHit1300] ] );
             tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ]  );
@@ -459,15 +459,15 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // Save BONSAI fit results
         vBenergy.push_back( tmptbsenergy       );
-        vBvx.push_back( 	tmptbsvx           );
-        vBvy.push_back( 	tmptbsvy           );
-        vBvz.push_back( 	tmptbsvz           );
-        vBvt.push_back( 	tmptbsvt           );
-        vBwall.push_back( 	wallsk_(tbsvertex) );
-        vBgood.push_back( 	tmptbsgood         );
-        vBdirks.push_back( 	tmptbsdirks        );
+        vBvx.push_back(     tmptbsvx           );
+        vBvy.push_back(     tmptbsvy           );
+        vBvz.push_back(     tmptbsvz           );
+        vBvt.push_back(     tmptbsvt           );
+        vBwall.push_back(   wallsk_(tbsvertex) );
+        vBgood.push_back(   tmptbsgood         );
+        vBdirks.push_back(  tmptbsdirks        );
         vBpatlik.push_back( tmptbspatlik       );
-        vBovaq.push_back( 	tmptbsovaq         );
+        vBovaq.push_back(   tmptbsovaq         );
 
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS = MinimizeTRMS(tiskz50, cabiz50, nv);
@@ -584,9 +584,9 @@ void NTagEventInfo::GetTMVAoutput()
         mva_N10 		= vN10[iCandidate];
         mva_N200 		= vN200[iCandidate];
         mva_N50 		= vN50[iCandidate];
-        mva_dt 			= vDt[iCandidate];
+        mva_dt          = vDt[iCandidate];
         mva_sumQ 		= vSumQ[iCandidate];
-        mva_spread 		= vSpread[iCandidate];
+        mva_spread      = vSpread[iCandidate];
         mva_trmsold 	= vTrmsold[iCandidate];
         mva_beta1_50 	= vBeta1_50[iCandidate];
         mva_beta2_50 	= vBeta2_50[iCandidate];
@@ -599,8 +599,8 @@ void NTagEventInfo::GetTMVAoutput()
         mva_tbsdirks 	= vBdirks[iCandidate];
         mva_tbspatlik 	= vBpatlik[iCandidate];
         mva_tbsovaq 	= vBovaq[iCandidate];
-        mva_nwall 		= vNwall[iCandidate];
-        mva_trms50 		= vTrms50[iCandidate];
+        mva_nwall       = vNwall[iCandidate];
+        mva_trms50      = vTrms50[iCandidate];
 
         mva_AP_BONSAI 	= Norm(pvx - vBvx[iCandidate],
                                pvy - vBvy[iCandidate],
@@ -847,8 +847,8 @@ void NTagEventInfo::SortToFSubtractedTQ()
     // Save hit info, sorted in (T - ToF)
     for (int iHit = 0; iHit < nqiskz; iHit++) {
         vSortedPMTID.push_back( vCABIZ[ sortedIndex[iHit] ]          );
-        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
-        vSortedQ.push_back(     vQISKZ[ sortedIndex[iHit] ]   );
+        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ]  );
+        vSortedQ.push_back(     vQISKZ[ sortedIndex[iHit] ]          );
     }
 }
 
@@ -1013,19 +1013,19 @@ void NTagEventInfo::ClearRawHitInfo()
 
 void NTagEventInfo::SaveSecondary(int secID)
 {
-    vIprtscnd.push_back(  secndprt_.iprtscnd[secID]   ); // PID of secondaries
-    vLmecscnd.push_back(  secndprt_.lmecscnd[secID]   ); // creation process
-    vIprntprt.push_back(  secndprt_.iprntprt[secID]   ); // parent PID
-    vVtxscndx.push_back(  secndprt_.vtxscnd[secID][0] ); // creation vertex
-    vVtxscndy.push_back(  secndprt_.vtxscnd[secID][1] );
-    vVtxscndz.push_back(  secndprt_.vtxscnd[secID][2] );
-    vWallscnd.push_back(  wallsk_(secndprt_.vtxscnd[secID])    ); // distance from wall to creation vertex
-    vPscndx.push_back(    secndprt_.pscnd[secID][0]   ); // momentum vector
-    vPscndy.push_back(    secndprt_.pscnd[secID][1]   );
-    vPscndz.push_back(    secndprt_.pscnd[secID][2]   );
-    vPabsscnd.push_back(  Norm(secndprt_.pscnd[secID])         ); // momentum
-    vTscnd.push_back(     secndprt_.tscnd[secID]     ); // time created
-    vCaptureID.push_back( -1                         );
+    vIprtscnd.push_back( secndprt_.iprtscnd[secID]   );       // PID of secondaries
+    vLmecscnd.push_back( secndprt_.lmecscnd[secID]   );       // creation process
+    vIprntprt.push_back( secndprt_.iprntprt[secID]   );       // parent PID
+    vVtxscndx.push_back( secndprt_.vtxscnd[secID][0] );       // creation vertex
+    vVtxscndy.push_back( secndprt_.vtxscnd[secID][1] );
+    vVtxscndz.push_back( secndprt_.vtxscnd[secID][2] );
+    vWallscnd.push_back( wallsk_(secndprt_.vtxscnd[secID]) ); // distance from wall to creation vertex
+    vPscndx.push_back( secndprt_.pscnd[secID][0] );           // momentum vector
+    vPscndy.push_back( secndprt_.pscnd[secID][1] );
+    vPscndz.push_back( secndprt_.pscnd[secID][2] );
+    vPabsscnd.push_back( Norm(secndprt_.pscnd[secID]) );      // momentum
+    vTscnd.push_back( secndprt_.tscnd[secID] );               // time created
+    vCaptureID.push_back( -1 );
     nSavedSec++;
 }
 
@@ -1060,29 +1060,29 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
 void NTagEventInfo::SetTMVAReader()
 {
-    reader->AddVariable("evis", 		&evis);
-    reader->AddVariable("N10", 			&mva_N10);
-    reader->AddVariable("N200", 		&mva_N200);
-    reader->AddVariable("N50", 			&mva_N50);
-    reader->AddVariable("dt", 			&mva_dt);
-    reader->AddVariable("sumQ", 		&mva_sumQ);
-    reader->AddVariable("spread", 		&mva_spread);
-    reader->AddVariable("trmsold", 		&mva_trmsold);
-    reader->AddVariable("beta1", 		&mva_beta1_50);
-    reader->AddVariable("beta2", 		&mva_beta2_50);
-    reader->AddVariable("beta3", 		&mva_beta3_50);
-    reader->AddVariable("beta4", 		&mva_beta4_50);
-    reader->AddVariable("beta5", 		&mva_beta5_50);
+    reader->AddVariable("evis",         &evis);
+    reader->AddVariable("N10",          &mva_N10);
+    reader->AddVariable("N200",         &mva_N200);
+    reader->AddVariable("N50",          &mva_N50);
+    reader->AddVariable("dt",           &mva_dt);
+    reader->AddVariable("sumQ",         &mva_sumQ);
+    reader->AddVariable("spread",       &mva_spread);
+    reader->AddVariable("trmsold",      &mva_trmsold);
+    reader->AddVariable("beta1",        &mva_beta1_50);
+    reader->AddVariable("beta2",        &mva_beta2_50);
+    reader->AddVariable("beta3",        &mva_beta3_50);
+    reader->AddVariable("beta4",        &mva_beta4_50);
+    reader->AddVariable("beta5",        &mva_beta5_50);
     reader->AddVariable("AP_Nfit:=sqrt((vx-nvx)*(vx-nvx)+(vy-nvy)*(vy-nvy)+(vz-nvz)*(vz-nvz))", &mva_AP_Nfit);
-    reader->AddVariable("tbsenergy", 	&mva_tbsenergy);
-    reader->AddVariable("tbswall", 		&mva_tbswall);
-    reader->AddVariable("tbsgood", 		&mva_tbsgood);
-    reader->AddVariable("tbsdirks", 	&mva_tbsdirks);
-    reader->AddVariable("tbspatlik", 	&mva_tbspatlik);
-    reader->AddVariable("tbsovaq", 		&mva_tbsovaq);
+    reader->AddVariable("tbsenergy",    &mva_tbsenergy);
+    reader->AddVariable("tbswall",	    &mva_tbswall);
+    reader->AddVariable("tbsgood",	    &mva_tbsgood);
+    reader->AddVariable("tbsdirks",     &mva_tbsdirks);
+    reader->AddVariable("tbspatlik",    &mva_tbspatlik);
+    reader->AddVariable("tbsovaq",      &mva_tbsovaq);
     reader->AddVariable("AP_BONSAI:=sqrt((vx-tbsvx)*(vx-tbsvx)+(vy-tbsvy)*(vy-tbsvy)+(vz-tbsvz)*(vz-tbsvz))", &mva_AP_BONSAI);
-    reader->AddVariable("nwall", 		&mva_nwall);
-    reader->AddVariable("trms40", 		&mva_trms50);
+    reader->AddVariable("nwall",        &mva_nwall);
+    reader->AddVariable("trms40",       &mva_trms50);
     reader->AddVariable("Nfit_BONSAI:=sqrt((nvx-tbsvx)*(nvx-tbsvx)+(nvy-tbsvy)*(nvy-tbsvy)+(nvz-tbsvz)*(nvz-tbsvz))", &mva_Nfit_BONSAI);
 
     reader->BookMVA("BDT method", "weights/BDT_Gd0.2p.xml");

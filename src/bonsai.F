@@ -16,20 +16,20 @@
 
       real watert
       real dark, darklf, darks
-      
+
 c***  init water transparency table
       call skrunday
       call skwt
 c***  in the case of MC, assign dark counts based on run 62428
       if (nrunsk.lt.61700) nrunsk = 62428
       dark = darklf(nrunsk)
-c*** init. bonsai 
+c*** init. bonsai
       CALL cfbsinit(MAXPM,xyzpm)
       call lfwater(relapse(nrunsk), watert)
       print *, "nrunsk/watert = ", nrunsk, watert
 
       return
- 
+
       end
 
 
@@ -85,7 +85,7 @@ c*** loop
          watert = 12431.3
 
 c YN: Change the way time is passed to Bonsai:
-         
+
 c         total = 0
 c         do i = 1, ntisksend
 c            total = total + tisksend(i)
@@ -93,13 +93,13 @@ c         enddo
 c         avg = total/(ntisksend)
 c         offset = dt + 1000 - avg
 c
-c         do i = 1, ntisksend 
+c         do i = 1, ntisksend
 c            ihcab(i) = cabsend(i)
 c            tisk(ihcab(i)) = tisksend(i) - dt + offset
 c            qisk(ihcab(i)) = qisksend(i)
 cc            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihcab(i)), ihcab(i)
 c         end do
-        
+
          do i = 1, MAXPM
             ihcab(i) = 0
             qisk(i) = 0
@@ -126,7 +126,7 @@ c                    print*, "i/duplicate: ", i, cabsend(i)
                 nqisk = nqisk + 1
             endif
           enddo
-                
+
 c            ihcab(i) = cabsend(i)
 c            tisk(ihcab(i)) = tisksend(i) - dt + 1000
 c            qisk(ihcab(i)) = qisksend(i)
@@ -138,10 +138,10 @@ c         print*, "ntisksend, nqisk: ", ntisksend, nqisk
 
          call lfclear_all()
 c         write(*,*) 'before lfallfit',mxqisk
-         if (bdata) then 
+         if (bdata) then
 c            print*, "watert/NHITCUT: ", watert, NHITCUT
            call lfallfit_sk4_data(watert, NHITCUT, lfflag)
-         else 
+         else
            call lfallfit_sk4_mc(watert, NHITCUT, lfflag)
          endif
 
