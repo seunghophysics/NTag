@@ -28,7 +28,7 @@ void NTagIO::Initialize()
 {
     SetN10Limits(5, 50);
     SetN200Max(140);
-    SetT0Threshold(2.);      // [us]
+    SetT0Limits(2., 600.);   // [us]
     SetDistanceCut(4000.);   // [cm]
     SetTMatchWindow(40.);    // [ns]
     SetTPeakSeparation(50.); // [us]

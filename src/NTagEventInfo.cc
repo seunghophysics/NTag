@@ -28,7 +28,7 @@
 NTagEventInfo::NTagEventInfo()
 :PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(5), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
-T0TH(2.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
+T0TH(2.), T0MX(500.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {
@@ -571,13 +571,13 @@ void NTagEventInfo::GetTMVAoutput()
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         // Check conditions for non-dummy TMVA output:
-        // * Number of OD hits < 16
-        // * N10 >= 7
-        // * 0 < Reconstructed capture time < 200 us
-        if (!(nhitac < 16)) {
+        // * Number of OD hits < ODHITMX
+        // * N10 >= N10TH
+        // * 0 < Reconstructed capture time < T0MX
+        if (!(nhitac < ODHITMX)) {
             vTMVAoutput.push_back(-9999); continue;
         }
-        if (!(vN10[iCandidate] >= 7 && 0 < vDt[iCandidate] && vDt[iCandidate] < 2.e5)) {
+        if (!(vN10[iCandidate] >= N10TH && 0 < vDt[iCandidate] && vDt[iCandidate] < T0MX*1.e3)) {
             vTMVAoutput.push_back(-9999); continue;
         }
 
