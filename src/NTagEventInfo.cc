@@ -28,7 +28,7 @@
 NTagEventInfo::NTagEventInfo()
 :PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(5), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
-T0TH(2.), T0MX(500.), TMATCHWINDOW(40.), TMINPEAKSEP(50.),
+T0TH(2.), T0MX(500.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(pDEFAULT), bData(false), bCustomVertex(false)
 {

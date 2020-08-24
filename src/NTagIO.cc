@@ -31,6 +31,7 @@ void NTagIO::Initialize()
     SetDistanceCut(4000.);   // [cm]
     SetTMatchWindow(40.);    // [ns]
     SetTPeakSeparation(50.); // [us]
+    SetMaxODHitThreshold(16);
 
     SKInitialize();
     OpenFile();
