@@ -190,6 +190,9 @@ void NTagIO::ReadAFTEvent()
     // DONT'T FORGET TO FILL!
     // (ntvar only for data)
     ntvarTree->Fill();
+    
+    // DONT'T FORGET TO CLEAR!
+    Clear();
 }
 
 void NTagIO::WriteOutput()
