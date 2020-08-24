@@ -438,8 +438,8 @@ void NTagEventInfo::SearchCaptureCandidates()
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
         float time0 = vDt[iCandidate];
 
-        //Maybe high or low hit noise.
-        if ( n1300hits > 999 || n1300hits < 10) {
+        // Maybe high or low hit noise.
+        if (n1300hits > 999 || n1300hits < 10) {
             tmptbsenergy = 0.;
             tmptbsvx = 9999.;
             tmptbsvy = 9999.;
