@@ -25,7 +25,7 @@ void NTagZBS::OpenFile()
     skopenf_(&lun, &ipt, "Z", &openError);
 
     if (openError)
-        PrintMessage("File open error.", pERROR);
+        msg.Print("File open error.", pERROR);
 }
 
 void NTagZBS::CloseFile()

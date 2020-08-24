@@ -11,7 +11,7 @@
 NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
-: fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
+: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
     instance = this;
 
@@ -27,7 +27,12 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, un
     }
 }
 
-NTagIO::~NTagIO() { WriteOutput(); }
+NTagIO::~NTagIO()
+{ 
+    WriteOutput(); 
+    delete ntvarTree;
+    delete truthTree;
+}
 
 void NTagIO::Initialize()
 {
@@ -77,10 +82,10 @@ void NTagIO::ReadFile()
         switch (readStatus) {
             case 0: // event read
                 std::cout << "\n" << std::endl;
-                PrintMessage("###########################", pDEBUG);
-                PrintMessage(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
-                PrintMessage(Form("Process No. %d", nProcessedEvents+1), pDEBUG);
-                PrintMessage("###########################", pDEBUG);
+                msg.Print("###########################", pDEBUG);
+                msg.Print(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
+                msg.Print(Form("Process No. %d", nProcessedEvents+1), pDEBUG);
+                msg.Print("###########################", pDEBUG);
 
                 // If MC
                 if (!bData) {
@@ -90,7 +95,7 @@ void NTagIO::ReadFile()
 
                     // Skip event with vertex in PMT
                     if (inPMT) {
-                        PrintMessage(
+                        msg.Print(
                             Form("True vertex is in PMT. Skipping event %d...",
                                  nProcessedEvents+1), pDEBUG);
                         break;
@@ -103,16 +108,16 @@ void NTagIO::ReadFile()
                 break;
 
             case 1: // read-error
-                PrintMessage("FILE READ ERROR OCCURED!", pERROR);
+                msg.Print("FILE READ ERROR OCCURED!", pERROR);
                 break;
 
             case 2: // end of input
-                PrintMessage(Form("Reached the end of input. Closing file..."), pDEFAULT);
+                msg.Print(Form("Reached the end of input. Closing file..."), pDEFAULT);
                 CloseFile();
                 bEOF = true;
 
-                PrintMessage(Form("Number of processed events: %d", nProcessedEvents), pDEFAULT);
-                Timer("Reading this file", startTime, pDEFAULT);
+                msg.Print(Form("Number of processed events: %d", nProcessedEvents), pDEFAULT);
+                msg.Timer("Reading this file", startTime, pDEFAULT);
                 break;
         }
     }
@@ -153,14 +158,14 @@ void NTagIO::ReadDataEvent()
 {
     // If current event is AFT, append TQ and fill output.
     if (skhead_.idtgsk & 1<<29) {
-        PrintMessage("Saving SHE+AFT...", pDEBUG);
+        msg.Print("Saving SHE+AFT...", pDEBUG);
         ReadAFTEvent();
     }
 
     // If previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
     else if (!vTISKZ.empty()) {
-        PrintMessage("Saving SHE without AFT...", pDEBUG);
+        msg.Print("Saving SHE without AFT...", pDEBUG);
         SetToFSubtractedTQ();
 
         // Tagging starts here!
@@ -173,7 +178,7 @@ void NTagIO::ReadDataEvent()
     // If current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
-        PrintMessage("Reading SHE...", pDEBUG);
+        msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
     }
 }
@@ -220,7 +225,7 @@ void NTagIO::WriteOutput()
 void NTagIO::DoWhenInterrupted()
 {
     WriteOutput();
-    PrintMessage(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s.", nProcessedEvents, fOutFileName), pWARNING);
+    msg.Print(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s.", nProcessedEvents, fOutFileName), pWARNING);
     exit(1);
 }
 
@@ -344,7 +349,7 @@ void NTagIO::CheckMC()
 {
     if (skhead_.nrunsk != 999999) {
         bData = true;
-        PrintMessage(Form("Reading event #%d from data...", nProcessedEvents+1));
+        msg.Print(Form("Reading event #%d from data...", nProcessedEvents+1));
     }
-    else PrintMessage(Form("Reading event #%d from MC...", nProcessedEvents+1));
+    else msg.Print(Form("Reading event #%d from MC...", nProcessedEvents+1));
 }

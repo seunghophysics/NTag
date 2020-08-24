@@ -8,12 +8,12 @@
 #include <TString.h>
 #include <TMVA/Reader.h>
 
-enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
+#include <NTagMessage.hh>
 
 class NTagEventInfo
 {
     public:
-        NTagEventInfo();
+        NTagEventInfo(unsigned int verbose);
         virtual ~NTagEventInfo();
 
         // Functions to set variables
@@ -80,12 +80,6 @@ class NTagEventInfo
         inline void          SetCustomVertex(float x, float y, float z)
                                             { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
 
-        // Message
-        virtual void         PrintTag(unsigned int);
-        virtual void         PrintMessage(TString, unsigned int vType=pDEFAULT);
-        virtual void         PrintMessage(const char*, unsigned int vType=pDEFAULT);
-        virtual float        Timer(TString, std::clock_t tStart, unsigned int vType=pDEFAULT);
-
     private:
         TMVA::Reader* reader;
 
@@ -95,15 +89,16 @@ class NTagEventInfo
         // Tag conditions
         int         N10TH, N10MX, N200MX;   // N_hits cut
         float       VTXSRCRANGE;            // vertex search range in MinimizeTRMS
-        float       T0TH, T0MX;                   // T0 threshold
+        float       T0TH, T0MX;             // T0 threshold
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
-        float       ODHITMX;                  // OD total charge threshold
+        float       ODHITMX;                // OD total charge threshold
 
         // Custom prompt vertex
         float       customvx, customvy, customvz;
 
     protected:
+        NTagMessage  msg;
         unsigned int fVerbosity;
         bool         bData, bCustomVertex;
 

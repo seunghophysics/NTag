@@ -28,13 +28,11 @@ int main(int argc, char** argv)
         nt.SetCustomVertex(-400, 0, 0);
         nt.SetN10Limits(7, 50);
         nt.ReadFile();
-        nt.PrintMessage("Done!");
     }
     else {
         NTagZBS nt(inputName.c_str(), outputName.c_str(), false, pDEBUG);
         nt.SetN10Limits(7, 50);
         nt.ReadFile();
-        nt.PrintMessage("Done!");
     }
 
     return 0;
