@@ -31,7 +31,7 @@ class NTagIO : public NTagEventInfo
 
             virtual void DoWhenInterrupted();
             static void  SIGINTHandler(int sigNo);
-            
+
         // Tree-related
         virtual void CreateBranchesToTruthTree();
         virtual void CreateBranchesToNTvarTree();
@@ -48,7 +48,7 @@ class NTagIO : public NTagEventInfo
 
         TTree*      truthTree;
         TTree*      ntvarTree;
-    
+
     private:
         static NTagIO* instance;
 };

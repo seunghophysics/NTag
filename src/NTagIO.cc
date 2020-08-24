@@ -8,13 +8,13 @@
 #include <NTagIO.hh>
 #include <SKLibs.hh>
 
-NTagIO* NTagIO::instance; 
+NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
 : fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
     instance = this;
-    
+
     bData = useData;
     fVerbosity = verbose;
 
