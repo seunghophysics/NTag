@@ -25,15 +25,6 @@ extern "C" {
     void  odpc_2nd_s_(int*);
     void  inpmt_(float*, int&);
     float wallsk_(float*);
-    /*void  skroot_get_lowe_(int*, int*, float*, float*, float*, 
-                     float*, float*, float*, float*, int*, 
-                     float*, float*, float*, float*, float*,
-                     float*, float*, float*, int*, float*, 
-                     int*, int*, int*, double*, float*,
-                     float*, int*, float*, float*, float*, 
-                     float*, float*, int*, float*, float*,
-                     float*, float*, float*, float*, int*, 
-                     float*, float*, float*, int*, int*);*/
 }
 
 // BONSAI
