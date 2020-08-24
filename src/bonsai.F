@@ -51,10 +51,10 @@ c------------------------------------------------------------------------------
 
       integer lun
 
-      logical bdata
+      logical bdata, duplicate
       real tisksend(1000), qisksend(1000)
       integer cabsend(1000)
-      integer ntisksend, i, lfflag
+      integer ntisksend, i, j, lfflag, dupid
       real dt,toff
       real x1,y1,z1, dis1, ttof(2000)
       real watert
@@ -99,15 +99,42 @@ c            tisk(ihcab(i)) = tisksend(i) - dt + offset
 c            qisk(ihcab(i)) = qisksend(i)
 cc            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihcab(i)), ihcab(i)
 c         end do
-
-         do i = 1, ntisksend 
-            ihcab(i) = cabsend(i)
-            tisk(ihcab(i)) = tisksend(i) - dt + 1000
-            qisk(ihcab(i)) = qisksend(i)
-c            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihcab(i)), ihcab(i)
+        
+         do i = 1, MAXPM
+            ihcab(i) = 0
+            qisk(i) = 0
+            tisk(i) = 0
          end do
+c         print*, "nqisk/ntisksend: " , nqisk, ntisksend
+         nqisk = 0
+         do i = 1, ntisksend
+            duplicate = .false.
+            dupid = 0
+            do j = 1, i-1
+                if((i.ne.j).and.(cabsend(i).eq.cabsend(j))) then
+                    duplicate = .true.
+                    dupid = j
+c                    print*, "i/duplicate: ", i, cabsend(i)
+                endif
+            enddo
+            if(duplicate) then
+                qisk(ihcab(dupid)) = qisk(ihcab(dupid)) + qisksend(i)
+            else
+                ihcab(i) = cabsend(i)
+                tisk(ihcab(i)) = tisksend(i) - dt + 1000
+                qisk(ihcab(i)) = qisksend(i)
+                nqisk = nqisk + 1
+            endif
+          enddo
+                
+c            ihcab(i) = cabsend(i)
+c            tisk(ihcab(i)) = tisksend(i) - dt + 1000
+c            qisk(ihcab(i)) = qisksend(i)
+c          do i = 1, ntisksend
+c            print *, "tisk/qisk/cab : " , tisksend(i), tisk(ihcab(i)),qisk(ihcab(i)), ihcab(i)
+c          end do
 
-         nqisk = ntisksend
+c         print*, "ntisksend, nqisk: ", ntisksend, nqisk
 
          call lfclear_all()
 c         write(*,*) 'before lfallfit',mxqisk
@@ -140,7 +167,6 @@ c         print *, "Bonsai Results: ",  tenergy, tvx, tvy, tvz, tgood
  10   continue
       stop
       end
-
 
       subroutine bonsai_end()
 
