@@ -29,12 +29,13 @@ NTagEventInfo::NTagEventInfo(unsigned int verbose)
 :PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(5), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
 T0TH(2.), T0MX(500.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
+//fMVAMethodName("BDT"), fWeightFileName("weights/BDT_Gd0.2p.xml"),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), bCustomVertex(false)
 {
-    msg = NTagMessage(fVerbosity);
+    msg = NTagMessage("", fVerbosity);
     reader = new TMVA::Reader("!Color:!Silent");
-    SetTMVAReader();
+    //SetTMVAReader();
 }
 
 NTagEventInfo::~NTagEventInfo() { delete reader; }
@@ -51,7 +52,6 @@ void NTagEventInfo::SetEventHeader()
 
     qismsk = skq_.qismsk;
     msg.Print(Form("Total charge in ID: %f", qismsk), pDEBUG);
-
 }
 
 void NTagEventInfo::SetAPFitInfo()
@@ -498,6 +498,20 @@ void NTagEventInfo::SearchCaptureCandidates()
         vTrms.push_back( GetTRMSFromStartIndex(tiskz50_ToF, n10index, 10.) );
         vN10n.push_back( tmpN10n );
         vDtn.push_back(  t0n );
+    
+        float promptBonsai 	= Norm(pvx - vBvx[iCandidate],
+                               pvy - vBvy[iCandidate],
+                               pvz - vBvz[iCandidate]);
+        float promptNfit 	= Norm(pvx - vNvx[iCandidate],
+                               pvy - vNvy[iCandidate],
+                               pvz - vNvz[iCandidate]);
+        float bonsaiNFit    = Norm(vNvx[iCandidate] - vBvx[iCandidate],
+                               vNvy[iCandidate] - vBvy[iCandidate],
+                               vNvz[iCandidate] - vBvz[iCandidate]);
+                               
+        vPrompt_BONSAI.push_back(promptBonsai);
+        vPrompt_NFit.push_back(promptNfit);
+        vBONSAI_NFit.push_back(bonsaiNFit);
     }
 
     if (!bData) {
@@ -567,6 +581,7 @@ void NTagEventInfo::SetTrueCaptureInfo()
     }
 }
 
+/*
 void NTagEventInfo::GetTMVAoutput()
 {
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
@@ -582,38 +597,30 @@ void NTagEventInfo::GetTMVAoutput()
             vTMVAoutput.push_back(-9999); continue;
         }
 
-        mva_N10 		= vN10[iCandidate];
-        mva_N200 		= vN200[iCandidate];
-        mva_N50 		= vN50[iCandidate];
+        mva_N10         = vN10[iCandidate];
+        mva_N200        = vN200[iCandidate];
+        mva_N50         = vN50[iCandidate];
         mva_dt          = vDt[iCandidate];
-        mva_sumQ 		= vSumQ[iCandidate];
+        mva_sumQ        = vSumQ[iCandidate];
         mva_spread      = vSpread[iCandidate];
-        mva_trmsold 	= vTrmsold[iCandidate];
-        mva_beta1_50 	= vBeta1_50[iCandidate];
-        mva_beta2_50 	= vBeta2_50[iCandidate];
-        mva_beta3_50 	= vBeta3_50[iCandidate];
-        mva_beta4_50 	= vBeta4_50[iCandidate];
-        mva_beta5_50 	= vBeta5_50[iCandidate];
-        mva_tbsenergy 	= vBenergy[iCandidate];
-        mva_tbswall 	= vBwall[iCandidate];
-        mva_tbsgood 	= vBgood[iCandidate];
-        mva_tbsdirks 	= vBdirks[iCandidate];
-        mva_tbspatlik 	= vBpatlik[iCandidate];
-        mva_tbsovaq 	= vBovaq[iCandidate];
+        mva_trmsold     = vTrmsold[iCandidate];
+        mva_beta1_50    = vBeta1_50[iCandidate];
+        mva_beta2_50    = vBeta2_50[iCandidate];
+        mva_beta3_50    = vBeta3_50[iCandidate];
+        mva_beta4_50    = vBeta4_50[iCandidate];
+        mva_beta5_50    = vBeta5_50[iCandidate];
+        mva_tbsenergy   = vBenergy[iCandidate];
+        mva_tbswall     = vBwall[iCandidate];
+        mva_tbsgood     = vBgood[iCandidate];
+        mva_tbsdirks    = vBdirks[iCandidate];
+        mva_tbspatlik   = vBpatlik[iCandidate];
+        mva_tbsovaq     = vBovaq[iCandidate];
         mva_nwall       = vNwall[iCandidate];
         mva_trms50      = vTrms50[iCandidate];
 
-        mva_AP_BONSAI 	= Norm(pvx - vBvx[iCandidate],
-                               pvy - vBvy[iCandidate],
-                               pvz - vBvz[iCandidate]);
-        mva_AP_Nfit 	= Norm(pvx - vNvx[iCandidate],
-                               pvy - vNvy[iCandidate],
-                               pvz - vNvz[iCandidate]);
-        mva_Nfit_BONSAI = Norm(vNvx[iCandidate] - vBvx[iCandidate],
-                               vNvy[iCandidate] - vBvy[iCandidate],
-                               vNvz[iCandidate] - vBvz[iCandidate]);
+        
 
-        float tmvaOutput = reader->EvaluateMVA("BDT method");
+        float tmvaOutput = reader->EvaluateMVA(fMVAMethodName);
 
         TString trueCaptureInfo;
         if (!bData) {
@@ -625,6 +632,7 @@ void NTagEventInfo::GetTMVAoutput()
         vTMVAoutput.push_back( tmvaOutput );
     }
 }
+*/
 
 float NTagEventInfo::Norm(float vec[3])
 {
@@ -992,7 +1000,8 @@ void NTagEventInfo::Clear()
     vBwall.clear(); vBgood.clear(); vBpatlik.clear(); vBdirks.clear(); vBovaq.clear();
     vBeta14_10.clear(); vBeta14_50.clear();
     vBeta1_50.clear(); vBeta2_50.clear(); vBeta3_50.clear(); vBeta4_50.clear(); vBeta5_50.clear();
-    vTMVAoutput.clear();
+    vPrompt_NFit.clear(); vPrompt_BONSAI.clear(); vBONSAI_NFit.clear();
+    //vTMVAoutput.clear();
 
     vNGam.clear();
     vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
@@ -1059,9 +1068,9 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     //msg.Print(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }
 
+/*
 void NTagEventInfo::SetTMVAReader()
 {
-    reader->AddVariable("evis",         &evis);
     reader->AddVariable("N10",          &mva_N10);
     reader->AddVariable("N200",         &mva_N200);
     reader->AddVariable("N50",          &mva_N50);
@@ -1074,17 +1083,18 @@ void NTagEventInfo::SetTMVAReader()
     reader->AddVariable("beta3",        &mva_beta3_50);
     reader->AddVariable("beta4",        &mva_beta4_50);
     reader->AddVariable("beta5",        &mva_beta5_50);
-    reader->AddVariable("AP_Nfit:=sqrt((vx-nvx)*(vx-nvx)+(vy-nvy)*(vy-nvy)+(vz-nvz)*(vz-nvz))", &mva_AP_Nfit);
+    reader->AddVariable("AP_Nfit:=sqrt((vx-nvx)*(vx-nvx)+(vy-nvy)*(vy-nvy)+(vz-nvz)*(vz-nvz))", &mva_Prompt_Nfit);
     reader->AddVariable("tbsenergy",    &mva_tbsenergy);
     reader->AddVariable("tbswall",	    &mva_tbswall);
     reader->AddVariable("tbsgood",	    &mva_tbsgood);
     reader->AddVariable("tbsdirks",     &mva_tbsdirks);
     reader->AddVariable("tbspatlik",    &mva_tbspatlik);
     reader->AddVariable("tbsovaq",      &mva_tbsovaq);
-    reader->AddVariable("AP_BONSAI:=sqrt((vx-tbsvx)*(vx-tbsvx)+(vy-tbsvy)*(vy-tbsvy)+(vz-tbsvz)*(vz-tbsvz))", &mva_AP_BONSAI);
+    reader->AddVariable("AP_BONSAI:=sqrt((vx-tbsvx)*(vx-tbsvx)+(vy-tbsvy)*(vy-tbsvy)+(vz-tbsvz)*(vz-tbsvz))", &mva_Prompt_BONSAI);
     reader->AddVariable("nwall",        &mva_nwall);
     reader->AddVariable("trms40",       &mva_trms50);
-    reader->AddVariable("Nfit_BONSAI:=sqrt((nvx-tbsvx)*(nvx-tbsvx)+(nvy-tbsvy)*(nvy-tbsvy)+(nvz-tbsvz)*(nvz-tbsvz))", &mva_Nfit_BONSAI);
+    reader->AddVariable("Nfit_BONSAI:=sqrt((nvx-tbsvx)*(nvx-tbsvx)+(nvy-tbsvy)*(nvy-tbsvy)+(nvz-tbsvz)*(nvz-tbsvz))", &mva_BONSAI_NFit);
 
-    reader->BookMVA("BDT method", "weights/BDT_Gd0.2p.xml");
+    reader->BookMVA(fMVAMethodName, fWeightFileName);
 }
+*/

@@ -9,7 +9,7 @@ enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
 class NTagMessage
 {
     public:
-        NTagMessage(unsigned int verbose=pDEFAULT);
+        NTagMessage(const char* className="", unsigned int verbose=pDEFAULT);
         ~NTagMessage();
 
         virtual void  PrintTag(unsigned int);
@@ -18,6 +18,7 @@ class NTagMessage
         virtual float Timer(TString, std::clock_t tStart, unsigned int vType=pDEFAULT);
         
     private:
+        const char*  fClassName;
         unsigned int fVerbosity;
 };
 

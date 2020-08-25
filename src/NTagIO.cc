@@ -147,7 +147,7 @@ void NTagIO::ReadMCEvent()
 
     // Tagging starts here!
     SearchCaptureCandidates();
-    GetTMVAoutput();
+    //GetTMVAoutput();
 
     // DONT'T FORGET TO FILL!
     ntvarTree->Fill();
@@ -170,7 +170,7 @@ void NTagIO::ReadDataEvent()
 
         // Tagging starts here!
         SearchCaptureCandidates();
-        GetTMVAoutput();
+        //GetTMVAoutput();
 
         ntvarTree->Fill();
     }
@@ -204,7 +204,7 @@ void NTagIO::ReadAFTEvent()
 
     // Tagging starts here!
     SearchCaptureCandidates();
-    GetTMVAoutput();
+    //GetTMVAoutput();
 
     // DONT'T FORGET TO FILL!
     // (ntvar only for data)
@@ -332,7 +332,10 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("amome", &vApmome);
     ntvarTree->Branch("amomm", &vApmomm);
     ntvarTree->Branch("sumQ", &vSumQ);
-    ntvarTree->Branch("TMVAoutput", &vTMVAoutput);
+    ntvarTree->Branch("prompt_bonsai", &vPrompt_BONSAI);
+    ntvarTree->Branch("prompt_nfit", &vPrompt_NFit);
+    ntvarTree->Branch("bonsai_nfit", &vBONSAI_NFit);
+    //ntvarTree->Branch("TMVAoutput", &vTMVAoutput);
 
     if (!bData) {
         ntvarTree->Branch("nGd", &vIsGdCapture);

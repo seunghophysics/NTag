@@ -31,7 +31,7 @@ class NTagEventInfo
 
         // Tagging
         virtual void         SearchCaptureCandidates();
-        virtual void         GetTMVAoutput();
+        //virtual void         GetTMVAoutput();
 
         // Calculator
         inline float         Norm(float vec[3]);
@@ -69,7 +69,7 @@ class NTagEventInfo
         virtual void         SavePeakFromHit(int hitID);
 
         // Set tag conditions
-        virtual void         SetTMVAReader();
+        //virtual void         SetTMVAReader();
         inline void          SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
         inline void          SetN200Max(int max) { N200MX = max; }
         inline void          SetT0Limits(float low, float high) { T0TH = low; T0MX = high; }
@@ -79,6 +79,10 @@ class NTagEventInfo
         inline void          SetMaxODHitThreshold(float q) { ODHITMX = q; }
         inline void          SetCustomVertex(float x, float y, float z)
                                             { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
+                                            
+        // Set MVA options
+        // inline void          SetMVAMethod(TString methodName) { fMVAMethodName = methodName + " method"; }
+        // inline void          SetWeightFile(TString weightName) { fWeightFileName = weightName; }
 
     private:
         TMVA::Reader* reader;
@@ -93,7 +97,11 @@ class NTagEventInfo
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
         float       ODHITMX;                // OD total charge threshold
-
+        
+        // MVA options
+        //TString     fMVAMethodName;
+        //TString     fWeightFileName;
+        
         // Custom prompt vertex
         float       customvx, customvy, customvz;
 
@@ -138,15 +146,18 @@ class NTagEventInfo
         /**/        std::vector<float>  vBeta14_10, vBeta14_50;
         /**/        std::vector<float>  vBeta1_50, vBeta2_50, vBeta3_50, vBeta4_50, vBeta5_50;
         /**/
+        /**/        // Fit vertex distances
+        /**/        std::vector<float>  vPrompt_NFit, vPrompt_BONSAI, vBONSAI_NFit;
+        /**/
         /**/    // TMVA inputs and output
-        /**/    float               mva_N10, mva_N50, mva_N200;
-        /**/    float               mva_dt, mva_trmsold, mva_trms50;
-        /**/    float               mva_nwall, mva_evis, mva_sumQ, mva_spread;
-        /**/    float               mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
-        /**/    float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
-        /**/    float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
-        /**/    float               mva_AP_Nfit, mva_AP_BONSAI, mva_Nfit_BONSAI;
-        /**/    std::vector<float>  vTMVAoutput;
+        /**/    //float               mva_N10, mva_N50, mva_N200;
+        /**/    //float               mva_dt, mva_trmsold, mva_trms50;
+        /**/    //float               mva_nwall, mva_evis, mva_sumQ, mva_spread;
+        /**/    //float               mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
+        /**/    //float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
+        /**/    //float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
+        /**/    //float               mva_Prompt_Nfit, mva_Prompt_BONSAI, mva_BONSAI_NFit;
+        /**/    //std::vector<float>  vTMVAoutput;
         /**/
         /************************************************************************************************/
 

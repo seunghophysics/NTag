@@ -2,20 +2,21 @@
 
 #include <iostream>
 
-NTagMessage::NTagMessage(unsigned int verbose) { fVerbosity = verbose; }
+NTagMessage::NTagMessage(const char* className, unsigned int verbose):
+fClassName(className), fVerbosity(verbose) {}
 NTagMessage::~NTagMessage() {}
 
 void NTagMessage::PrintTag(unsigned int vType)
 {
     switch (vType) {
         case pDEFAULT:
-            std::cout << "[NTag] "; break;
+            std::cout << "[NTag" << fClassName << "] "; break;
         case pWARNING:
-            std::cout << "\033[4;33m" << "[NTag WARNING] "; break;
+            std::cout << "\033[4;33m" << "[NTag" << fClassName << " WARNING] "; break;
         case pERROR:
-            std::cerr << "\033[4;31m" << "[Error in NTag] "; break;
+            std::cerr << "\033[4;31m" << "[Error in NTag" << fClassName << "]"; break;
         case pDEBUG:
-            std::cout << "\033[0;34m" << "[NTag DEBUG] "; break;
+            std::cout << "\033[0;34m" << "[NTag" << fClassName << " DEBUG] "; break;
     }
 }
 
