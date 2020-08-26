@@ -35,7 +35,7 @@ class NTagTMVA
                               { fInFileName = inFileName; fOutFileName = outFileName; }
 
         /********************/
-        /* Making weight    */
+        /* Making weights   */
         /********************/
 
         // Settings
