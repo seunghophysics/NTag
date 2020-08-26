@@ -37,6 +37,10 @@ void NTagTMVA::SetReader(TString methodName, TString weightFileName)
     fReader = new TMVA::Reader( "!Color:!Silent" );
     fVariables.AddVariablesToReader(fReader);
     fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
+    
+    SetReaderCutRange("N10", 7, 50);
+    SetReaderCutRange("dt", 0, 500.e3);
+    DumpReaderCutRange();
 }
 
 void NTagTMVA::SetMethods()
@@ -64,7 +68,7 @@ void NTagTMVA::SetMethods()
     fUse["KNN"]             = 0; // k-nearest neighbour method
     //
     // --- Linear Discriminant Analysis
-    fUse["LD"]              = 1; // Linear Discriminant identical to Fisher
+    fUse["LD"]              = 0; // Linear Discriminant identical to Fisher
     fUse["Fisher"]          = 0;
     fUse["FisherG"]         = 0;
     fUse["BoostedFisher"]   = 1; // fUses generalised MVA method boosting
@@ -379,7 +383,6 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
     SetReader(methodName, weightFileName);
     
     fVariables = NTagTMVAVariables();
-    fReader = new TMVA::Reader( "!Color:!Silent" );
     
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");

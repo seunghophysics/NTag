@@ -84,6 +84,7 @@ class NTagEventInfo
         // Set MVA options
         // inline void          SetMVAMethod(TString methodName) { fMVAMethodName = methodName + " method"; }
         // inline void          SetWeightFile(TString weightName) { fWeightFileName = weightName; }
+        NTagTMVA    TMVATools;
 
     private:
         TMVA::Reader* reader;
@@ -100,7 +101,6 @@ class NTagEventInfo
         float       ODHITMX;                // OD total charge threshold
         
         // MVA options
-        NTagTMVA    TMVATools;
         //TString     fMVAMethodName;
         //TString     fWeightFileName;
         

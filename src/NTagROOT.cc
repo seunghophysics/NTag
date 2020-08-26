@@ -13,8 +13,8 @@
 #include <SKLibs.hh>
 #include <NTagROOT.hh>
 
-NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
-: NTagIO(inFileName, outFileName, useData, verbose) { Initialize(); }
+NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, unsigned int verbose)
+: NTagIO(inFileName, outFileName, verbose) { Initialize(); }
 
 NTagROOT::~NTagROOT() { bonsai_end_(); }
 

@@ -4,7 +4,7 @@
 #include <ctime>
 #include <TString.h>
 
-enum {pDEFAULT, pWARNING, pERROR, pDEBUG};
+enum {pNONE, pERROR, pWARNING, pDEFAULT, pDEBUG};
 
 class NTagMessage
 {

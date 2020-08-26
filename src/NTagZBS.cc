@@ -9,8 +9,8 @@
 #include <SKLibs.hh>
 #include "NTagZBS.hh"
 
-NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
-: NTagIO(inFileName, outFileName, useData, verbose) { Initialize(); }
+NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, unsigned int verbose)
+: NTagIO(inFileName, outFileName, verbose) { Initialize(); }
 
 NTagZBS::~NTagZBS() { bonsai_end_(); }
 

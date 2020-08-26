@@ -10,12 +10,12 @@
 
 NTagIO* NTagIO::instance;
 
-NTagIO::NTagIO(const char* inFileName, const char* outFileName, bool useData, unsigned int verbose)
+NTagIO::NTagIO(const char* inFileName, const char* outFileName, unsigned int verbose)
 : NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
     instance = this;
 
-    bData = useData;
+    bData = false;
     fVerbosity = verbose;
 
     ntvarTree = new TTree("ntvar", "ntag variables");
@@ -36,7 +36,7 @@ NTagIO::~NTagIO()
 
 void NTagIO::Initialize()
 {
-    SetN10Limits(5, 50);
+    SetN10Limits(7, 50);
     SetN200Max(140);
     SetT0Limits(2., 600.);   // [us]
     SetDistanceCut(4000.);   // [cm]
@@ -354,5 +354,8 @@ void NTagIO::CheckMC()
         bData = true;
         msg.Print(Form("Reading event #%d from data...", nProcessedEvents+1));
     }
-    else msg.Print(Form("Reading event #%d from MC...", nProcessedEvents+1));
+    else {
+        bData = false;
+        msg.Print(Form("Reading event #%d from MC...", nProcessedEvents+1));
+    }
 }

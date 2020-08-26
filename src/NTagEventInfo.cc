@@ -37,7 +37,7 @@ fVerbosity(verbose), bData(false), bCustomVertex(false)
     reader = new TMVA::Reader("!Color:!Silent");
     
     TMVATools = NTagTMVA(verbose);
-    TMVATools.SetReader("BDT", "weights/new/NTagTMVA_MLP.weights.xml");
+    TMVATools.SetReader("MLP", "weights/new/NTagTMVA_MLP.weights.xml");
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
     TMVATools.SetReaderCutRange("dt", T0TH*1.e3, T0MX*1.e3);
     TMVATools.DumpReaderCutRange();
@@ -626,41 +626,6 @@ void NTagEventInfo::SetTrueCaptureInfo()
 void NTagEventInfo::GetTMVAoutput()
 {
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
-        
-        /*
-        // Check conditions for non-dummy TMVA output:
-        // * Number of OD hits < ODHITMX
-        // * N10 >= N10TH
-        // * 0 < Reconstructed capture time < T0MX
-        if (!(nhitac < ODHITMX)) {
-            vTMVAoutput.push_back(-9999); continue;
-        }
-        if (!(vN10[iCandidate] >= N10TH && 0 < vDt[iCandidate] && vDt[iCandidate] < T0MX*1.e3)) {
-            vTMVAoutput.push_back(-9999); continue;
-        }
-
-        mva_N10         = vN10[iCandidate];
-        mva_N200        = vN200[iCandidate];
-        mva_N50         = vN50[iCandidate];
-        mva_dt          = vDt[iCandidate];
-        mva_sumQ        = vSumQ[iCandidate];
-        mva_spread      = vSpread[iCandidate];
-        mva_trmsold     = vTrmsold[iCandidate];
-        mva_beta1_50    = vBeta1_50[iCandidate];
-        mva_beta2_50    = vBeta2_50[iCandidate];
-        mva_beta3_50    = vBeta3_50[iCandidate];
-        mva_beta4_50    = vBeta4_50[iCandidate];
-        mva_beta5_50    = vBeta5_50[iCandidate];
-        mva_tbsenergy   = vBenergy[iCandidate];
-        mva_tbswall     = vBwall[iCandidate];
-        mva_tbsgood     = vBgood[iCandidate];
-        mva_tbsdirks    = vBdirks[iCandidate];
-        mva_tbspatlik   = vBpatlik[iCandidate];
-        mva_tbsovaq     = vBovaq[iCandidate];
-        mva_nwall       = vNwall[iCandidate];
-        mva_trms50      = vTrms50[iCandidate];
-
-        */
     
         float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
 
@@ -669,6 +634,7 @@ void NTagEventInfo::GetTMVAoutput()
             if (vIsTrueCapture[iCandidate]) trueCaptureInfo = "true";
             else                            trueCaptureInfo = "false";
         }
+        if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
     
         msg.Print(Form("iCandidate: %d TMVAOutput: %f [%s]", iCandidate, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
         vTMVAoutput.push_back( tmvaOutput );
@@ -1116,34 +1082,3 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
     //msg.Print(Form("Peak from %d-th hit is saved. N10: %d", hitID, N10i), pDEBUG);
 }
-
-/*
-void NTagEventInfo::SetTMVAReader()
-{
-    reader->AddVariable("N10",          &mva_N10);
-    reader->AddVariable("N200",         &mva_N200);
-    reader->AddVariable("N50",          &mva_N50);
-    reader->AddVariable("dt",           &mva_dt);
-    reader->AddVariable("sumQ",         &mva_sumQ);
-    reader->AddVariable("spread",       &mva_spread);
-    reader->AddVariable("trmsold",      &mva_trmsold);
-    reader->AddVariable("beta1",        &mva_beta1_50);
-    reader->AddVariable("beta2",        &mva_beta2_50);
-    reader->AddVariable("beta3",        &mva_beta3_50);
-    reader->AddVariable("beta4",        &mva_beta4_50);
-    reader->AddVariable("beta5",        &mva_beta5_50);
-    reader->AddVariable("AP_Nfit:=sqrt((vx-nvx)*(vx-nvx)+(vy-nvy)*(vy-nvy)+(vz-nvz)*(vz-nvz))", &mva_Prompt_Nfit);
-    reader->AddVariable("tbsenergy",    &mva_tbsenergy);
-    reader->AddVariable("tbswall",	    &mva_tbswall);
-    reader->AddVariable("tbsgood",	    &mva_tbsgood);
-    reader->AddVariable("tbsdirks",     &mva_tbsdirks);
-    reader->AddVariable("tbspatlik",    &mva_tbspatlik);
-    reader->AddVariable("tbsovaq",      &mva_tbsovaq);
-    reader->AddVariable("AP_BONSAI:=sqrt((vx-tbsvx)*(vx-tbsvx)+(vy-tbsvy)*(vy-tbsvy)+(vz-tbsvz)*(vz-tbsvz))", &mva_Prompt_BONSAI);
-    reader->AddVariable("nwall",        &mva_nwall);
-    reader->AddVariable("trms40",       &mva_trms50);
-    reader->AddVariable("Nfit_BONSAI:=sqrt((nvx-tbsvx)*(nvx-tbsvx)+(nvy-tbsvy)*(nvy-tbsvy)+(nvz-tbsvz)*(nvz-tbsvz))", &mva_BONSAI_NFit);
-
-    reader->BookMVA(fMVAMethodName, fWeightFileName);
-}
-*/

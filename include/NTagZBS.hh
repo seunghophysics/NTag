@@ -7,7 +7,7 @@ class NTagZBS : public NTagIO
 {
     public:
         NTagZBS(const char* inFileName, const char* outFileName="out/NTagOut.root",
-                bool useData=false, unsigned int verbose=pDEFAULT);
+                unsigned int verbose=pDEFAULT);
         ~NTagZBS();
 
          // File I/O
