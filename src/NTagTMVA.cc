@@ -8,16 +8,18 @@
 NTagTMVA::NTagTMVA(unsigned int verbose):
 fVerbosity(verbose)
 { 
-    msg = NTagMessage("TMVA", fVerbosity);
-    fVariables = NTagTMVAVariables();
-    SetMethods();
-    
-    SetSigCut("realneutron == 1");
-    SetBkgCut("realneutron == 0");
+    Constructor();
 }
 
 NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose):
 fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
+{
+    Constructor();
+}
+
+NTagTMVA::~NTagTMVA() {}
+
+void NTagTMVA::Constructor()
 {
     msg = NTagMessage("TMVA", fVerbosity);
     fVariables = NTagTMVAVariables();
@@ -26,8 +28,6 @@ fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
     SetSigCut("realneutron == 1");
     SetBkgCut("realneutron == 0");
 }
-
-NTagTMVA::~NTagTMVA() {}
 
 void NTagTMVA::SetReader(TString methodName, TString weightFileName)
 { 
@@ -110,7 +110,7 @@ void NTagTMVA::SetMethods()
     fUse["RuleFit"]         = 1;
 }
 
-void NTagTMVA::Train()
+void NTagTMVA::MakeWeights()
 {
     TMVA::Tools::Instance();
     

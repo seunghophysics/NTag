@@ -28,53 +28,67 @@ class NTagTMVA
         NTagTMVA(unsigned int verbose=pDEFAULT);
         NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose=pDEFAULT);
         ~NTagTMVA();
-        
+
+        void Constructor();
+
         inline void SetInOutFileNames(const char* inFileName, const char* outFileName)
                                      { fInFileName = inFileName; fOutFileName = outFileName; }
-        void SetReader(TString methodName, TString weightFileName);
-        
+
+        /********************/
+        /* Making weight    */
+        /********************/
+
+        // Settings
         void SetMethods();
         void UseMethod(const char* methodName) { fUse[methodName] = 1; }
-        
-        template <typename T>
-        void  PushBack(const char* key, T value){ if (std::is_integral<T>::value) fVariables.iEventVectorMap[key]->push_back(value);
-                                                  else fVariables.fEventVectorMap[key]->push_back(value); }
-        
+
+        // Cuts used in training
         void SetSigCut(TString sc) { fSigCut = sc; }
         void SetBkgCut(TString bc) { fBkgCut = bc; }
         void AddSigCut(TString sc) { fSigCut += " && " + sc; }
         void AddBkgCut(TString bc) { fBkgCut += " && " + bc; }
-        
-        void Train();
-        
-        void  DumpReaderCutRange();
+
+        void MakeWeights();
+
+        /********************/
+        /* Applying weight  */
+        /********************/
+
+        // Settings
+        void SetReader(TString methodName, TString weightFileName);
+
+        // Cuts used in TMVA output generation
         void  SetReaderCutRange(const char* key, float low, float high) { fRangeMap[key] = Range(low, high); }
+        void  DumpReaderCutRange();
         bool  IsInRange(const char* key);
         bool  CandidateCut();
+
+        // TMVA output from TMVAVariables in event
         float GetOutputFromCandidate(int iCandidate);
-        
-        void GetReaderOutputFromEntry(long iEntry);
+
         void ApplyWeight(TString methodName, TString weightFileName);
-        
+
     private:
         NTagTMVAVariables fVariables;
-        
-        NTagMessage  msg;
+        NTagMessage       msg;
+
         unsigned int fVerbosity;
-    
+
         const char* fInFileName;
         const char* fOutFileName;
-    
+
+        // Making weights
         std::map<std::string, int> fUse;
-        TMVA::Factory* fFactory;
-        
+        TMVA::Factory*             fFactory;
+        TCut                       fSigCut, fBkgCut;
+
+        // Applying weight
         TMVA::Reader*  fReader;
         TString        fReaderMethodName;
         TString        fReaderWeightFileName;
-        
+
         RangeMap fRangeMap;
-        TCut fSigCut, fBkgCut;
-        
+
     friend class NTagTMVAVariables;
     friend class NTagEventInfo;
     friend class NTagIO;

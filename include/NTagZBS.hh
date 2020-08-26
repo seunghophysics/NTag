@@ -15,12 +15,6 @@ class NTagZBS : public NTagIO
         void CloseFile();
 
         void SetFitInfo();
-
-        // Tree-related
-        //void CreateBranchesToTruthTree();
-        //void CreateBranchesToNTvarTree();
-        //void SetBranchAddressToTruthTree(TTree* tree);
-        //void SetBranchAddressToNTvarTree(TTree* tree);
 };
 
 #endif

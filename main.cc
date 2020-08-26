@@ -60,7 +60,7 @@ int main(int argc, char** argv)
         msg.Print("Generating new weight files in weights/new...");
 
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
-        nt.Train();
+        nt.MakeWeights();
 
         msg.Print("Training complete. New weights are in directory weights/new.");
         msg.Print(Form("Test results saved in output: ") + outputName);
