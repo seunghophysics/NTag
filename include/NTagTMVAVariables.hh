@@ -5,7 +5,7 @@
 #include <string>
 #include <type_traits>
 
-#include <NTagMessage.hh>
+#include "NTagMessage.hh"
 
 namespace TMVA
 {

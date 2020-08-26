@@ -3,11 +3,11 @@
 #include <TMVA/Factory.h>
 #include <TMVA/Reader.h>
 
-#include <NTagTMVA.hh>
+#include "NTagTMVA.hh"
 
 NTagTMVA::NTagTMVA(unsigned int verbose):
 fVerbosity(verbose)
-{ 
+{
     Constructor();
 }
 
@@ -24,24 +24,11 @@ void NTagTMVA::Constructor()
     msg = NTagMessage("TMVA", fVerbosity);
     fVariables = NTagTMVAVariables();
     SetMethods();
-    
+
     SetSigCut("realneutron == 1");
     SetBkgCut("realneutron == 0");
 }
 
-void NTagTMVA::SetReader(TString methodName, TString weightFileName)
-{ 
-    fReaderMethodName = methodName + " method";
-    fReaderWeightFileName = weightFileName;
-    
-    fReader = new TMVA::Reader( "!Color:!Silent" );
-    fVariables.AddVariablesToReader(fReader);
-    fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
-    
-    SetReaderCutRange("N10", 7, 50);
-    SetReaderCutRange("dt", 0, 500.e3);
-    DumpReaderCutRange();
-}
 
 void NTagTMVA::SetMethods()
 {
@@ -113,16 +100,16 @@ void NTagTMVA::SetMethods()
 void NTagTMVA::MakeWeights()
 {
     TMVA::Tools::Instance();
-    
+
     TFile* outFile = TFile::Open( fOutFileName, "RECREATE" );
     TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
-    
+
     (TMVA::gConfig().GetIONames()).fWeightFileDir = "weights/new";
-    
+
     fVariables = NTagTMVAVariables();
     auto varKeys = fVariables.Keys();
-    
+
     for (const auto& key: varKeys) {
         msg.Print(Form("Adding variable %s to TMVA factory...", key));
         if (key[0] == 'N') fFactory->AddVariable(key, 'I');
@@ -130,15 +117,15 @@ void NTagTMVA::MakeWeights()
     }
 
     TFile *inFile = TFile::Open( fInFileName );
-    
+
     msg.Print(Form("Input name: %s", fInFileName));
-    
+
     TTree *sigTree = (TTree*)inFile->Get("ntvar");
     TTree *bkgTree = (TTree*)inFile->Get("ntvar");
-    
+
     fFactory->AddSignalTree    ( sigTree, 1.0, TMVA::Types::kTraining);
     fFactory->AddBackgroundTree( bkgTree, 1.0, TMVA::Types::kTraining);
-    
+
     fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut,
                                         "nTrain_Signal=0:nTrain_Background=0:SplitMode=Random:NormMode=NumEvents:!V" );
 
@@ -332,14 +319,28 @@ void NTagTMVA::MakeWeights()
     if (fUse["RuleFit"])
         fFactory->BookMethod( TMVA::Types::kRuleFit, "RuleFit",
                            "H:!V:RuleFitModule=RFTMVA:Model=ModRuleLinear:MinImp=0.001:RuleMinDist=0.001:NTrees=20:fEventsMin=0.01:fEventsMax=0.5:GDTau=-1.0:GDTauPrec=0.01:GDStep=0.01:GDNSteps=10000:GDErrScale=1.02" );
-    
+
     fFactory->TrainAllMethods();
     fFactory->TestAllMethods();
     fFactory->EvaluateAllMethods();
-    
+
     outFile->Close();
-    
+
     msg.Print("TMVA evaluation complete!");
+}
+
+void NTagTMVA::SetReader(TString methodName, TString weightFileName)
+{
+    fReaderMethodName = methodName + " method";
+    fReaderWeightFileName = weightFileName;
+
+    fReader = new TMVA::Reader( "!Color:!Silent" );
+    fVariables.AddVariablesToReader(fReader);
+    fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
+
+    SetReaderCutRange("N10", 7, 50);
+    SetReaderCutRange("dt", 0, 500.e3);
+    DumpReaderCutRange();
 }
 
 void NTagTMVA::DumpReaderCutRange()
@@ -362,11 +363,11 @@ bool NTagTMVA::IsInRange(const char* key)
 bool NTagTMVA::CandidateCut()
 {
     bool cutSum = true;
-    
+
     for (const auto& pair : fRangeMap) {
         cutSum = cutSum && IsInRange(pair.first);
     }
-    
+
     return cutSum;
 }
 
@@ -382,9 +383,9 @@ float NTagTMVA::GetOutputFromCandidate(int iCandidate)
 void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 {
     SetReader(methodName, weightFileName);
-    
+
     fVariables = NTagTMVAVariables();
-    
+
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
     TTree* inTruthTree = (TTree*)inFile->Get("truth");
@@ -395,38 +396,38 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
     TTree* outTruthTree = 0;
     if (inTruthTree)
         outTruthTree = inTruthTree->CloneTree();
-    
+
     std::vector<float> outputVector;
     outNtvarTree->Branch(methodName + "_TMVAoutput", &outputVector);
-    
+
     msg.Print(Form("Using input file: %s", fInFileName));
     msg.Print("Using MVA method: " + methodName);
 
     long nEntries = inNtvarTree->GetEntries();
-    
+
     for(long iEntry = 0; iEntry < nEntries; iEntry++){
-        
+
         outputVector.clear();
-        
+
         if (!inNtvarTree->GetEntry(iEntry)) continue;
-        
+
         int nCandidates = fVariables.GetNumberOfCandidates();
-        
+
         for(int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
             fVariables.SetVariablesForCaptureCandidate(iCandidate);
             outputVector.push_back(fReader->EvaluateMVA(fReaderMethodName));
         }
-        
+
         outNtvarTree->Fill();
     }
-    
+
     outNtvarTree->Write();
     if (outTruthTree)
         outTruthTree->Write();
-        
+
     outFile->Close();
     inFile->Close();
-    
+
     msg.Print("TMVA output generation complete!");
     msg.Print(Form("TMVA output file: %s", fOutFileName));
 }

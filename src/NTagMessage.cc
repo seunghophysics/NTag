@@ -1,6 +1,6 @@
-#include <NTagMessage.hh>
-
 #include <iostream>
+
+#include "NTagMessage.hh"
 
 NTagMessage::NTagMessage(const char* className, unsigned int verbose):
 fClassName(className), fVerbosity(verbose) {}

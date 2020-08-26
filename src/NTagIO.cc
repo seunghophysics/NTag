@@ -5,8 +5,8 @@
 #include <skheadC.h>
 #include <skvectC.h>
 
-#include <NTagIO.hh>
-#include <SKLibs.hh>
+#include "NTagIO.hh"
+#include "SKLibs.hh"
 
 NTagIO* NTagIO::instance;
 
@@ -28,8 +28,8 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, unsigned int ver
 }
 
 NTagIO::~NTagIO()
-{ 
-    WriteOutput(); 
+{
+    WriteOutput();
     delete ntvarTree;
     delete truthTree;
 }
@@ -290,36 +290,18 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("nvx", &vNvx);
     ntvarTree->Branch("nvy", &vNvy);
     ntvarTree->Branch("nvz", &vNvz);
-    //ntvarTree->Branch("nwall", &vNwall);
-    //ntvarTree->Branch("N10", &vN10);
     ntvarTree->Branch("wall", &towall);
     ntvarTree->Branch("N10n", &vN10n);
-    //ntvarTree->Branch("N200", &vN200);
-    //ntvarTree->Branch("N50", &vN50);
     ntvarTree->Branch("N1300", &vN1300);
     ntvarTree->Branch("trms", &vTrms);
-    //ntvarTree->Branch("trmsold", &vTrmsold);
     ntvarTree->Branch("trms40", &vTrms50);
-    //ntvarTree->Branch("dt", &vDt);
     ntvarTree->Branch("dtn", &vDtn);
-    //ntvarTree->Branch("spread", &vSpread);
-    //ntvarTree->Branch("tbsenergy", &vBenergy);
     ntvarTree->Branch("tbsvx", &vBvx);
     ntvarTree->Branch("tbsvy", &vBvy);
     ntvarTree->Branch("tbsvz", &vBvz);
     ntvarTree->Branch("tbsvt", &vBvt);
-    //ntvarTree->Branch("tbswall", &vBwall);
-    //ntvarTree->Branch("tbsgood", &vBgood);
-    //ntvarTree->Branch("tbsdirks", &vBdirks);
-    //ntvarTree->Branch("tbspatlik", &vBpatlik);
-    //ntvarTree->Branch("tbsovaq", &vBovaq);
     ntvarTree->Branch("beta14", &vBeta14_10);
     ntvarTree->Branch("beta14_40", &vBeta14_50);
-    //ntvarTree->Branch("beta1", &vBeta1_50);
-    //ntvarTree->Branch("beta2", &vBeta2_50);
-    //ntvarTree->Branch("beta3", &vBeta3_50);
-    //ntvarTree->Branch("beta4", &vBeta4_50);
-    //ntvarTree->Branch("beta5", &vBeta5_50);
     ntvarTree->Branch("nring", &nring);
     ntvarTree->Branch("evis", &evis);
     ntvarTree->Branch("nhitac", &nhitac);
@@ -331,11 +313,9 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("apamom", &vApamom);
     ntvarTree->Branch("amome", &vApmome);
     ntvarTree->Branch("amomm", &vApmomm);
-    //ntvarTree->Branch("sumQ", &vSumQ);
-    //ntvarTree->Branch("prompt_bonsai", &vPrompt_BONSAI);
-    //ntvarTree->Branch("prompt_nfit", &vPrompt_NFit);
-    //ntvarTree->Branch("bonsai_nfit", &vBONSAI_NFit);
     ntvarTree->Branch("TMVAoutput", &vTMVAoutput);
+
+    // Make branches from TMVAVariables class
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {

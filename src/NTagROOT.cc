@@ -10,8 +10,8 @@
 #include <sktqC.h>
 #include <skvectC.h>
 
-#include <SKLibs.hh>
-#include <NTagROOT.hh>
+#include "NTagROOT.hh"
+#include "SKLibs.hh"
 
 NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, unsigned int verbose)
 : NTagIO(inFileName, outFileName, verbose) { Initialize(); }

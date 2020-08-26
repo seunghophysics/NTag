@@ -31,8 +31,8 @@ class NTagTMVA
 
         void Constructor();
 
-        inline void SetInOutFileNames(const char* inFileName, const char* outFileName)
-                                     { fInFileName = inFileName; fOutFileName = outFileName; }
+        void SetInOutFileNames(const char* inFileName, const char* outFileName)
+                              { fInFileName = inFileName; fOutFileName = outFileName; }
 
         /********************/
         /* Making weight    */
@@ -58,10 +58,10 @@ class NTagTMVA
         void SetReader(TString methodName, TString weightFileName);
 
         // Cuts used in TMVA output generation
-        void  SetReaderCutRange(const char* key, float low, float high) { fRangeMap[key] = Range(low, high); }
-        void  DumpReaderCutRange();
-        bool  IsInRange(const char* key);
-        bool  CandidateCut();
+        void SetReaderCutRange(const char* key, float low, float high) { fRangeMap[key] = Range(low, high); }
+        void DumpReaderCutRange();
+        bool IsInRange(const char* key);
+        bool CandidateCut();
 
         // TMVA output from TMVAVariables in event
         float GetOutputFromCandidate(int iCandidate);
