@@ -7,6 +7,7 @@
 
 NTagTMVAVariables::NTagTMVAVariables()
 {
+    msg = NTagMessage("TMVAVariables", pDEBUG);
     Clear();
 }
 
@@ -40,20 +41,13 @@ void NTagTMVAVariables::Clear()
     fVariableMap["bonsai_nfit"] = 0.;
     
     for (const auto& pair: iVariableMap) {
-        iEventVectorMap[pair.first] = 0;
-        fVariableMap[pair.first] = 0;
+        iEventVectorMap[pair.first] = new std::vector<int>();
+        fVariableMap[pair.first] = 0.;
     }
     
     for (const auto& pair: fVariableMap) {
-        fEventVectorMap[pair.first] = 0;
+        fEventVectorMap[pair.first] = new std::vector<float>();
     }
-}
-
-template <typename T>
-void NTagTMVAVariables::PushBack(const char* key, T value)
-{ 
-    if (std::is_integral<T>::value) iEventVectorMap[key]->push_back(value);
-    else fEventVectorMap[key]->push_back(value); 
 }
 
 std::vector<const char*> NTagTMVAVariables::Keys()
@@ -75,6 +69,7 @@ std::vector<const char*> NTagTMVAVariables::Keys()
 void NTagTMVAVariables::AddVariablesToReader(TMVA::Reader* reader)
 {
     for (auto& pair: fVariableMap) {
+        //msg.Print(Form("Adding variable %s...", pair.first), pDEBUG);
         reader->AddVariable(pair.first, &pair.second);
     }
 

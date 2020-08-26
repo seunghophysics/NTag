@@ -8,7 +8,8 @@
 NTagTMVA::NTagTMVA(unsigned int verbose):
 fVerbosity(verbose)
 { 
-    msg = NTagMessage("TMVA", fVerbosity); 
+    msg = NTagMessage("TMVA", fVerbosity);
+    fVariables = NTagTMVAVariables();
     SetMethods();
     
     SetSigCut("realneutron == 1");
@@ -18,7 +19,8 @@ fVerbosity(verbose)
 NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose):
 fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
 {
-    msg = NTagMessage("TMVA", fVerbosity); 
+    msg = NTagMessage("TMVA", fVerbosity);
+    fVariables = NTagTMVAVariables();
     SetMethods();
     
     SetSigCut("realneutron == 1");
@@ -26,6 +28,16 @@ fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
 }
 
 NTagTMVA::~NTagTMVA() {}
+
+void NTagTMVA::SetReader(TString methodName, TString weightFileName)
+{ 
+    fReaderMethodName = methodName + " method";
+    fReaderWeightFileName = weightFileName;
+    
+    fReader = new TMVA::Reader( "!Color:!Silent" );
+    fVariables.AddVariablesToReader(fReader);
+    fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
+}
 
 void NTagTMVA::SetMethods()
 {
@@ -368,7 +380,6 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
     
     fVariables = NTagTMVAVariables();
     fReader = new TMVA::Reader( "!Color:!Silent" );
-    fVariables.AddVariablesToReader(fReader);
     
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
@@ -386,8 +397,6 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
     
     msg.Print(Form("Using input file: %s", fInFileName));
     msg.Print("Using MVA method: " + methodName);
-    
-    fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
 
     long nEntries = inNtvarTree->GetEntries();
     

@@ -30,10 +30,16 @@ CXXFLAGS += -std=c++11
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
+all: bin/main lib/libNTag.so
+
 bin/main: obj/bonsai.o $(OBJS) obj/main.o bin out
 	@echo "[NTag] Building the main program..."
 	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
 	@echo "[NTag] Done!"
+
+lib/libNTag.so: obj/bonsai.o $(OBJS) lib
+	@echo "[NTag] Building shared library..."
+	@$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -shared
 
 obj/bonsai.o: src/bonsai.F obj
 	@echo "[NTag] Building BONSAI..."
@@ -47,7 +53,7 @@ obj/%.o: src/%.cc obj
 	@echo "[NTag] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-bin obj out:
+bin obj out lib:
 	@mkdir $@
 
 .PHONY: clean

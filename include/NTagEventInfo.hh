@@ -9,6 +9,7 @@
 #include <TMVA/Reader.h>
 
 #include <NTagMessage.hh>
+#include <NTagTMVA.hh>
 
 class NTagEventInfo
 {
@@ -31,7 +32,7 @@ class NTagEventInfo
 
         // Tagging
         virtual void         SearchCaptureCandidates();
-        //virtual void         GetTMVAoutput();
+        virtual void         GetTMVAoutput();
 
         // Calculator
         inline float         Norm(float vec[3]);
@@ -99,6 +100,7 @@ class NTagEventInfo
         float       ODHITMX;                // OD total charge threshold
         
         // MVA options
+        NTagTMVA    TMVATools;
         //TString     fMVAMethodName;
         //TString     fWeightFileName;
         
@@ -157,7 +159,7 @@ class NTagEventInfo
         /**/    //float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
         /**/    //float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
         /**/    //float               mva_Prompt_Nfit, mva_Prompt_BONSAI, mva_BONSAI_NFit;
-        /**/    //std::vector<float>  vTMVAoutput;
+        /**/    std::vector<float>  vTMVAoutput;
         /**/
         /************************************************************************************************/
 

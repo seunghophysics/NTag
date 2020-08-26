@@ -17,6 +17,8 @@ namespace TMVA
     class Factory;
 }
 
+class NTagEventInfo;
+
 typedef std::pair<float, float> Range;
 typedef std::map<const char*, Range> RangeMap;
 
@@ -29,11 +31,14 @@ class NTagTMVA
         
         inline void SetInOutFileNames(const char* inFileName, const char* outFileName)
                                      { fInFileName = inFileName; fOutFileName = outFileName; }
-        inline void SetReader(TString methodName, TString weightFileName)
-                             { fReaderMethodName = methodName + " method"; fReaderWeightFileName = weightFileName; }
+        void SetReader(TString methodName, TString weightFileName);
         
         void SetMethods();
         void UseMethod(const char* methodName) { fUse[methodName] = 1; }
+        
+        template <typename T>
+        void  PushBack(const char* key, T value){ if (std::is_integral<T>::value) fVariables.iEventVectorMap[key]->push_back(value);
+                                                  else fVariables.fEventVectorMap[key]->push_back(value); }
         
         void SetSigCut(TString sc) { fSigCut = sc; }
         void SetBkgCut(TString bc) { fBkgCut = bc; }
@@ -71,6 +76,7 @@ class NTagTMVA
         TCut fSigCut, fBkgCut;
         
     friend class NTagTMVAVariables;
+    friend class NTagEventInfo;
 };
 
 #endif
