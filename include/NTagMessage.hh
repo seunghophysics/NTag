@@ -2,6 +2,7 @@
 #define NTAGMESSAGE_HH 1
 
 #include <ctime>
+
 #include <TString.h>
 
 enum {pNONE, pERROR, pWARNING, pDEFAULT, pDEBUG};
@@ -16,7 +17,7 @@ class NTagMessage
         virtual void  Print(TString, unsigned int vType=pDEFAULT);
         virtual void  Print(const char*, unsigned int vType=pDEFAULT);
         virtual float Timer(TString, std::clock_t tStart, unsigned int vType=pDEFAULT);
-        
+
     private:
         const char*  fClassName;
         unsigned int fVerbosity;

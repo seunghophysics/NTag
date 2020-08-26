@@ -124,6 +124,7 @@ void NTagTMVA::Train()
     auto varKeys = fVariables.Keys();
     
     for (const auto& key: varKeys) {
+        msg.Print(Form("Adding variable %s to TMVA factory...", key));
         if (key[0] == 'N') fFactory->AddVariable(key, 'I');
         else fFactory->AddVariable(key, 'F');
     }

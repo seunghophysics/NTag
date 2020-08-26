@@ -38,6 +38,7 @@ class NTagTMVAVariables
         
         void AddVariablesToReader(TMVA::Reader* reader);
         void SetBranchAddressToTree(TTree* tree);
+        void MakeBranchesToTree(TTree* tree);
         void SetVariablesForCaptureCandidate(int iCandidate);
         
         int  GetNumberOfCandidates();

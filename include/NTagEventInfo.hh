@@ -8,8 +8,8 @@
 #include <TString.h>
 #include <TMVA/Reader.h>
 
-#include <NTagMessage.hh>
-#include <NTagTMVA.hh>
+#include "NTagMessage.hh"
+#include "NTagTMVA.hh"
 
 class NTagEventInfo
 {
@@ -70,7 +70,6 @@ class NTagEventInfo
         virtual void         SavePeakFromHit(int hitID);
 
         // Set tag conditions
-        //virtual void         SetTMVAReader();
         inline void          SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
         inline void          SetN200Max(int max) { N200MX = max; }
         inline void          SetT0Limits(float low, float high) { T0TH = low; T0MX = high; }
@@ -80,10 +79,8 @@ class NTagEventInfo
         inline void          SetMaxODHitThreshold(float q) { ODHITMX = q; }
         inline void          SetCustomVertex(float x, float y, float z)
                                             { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
-                                            
-        // Set MVA options
-        // inline void          SetMVAMethod(TString methodName) { fMVAMethodName = methodName + " method"; }
-        // inline void          SetWeightFile(TString weightName) { fWeightFileName = weightName; }
+        // TMVA tools
+        // All input variables to TMVA are here!
         NTagTMVA    TMVATools;
 
     private:
@@ -99,11 +96,7 @@ class NTagEventInfo
         float       TMATCHWINDOW;           // used in function IsTrueCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
         float       ODHITMX;                // OD total charge threshold
-        
-        // MVA options
-        //TString     fMVAMethodName;
-        //TString     fWeightFileName;
-        
+
         // Custom prompt vertex
         float       customvx, customvy, customvz;
 
@@ -136,29 +129,17 @@ class NTagEventInfo
         /**/        // Variables for neutron capture candidates
         /**/        int                 nCandidates, N200M;
         /**/        float               T200M, firsthit;
-        /**/        std::vector<int>    vTindex, vN10, vN10n, vN50, vN200, vN1300;
-        /**/        std::vector<float>  vSumQ, vSpread, vTrms, vTrmsold, vTrms50;
-        /**/        std::vector<float>  vDt, vDtn, vNvx, vNvy, vNvz, vNwall;
+        /**/        std::vector<int>    vTindex, vN10n, vN1300;
+        /**/        std::vector<float>  vTrms, vTrms50;
+        /**/        std::vector<float>  vDtn, vNvx, vNvy, vNvz;
         /**/
         /**/        // BONSAI variables
-        /**/        std::vector<float>  vBenergy, vBvx, vBvy, vBvz, vBvt;
-        /**/        std::vector<float>  vBwall, vBgood, vBpatlik, vBdirks, vBovaq;
+        /**/        std::vector<float>  vBvx, vBvy, vBvz, vBvt;
         /**/
         /**/        // Beta variables
         /**/        std::vector<float>  vBeta14_10, vBeta14_50;
-        /**/        std::vector<float>  vBeta1_50, vBeta2_50, vBeta3_50, vBeta4_50, vBeta5_50;
         /**/
-        /**/        // Fit vertex distances
-        /**/        std::vector<float>  vPrompt_NFit, vPrompt_BONSAI, vBONSAI_NFit;
-        /**/
-        /**/    // TMVA inputs and output
-        /**/    //float               mva_N10, mva_N50, mva_N200;
-        /**/    //float               mva_dt, mva_trmsold, mva_trms50;
-        /**/    //float               mva_nwall, mva_evis, mva_sumQ, mva_spread;
-        /**/    //float               mva_beta1_50, mva_beta2_50, mva_beta3_50, mva_beta4_50, mva_beta5_50;
-        /**/    //float               mva_tbsenergy, mva_tbswall, mva_tbsgood;
-        /**/    //float               mva_tbsdirks, mva_tbspatlik, mva_tbsovaq;
-        /**/    //float               mva_Prompt_Nfit, mva_Prompt_BONSAI, mva_BONSAI_NFit;
+        /**/    // TMVA output
         /**/    std::vector<float>  vTMVAoutput;
         /**/
         /************************************************************************************************/

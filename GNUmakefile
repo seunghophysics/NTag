@@ -24,7 +24,7 @@ LOCAL_LIBS   = $(APLIB) \
 APLIB =  -lapdrlib -laplib -lringlib -ltp -ltf -lringlib \
 	 -laplib -lmsfit -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
 	 -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k
-	 
+
 CXXFLAGS += -std=c++11
 
 SRCS = $(wildcard src/*.cc)

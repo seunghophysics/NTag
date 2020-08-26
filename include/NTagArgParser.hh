@@ -5,16 +5,16 @@
 #include <string>
 #include <algorithm>
 
-// original code from @iain from stackoverflow
+// original code by @iain from stackoverflow
 
 class NTagArgParser{
 
     public:
         NTagArgParser(int &argc, char **argv) {
-            for (int i = 1; i < argc; ++i)
-                this->tokens.push_back(std::string(argv[i]));
+            for (int iArg = 1; iArg < argc; ++iArg)
+                this->tokens.push_back(std::string(argv[iArg]));
         }
-        
+
         const std::string& GetOption(const std::string &option) const {
             std::vector<std::string>::const_iterator itr;
             itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
@@ -29,7 +29,7 @@ class NTagArgParser{
             return std::find(this->tokens.begin(), this->tokens.end(), option)
                    != this->tokens.end();
         }
-        
+
     private:
         std::vector<std::string> tokens;
 };

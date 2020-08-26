@@ -439,12 +439,12 @@ void NTagEventInfo::SearchCaptureCandidates()
         //vN50.push_back      (  n50hits                  );
         vN1300.push_back    (  n1300hits                );
         
-        TMVATools.PushBack("N50", n50hits);
-        TMVATools.PushBack("beta1", beta_50[1]);
-        TMVATools.PushBack("beta2", beta_50[2]);
-        TMVATools.PushBack("beta3", beta_50[3]);
-        TMVATools.PushBack("beta4", beta_50[4]);
-        TMVATools.PushBack("beta5", beta_50[5]);
+        TMVATools.fVariables.PushBack("N50", n50hits);
+        TMVATools.fVariables.PushBack("beta1", beta_50[1]);
+        TMVATools.fVariables.PushBack("beta2", beta_50[2]);
+        TMVATools.fVariables.PushBack("beta3", beta_50[3]);
+        TMVATools.fVariables.PushBack("beta4", beta_50[4]);
+        TMVATools.fVariables.PushBack("beta5", beta_50[5]);
         /*
         vBeta1_50.push_back (  beta_50[1]               );
         vBeta2_50.push_back (  beta_50[2]               );
@@ -496,12 +496,12 @@ void NTagEventInfo::SearchCaptureCandidates()
         vBvz.push_back( tmptbsvz );
         vBvt.push_back( tmptbsvt );
         
-        TMVATools.PushBack("tbsenergy", tmptbsenergy);
-        TMVATools.PushBack("tbswall", wallsk_(tbsvertex));
-        TMVATools.PushBack("tbsgood", tmptbsgood);
-        TMVATools.PushBack("tbsdirks", tmptbsdirks);
-        TMVATools.PushBack("tbspatlik", tmptbspatlik);
-        TMVATools.PushBack("tbsovaq", tmptbsovaq);
+        TMVATools.fVariables.PushBack("tbsenergy", tmptbsenergy);
+        TMVATools.fVariables.PushBack("tbswall", wallsk_(tbsvertex));
+        TMVATools.fVariables.PushBack("tbsgood", tmptbsgood);
+        TMVATools.fVariables.PushBack("tbsdirks", tmptbsdirks);
+        TMVATools.fVariables.PushBack("tbspatlik", tmptbspatlik);
+        TMVATools.fVariables.PushBack("tbsovaq", tmptbsovaq);
 
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS = MinimizeTRMS(tiskz50, cabiz50, nv);
@@ -512,8 +512,8 @@ void NTagEventInfo::SearchCaptureCandidates()
         vNvz.push_back   ( nv[2]       );
         //vNwall.push_back ( wallsk_(nv) );
         //vTrms50.push_back( minTRMS     );
-        TMVATools.PushBack("nwall", wallsk_(nv));
-        TMVATools.PushBack("trms40", minTRMS);
+        TMVATools.fVariables.PushBack("nwall", wallsk_(nv));
+        TMVATools.fVariables.PushBack("trms40", minTRMS);
 
         auto tiskz50_ToF = GetToFSubtracted(tiskz50, cabiz50, nv, true);
 
@@ -550,9 +550,9 @@ void NTagEventInfo::SearchCaptureCandidates()
         vBONSAI_NFit.push_back(bonsaiNfit);
         */
         
-        TMVATools.PushBack("prompt_bonsai", promptBonsai);
-        TMVATools.PushBack("prompt_nfit", promptNfit);
-        TMVATools.PushBack("bonsai_nfit", bonsaiNfit);
+        TMVATools.fVariables.PushBack("prompt_bonsai", promptBonsai);
+        TMVATools.fVariables.PushBack("prompt_nfit", promptNfit);
+        TMVATools.fVariables.PushBack("bonsai_nfit", bonsaiNfit);
     }
 
     if (!bData) {
@@ -999,15 +999,12 @@ void NTagEventInfo::Clear()
     vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
 
     vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
-    vTindex.clear(); vN10.clear(); vN10n.clear(); vN50.clear(); vN200.clear(); vN1300.clear();
-    vSumQ.clear(); vSpread.clear(); vTrms.clear(); vTrmsold.clear(); vTrms50.clear();
-    vDt.clear(); vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear(); vNwall.clear();
+    vTindex.clear(); vN10n.clear(); vN1300.clear();
+    vTrms.clear(); vTrms50.clear();
+    vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear();
     vDoubleCount.clear();
-    vBenergy.clear(); vBvx.clear(); vBvy.clear(); vBvz.clear(); vBvt.clear();
-    vBwall.clear(); vBgood.clear(); vBpatlik.clear(); vBdirks.clear(); vBovaq.clear();
+    vBvx.clear(); vBvy.clear(); vBvz.clear(); vBvt.clear();
     vBeta14_10.clear(); vBeta14_50.clear();
-    vBeta1_50.clear(); vBeta2_50.clear(); vBeta3_50.clear(); vBeta4_50.clear(); vBeta5_50.clear();
-    vPrompt_NFit.clear(); vPrompt_BONSAI.clear(); vBONSAI_NFit.clear();
     vTMVAoutput.clear();
     TMVATools.fVariables.Clear();
 
@@ -1069,12 +1066,12 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
         //vTrmsold.push_back  ( trmsold             );
         vBeta14_10.push_back( beta[1] + 4*beta[4] );
         
-        TMVATools.PushBack("N10", N10i);
-        TMVATools.PushBack("N200", N200);
-        TMVATools.PushBack("sumQ", sumQ);
-        TMVATools.PushBack("dt", (t0 + tEnd)/2.);
-        TMVATools.PushBack("spread", tEnd - t0);
-        TMVATools.PushBack("trmsold", trmsold);
+        TMVATools.fVariables.PushBack("N10", N10i);
+        TMVATools.fVariables.PushBack("N200", N200);
+        TMVATools.fVariables.PushBack("sumQ", sumQ);
+        TMVATools.fVariables.PushBack("dt", (t0 + tEnd)/2.);
+        TMVATools.fVariables.PushBack("spread", tEnd - t0);
+        TMVATools.fVariables.PushBack("trmsold", trmsold);
         
         // Increment number of neutron candidates
         nCandidates++;

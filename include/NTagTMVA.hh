@@ -8,8 +8,8 @@
 #include <TCut.h>
 #include <TFile.h>
 
-#include <NTagMessage.hh>
-#include <NTagTMVAVariables.hh>
+#include "NTagMessage.hh"
+#include "NTagTMVAVariables.hh"
 
 namespace TMVA
 {
@@ -19,7 +19,7 @@ namespace TMVA
 
 class NTagEventInfo;
 
-typedef std::pair<float, float> Range;
+typedef std::pair<float, float>      Range;
 typedef std::map<const char*, Range> RangeMap;
 
 class NTagTMVA
@@ -77,6 +77,7 @@ class NTagTMVA
         
     friend class NTagTMVAVariables;
     friend class NTagEventInfo;
+    friend class NTagIO;
 };
 
 #endif

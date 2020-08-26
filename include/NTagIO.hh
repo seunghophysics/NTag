@@ -35,8 +35,6 @@ class NTagIO : public NTagEventInfo
         // Tree-related
         virtual void CreateBranchesToTruthTree();
         virtual void CreateBranchesToNTvarTree();
-        //virtual void SetBranchAddressToTruthTree(TTree* tree);
-        //virtual void SetBranchAddressToNTvarTree(TTree* tree);
 
         virtual void CheckMC();
 

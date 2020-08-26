@@ -15,12 +15,6 @@ class NTagROOT : public NTagIO
         void CloseFile();
 
         void SetFitInfo();
-
-        // Tree-related
-        //void CreateBranchesToTruthTree();
-        //void CreateBranchesToNTvarTree();
-        //virtual void SetBranchAddressToTruthTree(TTree* tree);
-        //virtual void SetBranchAddressToNTvarTree(TTree* tree);
 };
 
 #endif
