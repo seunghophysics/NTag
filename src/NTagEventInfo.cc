@@ -36,7 +36,7 @@ fVerbosity(verbose), bData(false), bCustomVertex(false)
     reader = new TMVA::Reader("!Color:!Silent");
 
     TMVATools = NTagTMVA(verbose);
-    TMVATools.SetReader("MLP", "weights/new/NTagTMVA_MLP.weights.xml");
+    TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
     TMVATools.SetReaderCutRange("dt", T0TH*1.e3, T0MX*1.e3);
     TMVATools.DumpReaderCutRange();
