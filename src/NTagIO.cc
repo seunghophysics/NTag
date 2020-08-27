@@ -61,6 +61,8 @@ void NTagIO::SKInitialize()
 
 void NTagIO::ReadFile()
 {
+    TMVATools.InstantiateReader();
+    
     // SIGINT handler
     struct sigaction sigHandler;
     sigHandler.sa_handler = NTagIO::SIGINTHandler;
@@ -225,7 +227,7 @@ void NTagIO::WriteOutput()
 void NTagIO::DoWhenInterrupted()
 {
     WriteOutput();
-    msg.Print(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s.", nProcessedEvents, fOutFileName), pWARNING);
+    msg.Print(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s", nProcessedEvents, fOutFileName), pWARNING);
     exit(1);
 }
 
@@ -294,7 +296,6 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("N10n", &vN10n);
     ntvarTree->Branch("N1300", &vN1300);
     ntvarTree->Branch("trms", &vTrms);
-    ntvarTree->Branch("trms40", &vTrms50);
     ntvarTree->Branch("dtn", &vDtn);
     ntvarTree->Branch("tbsvx", &vBvx);
     ntvarTree->Branch("tbsvy", &vBvy);

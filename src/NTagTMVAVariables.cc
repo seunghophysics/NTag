@@ -6,9 +6,9 @@
 
 #include "NTagTMVAVariables.hh"
 
-NTagTMVAVariables::NTagTMVAVariables()
+NTagTMVAVariables::NTagTMVAVariables(unsigned int verbose)
 {
-    msg = NTagMessage("TMVAVariables", pDEBUG);
+    msg = NTagMessage("TMVAVariables", verbose);
     Clear();
 }
 

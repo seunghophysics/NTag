@@ -21,7 +21,7 @@ typedef std::map<const char*, std::vector<float>*> FVecMap;
 class NTagTMVAVariables
 {
     public:
-        NTagTMVAVariables();
+        NTagTMVAVariables(unsigned int verbose=pDEFAULT);
         ~NTagTMVAVariables();
 
         void Clear();

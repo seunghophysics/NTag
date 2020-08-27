@@ -56,6 +56,7 @@ class NTagTMVA
 
         // Settings
         void SetReader(TString methodName, TString weightFileName);
+        void InstantiateReader();
 
         // Cuts used in TMVA output generation
         void SetReaderCutRange(const char* key, float low, float high) { fRangeMap[key] = Range(low, high); }

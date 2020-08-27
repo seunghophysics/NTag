@@ -27,8 +27,8 @@
 
 NTagEventInfo::NTagEventInfo(unsigned int verbose)
 :PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
-N10TH(5), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
-T0TH(2.), T0MX(500.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
+N10TH(7), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
+T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), bCustomVertex(false)
 {
@@ -458,6 +458,9 @@ void NTagEventInfo::SearchCaptureCandidates()
             bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
                         &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
         }
+        
+        // Fix tbspatlik->-inf bug
+        if (tmptbspatlik < -9999.) tmptbspatlik = -9999.;
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
 
@@ -592,11 +595,11 @@ void NTagEventInfo::GetTMVAoutput()
         float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
 
         TString trueCaptureInfo;
+        if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
         if (!bData) {
             if (vIsTrueCapture[iCandidate]) trueCaptureInfo = "true";
             else                            trueCaptureInfo = "false";
         }
-        if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
 
         msg.Print(Form("iCandidate: %d TMVAOutput: %f [%s]", iCandidate, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
         vTMVAoutput.push_back( tmvaOutput );

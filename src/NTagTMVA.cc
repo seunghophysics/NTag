@@ -22,7 +22,7 @@ NTagTMVA::~NTagTMVA() {}
 void NTagTMVA::Constructor()
 {
     msg = NTagMessage("TMVA", fVerbosity);
-    fVariables = NTagTMVAVariables();
+    fVariables = NTagTMVAVariables(fVerbosity);
     SetMethods();
 
     SetSigCut("realneutron == 1");
@@ -107,7 +107,7 @@ void NTagTMVA::MakeWeights()
 
     (TMVA::gConfig().GetIONames()).fWeightFileDir = "weights/new";
 
-    fVariables = NTagTMVAVariables();
+    fVariables = NTagTMVAVariables(fVerbosity);
     auto varKeys = fVariables.Keys();
 
     for (const auto& key: varKeys) {
@@ -334,13 +334,15 @@ void NTagTMVA::SetReader(TString methodName, TString weightFileName)
     fReaderMethodName = methodName + " method";
     fReaderWeightFileName = weightFileName;
 
+    SetReaderCutRange("N10", 7, 50);
+    SetReaderCutRange("dt", 2.e3, 600.e3);
+}
+
+void NTagTMVA::InstantiateReader()
+{
     fReader = new TMVA::Reader( "!Color:!Silent" );
     fVariables.AddVariablesToReader(fReader);
     fReader->BookMVA(fReaderMethodName, fReaderWeightFileName);
-
-    SetReaderCutRange("N10", 7, 50);
-    SetReaderCutRange("dt", 0, 500.e3);
-    DumpReaderCutRange();
 }
 
 void NTagTMVA::DumpReaderCutRange()
@@ -383,8 +385,9 @@ float NTagTMVA::GetOutputFromCandidate(int iCandidate)
 void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 {
     SetReader(methodName, weightFileName);
+    InstantiateReader();
 
-    fVariables = NTagTMVAVariables();
+    fVariables = NTagTMVAVariables(fVerbosity);
 
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
