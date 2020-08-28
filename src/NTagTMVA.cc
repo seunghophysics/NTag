@@ -386,22 +386,23 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 {
     SetReader(methodName, weightFileName);
     InstantiateReader();
-
-    fVariables = NTagTMVAVariables(fVerbosity);
+    DumpReaderCutRange();
 
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
     TTree* inTruthTree = (TTree*)inFile->Get("truth");
+    inNtvarTree->SetBranchStatus("TMVAoutput", 0);
     fVariables.SetBranchAddressToTree(inNtvarTree);
 
-    TFile *outFile = new TFile(fOutFileName, "RECREATE");
-    TTree* outNtvarTree = inNtvarTree->CloneTree();
+    TFile* outFile = new TFile(fOutFileName, "recreate");
+    TTree* outNtvarTree = inNtvarTree->CloneTree(-1, "fast");
     TTree* outTruthTree = 0;
     if (inTruthTree)
         outTruthTree = inTruthTree->CloneTree();
 
+    // Replace old output with new one
     std::vector<float> outputVector;
-    outNtvarTree->Branch(methodName + "_TMVAoutput", &outputVector);
+    outNtvarTree->Branch("TMVAoutput", &outputVector);
 
     msg.Print(Form("Using input file: %s", fInFileName));
     msg.Print("Using MVA method: " + methodName);
@@ -410,6 +411,8 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 
     for(long iEntry = 0; iEntry < nEntries; iEntry++){
 
+        msg.Print(Form("Processing entry %ld / %ld...", iEntry, nEntries));
+
         outputVector.clear();
 
         if (!inNtvarTree->GetEntry(iEntry)) continue;
@@ -417,8 +420,8 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
         int nCandidates = fVariables.GetNumberOfCandidates();
 
         for(int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
-            fVariables.SetVariablesForCaptureCandidate(iCandidate);
-            outputVector.push_back(fReader->EvaluateMVA(fReaderMethodName));
+            float output = GetOutputFromCandidate(iCandidate);
+            outputVector.push_back(output);
         }
 
         outNtvarTree->Fill();

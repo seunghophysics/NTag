@@ -31,6 +31,7 @@ class NTagTMVAVariables
         void SetBranchAddressToTree(TTree* tree);
         void MakeBranchesToTree(TTree* tree);
         void SetVariablesForCaptureCandidate(int iCandidate);
+        void DumpCurrentVariables();
 
         int  GetNumberOfCandidates();
 

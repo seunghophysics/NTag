@@ -84,8 +84,6 @@ class NTagEventInfo
         NTagTMVA    TMVATools;
 
     private:
-        TMVA::Reader* reader;
-
         const float (*PMTXYZ)[3];           // PMT positions
         const float C_WATER;                // speed-of-light in water [cm/ns]
 

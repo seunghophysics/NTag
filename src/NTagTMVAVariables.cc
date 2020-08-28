@@ -108,6 +108,13 @@ void NTagTMVAVariables::SetVariablesForCaptureCandidate(int iCandidate)
     }
 }
 
+void NTagTMVAVariables::DumpCurrentVariables()
+{
+    for (const auto& pair: fVariableMap) {
+        msg.Print(Form("%s: %f", pair.first, pair.second));
+    }
+}
+
 int NTagTMVAVariables::GetNumberOfCandidates()
 {
     return static_cast<int>(iEventVectorMap["N10"]->size());

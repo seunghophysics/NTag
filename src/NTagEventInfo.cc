@@ -33,7 +33,6 @@ customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), bCustomVertex(false)
 {
     msg = NTagMessage("", fVerbosity);
-    reader = new TMVA::Reader("!Color:!Silent");
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
@@ -42,13 +41,15 @@ fVerbosity(verbose), bData(false), bCustomVertex(false)
     TMVATools.DumpReaderCutRange();
 }
 
-NTagEventInfo::~NTagEventInfo() { delete reader; }
+NTagEventInfo::~NTagEventInfo() {}
 
 void NTagEventInfo::SetEventHeader()
 {
     nrun = skhead_.nrunsk;
     nsub = skhead_.nsubsk;
     nev  = skhead_.nevsk;
+
+    qismsk = skq_.qismsk;
 }
 
 void NTagEventInfo::SetAPFitInfo()
@@ -181,7 +182,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
     msg.Print(Form("NQISKZ: %d", nqiskz), pDEBUG);
 
     // set qismsk as sum of all appended in-gate hits
-    qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
+    // qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -458,7 +459,7 @@ void NTagEventInfo::SearchCaptureCandidates()
             bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
                         &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
         }
-        
+
         // Fix tbspatlik->-inf bug
         if (tmptbspatlik < -9999.) tmptbspatlik = -9999.;
 
