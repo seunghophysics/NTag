@@ -402,7 +402,7 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 
     // Replace old output with new one
     std::vector<float> outputVector;
-    outNtvarTree->Branch("TMVAoutput", &outputVector);
+    TBranch* newOutBranch = outNtvarTree->Branch("TMVAoutput", &outputVector);
 
     msg.Print(Form("Using input file: %s", fInFileName));
     msg.Print("Using MVA method: " + methodName);
@@ -424,7 +424,7 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
             outputVector.push_back(output);
         }
 
-        outNtvarTree->Fill();
+        newOutBranch->Fill();
     }
 
     outNtvarTree->Write();
