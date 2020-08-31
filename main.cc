@@ -9,6 +9,8 @@
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
 
+void ProcessSKFile(NTagIO* nt, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz);
+
 int main(int argc, char** argv)
 {
     /********************/
@@ -91,42 +93,39 @@ int main(int argc, char** argv)
 
             msg.Print(Form("Processing SKROOT file: ") + inputName);
 
-            NTagROOT nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            nt.TMVATools.SetReader(methodName, weightName);
-
-            if (!vx.empty() && !vy.empty() && !vz.empty()) {
-                msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
-                                vx.c_str(), vy.c_str(), vz.c_str()));
-                nt.SetCustomVertex(std::stof(vx), std::stof(vy), std::stof(vz));
-            }
-
-            nt.ReadFile();
+            NTagROOT* nt = new NTagROOT(inputName.c_str(), outputName.c_str(), pVERBOSE);
+            ProcessSKFile(nt, methodName, weightName, vx, vy, vz);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
-
+            delete nt;
         }
 
         // Process ZBS
         else {
-
             msg.Print(Form("Processing ZBS file: ") + inputName);
 
-            NTagZBS nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            nt.TMVATools.SetReader(methodName, weightName);
-
-            if (!vx.empty() && !vy.empty() && !vz.empty()) {
-                msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
-                                vx.c_str(), vy.c_str(), vz.c_str()));
-                nt.SetCustomVertex(std::stof(vx), std::stof(vy), std::stof(vz));
-            }
-
-            nt.ReadFile();
+            NTagZBS* nt = new NTagZBS(inputName.c_str(), outputName.c_str(), pVERBOSE);
+            ProcessSKFile(nt, methodName, weightName, vx, vy, vz);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
-
+            delete nt;
         }
 
     }
 
     return 0;
+}
+
+void ProcessSKFile(NTagIO* nt, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz)
+{
+    NTagMessage msg("");
+
+    nt->TMVATools.SetReader(methodName, weightName);
+    if (!vx.empty() && !vy.empty() && !vz.empty()) {
+        msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
+                        vx.c_str(), vy.c_str(), vz.c_str()));
+        nt->SetCustomVertex(std::stof(vx), std::stof(vy), std::stof(vz));
+    }
+
+    nt->ReadFile();
 }
