@@ -536,13 +536,13 @@ void NTagEventInfo::SetTrueCaptureInfo()
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         // Check if a candidate is a true neutron capture (MC only)
-        vIsTrueCapture.push_back( IsTrueCapture(iCandidate) );
+        vIsTrueCapture.push_back( IsTrueCapture(iCandidate, true) );
 
         // if a candidate is actually a true neutron capture
         if (vIsTrueCapture[iCandidate] == 1) {
 
             vDoubleCount.push_back(0);
-            //time diff between true and reconstructed capture time
+            // time diff between true and reconstructed capture time
             vTimeDiff.push_back( ReconCaptureTime(iCandidate) - TrueCaptureTime(iCandidate) );
 
             bool newCaptureFound = true;
@@ -915,13 +915,16 @@ int NTagEventInfo::GetNhitsFromCenterTime(const std::vector<float>& T, float cen
     return NXX;
 }
 
-int NTagEventInfo::IsTrueCapture(int candidateID)
+int NTagEventInfo::IsTrueCapture(int candidateID, bool bSave)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
     if (nscndprt >= SECMAXRNG) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) return 1;
+        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) {
+            if (bSave) vCandidateID.push_back(candidateID);
+            return 1;
+        }
     }
     return 0;
 }
@@ -972,7 +975,7 @@ void NTagEventInfo::Clear()
     vTMVAoutput.clear();
     TMVATools.fVariables.Clear();
 
-    vNGam.clear();
+    vNGam.clear(); vCandidateID.clear();
     vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
     vIsGdCapture.clear(); vIsTrueCapture.clear();
     vTruth_vx.clear(); vTruth_vy.clear(); vTruth_vz.clear(); vTimeDiff.clear();

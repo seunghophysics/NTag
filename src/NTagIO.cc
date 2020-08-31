@@ -239,6 +239,7 @@ void NTagIO::SIGINTHandler(int sigNo)
 void NTagIO::CreateBranchesToTruthTree()
 {
     truthTree->Branch("nCT", &nTrueCaptures);
+    truthTree->Branch("candidateID", &vCandidateID);
     truthTree->Branch("captureTime", &vCaptureTime);
     truthTree->Branch("capPosx", &vCapPosx);
     truthTree->Branch("capPosy", &vCapPosy);

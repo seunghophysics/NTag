@@ -45,7 +45,7 @@ class NTagEventInfo
 
             /* functions on capture candidates */
             inline float         ReconCaptureTime(int candidateID);
-            int                  IsTrueCapture(int candidateID);
+            int                  IsTrueCapture(int candidateID, bool bSave=false);
             int                  IsTrueGdCapture(int candidateID);
             float                TrueCaptureTime(int candidateID);
             std::array<float, 3> TrueCaptureVertex(int candidateID);
@@ -148,7 +148,7 @@ class NTagEventInfo
         /**/
         /**/    // Variables for true neutron capture
         /**/    int                 nTrueCaptures;
-        /**/    std::vector<int>    vNGam;
+        /**/    std::vector<int>    vNGam, vCandidateID;
         /**/    std::vector<float>  vCaptureTime, vCapPosx, vCapPosy, vCapPosz, vTotGamE;
         /**/
         /**/    // Variables for neutron capture candidates
