@@ -36,14 +36,6 @@ NTagIO::~NTagIO()
 
 void NTagIO::Initialize()
 {
-    SetN10Limits(7, 50);
-    SetN200Max(140);
-    SetT0Limits(2., 600.);   // [us]
-    SetDistanceCut(4000.);   // [cm]
-    SetTMatchWindow(40.);    // [ns]
-    SetTPeakSeparation(50.); // [us]
-    SetMaxODHitThreshold(16);
-
     SKInitialize();
     OpenFile();
 }

@@ -34,6 +34,14 @@ fVerbosity(verbose), bData(false), bCustomVertex(false)
 {
     msg = NTagMessage("", fVerbosity);
 
+    SetN10Limits(7, 50);
+    SetN200Max(140);
+    SetT0Limits(2., 600.);   // [us]
+    SetDistanceCut(4000.);   // [cm]
+    SetTMatchWindow(40.);    // [ns]
+    SetTPeakSeparation(50.); // [us]
+    SetMaxODHitThreshold(16);
+
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
@@ -352,6 +360,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
+                if (t0Previous < 2000) msg.Print(Form("!!! T0: %f", t0Previous), pDEBUG);
                 SavePeakFromHit(iHitPrevious);
             }
             // Reset N10Previous,
@@ -591,6 +600,8 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
 void NTagEventInfo::GetTMVAoutput()
 {
+    std::vector<float>* dt = TMVATools.fVariables.GetVector("dt");
+    
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
@@ -601,8 +612,10 @@ void NTagEventInfo::GetTMVAoutput()
             if (vIsTrueCapture[iCandidate]) trueCaptureInfo = "true";
             else                            trueCaptureInfo = "false";
         }
-
-        msg.Print(Form("iCandidate: %d TMVAOutput: %f [%s]", iCandidate, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+        
+        int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
+        float dt = TMVATools.fVariables.Get<float>("dt", iCandidate);
+        msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
         vTMVAoutput.push_back( tmvaOutput );
     }
 }
@@ -630,7 +643,7 @@ float NTagEventInfo::GetDistance(const float vec1[3], float vec2[3])
 float NTagEventInfo::ReconCaptureTime(int candidateID)
 {
     // trgofst may change with skdetsim version (13p90)
-    return TMVATools.fVariables.Get("dt", candidateID) - trgofst;
+    return TMVATools.fVariables.Get<float>("dt", candidateID) - trgofst;
 }
 
 float NTagEventInfo::TrueCaptureTime(int candidateID)

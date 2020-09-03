@@ -43,9 +43,11 @@ class NTagTMVAVariables
         template <typename T>
         T                   Get(const char* key)
                             { if (std::is_integral<T>::value) return iVariableMap[key];
-                              else return fVariableMap[key]; };
-        float               Get(const char* key, int iCandidate)
-                            { return fEventVectorMap[key]->at(iCandidate); }
+                              else return fVariableMap[key]; }
+        template <typename T>
+        T                   Get(const char* key, int iCandidate)
+                            { if (std::is_integral<T>::value) return iEventVectorMap[key]->at(iCandidate);
+                              else return fEventVectorMap[key]->at(iCandidate); }
         std::vector<float>* GetVector(const char* key)
                             { return fEventVectorMap[key]; }
 
