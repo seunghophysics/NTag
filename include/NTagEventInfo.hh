@@ -28,6 +28,7 @@ class NTagEventInfo
 
             /* MC-only */
             virtual void         SetMCInfo();
+            virtual void         ReadSecondaries();
             virtual void         SetTrueCaptureInfo();
 
         // Tagging

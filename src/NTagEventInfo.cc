@@ -241,7 +241,7 @@ void NTagEventInfo::SetMCInfo()
     float dz    = 0.5 * HIINTK - ZBLST;
 
     // Read secondary bank
-    apflscndprt_();
+    ReadSecondaries();
 
     int nSecNeutron = 0;
     nscndprt = secndprt_.nscndprt;
@@ -319,6 +319,11 @@ void NTagEventInfo::SetMCInfo()
     }
     msg.Print(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
     msg.Print(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
+}
+
+void NTagEventInfo::ReadSecondaries()
+{
+    apflscndprt_();
 }
 
 void NTagEventInfo::SearchCaptureCandidates()

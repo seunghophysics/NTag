@@ -31,6 +31,13 @@ void NTagROOT::CloseFile()
     skroot_end_();
 }
 
+void NTagROOT::ReadSecondaries()
+{
+    // test
+    msg.Print("Reading secondaries from SKG4...");
+    apflscndprt_();
+}
+
 void NTagROOT::SetFitInfo()
 {
     SetLowFitInfo();

@@ -13,7 +13,11 @@ class NTagROOT : public NTagIO
         // File I/O
         void OpenFile();
         void CloseFile();
-
+        
+        // Secondary bank/tree I/O
+        void ReadSecondaries();
+        
+        // Fit Info I/O
         void SetFitInfo();
 };
 
