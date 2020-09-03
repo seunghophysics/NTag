@@ -22,15 +22,16 @@ cd NTag; make
 ```
 
 ### Run options
-| Option | Example usage  | Description  |
-|:---|------------------------|----------------|
-| -in  | `./bin/NTag -in inputdata.root` |  Specify input filename. (mandatory) |
-| -out  |   |   |
-| -weight  |   |   |
-| -vx / -vy / -vz  |   |   |
-| -apply  |   |   |
-| -train  |   |   |
-| -debug  |   |   |
+
+| Option | Argument |Example usage  | Description  |
+|:---|---|------------------------|----------------|
+| -in  | (input filename) |`./bin/NTag -in in.dat` |  (mandatory) |
+| -out  |(output filename) |`./bin/NTag -in in.dat -out out.root` |  (optional) |
+| -weight  | (weight filename) | `./bin/NTag -in in.dat -weight weight.xml` | (optional) |
+| -vx | (custom vertex position [cm]) |`./bin/NTag -in in.dat -vx -400 -vy 0 -vz -1200`  |(optional) |
+| -apply  | |`./bin/NTag ` |   |
+| -train  |  | |   |
+| -debug  |  | |   |
 
 
 
