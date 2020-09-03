@@ -2,6 +2,8 @@
 
 > SKOFL: `skofl_19b`
 > 
+> ATMPD: `ATMPD_19b`
+>
 > ROOT: `v5.28.00h`
 > 
 > TMVA: `v.4.2.0`
@@ -16,5 +18,15 @@ cd NTag; make
 
 ### How to run
 ```
-./bin/main (output filename) (input filename)
+./bin/main -in (input filename) -out (output filename)
 ```
+
+### Run options
+* "-in":
+* "-out":
+* "-weight":
+* "-method":
+* "-vx/-vy/-vz":
+* "-apply":
+* "-train":
+* "-debug": 
