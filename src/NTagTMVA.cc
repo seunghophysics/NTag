@@ -29,7 +29,6 @@ void NTagTMVA::Constructor()
     SetBkgCut("realneutron == 0");
 }
 
-
 void NTagTMVA::SetMethods()
 {
     // --- Cut optimisation
