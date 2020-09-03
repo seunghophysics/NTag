@@ -1,3 +1,13 @@
+# NTag
+
+NTag is a C++-based program to search for neutron capture candidates in SK data/MC events and tag with multivariate analysis (MVA) tool provided by CERN's ROOT. Any SK data/MC file can be fed to NTag to get an output root file that comes with the "ntvar" tree filled with relevant variables to the neutron tagging algorithm. 
+
+## Structure of the program
+
+All neutron tagging in one event is steered by a mainframe class named NTagEventInfo. It searches for the neutron capture candidates from the PMT hit times subtracted by the ToF to each PMT from the assumed neutron creation vertex (which can be either fit with APFit or BONSAI, or given with custom vertex options). The found candidates are fed to CERN ROOT's TMVA to get a classifier output. The higher the candidate's classifier value is, the more likely it is coming from a true neutron capture.
+
+## Getting Started
+
 ### Dependencies
 
 > SKOFL: `skofl_19b`
