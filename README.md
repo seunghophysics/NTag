@@ -22,11 +22,23 @@ cd NTag; make
 ```
 
 ### Run options
-* "-in":
-* "-out":
-* "-weight":
-* "-method":
-* "-vx/-vy/-vz":
-* "-apply":
-* "-train":
-* "-debug": 
+| Option | Example usage  | Description  |
+|:---|------------------------|----------------|
+| -in  | `./bin/NTag -in inputdata.root` |  Specify input filename. (mandatory) |
+| -out  |   |   |
+| -weight  |   |   |
+| -vx / -vy / -vz  |   |   |
+| -apply  |   |   |
+| -train  |   |   |
+| -debug  |   |   |
+
+
+
+* "-in" : 
+* "-out" :
+* "-weight" :
+* "-method" :
+* "-vx / -vy / -vz" :
+* "-apply" :
+* "-train" :
+* "-debug" : 
