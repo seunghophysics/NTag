@@ -5,7 +5,7 @@
 extern "C" {
     void kzinit_();
     void geoset_();
-    void set_rflist_(int*, const char*, const char*, const char*, const char*, 
+    void set_rflist_(int*, const char*, const char*, const char*, const char*,
                      const char*, const char*, const char*, const char*, const char*,
                      int, int, int, int, int, int, int, int, int);
     void skopenf_(int*, int*, const char*, int*);
@@ -25,21 +25,12 @@ extern "C" {
     void  odpc_2nd_s_(int*);
     void  inpmt_(float*, int&);
     float wallsk_(float*);
-    /*void  skroot_get_lowe_(int*, int*, float*, float*, float*, 
-                     float*, float*, float*, float*, int*, 
-                     float*, float*, float*, float*, float*,
-                     float*, float*, float*, int*, float*, 
-                     int*, int*, int*, double*, float*,
-                     float*, int*, float*, float*, float*, 
-                     float*, float*, int*, float*, float*,
-                     float*, float*, float*, float*, int*, 
-                     float*, float*, float*, int*, int*);*/
 }
 
 // BONSAI
 extern "C" {
     void bonsai_ini_();
-    void bonsai_fit_(float*, float*, float*, int*, int*, float*, float*, float*, 
+    void bonsai_fit_(bool*, float*, float*, float*, int*, int*, float*, float*, float*,
                      float*, float*, float*, float*, float*, float*);
     void bonsai_end_();
 }

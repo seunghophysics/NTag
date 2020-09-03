@@ -4,6 +4,12 @@ obj/
 # binaries
 bin/
 
+# trained weights
+weights/new/
+
+# library
+lib/
+
 # root-related
 *.root*
 *.C
