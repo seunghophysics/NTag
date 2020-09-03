@@ -26,7 +26,7 @@ cd NTag; make
 * Argument options
 
 | Option | Argument | Example usage | Description  |
-|:-------|---|------------------------|----------------|
+|:------------|---|------------------------|----------------|
 | -in  | (input filename) | `./bin/NTag -in in.dat` | mandatory |
 | -out  |(output filename) | `./bin/NTag -in in.dat -out out.root` | optional |
 | -weight | (weight filename) | `./bin/NTag -in in.dat -weight weight.xml` | optional |
@@ -35,8 +35,8 @@ cd NTag; make
 
 * Run options
 
-| Option | | Example usage | Description  |
-|:-------|---|------------------------|----------------|
+| Option | Example usage | Description  |
+|:-------|------------------------|----------------|
 | -apply  | `./bin/NTag -in NTagOut.root -apply -method MLP -weight weight.xml` | Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
 | -train  | `./bin/NTag -in NTagOut.root -train` | Train with NTag output from MC (with ntvar & truth trees) to generate weight files. |
 | -debug  | `./bin/NTag (...) -debug` | Show debug messages on output stream. |
