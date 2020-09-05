@@ -167,6 +167,9 @@ void NTagIO::ReadDataEvent()
         GetTMVAoutput();
 
         ntvarTree->Fill();
+        
+        // DONT'T FORGET TO CLEAR!
+        Clear();
     }
 
     // If current event is SHE,

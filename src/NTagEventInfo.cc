@@ -56,8 +56,14 @@ void NTagEventInfo::SetEventHeader()
     nrun = skhead_.nrunsk;
     nsub = skhead_.nsubsk;
     nev  = skhead_.nevsk;
-
+    
+    // QISMSK: Total p.e. deposit in ID
     qismsk = skq_.qismsk;
+    msg.Print(Form("qismsk: %f", qismsk), pDEBUG);
+    
+    // Number of OD hits
+    odpc_2nd_s_(&nhitac);
+    msg.Print(Form("Number of OD hits: %d", nhitac), pDEBUG);
 }
 
 void NTagEventInfo::SetAPFitInfo()
@@ -121,8 +127,7 @@ void NTagEventInfo::SetLowFitInfo()
         pvy = customvy;
         pvz = customvz;
     }
-    else
-    {
+    else {
         pvx = LOWE->bsvertex[0];
         pvy = LOWE->bsvertex[1];
         pvz = LOWE->bsvertex[2];
@@ -141,12 +146,6 @@ void NTagEventInfo::SetLowFitInfo()
 
 void NTagEventInfo::AppendRawHitInfo()
 {
-    // Append number of OD hits
-    int tmpNhitac;
-    odpc_2nd_s_(&tmpNhitac);
-    nhitac += tmpNhitac;
-    msg.Print(Form("Number of OD hits after append: %d", nhitac), pDEBUG);
-
     float tOffset = 0.;
     float tLast   = 0.;
     float qLast   = 0.;
