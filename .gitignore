@@ -10,9 +10,6 @@ weights/new/
 # library
 lib/
 
-# build
-docs/build/
-
 # root-related
 *.root*
 *.C

@@ -380,9 +380,8 @@ void NTagEventInfo::SearchCaptureCandidates()
         N10Previous  = N10New;
         N200Previous = N200New;
     }
-    // Save the last peak if exists
-    if (N10Previous > 0)
-        SavePeakFromHit(iHitPrevious);
+    // Save the last peak
+    SavePeakFromHit(iHitPrevious);
 
     // Select hits within 50 ns around each capture candidate
     // to calculate beta and feed BONSAI
@@ -1040,18 +1039,19 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     float sumQ    = GetQhitsFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
     float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
-    //if ((N10i >= N10TH) && (N10i < N10MX+1)) {
-    // Save info
-    vTindex.push_back   ( hitID               );
-    vBeta14_10.push_back( beta[1] + 4*beta[4] );
-    TMVATools.fVariables.PushBack("N10",     N10i);
-    TMVATools.fVariables.PushBack("N200",    N200);
-    TMVATools.fVariables.PushBack("sumQ",    sumQ);
-    TMVATools.fVariables.PushBack("dt",      (t0 + tEnd)/2.);
-    TMVATools.fVariables.PushBack("spread",  tEnd - t0);
-    TMVATools.fVariables.PushBack("trmsold", trmsold);
-    
-    // Increment number of neutron candidates
-    nCandidates++;
-    //}
+    if ((N10i >= N10TH) && (N10i < N10MX+1)) {
+        // Save info
+        vTindex.push_back   ( hitID               );
+        vBeta14_10.push_back( beta[1] + 4*beta[4] );
+
+        TMVATools.fVariables.PushBack("N10",     N10i);
+        TMVATools.fVariables.PushBack("N200",    N200);
+        TMVATools.fVariables.PushBack("sumQ",    sumQ);
+        TMVATools.fVariables.PushBack("dt",      (t0 + tEnd)/2.);
+        TMVATools.fVariables.PushBack("spread",  tEnd - t0);
+        TMVATools.fVariables.PushBack("trmsold", trmsold);
+
+        // Increment number of neutron candidates
+        nCandidates++;
+    }
 }
