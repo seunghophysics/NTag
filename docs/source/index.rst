@@ -1,6 +1,8 @@
 NTag Documentation
 ================================
 
+.. mdinclude:: ../../README.md
+
 Another simple header
 =====================
 
