@@ -18,6 +18,13 @@
 
 # -- Project information -----------------------------------------------------
 
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+breathe_projects = {}
+
+if read_the_docs_build:
+    subprocess.call('doxygen', shell=True)
+
 project = u'NTag'
 copyright = u'2020, The Super-Kamiokande Collaboration'
 author = u'Seungho Han, Masayuki Harada'
