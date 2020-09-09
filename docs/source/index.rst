@@ -19,6 +19,7 @@ Guide
    :caption: Contents:
    
    help
+   api/library_root
 
 
 
