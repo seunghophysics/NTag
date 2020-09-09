@@ -10,6 +10,10 @@ weights/new/
 # library
 lib/
 
+# build
+docs/html
+docs/latex
+
 # root-related
 *.root*
 *.C

@@ -11,26 +11,36 @@
 #include "NTagMessage.hh"
 #include "NTagTMVA.hh"
 
-/***************
- * Vertex mode
- ***************/
 enum VertexMode {mAPFIT, mBONSAI, mCUSTOM, mTRUE, mMUON};
+
+/********************************************************
+ *
+ * \brief Steering class of NTag.
+ *
+ * It looks for hit peaks from the raw TQ info and
+ * searches for neutron capture candidates.
+ * TMVA is used to give classifier output to each 
+ * candidate.
+ *
+ ********************************************************/
 
 class NTagEventInfo
 {
     public:
-        NTagEventInfo(Verbosity verbose);
+        /** Constructor */
+        NTagEventInfo(Verbosity verbose /**< verbosity */);
+        /** Destructor */
         virtual ~NTagEventInfo();
 
         // Functions to set variables
 
             /* All types */
-            virtual void         SetEventHeader();
-            virtual void         SetPromptVertex();
-            virtual void         SetAPFitInfo();
-            virtual void         SetLowFitInfo();
-            virtual void         AppendRawHitInfo();
-            virtual void         SetToFSubtractedTQ();
+            virtual void         SetEventHeader();      /**< Sets event header */
+            virtual void         SetPromptVertex();     /**< Sets prompt vertex */
+            virtual void         SetAPFitInfo();        /**< Sets APFitInfo */
+            virtual void         SetLowFitInfo();       /**< Sets LowFit Info */
+            virtual void         AppendRawHitInfo();    /**< Appends raw hit info */
+            virtual void         SetToFSubtractedTQ();  /**< Sets ToF subtracted TQ */
 
             /* MC-only */
             virtual void         SetMCInfo();
