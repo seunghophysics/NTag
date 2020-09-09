@@ -30,7 +30,7 @@ NTagEventInfo::NTagEventInfo(unsigned int verbose)
 N10TH(7), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
 T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false)
+fVerbosity(verbose), bData(false), useTMVA(true)
 {
     msg = NTagMessage("", fVerbosity);
 
@@ -601,23 +601,25 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
 void NTagEventInfo::GetTMVAoutput()
 {
-    std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");
-    
-    for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
-
-        float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
-
-        TString trueCaptureInfo;
-        if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
-        if (!bData) {
-            if (vIsCapture[iCandidate]) trueCaptureInfo = "true";
-            else                            trueCaptureInfo = "false";
-        }
+    if (useTMVA) {
+        std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");
         
-        int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
-        float dt = TMVATools.fVariables.Get<float>("ReconCT", iCandidate);
-        msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
-        vTMVAOutput.push_back( tmvaOutput );
+        for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
+    
+            float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
+    
+            TString trueCaptureInfo;
+            if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
+            if (!bData) {
+                if (vIsCapture[iCandidate]) trueCaptureInfo = "true";
+                else                            trueCaptureInfo = "false";
+            }
+            
+            int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
+            float dt = TMVATools.fVariables.Get<float>("ReconCT", iCandidate);
+            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+            vTMVAOutput.push_back( tmvaOutput );
+        }
     }
 }
 

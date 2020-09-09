@@ -122,6 +122,13 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser,
     NTagMessage msg("");
 
     nt->TMVATools.SetReader(methodName, weightName);
+    
+    // Turn TMVA on/off (default: on)
+    if (parser.OptionExists("-nomva")) {
+        nt->UseTMVA(false);
+    }
+    
+    // Vertex options
     if (!vx.empty() && !vy.empty() && !vz.empty()) {
         msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
                         vx.c_str(), vy.c_str(), vz.c_str()));

@@ -53,7 +53,8 @@ void NTagIO::SKInitialize()
 
 void NTagIO::ReadFile()
 {
-    TMVATools.InstantiateReader();
+    if (useTMVA)
+        TMVATools.InstantiateReader();
     
     // SIGINT handler
     struct sigaction sigHandler;

@@ -82,6 +82,7 @@ class NTagEventInfo
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
         inline void          SetMaxODHitThreshold(float q) { ODHITMX = q; }
         inline void          SetVertexMode(int m) { fVertexMode = m; }
+        inline void          UseTMVA(bool b) { useTMVA = b; }
         inline void          SetCustomVertex(float x, float y, float z)
                                             { customvx = x; customvy = y; customvz = z; fVertexMode = mCUSTOM; }
         // TMVA tools
@@ -106,7 +107,7 @@ class NTagEventInfo
     protected:
         NTagMessage  msg;
         unsigned int fVerbosity;
-        bool         bData;
+        bool         bData, useTMVA;
         int          fVertexMode;
 
         /************************************************************************************************/
