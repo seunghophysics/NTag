@@ -9,7 +9,7 @@
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
 
-void ProcessSKFile(NTagIO* nt, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz);
+void ProcessSKFile(NTagIO* nt, NTagArgParser& parser, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz);
 
 int main(int argc, char** argv)
 {
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     const std::string &vz = parser.GetOption("-vz");
 
     // Verbosity
-    unsigned int pVERBOSE = pDEFAULT;
+    Verbosity pVERBOSE = pDEFAULT;
     if (parser.OptionExists("-debug")) {
         pVERBOSE = pDEBUG;
     }
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     if (inputName.empty())  msg.Print("Please specify input file name: ./bin/main -in [input file] ...", pERROR);
     if (tmpOutName.empty())    outputName = "out/NTagOut.root";
     else                       outputName = tmpOutName;
-    if (tmpWeightName.empty()) weightName = "weights/MLP_Gd0.02p.xml";
+    if (tmpWeightName.empty()) weightName = "weights/tmpweights.xml";
     else                       weightName = tmpWeightName;
     if (tmpMethodName.empty()) methodName = "MLP";
     else                       methodName = tmpMethodName;
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
             msg.Print(Form("Processing SKROOT file: ") + inputName);
 
             NTagROOT* nt = new NTagROOT(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            ProcessSKFile(nt, methodName, weightName, vx, vy, vz);
+            ProcessSKFile(nt, parser, methodName, weightName, vx, vy, vz);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
             delete nt;
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
             msg.Print(Form("Processing ZBS file: ") + inputName);
 
             NTagZBS* nt = new NTagZBS(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            ProcessSKFile(nt, methodName, weightName, vx, vy, vz);
+            ProcessSKFile(nt, parser, methodName, weightName, vx, vy, vz);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
             delete nt;
@@ -116,15 +116,29 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void ProcessSKFile(NTagIO* nt, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz)
+void ProcessSKFile(NTagIO* nt, NTagArgParser& parser, 
+                   std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz)
 {
     NTagMessage msg("");
 
     nt->TMVATools.SetReader(methodName, weightName);
+    
+    // Turn TMVA on/off (default: on)
+    if (parser.OptionExists("-nomva")) {
+        nt->UseTMVA(false);
+    }
+    
+    // Vertex options
     if (!vx.empty() && !vy.empty() && !vz.empty()) {
         msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
                         vx.c_str(), vy.c_str(), vz.c_str()));
         nt->SetCustomVertex(std::stof(vx), std::stof(vy), std::stof(vz));
+    }
+    else if (parser.OptionExists("-usetruevertex")) {
+        nt->SetVertexMode(mTRUE);
+    }
+    else if (parser.OptionExists("-usemuonvertex")) {
+        nt->SetVertexMode(mMUON);
     }
 
     nt->ReadFile();

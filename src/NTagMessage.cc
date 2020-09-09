@@ -2,11 +2,11 @@
 
 #include "NTagMessage.hh"
 
-NTagMessage::NTagMessage(const char* className, unsigned int verbose):
+NTagMessage::NTagMessage(const char* className, Verbosity verbose):
 fClassName(className), fVerbosity(verbose) {}
 NTagMessage::~NTagMessage() {}
 
-void NTagMessage::PrintTag(unsigned int vType)
+void NTagMessage::PrintTag(Verbosity vType)
 {
     switch (vType) {
         case pDEFAULT:
@@ -20,7 +20,7 @@ void NTagMessage::PrintTag(unsigned int vType)
     }
 }
 
-void NTagMessage::Print(TString msg, unsigned int vType)
+void NTagMessage::Print(TString msg, Verbosity vType)
 {
     if (vType <= fVerbosity) {
         PrintTag(vType);
@@ -32,7 +32,7 @@ void NTagMessage::Print(TString msg, unsigned int vType)
     }
 }
 
-void NTagMessage::Print(const char* msg, unsigned int vType)
+void NTagMessage::Print(const char* msg, Verbosity vType)
 {
     if (vType <= fVerbosity) {
         PrintTag(vType);
@@ -41,7 +41,7 @@ void NTagMessage::Print(const char* msg, unsigned int vType)
     }
 }
 
-float NTagMessage::Timer(TString msg, std::clock_t tStart, unsigned int vType)
+float NTagMessage::Timer(TString msg, std::clock_t tStart, Verbosity vType)
 {
     float tDuration = (std::clock() - tStart) / (float) CLOCKS_PER_SEC;
 

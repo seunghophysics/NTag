@@ -7,7 +7,7 @@ class NTagROOT : public NTagIO
 {
     public:
         NTagROOT(const char* inFileName, const char* outFileName="out/NTagOut.root",
-                 unsigned int verbose=pDEFAULT);
+                 Verbosity verbose=pDEFAULT);
         ~NTagROOT();
 
         // File I/O

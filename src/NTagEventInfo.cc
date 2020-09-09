@@ -25,12 +25,12 @@
 #include "NTagEventInfo.hh"
 #include "SKLibs.hh"
 
-NTagEventInfo::NTagEventInfo(unsigned int verbose)
+NTagEventInfo::NTagEventInfo(Verbosity verbose)
 :PMTXYZ(geopmt_.xyzpm), C_WATER(21.5833),
 N10TH(7), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
 T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), bCustomVertex(false)
+fVerbosity(verbose), bData(false), useTMVA(true)
 {
     msg = NTagMessage("", fVerbosity);
 
@@ -43,9 +43,9 @@ fVerbosity(verbose), bData(false), bCustomVertex(false)
     SetMaxODHitThreshold(16);
 
     TMVATools = NTagTMVA(verbose);
-    TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
+    TMVATools.SetReader("MLP", "weights/tmpweights.xml");
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
-    TMVATools.SetReaderCutRange("dt", T0TH*1.e3, T0MX*1.e3);
+    TMVATools.SetReaderCutRange("ReconCT", T0TH*1.e3, T0MX*1.e3);
     TMVATools.DumpReaderCutRange();
 }
 
@@ -53,9 +53,9 @@ NTagEventInfo::~NTagEventInfo() {}
 
 void NTagEventInfo::SetEventHeader()
 {
-    nrun = skhead_.nrunsk;
-    nsub = skhead_.nsubsk;
-    nev  = skhead_.nevsk;
+    runNo = skhead_.nrunsk;
+    subrunNo = skhead_.nsubsk;
+    eventNo  = skhead_.nevsk;
     
     // QISMSK: Total p.e. deposit in ID
     qismsk = skq_.qismsk;
@@ -66,50 +66,65 @@ void NTagEventInfo::SetEventHeader()
     msg.Print(Form("Number of OD hits: %d", nhitac), pDEBUG);
 }
 
+void NTagEventInfo::SetPromptVertex()
+{
+    switch (fVertexMode) {
+        case mAPFIT: {
+            // Get apcommul bank
+            int bank = 0;
+            aprstbnk_(&bank);
+            pvx = apcommul_.appos[0];
+            pvy = apcommul_.appos[1];
+            pvz = apcommul_.appos[2]; break; }
+        case mBONSAI: {
+            int lun = 10;
+            TreeManager* mgr  = skroot_get_mgr(&lun);
+            LoweInfo*    LOWE = mgr->GetLOWE();
+            mgr->GetEntry();
+            pvx = LOWE->bsvertex[0];
+            pvy = LOWE->bsvertex[1];
+            pvz = LOWE->bsvertex[2]; break; }
+        case mCUSTOM: {
+            pvx = customvx;
+            pvy = customvy;
+            pvz = customvz; break; }
+        case mTRUE: {
+            //skgetv_();
+            pvx = skvect_.pos[0];
+            pvy = skvect_.pos[1];
+            pvz = skvect_.pos[2]; break; }
+        case mMUON: {
+            /* STMU */ break; }
+    }
+    
+    float tmp_v[3] = {pvx, pvy, pvz};
+    dWall = wallsk_(tmp_v);
+    
+    msg.Print(Form("Prompt vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
+    msg.Print(Form("d_wall: %f", dWall), pDEBUG);
+}
+
 void NTagEventInfo::SetAPFitInfo()
 {
-    // Get apcommul bank
-    int bank = 0;
-    aprstbnk_(&bank);
-
-    // Get APFit vertex
-    if (bCustomVertex) {
-        pvx = customvx;
-        pvy = customvy;
-        pvz = customvz;
-    }
-    else
-    {
-        pvx = apcommul_.appos[0];
-        pvy = apcommul_.appos[1];
-        pvz = apcommul_.appos[2];
-    }
-
-    float tmp_v[3] = {pvx, pvy, pvz};
-    towall = wallsk_(tmp_v);
-
-    msg.Print(Form("APFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
-    msg.Print(Form("d_wall: %f", towall), pDEBUG);
-
     // E_vis
     evis = apcomene_.apevis;
     msg.Print(Form("e_vis: %f", evis), pDEBUG);
 
     // AP ring information
-    nring = apcommul_.apnring;
-    for (int iRing = 0; iRing < nring; iRing++) {
-        vApip.push_back  ( apcommul_.apip[iRing]        );  // PID
-        vApamom.push_back( apcommul_.apamom[iRing]      );  // Reconstructed momentum
-        vApmome.push_back( appatsp2_.apmsamom[iRing][1] );  // e-like momentum
-        vApmomm.push_back( appatsp2_.apmsamom[iRing][2] );  // mu-like momentum
+    apNRings = apcommul_.apnring;
+    for (int iRing = 0; iRing < apNRings; iRing++) {
+        vAPRingPID.push_back( apcommul_.apip[iRing]         );  // PID
+        vAPMom.push_back    ( apcommul_.apamom[iRing]       );  // Reconstructed momentum
+        vAPMomE.push_back   ( appatsp2_.apmsamom[iRing][1]  );  // e-like momentum
+        vAPMomMu.push_back  ( appatsp2_.apmsamom[iRing][2]  );  // mu-like momentum
     }
-    msg.Print(Form("APFit number of rings: %d", nring), pDEBUG);
+    msg.Print(Form("APFit number of rings: %d", apNRings), pDEBUG);
 
     // mu-e check
-    nmue = apmue_.apnmue; ndcy = 0;
-    for (int iMuE = 0; iMuE < nmue; iMuE++) {
+    apNMuE = apmue_.apnmue; apNDecays = 0;
+    for (int iMuE = 0; iMuE < apNMuE; iMuE++) {
         if (iMuE == 10) break;
-        if (apmue_.apmuetype[iMuE] == 1 || apmue_.apmuetype[iMuE] == 4) ndcy++;
+        if (apmue_.apmuetype[iMuE] == 1 || apmue_.apmuetype[iMuE] == 4) apNDecays++;
     }
 }
 
@@ -120,24 +135,6 @@ void NTagEventInfo::SetLowFitInfo()
     TreeManager* mgr  = skroot_get_mgr(&lun);
     LoweInfo*    LOWE = mgr->GetLOWE();
     mgr->GetEntry();
-
-    // Get LowFit vertex
-    if (bCustomVertex) {
-        pvx = customvx;
-        pvy = customvy;
-        pvz = customvz;
-    }
-    else {
-        pvx = LOWE->bsvertex[0];
-        pvy = LOWE->bsvertex[1];
-        pvz = LOWE->bsvertex[2];
-    }
-
-    float tmp_v[3] = {pvx, pvy, pvz};
-    towall = wallsk_(tmp_v);
-
-    msg.Print(Form("LowFit vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
-    msg.Print(Form("d_wall: %f", towall), pDEBUG);
 
     // E_vis
     evis = LOWE->bsenergy;
@@ -195,40 +192,40 @@ void NTagEventInfo::SetToFSubtractedTQ()
 void NTagEventInfo::SetMCInfo()
 {
     // Read trigger offset
-    trginfo_(&trgofst);
-    msg.Print(Form("Trigger offset: %f", trgofst), pDEBUG);
+    trginfo_(&trgOffset);
+    msg.Print(Form("Trigger offset: %f", trgOffset), pDEBUG);
 
     // Read SKVECT (primaries)
     skgetv_();
-    nvect  = skvect_.nvect;    // number of primaries
-    truevx = skvect_.pos[0];   // initial vertex of primaries
-    truevy = skvect_.pos[1];
-    truevz = skvect_.pos[2];
+    nVec  = skvect_.nvect;    // number of primaries
+    vecx = skvect_.pos[0];   // initial vertex of primaries
+    vecy = skvect_.pos[1];
+    vecz = skvect_.pos[2];
 
-    msg.Print(Form("True Vector: %d", nvect), pDEBUG);
+    msg.Print(Form("True Vector: %d", nVec), pDEBUG);
 
-    for (int iVec = 0; iVec < nvect; iVec++) {
-        vIp.push_back  ( skvect_.ip[iVec]     );  // PID of primaries
-        vPinx.push_back( skvect_.pin[iVec][0] );  // momentum vector of primaries
-        vPiny.push_back( skvect_.pin[iVec][1] );
-        vPinz.push_back( skvect_.pin[iVec][2] );
-        vPabs.push_back( skvect_.pabs[iVec]   );  // momentum of primaries
+    for (int iVec = 0; iVec < nVec; iVec++) {
+        vVecPID.push_back  ( skvect_.ip[iVec]     );  // PID of primaries
+        vVecPX.push_back   ( skvect_.pin[iVec][0] );  // momentum vector of primaries
+        vVecPY.push_back   ( skvect_.pin[iVec][1] );
+        vVecPZ.push_back   ( skvect_.pin[iVec][2] );
+        vVecMom.push_back  ( skvect_.pabs[iVec]   );  // momentum of primaries
     }
 
     // Read neutrino interaction vector
     float posnu[3];
     nerdnebk_(posnu);
 
-    modene = nework_.modene;       // neutrino interaction mode
-    numne  = nework_.numne;        // number of particles in vector
-    nN     = 0;                    // number of neutrons
-    pnu    = Norm(nework_.pne[0]);
+    neutIntMode = nework_.modene;       // neutrino interaction mode
+    nVecInNeut  = nework_.numne;        // number of particles in vector
+    nNInNeutVec     = 0;                    // number of neutrons
+    neutIntMom    = Norm(nework_.pne[0]);
 
-    for (int i = 0; i < numne; i++) {
-        vIpne.push_back(nework_.ipne[i]);     // PIDs in vector
-        if (vIpne[i] == 2112 && i >= 3) nN++; // count neutrons
+    for (int i = 0; i < nVecInNeut; i++) {
+        vNeutVecPID.push_back(nework_.ipne[i]);     // PIDs in vector
+        if (vNeutVecPID[i] == 2112 && i >= 3) nNInNeutVec++; // count neutrons
     }
-    msg.Print(Form("Number of neutrons in NEUT primary stack: %d", nN), pDEBUG);
+    msg.Print(Form("Number of neutrons in NEUT primary stack: %d", nNInNeutVec), pDEBUG);
 
     // Initialize number of n captures
     nTrueCaptures = 0;
@@ -243,10 +240,10 @@ void NTagEventInfo::SetMCInfo()
     ReadSecondaries();
 
     int nSecNeutron = 0;
-    nscndprt = secndprt_.nscndprt;
+    nAllSec = secndprt_.nscndprt;
 
     // Loop over all secondaries in secondary common block
-    for (int iSec = 0; iSec < nscndprt; iSec++) {
+    for (int iSec = 0; iSec < nAllSec; iSec++) {
 
         // Save all neutrons
         if (secndprt_.iprtscnd[iSec] == 2112) {
@@ -278,30 +275,30 @@ void NTagEventInfo::SetMCInfo()
                     // Check saved capture stack
                     for (int iCheckedCT = 0; iCheckedCT < nTrueCaptures; iCheckedCT++) {
                         // If this capture is already saved:
-                        if (fabs((double)(secndprt_.tscnd[iSec] - vCaptureTime[iCheckedCT])) < 1.e-7) {
+                        if (fabs((double)(secndprt_.tscnd[iSec] - vTrueCT[iCheckedCT])) < 1.e-7) {
                             isNewCapture = false;
                             // Add capture product gammas to the pre-existing stack
                             if (secndprt_.iprtscnd[iSec] == 22) {
                                 //msg.Print(Form("Gamma from already saved capture... captureID %d", iCheckedCT), pDEBUG);
-                                vNGam[iCheckedCT]++;
-                                vTotGamE[iCheckedCT] +=  Norm( secndprt_.pscnd[iSec] );
-                                vCaptureID[nSavedSec-1] = iCheckedCT;
+                                vNGamma[iCheckedCT]++;
+                                vTotGammaE[iCheckedCT] +=  Norm( secndprt_.pscnd[iSec] );
+                                vCapID[nSavedSec-1] = iCheckedCT;
                             }
                         }
                     }
                     if (isNewCapture) {
-                        vCaptureTime.push_back( secndprt_.tscnd[iSec]      );
-                        vCapPosx.push_back    ( secndprt_.vtxscnd[iSec][0] );
-                        vCapPosy.push_back    ( secndprt_.vtxscnd[iSec][1] );
-                        vCapPosz.push_back    ( secndprt_.vtxscnd[iSec][2] );
+                        vTrueCT.push_back( secndprt_.tscnd[iSec]      );
+                        vCapVX.push_back    ( secndprt_.vtxscnd[iSec][0] );
+                        vCapVY.push_back    ( secndprt_.vtxscnd[iSec][1] );
+                        vCapVZ.push_back    ( secndprt_.vtxscnd[iSec][2] );
                         // Add capture product gamma
                         if (secndprt_.iprtscnd[iSec] == 22) {
                             //msg.Print(Form("Gamma from new capture... vCaptureID %d", nTrueCaptures), pDEBUG);
-                            vNGam.push_back(1);
-                            vTotGamE.push_back( Norm( secndprt_.pscnd[iSec] ) );
-                            vCaptureID[nSavedSec-1] = nTrueCaptures;
+                            vNGamma.push_back(1);
+                            vTotGammaE.push_back( Norm( secndprt_.pscnd[iSec] ) );
+                            vCapID[nSavedSec-1] = nTrueCaptures;
                         }
-                        else { vNGam.push_back(0); vTotGamE.push_back(0.); }
+                        else { vNGamma.push_back(0); vTotGammaE.push_back(0.); }
                         // increment total number of captures
                         nTrueCaptures++;
                     }
@@ -309,12 +306,12 @@ void NTagEventInfo::SetMCInfo()
             }
         }
     }
-    assert(nSavedSec == static_cast<int>(vIprtscnd.size()));
-    assert(nSavedSec == static_cast<int>(vCaptureID.size()));
+    assert(nSavedSec == static_cast<int>(vSecPID.size()));
+    assert(nSavedSec == static_cast<int>(vCapID.size()));
 
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV]",
-                          iCapture, vCaptureTime[iCapture]*1e-3, vTotGamE[iCapture]), pDEBUG);
+                          iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture]), pDEBUG);
     }
     msg.Print(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
     msg.Print(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
@@ -340,7 +337,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         if (vSortedT_ToF[iHit]*1.e-3 < T0TH) continue;
 
         // Save time of first hit
-        if (firsthit == 0.) firsthit = vSortedT_ToF[iHit];
+        if (firstHitTime_ToF == 0.) firstHitTime_ToF = vSortedT_ToF[iHit];
 
         // Calculate N10New:
         // number of hits in 10 ns window from the i-th hit
@@ -355,9 +352,9 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // Save maximum N200 and its t0
         float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + 5., 200.);
-        if (t0New > 2.e4 && N200New > N200M) {
-            N200M = N200New;
-            T200M = t0New;
+        if (t0New > 2.e4 && N200New > maxN200) {
+            maxN200 = N200New;
+            maxT200 = t0New;
         }
 
         // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
@@ -380,9 +377,8 @@ void NTagEventInfo::SearchCaptureCandidates()
         N10Previous  = N10New;
         N200Previous = N200New;
     }
-    // Save the last peak if exists
-    if (N10Previous > 0)
-        SavePeakFromHit(iHitPrevious);
+    // Save the last peak
+    SavePeakFromHit(iHitPrevious);
 
     // Select hits within 50 ns around each capture candidate
     // to calculate beta and feed BONSAI
@@ -395,7 +391,7 @@ void NTagEventInfo::SearchCaptureCandidates()
     msg.Print("Searching for new N10 via TRMS minimization...", pDEBUG);
     msg.Print(Form("Number of candidates : %d", nCandidates), pDEBUG);
 
-    std::vector<float>* dt = TMVATools.fVariables.GetVector("dt");
+    std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");
 
     // Loop over all found capture candidates
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
@@ -447,11 +443,11 @@ void NTagEventInfo::SearchCaptureCandidates()
         vBeta14_50.push_back( beta_50[1] + 4*beta_50[4] );
 
         TMVATools.fVariables.PushBack("N50",   n50hits);
-        TMVATools.fVariables.PushBack("beta1", beta_50[1]);
-        TMVATools.fVariables.PushBack("beta2", beta_50[2]);
-        TMVATools.fVariables.PushBack("beta3", beta_50[3]);
-        TMVATools.fVariables.PushBack("beta4", beta_50[4]);
-        TMVATools.fVariables.PushBack("beta5", beta_50[5]);
+        TMVATools.fVariables.PushBack("Beta1", beta_50[1]);
+        TMVATools.fVariables.PushBack("Beta2", beta_50[2]);
+        TMVATools.fVariables.PushBack("Beta3", beta_50[3]);
+        TMVATools.fVariables.PushBack("Beta4", beta_50[4]);
+        TMVATools.fVariables.PushBack("Beta5", beta_50[5]);
 
         // BONSAI fit to each capture candidate
         float tmptbsenergy, tmptbsvx, tmptbsvy, tmptbsvz, tmptbsvt, tmptbsgood, tmptbsdirks, tmptbspatlik, tmptbsovaq;
@@ -479,27 +475,27 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         float tbsvertex[3] = {tmptbsvx, tmptbsvy, tmptbsvz};
 
-        vBvx.push_back( tmptbsvx );
-        vBvy.push_back( tmptbsvy );
-        vBvz.push_back( tmptbsvz );
-        vBvt.push_back( tmptbsvt );
+        vBSvx.push_back( tmptbsvx );
+        vBSvy.push_back( tmptbsvy );
+        vBSvz.push_back( tmptbsvz );
+        vBSReconCT.push_back( tmptbsvt );
 
-        TMVATools.fVariables.PushBack("tbsenergy", tmptbsenergy);
-        TMVATools.fVariables.PushBack("tbswall",   wallsk_(tbsvertex));
-        TMVATools.fVariables.PushBack("tbsgood",   tmptbsgood);
-        TMVATools.fVariables.PushBack("tbsdirks",  tmptbsdirks);
-        TMVATools.fVariables.PushBack("tbspatlik", tmptbspatlik);
-        TMVATools.fVariables.PushBack("tbsovaq",   tmptbsovaq);
+        TMVATools.fVariables.PushBack("BSenergy", tmptbsenergy);
+        TMVATools.fVariables.PushBack("BSwall",   wallsk_(tbsvertex));
+        TMVATools.fVariables.PushBack("BSgood",   tmptbsgood);
+        TMVATools.fVariables.PushBack("BSdirks",  tmptbsdirks);
+        TMVATools.fVariables.PushBack("BSpatlik", tmptbspatlik);
+        TMVATools.fVariables.PushBack("BSovaq",   tmptbsovaq);
 
         float nv[3];	// vertex to fit by minimizing tRMS
-        float minTRMS = MinimizeTRMS(tiskz50, cabiz50, nv);
+        float minTRMS50 = MinimizeTRMS(tiskz50, cabiz50, nv);
 
         vNvx.push_back   ( nv[0]       );
         vNvy.push_back   ( nv[1]       );
         vNvz.push_back   ( nv[2]       );
 
-        TMVATools.fVariables.PushBack("nwall", wallsk_(nv));
-        TMVATools.fVariables.PushBack("trms40", minTRMS);
+        TMVATools.fVariables.PushBack("DWalln", wallsk_(nv));
+        TMVATools.fVariables.PushBack("TRMS50", minTRMS50);
 
         auto tiskz50_ToF = GetToFSubtracted(tiskz50, cabiz50, nv, true);
 
@@ -516,19 +512,19 @@ void NTagEventInfo::SearchCaptureCandidates()
             }
         }
 
-        vTrms.push_back( GetTRMSFromStartIndex(tiskz50_ToF, n10index, 10.) );
+        vTRMS10n.push_back( GetTRMSFromStartIndex(tiskz50_ToF, n10index, 10.) );
         vN10n.push_back( tmpN10n );
-        vDtn.push_back(  t0n );
+        vReconCTn.push_back(  t0n );
 
-        float promptBonsai 	= Norm(pvx - vBvx[iCandidate],
-                               pvy - vBvy[iCandidate],
-                               pvz - vBvz[iCandidate]);
+        float promptBonsai 	= Norm(pvx - vBSvx[iCandidate],
+                               pvy - vBSvy[iCandidate],
+                               pvz - vBSvz[iCandidate]);
         float promptNfit 	= Norm(pvx - vNvx[iCandidate],
                                pvy - vNvy[iCandidate],
                                pvz - vNvz[iCandidate]);
-        float bonsaiNfit    = Norm(vNvx[iCandidate] - vBvx[iCandidate],
-                               vNvy[iCandidate] - vBvy[iCandidate],
-                               vNvz[iCandidate] - vBvz[iCandidate]);
+        float bonsaiNfit    = Norm(vNvx[iCandidate] - vBSvx[iCandidate],
+                               vNvy[iCandidate] - vBSvy[iCandidate],
+                               vNvz[iCandidate] - vBSvz[iCandidate]);
 
         TMVATools.fVariables.PushBack("prompt_bonsai", promptBonsai);
         TMVATools.fVariables.PushBack("prompt_nfit", promptNfit);
@@ -550,14 +546,14 @@ void NTagEventInfo::SetTrueCaptureInfo()
     for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
 
         // Check if a candidate is a true neutron capture (MC only)
-        vIsTrueCapture.push_back( IsTrueCapture(iCandidate, true) );
+        vIsCapture.push_back( IsCapture(iCandidate, true) );
 
         // if a candidate is actually a true neutron capture
-        if (vIsTrueCapture[iCandidate] == 1) {
+        if (vIsCapture[iCandidate] == 1) {
 
             vDoubleCount.push_back(0);
             // time diff between true and reconstructed capture time
-            vTimeDiff.push_back( ReconCaptureTime(iCandidate) - TrueCaptureTime(iCandidate) );
+            vCTDiff.push_back( ReconCaptureTime(iCandidate) - TrueCaptureTime(iCandidate) );
 
             bool newCaptureFound = true;
 
@@ -575,27 +571,27 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
             // Check whether two adjacent candidates should be saved as a single true capture
             else {
-                if (fabs(vTimeDiff[iCandidate]) < fabs(vTimeDiff[iCandidate-1])) {
-                    vDoubleCount[iCandidate-1] = 1; vIsTrueCapture[iCandidate-1] = 0;
+                if (fabs(vCTDiff[iCandidate]) < fabs(vCTDiff[iCandidate-1])) {
+                    vDoubleCount[iCandidate-1] = 1; vIsCapture[iCandidate-1] = 0;
                 }
                 else {
-                    vDoubleCount[iCandidate] = 1; vIsTrueCapture[iCandidate] = 0;
+                    vDoubleCount[iCandidate] = 1; vIsCapture[iCandidate] = 0;
                 }
             }
 
             auto tmpTruthV = TrueCaptureVertex(iCandidate);
-            vTruth_vx.push_back( tmpTruthV[0] );
-            vTruth_vy.push_back( tmpTruthV[1] );
+            vTrueCapVX.push_back( tmpTruthV[0] );
+            vTrueCapVY.push_back( tmpTruthV[1] );
             vTruth_vz.push_back( tmpTruthV[2] );
 
             // Check whether capture is on Gd or H
-            vIsGdCapture.push_back( IsTrueGdCapture(iCandidate) );
+            vIsGdCapture.push_back( IsGdCapture(iCandidate) );
         }
         else {
             vDoubleCount.push_back(0);
-            vTimeDiff.push_back   (0);
-            vTruth_vx.push_back   (0);
-            vTruth_vy.push_back   (0);
+            vCTDiff.push_back   (0);
+            vTrueCapVX.push_back   (0);
+            vTrueCapVY.push_back   (0);
             vTruth_vz.push_back   (0);
             vIsGdCapture.push_back(0);
         }
@@ -605,23 +601,25 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
 void NTagEventInfo::GetTMVAoutput()
 {
-    std::vector<float>* dt = TMVATools.fVariables.GetVector("dt");
-    
-    for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
-
-        float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
-
-        TString trueCaptureInfo;
-        if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
-        if (!bData) {
-            if (vIsTrueCapture[iCandidate]) trueCaptureInfo = "true";
-            else                            trueCaptureInfo = "false";
-        }
+    if (useTMVA) {
+        std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");
         
-        int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
-        float dt = TMVATools.fVariables.Get<float>("dt", iCandidate);
-        msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
-        vTMVAoutput.push_back( tmvaOutput );
+        for (int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
+    
+            float tmvaOutput = TMVATools.GetOutputFromCandidate(iCandidate);
+    
+            TString trueCaptureInfo;
+            if (tmvaOutput == -9999.) trueCaptureInfo = "out-of-cut";
+            if (!bData) {
+                if (vIsCapture[iCandidate]) trueCaptureInfo = "true";
+                else                            trueCaptureInfo = "false";
+            }
+            
+            int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
+            float dt = TMVATools.fVariables.Get<float>("ReconCT", iCandidate);
+            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+            vTMVAOutput.push_back( tmvaOutput );
+        }
     }
 }
 
@@ -647,8 +645,8 @@ float NTagEventInfo::GetDistance(const float vec1[3], float vec2[3])
 
 float NTagEventInfo::ReconCaptureTime(int candidateID)
 {
-    // trgofst may change with skdetsim version (13p90)
-    return TMVATools.fVariables.Get<float>("dt", candidateID) - trgofst;
+    // trgOffset may change with skdetsim version (13p90)
+    return TMVATools.fVariables.Get<float>("ReconCT", candidateID) - trgOffset;
 }
 
 float NTagEventInfo::TrueCaptureTime(int candidateID)
@@ -656,14 +654,14 @@ float NTagEventInfo::TrueCaptureTime(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
     float tClosest = 1.e8;
 
-    if (nscndprt >= SECMAXRNG) return -1;
+    if (nAllSec >= SECMAXRNG) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if ( fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW) {
-            return vCaptureTime[iCapture];
+        if ( fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW) {
+            return vTrueCT[iCapture];
         }
     }
 
-    if (!IsTrueCapture(candidateID))
+    if (!IsCapture(candidateID))
         msg.Print("A false neutron signal is passsed to TrueCaptureVertex!", pWARNING);
 
     return -9999.;
@@ -675,14 +673,14 @@ std::array<float, 3> NTagEventInfo::TrueCaptureVertex(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
 
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW) {
-                trueCaptureVertex[0] = vCapPosx[iCapture];
-                trueCaptureVertex[1] = vCapPosy[iCapture];
-                trueCaptureVertex[2] = vCapPosz[iCapture];
+        if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW) {
+                trueCaptureVertex[0] = vCapVX[iCapture];
+                trueCaptureVertex[1] = vCapVY[iCapture];
+                trueCaptureVertex[2] = vCapVZ[iCapture];
                 return trueCaptureVertex;
         }
     }
-    if (!IsTrueCapture(candidateID))
+    if (!IsCapture(candidateID))
         msg.Print("A false neutron signal is passsed to TrueCaptureVertex!", pWARNING);
 
     return trueCaptureVertex;
@@ -933,13 +931,13 @@ int NTagEventInfo::GetNhitsFromCenterTime(const std::vector<float>& T, float cen
     return NXX;
 }
 
-int NTagEventInfo::IsTrueCapture(int candidateID, bool bSave)
+int NTagEventInfo::IsCapture(int candidateID, bool bSave)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nscndprt >= SECMAXRNG) return -1;
+    if (nAllSec >= SECMAXRNG) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) {
+        if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (bSave) vCandidateID.push_back(candidateID);
             return 1;
         }
@@ -947,14 +945,14 @@ int NTagEventInfo::IsTrueCapture(int candidateID, bool bSave)
     return 0;
 }
 
-int NTagEventInfo::IsTrueGdCapture(int candidateID)
+int NTagEventInfo::IsGdCapture(int candidateID)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nscndprt >= SECMAXRNG) return -1;
+    if (nAllSec >= SECMAXRNG) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        if (fabs(vCaptureTime[iCapture] - tRecon) < TMATCHWINDOW ) {
-            if (vTotGamE[iCapture] > 6.) return 1;
+        if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
+            if (vTotGammaE[iCapture] > 6.) return 1;
             else return 0;
         }
     }
@@ -964,46 +962,46 @@ int NTagEventInfo::IsTrueGdCapture(int candidateID)
 
 void NTagEventInfo::Clear()
 {
-    nrun = 0; nsub = 0; nev = 0; trgtype = 0; nhitac = 0; nqiskz = 0;
-    trgofst = 0; qismsk = 0;
-    nring = 0; nmue = 0; ndcy = 0;
-    evis = 0; pvx = 0; pvy = 0; pvz = 0; towall = 0;
-    nCandidates = 0; N200M = 0;
-    T200M = -9999.; firsthit = -9999.;
+    runNo = 0; subrunNo = 0; eventNo = 0; trgType = 0; nhitac = 0; nqiskz = 0;
+    trgOffset = 0; qismsk = 0;
+    apNRings = 0; apNMuE = 0; apNDecays = 0;
+    evis = 0; pvx = 0; pvy = 0; pvz = 0; dWall = 0;
+    nCandidates = 0; maxN200 = 0;
+    maxT200 = -9999.; firstHitTime_ToF = -9999.;
 
     nTrueCaptures = 0;
-    nSavedSec = 0; nscndprt = 0;
-    nN = modene = numne = 0;
-    pnu = 0;
-    nvect = 0;
-    truevx = 0; truevy = 0; truevz = 0;
+    nSavedSec = 0; nAllSec = 0;
+    nNInNeutVec = neutIntMode = nVecInNeut = 0;
+    neutIntMom = 0;
+    nVec = 0;
+    vecx = 0; vecy = 0; vecz = 0;
 
     vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear();
 
     vSortedPMTID.clear();
     vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
 
-    vApip.clear(); vApamom.clear(); vApmome.clear(); vApmomm.clear();
-    vTindex.clear(); vN10n.clear(); vN1300.clear();
-    vTrms.clear(); vTrms50.clear();
-    vDtn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear();
+    vAPRingPID.clear(); vAPMom.clear(); vAPMomE.clear(); vAPMomMu.clear();
+    vFirstHitID.clear(); vN10n.clear(); vN1300.clear();
+    vTRMS10n.clear(); vTRMS50.clear();
+    vReconCTn.clear(); vNvx.clear(); vNvy.clear(); vNvz.clear();
     vDoubleCount.clear();
-    vBvx.clear(); vBvy.clear(); vBvz.clear(); vBvt.clear();
+    vBSvx.clear(); vBSvy.clear(); vBSvz.clear(); vBSReconCT.clear();
     vBeta14_10.clear(); vBeta14_50.clear();
-    vTMVAoutput.clear();
+    vTMVAOutput.clear();
     TMVATools.fVariables.Clear();
 
-    vNGam.clear(); vCandidateID.clear();
-    vCaptureTime.clear(); vCapPosx.clear(); vCapPosy.clear(); vCapPosz.clear(); vTotGamE.clear();
-    vIsGdCapture.clear(); vIsTrueCapture.clear();
-    vTruth_vx.clear(); vTruth_vy.clear(); vTruth_vz.clear(); vTimeDiff.clear();
-    vIprtscnd.clear(); vLmecscnd.clear(); vIprntprt.clear(); vCaptureID.clear();
-    vVtxscndx.clear(); vVtxscndy.clear(); vVtxscndz.clear(); vPscndx.clear(); vPscndy.clear(); vPscndz.clear();
-    vWallscnd.clear(); vPabsscnd.clear(); vTscnd.clear();
+    vNGamma.clear(); vCandidateID.clear();
+    vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
+    vIsGdCapture.clear(); vIsCapture.clear();
+    vTrueCapVX.clear(); vTrueCapVY.clear(); vTruth_vz.clear(); vCTDiff.clear();
+    vSecPID.clear(); vSecIntID.clear(); vParentPID.clear(); vCapID.clear();
+    vSecVX.clear(); vSecVY.clear(); vSecVZ.clear(); vSecPX.clear(); vSecPY.clear(); vSecPZ.clear();
+    vSecDWall.clear(); vSecMom.clear(); vSecT.clear();
 
-    vIpne.clear();
-    vIp.clear();
-    vPinx.clear(); vPiny.clear(); vPinz.clear(); vPabs.clear();
+    vNeutVecPID.clear();
+    vVecPID.clear();
+    vVecPX.clear(); vVecPY.clear(); vVecPZ.clear(); vVecMom.clear();
 }
 
 void NTagEventInfo::ClearRawHitInfo()
@@ -1013,19 +1011,19 @@ void NTagEventInfo::ClearRawHitInfo()
 
 void NTagEventInfo::SaveSecondary(int secID)
 {
-    vIprtscnd.push_back ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
-    vLmecscnd.push_back ( secndprt_.lmecscnd[secID]         );  // creation process
-    vIprntprt.push_back ( secndprt_.iprntprt[secID]         );  // parent PID
-    vVtxscndx.push_back ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
-    vVtxscndy.push_back ( secndprt_.vtxscnd[secID][1]       );
-    vVtxscndz.push_back ( secndprt_.vtxscnd[secID][2]       );
-    vWallscnd.push_back ( wallsk_(secndprt_.vtxscnd[secID]) );  // distance from wall to creation vertex
-    vPscndx.push_back   ( secndprt_.pscnd[secID][0]         );  // momentum vector
-    vPscndy.push_back   ( secndprt_.pscnd[secID][1]         );
-    vPscndz.push_back   ( secndprt_.pscnd[secID][2]         );
-    vPabsscnd.push_back ( Norm(secndprt_.pscnd[secID])      );  // momentum
-    vTscnd.push_back    ( secndprt_.tscnd[secID]            );  // time created
-    vCaptureID.push_back( -1 );
+    vSecPID.push_back ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
+    vSecIntID.push_back ( secndprt_.lmecscnd[secID]         );  // creation process
+    vParentPID.push_back ( secndprt_.iprntprt[secID]         );  // parent PID
+    vSecVX.push_back ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
+    vSecVY.push_back ( secndprt_.vtxscnd[secID][1]       );
+    vSecVZ.push_back ( secndprt_.vtxscnd[secID][2]       );
+    vSecDWall.push_back ( wallsk_(secndprt_.vtxscnd[secID]) );  // distance from wall to creation vertex
+    vSecPX.push_back   ( secndprt_.pscnd[secID][0]         );  // momentum vector
+    vSecPY.push_back   ( secndprt_.pscnd[secID][1]         );
+    vSecPZ.push_back   ( secndprt_.pscnd[secID][2]         );
+    vSecMom.push_back ( Norm(secndprt_.pscnd[secID])      );  // momentum
+    vSecT.push_back    ( secndprt_.tscnd[secID]            );  // time created
+    vCapID.push_back( -1 );
     nSavedSec++;
 }
 
@@ -1038,20 +1036,21 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     auto  beta    = GetBetaArray(vSortedPMTID, hitID, N10i);
     float tEnd    = vSortedT_ToF[hitID+N10i-1];
     float sumQ    = GetQhitsFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
-    float trmsold = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
+    float trms = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
-    //if ((N10i >= N10TH) && (N10i < N10MX+1)) {
-    // Save info
-    vTindex.push_back   ( hitID               );
-    vBeta14_10.push_back( beta[1] + 4*beta[4] );
-    TMVATools.fVariables.PushBack("N10",     N10i);
-    TMVATools.fVariables.PushBack("N200",    N200);
-    TMVATools.fVariables.PushBack("sumQ",    sumQ);
-    TMVATools.fVariables.PushBack("dt",      (t0 + tEnd)/2.);
-    TMVATools.fVariables.PushBack("spread",  tEnd - t0);
-    TMVATools.fVariables.PushBack("trmsold", trmsold);
-    
-    // Increment number of neutron candidates
-    nCandidates++;
-    //}
+    if ((N10i >= N10TH) && (N10i < N10MX+1)) {
+        // Save info
+        vFirstHitID.push_back   ( hitID               );
+        vBeta14_10.push_back( beta[1] + 4*beta[4] );
+
+        TMVATools.fVariables.PushBack("N10", N10i);
+        TMVATools.fVariables.PushBack("N200", N200);
+        TMVATools.fVariables.PushBack("QSum10", sumQ);
+        TMVATools.fVariables.PushBack("ReconCT", (t0 + tEnd)/2.);
+        TMVATools.fVariables.PushBack("TSpread10", tEnd - t0);
+        TMVATools.fVariables.PushBack("TRMS10", trms);
+
+        // Increment number of neutron candidates
+        nCandidates++;
+    }
 }

@@ -11,20 +11,36 @@
 #include "NTagMessage.hh"
 #include "NTagTMVA.hh"
 
+enum VertexMode {mAPFIT, mBONSAI, mCUSTOM, mTRUE, mMUON};
+
+/********************************************************
+ *
+ * \brief Steering class of NTag.
+ *
+ * It looks for hit peaks from the raw TQ info and
+ * searches for neutron capture candidates.
+ * TMVA is used to give classifier output to each 
+ * candidate.
+ *
+ ********************************************************/
+
 class NTagEventInfo
 {
     public:
-        NTagEventInfo(unsigned int verbose);
+        /** Constructor */
+        NTagEventInfo(Verbosity verbose /**< verbosity */);
+        /** Destructor */
         virtual ~NTagEventInfo();
 
         // Functions to set variables
 
             /* All types */
-            virtual void         SetEventHeader();
-            virtual void         SetAPFitInfo();
-            virtual void         SetLowFitInfo();
-            virtual void         AppendRawHitInfo();
-            virtual void         SetToFSubtractedTQ();
+            virtual void         SetEventHeader();      /**< Sets event header */
+            virtual void         SetPromptVertex();     /**< Sets prompt vertex */
+            virtual void         SetAPFitInfo();        /**< Sets APFitInfo */
+            virtual void         SetLowFitInfo();       /**< Sets LowFit Info */
+            virtual void         AppendRawHitInfo();    /**< Appends raw hit info */
+            virtual void         SetToFSubtractedTQ();  /**< Sets ToF subtracted TQ */
 
             /* MC-only */
             virtual void         SetMCInfo();
@@ -46,8 +62,8 @@ class NTagEventInfo
 
             /* functions on capture candidates */
             inline float         ReconCaptureTime(int candidateID);
-            int                  IsTrueCapture(int candidateID, bool bSave=false);
-            int                  IsTrueGdCapture(int candidateID);
+            int                  IsCapture(int candidateID, bool bSave=false);
+            int                  IsGdCapture(int candidateID);
             float                TrueCaptureTime(int candidateID);
             std::array<float, 3> TrueCaptureVertex(int candidateID);
 
@@ -78,8 +94,10 @@ class NTagEventInfo
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
         inline void          SetMaxODHitThreshold(float q) { ODHITMX = q; }
+        inline void          SetVertexMode(VertexMode m) { fVertexMode = m; }
+        inline void          UseTMVA(bool b) { useTMVA = b; }
         inline void          SetCustomVertex(float x, float y, float z)
-                                            { customvx = x; customvy = y; customvz = z; bCustomVertex = true; }
+                                            { customvx = x; customvy = y; customvz = z; fVertexMode = mCUSTOM; }
         // TMVA tools
         // All input variables to TMVA are here!
         NTagTMVA    TMVATools;
@@ -92,7 +110,7 @@ class NTagEventInfo
         int         N10TH, N10MX, N200MX;   // N_hits cut
         float       VTXSRCRANGE;            // vertex search range in MinimizeTRMS
         float       T0TH, T0MX;             // T0 threshold
-        float       TMATCHWINDOW;           // used in function IsTrueCapture
+        float       TMATCHWINDOW;           // used in function IsCapture
         float       TMINPEAKSEP;            // minimum peak separation in time
         float       ODHITMX;                // OD total charge threshold
 
@@ -101,45 +119,46 @@ class NTagEventInfo
 
     protected:
         NTagMessage  msg;
-        unsigned int fVerbosity;
-        bool         bData, bCustomVertex;
+        Verbosity fVerbosity;
+        bool         bData, useTMVA;
+        int          fVertexMode;
 
         /************************************************************************************************/
         // Data/fit event info
         /************************************************************************************************/
         /**/
         /**/    // SK data variables
-        /**/    int                 nrun, nsub, nev, trgtype, nhitac, nqiskz;
-        /**/    float               trgofst, qismsk;
+        /**/    int                 runNo, subrunNo, eventNo, trgType, nhitac, nqiskz;
+        /**/    float               trgOffset, qismsk;
         /**/    std::vector<int>    vCABIZ;
         /**/    std::vector<float>  vTISKZ, vQISKZ;
         /**/    std::vector<int>    vSortedPMTID;
         /**/    std::vector<float>  vSortedT_ToF, vUnsortedT_ToF, vSortedQ;
         /**/
         /**/    // Prompt-peak fit variables (extractable from both APFit and BONSAI)
-        /**/    float               pvx, pvy, pvz, towall;
+        /**/    float               pvx, pvy, pvz, dWall;
         /**/    float               evis;
         /**/
         /**/    // APFit variables
-        /**/    int                 nring, nmue, ndcy;
-        /**/    std::vector<int>    vApip;
-        /**/    std::vector<float>  vApamom, vApmome, vApmomm;
+        /**/    int                 apNRings, apNMuE, apNDecays;
+        /**/    std::vector<int>    vAPRingPID;
+        /**/    std::vector<float>  vAPMom, vAPMomE, vAPMomMu;
         /**/
         /**/        // Variables for neutron capture candidates
-        /**/        int                 nCandidates, N200M;
-        /**/        float               T200M, firsthit;
-        /**/        std::vector<int>    vTindex, vN10n, vN1300;
-        /**/        std::vector<float>  vTrms, vTrms50;
-        /**/        std::vector<float>  vDtn, vNvx, vNvy, vNvz;
+        /**/        int                 nCandidates, maxN200;
+        /**/        float               maxT200, firstHitTime_ToF;
+        /**/        std::vector<int>    vFirstHitID, vN10n, vN1300;
+        /**/        std::vector<float>  vTRMS10n, vTRMS50;
+        /**/        std::vector<float>  vReconCTn, vNvx, vNvy, vNvz;
         /**/
         /**/        // BONSAI variables
-        /**/        std::vector<float>  vBvx, vBvy, vBvz, vBvt;
+        /**/        std::vector<float>  vBSvx, vBSvy, vBSvz, vBSReconCT;
         /**/
         /**/        // Beta variables
         /**/        std::vector<float>  vBeta14_10, vBeta14_50;
         /**/
         /**/    // TMVA output
-        /**/    std::vector<float>  vTMVAoutput;
+        /**/    std::vector<float>  vTMVAOutput;
         /**/
         /************************************************************************************************/
 
@@ -149,29 +168,29 @@ class NTagEventInfo
         /**/
         /**/    // Variables for true neutron capture
         /**/    int                 nTrueCaptures;
-        /**/    std::vector<int>    vNGam, vCandidateID;
-        /**/    std::vector<float>  vCaptureTime, vCapPosx, vCapPosy, vCapPosz, vTotGamE;
+        /**/    std::vector<int>    vNGamma, vCandidateID;
+        /**/    std::vector<float>  vTrueCT, vCapVX, vCapVY, vCapVZ, vTotGammaE;
         /**/
         /**/    // Variables for neutron capture candidates
-        /**/    std::vector<int>    vIsGdCapture, vIsTrueCapture, vDoubleCount;
-        /**/    std::vector<float>  vTruth_vx, vTruth_vy, vTruth_vz, vTimeDiff;
+        /**/    std::vector<int>    vIsGdCapture, vIsCapture, vDoubleCount;
+        /**/    std::vector<float>  vTrueCapVX, vTrueCapVY, vTruth_vz, vCTDiff;
         /**/
         /**/    // Variables from secondaries
-        /**/    int                 nSavedSec, nscndprt;
-        /**/    std::vector<int> 	vIprtscnd, vLmecscnd, vIprntprt, vCaptureID;
-        /**/    std::vector<float> 	vVtxscndx, vVtxscndy, vVtxscndz, vPscndx, vPscndy, vPscndz;
-        /**/    std::vector<float> 	vWallscnd, vPabsscnd, vTscnd;
+        /**/    int                 nSavedSec, nAllSec;
+        /**/    std::vector<int> 	vSecPID, vSecIntID, vParentPID, vCapID;
+        /**/    std::vector<float> 	vSecVX, vSecVY, vSecVZ, vSecPX, vSecPY, vSecPZ;
+        /**/    std::vector<float> 	vSecDWall, vSecMom, vSecT;
         /**/
         /**/    // Variables for neutrino interaction
-        /**/    int    	            nN, modene, numne;
-        /**/    float  	            pnu;
-        /**/    std::vector<int>    vIpne;
+        /**/    int    	            nNInNeutVec, neutIntMode, nVecInNeut;
+        /**/    float  	            neutIntMom;
+        /**/    std::vector<int>    vNeutVecPID;
         /**/
         /**/    // Variables from primary stack
-        /**/    int                 nvect;
-        /**/    float               truevx, truevy, truevz;
-        /**/    std::vector<int>    vIp;
-        /**/    std::vector<float>  vPinx, vPiny, vPinz, vPabs;
+        /**/    int                 nVec;
+        /**/    float               vecx, vecy, vecz;
+        /**/    std::vector<int>    vVecPID;
+        /**/    std::vector<float>  vVecPX, vVecPY, vVecPZ, vVecMom;
         /**/
         /************************************************************************************************/
 };

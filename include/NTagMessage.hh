@@ -5,22 +5,22 @@
 
 #include <TString.h>
 
-enum {pNONE, pERROR, pWARNING, pDEFAULT, pDEBUG};
+enum Verbosity {pNONE, pERROR, pWARNING, pDEFAULT, pDEBUG};
 
 class NTagMessage
 {
     public:
-        NTagMessage(const char* className="", unsigned int verbose=pDEFAULT);
+        NTagMessage(const char* className="", Verbosity verbose=pDEFAULT);
         ~NTagMessage();
 
-        virtual void  PrintTag(unsigned int);
-        virtual void  Print(TString, unsigned int vType=pDEFAULT);
-        virtual void  Print(const char*, unsigned int vType=pDEFAULT);
-        virtual float Timer(TString, std::clock_t tStart, unsigned int vType=pDEFAULT);
+        virtual void  PrintTag(Verbosity);
+        virtual void  Print(TString, Verbosity vType=pDEFAULT);
+        virtual void  Print(const char*, Verbosity vType=pDEFAULT);
+        virtual float Timer(TString, std::clock_t tStart, Verbosity vType=pDEFAULT);
 
     private:
         const char*  fClassName;
-        unsigned int fVerbosity;
+        Verbosity fVerbosity;
 };
 
 #endif

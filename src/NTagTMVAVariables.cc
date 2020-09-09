@@ -6,7 +6,7 @@
 
 #include "NTagTMVAVariables.hh"
 
-NTagTMVAVariables::NTagTMVAVariables(unsigned int verbose)
+NTagTMVAVariables::NTagTMVAVariables(Verbosity verbose)
 {
     msg = NTagMessage("TMVAVariables", verbose);
     Clear();
@@ -17,33 +17,33 @@ NTagTMVAVariables::~NTagTMVAVariables() {}
 void NTagTMVAVariables::Clear()
 {
     iVariableMap["N10"] = 0;
-    iVariableMap["N200"] = 0;
     iVariableMap["N50"] = 0;
+    iVariableMap["N200"] = 0;
 
     for (const auto& pair: iVariableMap) {
         iEventVectorMap[pair.first] = new std::vector<int>();
         fVariableMap[pair.first] = 0.;
     }
 
-    fVariableMap["dt"] = 0.;
-    fVariableMap["sumQ"] = 0.;
-    fVariableMap["spread"] = 0.;
-    fVariableMap["trmsold"] = 0.;
-    fVariableMap["beta1"] = 0.;
-    fVariableMap["beta2"] = 0.;
-    fVariableMap["beta3"] = 0.;
-    fVariableMap["beta4"] = 0.;
-    fVariableMap["beta5"] = 0.;
-    fVariableMap["prompt_nfit"] = 0.;
-    fVariableMap["tbsenergy"] = 0.;
-    fVariableMap["tbswall"] = 0.;
-    fVariableMap["tbsgood"] = 0.;
-    fVariableMap["tbsdirks"] = 0.;
-    fVariableMap["tbspatlik"] = 0.;
-    fVariableMap["tbsovaq"] = 0.;
+    fVariableMap["ReconCT"] = 0.;
+    fVariableMap["QSum10"] = 0.;
+    fVariableMap["TSpread10"] = 0.;
+    fVariableMap["TRMS10"] = 0.;
+    fVariableMap["TRMS50"] = 0.;
+    fVariableMap["Beta1"] = 0.;
+    fVariableMap["Beta2"] = 0.;
+    fVariableMap["Beta3"] = 0.;
+    fVariableMap["Beta4"] = 0.;
+    fVariableMap["Beta5"] = 0.;
+    fVariableMap["BSenergy"] = 0.;
+    fVariableMap["BSwall"] = 0.;
+    fVariableMap["BSgood"] = 0.;
+    fVariableMap["BSdirks"] = 0.;
+    fVariableMap["BSpatlik"] = 0.;
+    fVariableMap["BSovaq"] = 0.;
+    fVariableMap["DWalln"] = 0.;
     fVariableMap["prompt_bonsai"] = 0.;
-    fVariableMap["nwall"] = 0.;
-    fVariableMap["trms40"] = 0.;
+    fVariableMap["prompt_nfit"] = 0.;
     fVariableMap["bonsai_nfit"] = 0.;
 
     for (const auto& pair: fVariableMap) {

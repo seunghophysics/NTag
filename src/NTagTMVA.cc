@@ -5,13 +5,13 @@
 
 #include "NTagTMVA.hh"
 
-NTagTMVA::NTagTMVA(unsigned int verbose):
+NTagTMVA::NTagTMVA(Verbosity verbose):
 fVerbosity(verbose)
 {
     Constructor();
 }
 
-NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose):
+NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, Verbosity verbose):
 fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
 {
     Constructor();
@@ -25,8 +25,8 @@ void NTagTMVA::Constructor()
     fVariables = NTagTMVAVariables(fVerbosity);
     SetMethods();
 
-    SetSigCut("realneutron == 1");
-    SetBkgCut("realneutron == 0");
+    SetSigCut("IsCapture == 1");
+    SetBkgCut("IsCapture == 0");
 }
 
 void NTagTMVA::SetMethods()
@@ -100,7 +100,7 @@ void NTagTMVA::MakeWeights()
 {
     TMVA::Tools::Instance();
 
-    TFile* outFile = TFile::Open( fOutFileName, "RECREATE" );
+    TFile* outFile = TFile::Open( fOutFileName, "recreate" );
     TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
 
@@ -334,7 +334,7 @@ void NTagTMVA::SetReader(TString methodName, TString weightFileName)
     fReaderWeightFileName = weightFileName;
 
     SetReaderCutRange("N10", 7, 50);
-    SetReaderCutRange("dt", 2.e3, 600.e3);
+    SetReaderCutRange("ReconCT", 2.e3, 600.e3);
 }
 
 void NTagTMVA::InstantiateReader()
@@ -390,7 +390,7 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
     TFile* inFile = TFile::Open(fInFileName);
     TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
     TTree* inTruthTree = (TTree*)inFile->Get("truth");
-    inNtvarTree->SetBranchStatus("TMVAoutput", 0);
+    inNtvarTree->SetBranchStatus("TMVAOutput", 0);
     fVariables.SetBranchAddressToTree(inNtvarTree);
 
     TFile* outFile = new TFile(fOutFileName, "recreate");
@@ -401,7 +401,7 @@ void NTagTMVA::ApplyWeight(TString methodName, TString weightFileName)
 
     // Replace old output with new one
     std::vector<float> outputVector;
-    TBranch* newOutBranch = outNtvarTree->Branch("TMVAoutput", &outputVector);
+    TBranch* newOutBranch = outNtvarTree->Branch("TMVAOutput", &outputVector);
 
     msg.Print(Form("Using input file: %s", fInFileName));
     msg.Print("Using MVA method: " + methodName);

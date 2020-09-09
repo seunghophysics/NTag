@@ -11,7 +11,8 @@ weights/new/
 lib/
 
 # build
-docs/build/
+docs/html
+docs/latex
 
 # root-related
 *.root*

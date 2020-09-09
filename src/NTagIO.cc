@@ -10,7 +10,7 @@
 
 NTagIO* NTagIO::instance;
 
-NTagIO::NTagIO(const char* inFileName, const char* outFileName, unsigned int verbose)
+NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
     instance = this;
@@ -53,7 +53,8 @@ void NTagIO::SKInitialize()
 
 void NTagIO::ReadFile()
 {
-    TMVATools.InstantiateReader();
+    if (useTMVA)
+        TMVATools.InstantiateReader();
     
     // SIGINT handler
     struct sigaction sigHandler;
@@ -133,6 +134,7 @@ void NTagIO::ReadMCEvent()
 
     // Prompt-peak info
     SetEventHeader();
+    SetPromptVertex();
     SetFitInfo();
 
     // Hit info (all hits)
@@ -187,6 +189,7 @@ void NTagIO::ReadSHEEvent()
 
     // Prompt-peak info
     SetEventHeader();
+    SetPromptVertex();
     SetFitInfo();
 
     // Hit info (SHE: close-to-prompt hits only)
@@ -233,96 +236,96 @@ void NTagIO::SIGINTHandler(int sigNo)
 
 void NTagIO::CreateBranchesToTruthTree()
 {
-    truthTree->Branch("nCT", &nTrueCaptures);
-    truthTree->Branch("candidateID", &vCandidateID);
-    truthTree->Branch("captureTime", &vCaptureTime);
-    truthTree->Branch("capPosx", &vCapPosx);
-    truthTree->Branch("capPosy", &vCapPosy);
-    truthTree->Branch("capPosz", &vCapPosz);
-    truthTree->Branch("nGam", &vNGam);
-    truthTree->Branch("totGamEn", &vTotGamE);
-    truthTree->Branch("trgofst", &trgofst);
-    truthTree->Branch("nscnd", &nSavedSec);
-    truthTree->Branch("iprtscnd", &vIprtscnd);
-    truthTree->Branch("lmecscnd", &vLmecscnd);
-    truthTree->Branch("iprntprt", &vIprntprt);
-    truthTree->Branch("vtxscndx", &vVtxscndx);
-    truthTree->Branch("vtxscndy", &vVtxscndy);
-    truthTree->Branch("vtxscndz", &vVtxscndz);
-    truthTree->Branch("wallscnd", &vWallscnd);
-    truthTree->Branch("tscnd", &vTscnd);
-    truthTree->Branch("pscndx", &vPscndx);
-    truthTree->Branch("pscndy", &vPscndy);
-    truthTree->Branch("pscndz", &vPscndz);
-    truthTree->Branch("pabsscnd", &vPabsscnd);
-    truthTree->Branch("capId", &vCaptureID);
-    truthTree->Branch("modene", &modene);
-    truthTree->Branch("numne", &numne);
-    truthTree->Branch("ipne", &vIpne);
-    truthTree->Branch("nN", &nN);
-    truthTree->Branch("pnu", &pnu);
-    truthTree->Branch("nvect", &nvect);
-    truthTree->Branch("truevx", &truevx);
-    truthTree->Branch("truevy", &truevy);
-    truthTree->Branch("truevz", &truevz);
-    truthTree->Branch("ip", &vIp);
-    truthTree->Branch("pinx", &vPinx);
-    truthTree->Branch("piny", &vPiny);
-    truthTree->Branch("pinz", &vPinz);
-    truthTree->Branch("pabs", &vPabs);
+    truthTree->Branch("NTrueCaptures", &nTrueCaptures);
+    truthTree->Branch("CandidateID", &vCandidateID);
+    truthTree->Branch("TrueCT", &vTrueCT);
+    truthTree->Branch("capvx", &vCapVX);
+    truthTree->Branch("capvy", &vCapVY);
+    truthTree->Branch("capvz", &vCapVZ);
+    truthTree->Branch("NGamma", &vNGamma);
+    truthTree->Branch("TotGammaE", &vTotGammaE);
+    truthTree->Branch("TrgOffset", &trgOffset);
+    truthTree->Branch("NSavedSec", &nSavedSec);
+    truthTree->Branch("SecPID", &vSecPID);
+    truthTree->Branch("SecIntPID", &vSecIntID);
+    truthTree->Branch("ParentPID", &vParentPID);
+    truthTree->Branch("secvx", &vSecVX);
+    truthTree->Branch("secvy", &vSecVY);
+    truthTree->Branch("secvz", &vSecVZ);
+    truthTree->Branch("SecDWall", &vSecDWall);
+    truthTree->Branch("SecT", &vSecT);
+    truthTree->Branch("secpx", &vSecPX);
+    truthTree->Branch("secpy", &vSecPY);
+    truthTree->Branch("secpz", &vSecPZ);
+    truthTree->Branch("SecMom", &vSecMom);
+    truthTree->Branch("CapID", &vCapID);
+    truthTree->Branch("NeutIntMode", &neutIntMode);
+    truthTree->Branch("NVecInNeut", &nVecInNeut);
+    truthTree->Branch("NeutVecPID", &vNeutVecPID);
+    truthTree->Branch("NnInNeutVec", &nNInNeutVec);
+    truthTree->Branch("NeutIntMom", &neutIntMom);
+    truthTree->Branch("NVec", &nVec);
+    truthTree->Branch("vecx", &vecx);
+    truthTree->Branch("vecy", &vecy);
+    truthTree->Branch("vecz", &vecz);
+    truthTree->Branch("VecPID", &vVecPID);
+    truthTree->Branch("vecpx", &vVecPX);
+    truthTree->Branch("vecpy", &vVecPY);
+    truthTree->Branch("vecpz", &vVecPZ);
+    truthTree->Branch("VecMom", &vVecMom);
 }
 
 void NTagIO::CreateBranchesToNTvarTree()
 {
-    ntvarTree->Branch("np", &nCandidates);
-    ntvarTree->Branch("nrun", &nrun);
-    ntvarTree->Branch("nsub", &nsub);
-    ntvarTree->Branch("nev", &nev);
-    ntvarTree->Branch("trgtype", &trgtype);
-    ntvarTree->Branch("firsthit", &firsthit);
-    ntvarTree->Branch("N200M", &N200M);
-    ntvarTree->Branch("T200M", &T200M);
-    ntvarTree->Branch("vx", &pvx);
-    ntvarTree->Branch("vy", &pvy);
-    ntvarTree->Branch("vz", &pvz);
+    ntvarTree->Branch("NCandidates", &nCandidates);
+    ntvarTree->Branch("RunNo", &runNo);
+    ntvarTree->Branch("SubrunNo", &subrunNo);
+    ntvarTree->Branch("EventNo", &eventNo);
+    ntvarTree->Branch("TrgType", &trgType);
+    ntvarTree->Branch("FirstHitTime_ToF", &firstHitTime_ToF);
+    ntvarTree->Branch("MaxN200", &maxN200);
+    ntvarTree->Branch("MaxT200", &maxT200);
+    ntvarTree->Branch("pvx", &pvx);
+    ntvarTree->Branch("pvy", &pvy);
+    ntvarTree->Branch("pvz", &pvz);
     ntvarTree->Branch("nvx", &vNvx);
     ntvarTree->Branch("nvy", &vNvy);
     ntvarTree->Branch("nvz", &vNvz);
-    ntvarTree->Branch("wall", &towall);
+    ntvarTree->Branch("DWall", &dWall);
     ntvarTree->Branch("N10n", &vN10n);
     ntvarTree->Branch("N1300", &vN1300);
-    ntvarTree->Branch("trms", &vTrms);
-    ntvarTree->Branch("dtn", &vDtn);
-    ntvarTree->Branch("tbsvx", &vBvx);
-    ntvarTree->Branch("tbsvy", &vBvy);
-    ntvarTree->Branch("tbsvz", &vBvz);
-    ntvarTree->Branch("tbsvt", &vBvt);
-    ntvarTree->Branch("beta14", &vBeta14_10);
-    ntvarTree->Branch("beta14_40", &vBeta14_50);
-    ntvarTree->Branch("nring", &nring);
-    ntvarTree->Branch("evis", &evis);
-    ntvarTree->Branch("nhitac", &nhitac);
-    ntvarTree->Branch("ndcy", &ndcy);
-    ntvarTree->Branch("qismsk", &qismsk);
-    ntvarTree->Branch("apnmue", &nmue);
-    ntvarTree->Branch("apnring", &nring);
-    ntvarTree->Branch("apip", &vApip);
-    ntvarTree->Branch("apamom", &vApamom);
-    ntvarTree->Branch("amome", &vApmome);
-    ntvarTree->Branch("amomm", &vApmomm);
-    ntvarTree->Branch("TMVAoutput", &vTMVAoutput);
+    ntvarTree->Branch("TRMS10n", &vTRMS10n);
+    ntvarTree->Branch("ReconCTn", &vReconCTn);
+    ntvarTree->Branch("bsvx", &vBSvx);
+    ntvarTree->Branch("bsvy", &vBSvy);
+    ntvarTree->Branch("bsvz", &vBSvz);
+    ntvarTree->Branch("BSReconCT", &vBSReconCT);
+    ntvarTree->Branch("Beta14_10", &vBeta14_10);
+    ntvarTree->Branch("Beta14_40", &vBeta14_50);
+    ntvarTree->Branch("APNrings", &apNRings);
+    ntvarTree->Branch("EVis", &evis);
+    ntvarTree->Branch("NHITAC", &nhitac);
+    ntvarTree->Branch("APNDecays", &apNDecays);
+    ntvarTree->Branch("QISMSK", &qismsk);
+    ntvarTree->Branch("APNMuE", &apNMuE);
+    ntvarTree->Branch("APNRings", &apNRings);
+    ntvarTree->Branch("APRingPID", &vAPRingPID);
+    ntvarTree->Branch("APMom", &vAPMom);
+    ntvarTree->Branch("APMomE", &vAPMomE);
+    ntvarTree->Branch("APMomMu", &vAPMomMu);
+    ntvarTree->Branch("TMVAOutput", &vTMVAOutput);
 
     // Make branches from TMVAVariables class
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {
-        ntvarTree->Branch("nGd", &vIsGdCapture);
-        ntvarTree->Branch("timeRes", &vTimeDiff);
-        ntvarTree->Branch("doubleCount", &vDoubleCount);
-        ntvarTree->Branch("realneutron", &vIsTrueCapture);
-        ntvarTree->Branch("truth_vx", &vTruth_vx);
-        ntvarTree->Branch("truth_vy", &vTruth_vy);
-        ntvarTree->Branch("truth_vz", &vTruth_vz);
+        ntvarTree->Branch("IsGdCap", &vIsGdCapture);
+        ntvarTree->Branch("CTDiff", &vCTDiff);
+        ntvarTree->Branch("DoubleCount", &vDoubleCount);
+        ntvarTree->Branch("IsCapture", &vIsCapture);
+        ntvarTree->Branch("truecapvx", &vTrueCapVX);
+        ntvarTree->Branch("truecapvy", &vTrueCapVY);
+        ntvarTree->Branch("truecapvz", &vTruth_vz);
     }
 }
 

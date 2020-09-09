@@ -6,7 +6,7 @@
 class NTagIO : public NTagEventInfo
 {
     public:
-        NTagIO(const char* inFileName, const char* outFileName, unsigned int verbose);
+        NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose);
         ~NTagIO();
 
         // Initialize
