@@ -22,6 +22,4 @@ python:
   version: 3.7
   install:
     - method: pip
-      path: breathe
-    - method: pip
-      path: exhale
+      requirements: docs/source/requirements.txt
