@@ -18,7 +18,8 @@
 
 # -- Project information -----------------------------------------------------
 
-import os 
+import os
+import subprocess
 
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
