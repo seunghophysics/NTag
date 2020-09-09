@@ -45,28 +45,28 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
-    "recommonmark",
-    "breathe"
+    "breathe",
+    "m2r2"
 ]
 
 # Setup breathe
-breathe_projects = { "NTag": "../build/doxyoutput/xml" }
+breathe_projects = { "NTag": "../../doxygen/build/xml/" }
 breathe_default_project = "NTag"
 
 # Setup exhale
-exhale_args = {
-    # These arguments are required
-    "containmentFolder":     "./api",
-    "rootFileName":          "library_root.rst",
-    "rootFileTitle":         "Library API",
-    "doxygenStripFromPath":  "..",
-    # Suggested optional arguments
-    "createTreeView":        True,
-    # TIP: if using the sphinx-bootstrap-theme, you need
-    # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../../include"
-}
+# exhale_args = {
+#     # These arguments are required
+#     "containmentFolder":     "./api",
+#     "rootFileName":          "library_root.rst",
+#     "rootFileTitle":         "Library API",
+#     "doxygenStripFromPath":  "..",
+#     # Suggested optional arguments
+#     "createTreeView":        True,
+#     # TIP: if using the sphinx-bootstrap-theme, you need
+#     # "treeViewIsBootstrap": True,
+#     "exhaleExecutesDoxygen": True,
+#     "exhaleDoxygenStdin":    "INPUT = ../../include"
+# }
 
 # Tell sphinx what the primary language being documented is.
 primary_domain = 'cpp'
@@ -80,8 +80,8 @@ templates_path = ['ntemplates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+#source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -109,6 +109,23 @@ pygments_style = None
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    'canonical_url': '',
+    'analytics_id': '',  #  Provided by Google in your dashboard
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    
+    'logo_only': False,
+
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -119,7 +136,7 @@ pygments_style = None
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['nstatic']
+# html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
