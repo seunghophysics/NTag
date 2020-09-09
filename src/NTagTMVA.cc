@@ -5,13 +5,13 @@
 
 #include "NTagTMVA.hh"
 
-NTagTMVA::NTagTMVA(unsigned int verbose):
+NTagTMVA::NTagTMVA(Verbosity verbose):
 fVerbosity(verbose)
 {
     Constructor();
 }
 
-NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose):
+NTagTMVA::NTagTMVA(const char* inFileName, const char* outFileName, Verbosity verbose):
 fVerbosity(verbose), fInFileName(inFileName), fOutFileName(outFileName)
 {
     Constructor();

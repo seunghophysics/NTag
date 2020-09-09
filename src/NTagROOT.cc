@@ -13,7 +13,7 @@
 #include "NTagROOT.hh"
 #include "SKLibs.hh"
 
-NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, unsigned int verbose)
+NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mBONSAI); }
 
 NTagROOT::~NTagROOT() { bonsai_end_(); }

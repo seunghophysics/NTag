@@ -10,7 +10,7 @@
 
 NTagIO* NTagIO::instance;
 
-NTagIO::NTagIO(const char* inFileName, const char* outFileName, unsigned int verbose)
+NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
 {
     instance = this;

@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     const std::string &vz = parser.GetOption("-vz");
 
     // Verbosity
-    unsigned int pVERBOSE = pDEFAULT;
+    Verbosity pVERBOSE = pDEFAULT;
     if (parser.OptionExists("-debug")) {
         pVERBOSE = pDEBUG;
     }

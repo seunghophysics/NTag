@@ -11,12 +11,15 @@
 #include "NTagMessage.hh"
 #include "NTagTMVA.hh"
 
-enum {mAPFIT, mBONSAI, mCUSTOM, mTRUE, mMUON};
+/***************
+ * Vertex mode
+ ***************/
+enum VertexMode {mAPFIT, mBONSAI, mCUSTOM, mTRUE, mMUON};
 
 class NTagEventInfo
 {
     public:
-        NTagEventInfo(unsigned int verbose);
+        NTagEventInfo(Verbosity verbose);
         virtual ~NTagEventInfo();
 
         // Functions to set variables
@@ -81,7 +84,7 @@ class NTagEventInfo
         inline void          SetTMatchWindow(float t) { TMATCHWINDOW = t; }
         inline void          SetTPeakSeparation(float t) { TMINPEAKSEP = t; }
         inline void          SetMaxODHitThreshold(float q) { ODHITMX = q; }
-        inline void          SetVertexMode(int m) { fVertexMode = m; }
+        inline void          SetVertexMode(VertexMode m) { fVertexMode = m; }
         inline void          UseTMVA(bool b) { useTMVA = b; }
         inline void          SetCustomVertex(float x, float y, float z)
                                             { customvx = x; customvy = y; customvz = z; fVertexMode = mCUSTOM; }
@@ -106,7 +109,7 @@ class NTagEventInfo
 
     protected:
         NTagMessage  msg;
-        unsigned int fVerbosity;
+        Verbosity fVerbosity;
         bool         bData, useTMVA;
         int          fVertexMode;
 

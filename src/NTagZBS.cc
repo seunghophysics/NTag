@@ -8,7 +8,7 @@
 #include "NTagZBS.hh"
 #include "SKLibs.hh"
 
-NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, unsigned int verbose)
+NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mAPFIT); }
 
 NTagZBS::~NTagZBS() { bonsai_end_(); }

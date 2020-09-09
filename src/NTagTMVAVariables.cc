@@ -6,7 +6,7 @@
 
 #include "NTagTMVAVariables.hh"
 
-NTagTMVAVariables::NTagTMVAVariables(unsigned int verbose)
+NTagTMVAVariables::NTagTMVAVariables(Verbosity verbose)
 {
     msg = NTagMessage("TMVAVariables", verbose);
     Clear();

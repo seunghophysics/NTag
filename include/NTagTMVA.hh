@@ -25,8 +25,8 @@ typedef std::map<const char*, Range> RangeMap;
 class NTagTMVA
 {
     public:
-        NTagTMVA(unsigned int verbose=pDEFAULT);
-        NTagTMVA(const char* inFileName, const char* outFileName, unsigned int verbose=pDEFAULT);
+        NTagTMVA(Verbosity verbose=pDEFAULT);
+        NTagTMVA(const char* inFileName, const char* outFileName, Verbosity verbose=pDEFAULT);
         ~NTagTMVA();
 
         void Constructor();
@@ -73,7 +73,7 @@ class NTagTMVA
         NTagTMVAVariables fVariables;
         NTagMessage       msg;
 
-        unsigned int fVerbosity;
+        Verbosity fVerbosity;
 
         const char* fInFileName;
         const char* fOutFileName;
