@@ -43,7 +43,7 @@ fVerbosity(verbose), bData(false), useTMVA(true)
     SetMaxODHitThreshold(16);
 
     TMVATools = NTagTMVA(verbose);
-    TMVATools.SetReader("MLP", "weights/tmpweights.xml");
+    TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
     TMVATools.SetReaderCutRange("ReconCT", T0TH*1.e3, T0MX*1.e3);
     TMVATools.DumpReaderCutRange();
