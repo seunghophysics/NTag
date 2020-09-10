@@ -9,6 +9,8 @@ NTagMessage::~NTagMessage() {}
 void NTagMessage::PrintTag(Verbosity vType)
 {
     switch (vType) {
+        case pNONE:
+            break;
         case pDEFAULT:
             std::cout << "[NTag" << fClassName << "] "; break;
         case pWARNING:
