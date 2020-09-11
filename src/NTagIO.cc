@@ -319,13 +319,13 @@ void NTagIO::CreateBranchesToNTvarTree()
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {
-        ntvarTree->Branch("IsGdCap", &vIsGdCapture);
+        ntvarTree->Branch("IsGdCapture", &vIsGdCapture);
         ntvarTree->Branch("CTDiff", &vCTDiff);
         ntvarTree->Branch("DoubleCount", &vDoubleCount);
         ntvarTree->Branch("IsCapture", &vIsCapture);
         ntvarTree->Branch("truecapvx", &vTrueCapVX);
         ntvarTree->Branch("truecapvy", &vTrueCapVY);
-        ntvarTree->Branch("truecapvz", &vTruth_vz);
+        ntvarTree->Branch("truecapvz", &vTrueCapVZ);
     }
 }
 

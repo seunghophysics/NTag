@@ -57,8 +57,15 @@ void NTagEventInfo::SetEventHeader()
     subrunNo = skhead_.nsubsk;
     eventNo  = skhead_.nevsk;
     
-    // QISMSK: Total p.e. deposit in ID
-    qismsk = skq_.qismsk;
+    // Mimic QISMSK: sum all Q of ID hits within 1.3 usec gate
+    qismsk = 0.;
+    for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
+        float hitTime = sktqz_.tiskz[iHit];
+        if (479.2 < hitTime && hitTime < 1779.2) {
+            qismsk += sktqz_.qiskz[iHit];
+        }
+    }
+    
     msg.Print(Form("qismsk: %f", qismsk), pDEBUG);
     
     // Number of OD hits
@@ -184,9 +191,6 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
     SortToFSubtractedTQ();
     msg.Print(Form("NQISKZ: %d", nqiskz), pDEBUG);
-
-    // set qismsk as sum of all appended in-gate hits
-    // qismsk = accumulate(vQISKZ.begin(), vQISKZ.end(), 0);
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -582,17 +586,17 @@ void NTagEventInfo::SetTrueCaptureInfo()
             auto tmpTruthV = TrueCaptureVertex(iCandidate);
             vTrueCapVX.push_back( tmpTruthV[0] );
             vTrueCapVY.push_back( tmpTruthV[1] );
-            vTruth_vz.push_back( tmpTruthV[2] );
+            vTrueCapVZ.push_back( tmpTruthV[2] );
 
             // Check whether capture is on Gd or H
             vIsGdCapture.push_back( IsGdCapture(iCandidate) );
         }
         else {
             vDoubleCount.push_back(0);
-            vCTDiff.push_back   (0);
-            vTrueCapVX.push_back   (0);
-            vTrueCapVY.push_back   (0);
-            vTruth_vz.push_back   (0);
+            vCTDiff.push_back(0);
+            vTrueCapVX.push_back(0);
+            vTrueCapVY.push_back(0);
+            vTrueCapVZ.push_back(0);
             vIsGdCapture.push_back(0);
         }
     }
@@ -994,7 +998,7 @@ void NTagEventInfo::Clear()
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
     vIsGdCapture.clear(); vIsCapture.clear();
-    vTrueCapVX.clear(); vTrueCapVY.clear(); vTruth_vz.clear(); vCTDiff.clear();
+    vTrueCapVX.clear(); vTrueCapVY.clear(); vTrueCapVZ.clear(); vCTDiff.clear();
     vSecPID.clear(); vSecIntID.clear(); vParentPID.clear(); vCapID.clear();
     vSecVX.clear(); vSecVY.clear(); vSecVZ.clear(); vSecPX.clear(); vSecPY.clear(); vSecPZ.clear();
     vSecDWall.clear(); vSecMom.clear(); vSecT.clear();
