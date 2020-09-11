@@ -11,12 +11,12 @@ void NTagMessage::PrintTag(Verbosity vType)
     switch (vType) {
         case pNONE:
             break;
-        case pDEFAULT:
-            std::cout << "[NTag" << fClassName << "] "; break;
-        case pWARNING:
-            std::cout << "\033[4;33m" << "[NTag" << fClassName << " WARNING] "; break;
         case pERROR:
             std::cerr << "\033[4;31m" << "[Error in NTag" << fClassName << "]"; break;
+        case pWARNING:
+            std::cout << "\033[4;33m" << "[NTag" << fClassName << " WARNING] "; break;
+        case pDEFAULT:
+            std::cout << "[NTag" << fClassName << "] "; break;
         case pDEBUG:
             std::cout << "\033[0;34m" << "[NTag" << fClassName << " DEBUG] "; break;
     }
@@ -24,21 +24,17 @@ void NTagMessage::PrintTag(Verbosity vType)
 
 void NTagMessage::Print(TString msg, Verbosity vType)
 {
-    if (vType <= fVerbosity) {
-        PrintTag(vType);
-        if (vType == pERROR) {
-            std::cerr << "\033[m" << msg << std::endl;
-            exit(1);
-        }
-        else std::cout << "\033[m" << msg << std::endl;
-    }
+    Print(msg.Data(), vType);
 }
 
 void NTagMessage::Print(const char* msg, Verbosity vType)
 {
     if (vType <= fVerbosity) {
         PrintTag(vType);
-        if (vType == pERROR) std::cerr << "\033[m" << msg << std::endl;
+        if (vType == pERROR) {
+            std::cerr << "\033[m " << msg << std::endl;
+            exit(1);
+        }
         else std::cout << "\033[m" << msg << std::endl;
     }
 }

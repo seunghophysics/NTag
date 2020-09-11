@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
     // Choose between default name and optional name
     std::string outputName, weightName, methodName;
-    if (inputName.empty())  msg.Print("Please specify input file name: ./bin/main -in [input file] ...", pERROR);
+    if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...", pERROR);
     if (tmpOutName.empty())    outputName = "out/NTagOut.root";
     else                       outputName = tmpOutName;
     if (tmpWeightName.empty()) weightName = "weights/MLP_Gd0.02p.xml";
