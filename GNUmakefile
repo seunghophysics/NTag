@@ -35,6 +35,7 @@ all: bin/NTag lib/libNTag.so
 bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out
 	@echo "[NTag] Building NTag..."
 	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
+	@chmod +x path/bash path/csh
 	@echo "[NTag] Done!"
 
 lib/libNTag.so: obj/bonsai.o $(OBJS) lib

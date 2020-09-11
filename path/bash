@@ -16,4 +16,6 @@ then
     unset NTAGPATH
     sed -i '/Install NTag/d' ~/.bashrc
     echo "[NTag] The path to the NTag executable has been removed from your \$PATH."
+else 
+    echo "[NTag] Unknown command $1! Please use either set or unset."
 fi

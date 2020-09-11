@@ -3,6 +3,7 @@
 #include <TMVA/Factory.h>
 #include <TMVA/Reader.h>
 
+#include "NTagPath.hh"
 #include "NTagTMVA.hh"
 
 NTagTMVA::NTagTMVA(Verbosity verbose):
@@ -104,7 +105,7 @@ void NTagTMVA::MakeWeights()
     TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
 
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = "weights/new";
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGPATH") + "weights/new";
 
     fVariables = NTagTMVAVariables(fVerbosity);
     auto varKeys = fVariables.Keys();
