@@ -3,6 +3,7 @@
 
 #include <TROOT.h>
 
+#include "NTagPath.hh"
 #include "NTagROOT.hh"
 #include "NTagZBS.hh"
 #include "NTagTMVA.hh"
@@ -40,10 +41,14 @@ int main(int argc, char** argv)
 
     // Choose between default name and optional name
     std::string outputName, weightName, methodName;
+    std::string installPath = GetENV("NTAGPATH");
+    if (GetCWD() != installPath)
+        msg.Print(Form("Using NTag in $NTAGPATH: ") + installPath);
+    
     if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...", pERROR);
-    if (tmpOutName.empty())    outputName = "out/NTagOut.root";
+    if (tmpOutName.empty())    outputName = installPath + "out/NTagOut.root";
     else                       outputName = tmpOutName;
-    if (tmpWeightName.empty()) weightName = "weights/MLP_Gd0.02p.xml";
+    if (tmpWeightName.empty()) weightName = installPath + "weights/MLP_Gd0.02p.xml";
     else                       weightName = tmpWeightName;
     if (tmpMethodName.empty()) methodName = "MLP";
     else                       methodName = tmpMethodName;
@@ -59,7 +64,7 @@ int main(int argc, char** argv)
             outputName = "weights/new/NTagTMVA_Test_Results.root";
 
         msg.Print(Form("Start testing MVA methods with input: ") + inputName);
-        msg.Print("Generating new weight files in weights/new...");
+        msg.Print("Generating new weight files in $NTAGPATH/weights/new...");
 
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
         nt.MakeWeights();
