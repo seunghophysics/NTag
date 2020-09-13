@@ -1,20 +1,20 @@
 #!/bin/csh
 
 set bin = "$PWD/bin"
-set line = "setenv PATH $bin\:\$PATH # Install NTag"
+set pathline = "setenv PATH $bin\:\$PATH # Install NTag"
+set ntagline = "setenv NTAGPATH $PWD     # Install NTag"
 
 if ($1 == "set") then
     setenv PATH $bin\:$PATH
     setenv NTAGPATH $PWD
-    echo $line >> ~/.cshrc
-    echo $line >> ~/.tcshrc
+    echo $pathline | tee -a ~/.*rc >/dev/null
+    echo $ntagline | tee -a ~/.*rc >/dev/null
     echo "[NTag] The path to the NTag executable has been added to your PATH."
     echo "[NTag] Use NTag anywhere you want!"
 else if ($1 == "unset") then
     setenv PATH `echo $PATH | sed 's|'"${bin}:"'||g'`
     unsetenv NTAGPATH
-    sed -i '/Install NTag/d' ~/.cshrc
-    sed -i '/Install NTag/d' ~/.tcshrc
+    sed -i '/Install NTag/d' ~/.*rc
     echo "[NTag] The path to the NTag executable has been removed from your PATH."
 else
     echo "[NTag] Unknown command $1! Please use either set or unset."

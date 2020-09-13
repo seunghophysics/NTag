@@ -1,17 +1,17 @@
 #!/bin/bash
 
 bin=$(pwd)/bin
-line="export PATH=$bin:\$PATH # Install NTag"
+pathline="export PATH=$bin:\$PATH # Install NTag"
+ntagline="export NTAGPATH=$(pwd)  # Install NTag"
 
-if [ $1 == "set" ]
-then
+if [ $1 == "set" ]; then
     export PATH=$bin:$PATH
     export NTAGPATH=$(pwd)
-    echo $line >> ~/.bashrc
+    echo $pathline >> ~/.bashrc
+    echo $ntagline >> ~/.bashrc
     echo "[NTag] The path to the NTag executable has been added to your \$PATH."
     echo "[NTag] Use NTag anywhere you want!"
-elif [ $1 == "unset" ]
-then
+elif [ $1 == "unset" ]; then
     export PATH=${PATH//$bin:/}
     unset NTAGPATH
     sed -i '/Install NTag/d' ~/.bashrc
