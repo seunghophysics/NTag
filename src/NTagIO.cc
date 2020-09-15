@@ -160,7 +160,7 @@ void NTagIO::ReadDataEvent()
 
     // If previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
-    else if (!vTISKZ.empty()) {
+    else if (!IsRawHitVectorEmpty()) {
         msg.Print("Saving SHE without AFT...", pDEBUG);
         SetToFSubtractedTQ();
 
@@ -281,10 +281,9 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("RunNo", &runNo);
     ntvarTree->Branch("SubrunNo", &subrunNo);
     ntvarTree->Branch("EventNo", &eventNo);
-    ntvarTree->Branch("TrgType", &trgType);
     ntvarTree->Branch("FirstHitTime_ToF", &firstHitTime_ToF);
     ntvarTree->Branch("MaxN200", &maxN200);
-    ntvarTree->Branch("MaxT200", &maxT200);
+    ntvarTree->Branch("MaxN200Time", &maxN200Time);
     ntvarTree->Branch("pvx", &pvx);
     ntvarTree->Branch("pvy", &pvy);
     ntvarTree->Branch("pvz", &pvz);

@@ -143,7 +143,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser,
         nt->SetVertexMode(mTRUE);
     }
     else if (parser.OptionExists("-usemuonvertex")) {
-        nt->SetVertexMode(mMUON);
+        nt->SetVertexMode(mSTMU);
     }
 
     nt->ReadFile();

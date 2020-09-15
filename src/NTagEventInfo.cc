@@ -22,6 +22,7 @@
 #include <apscndryC.h>
 #include <loweroot.h>
 
+#include "NTagPath.hh"
 #include "NTagEventInfo.hh"
 #include "SKLibs.hh"
 
@@ -43,7 +44,7 @@ fVerbosity(verbose), bData(false), useTMVA(true)
     SetMaxODHitThreshold(16);
 
     TMVATools = NTagTMVA(verbose);
-    TMVATools.SetReader("MLP", "weights/MLP_Gd0.02p.xml");
+    TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
     TMVATools.SetReaderCutRange("N10", N10TH, N10MX);
     TMVATools.SetReaderCutRange("ReconCT", T0TH*1.e3, T0MX*1.e3);
     TMVATools.DumpReaderCutRange();
@@ -71,6 +72,10 @@ void NTagEventInfo::SetEventHeader()
     // Number of OD hits
     odpc_2nd_s_(&nhitac);
     msg.Print(Form("Number of OD hits: %d", nhitac), pDEBUG);
+    
+    // Read trigger offset
+    trginfo_(&trgOffset);
+    msg.Print(Form("Trigger offset: %f", trgOffset), pDEBUG);
 }
 
 void NTagEventInfo::SetPromptVertex()
@@ -100,7 +105,7 @@ void NTagEventInfo::SetPromptVertex()
             pvx = skvect_.pos[0];
             pvy = skvect_.pos[1];
             pvz = skvect_.pos[2]; break; }
-        case mMUON: {
+        case mSTMU: {
             /* STMU */ break; }
     }
     
@@ -195,13 +200,9 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
 void NTagEventInfo::SetMCInfo()
 {
-    // Read trigger offset
-    trginfo_(&trgOffset);
-    msg.Print(Form("Trigger offset: %f", trgOffset), pDEBUG);
-
     // Read SKVECT (primaries)
     skgetv_();
-    nVec  = skvect_.nvect;    // number of primaries
+    nVec  = skvect_.nvect;   // number of primaries
     vecx = skvect_.pos[0];   // initial vertex of primaries
     vecy = skvect_.pos[1];
     vecz = skvect_.pos[2];
@@ -358,7 +359,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + 5., 200.);
         if (t0New > 2.e4 && N200New > maxN200) {
             maxN200 = N200New;
-            maxT200 = t0New;
+            maxN200Time = t0New;
         }
 
         // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
@@ -627,7 +628,7 @@ void NTagEventInfo::GetTMVAoutput()
     }
 }
 
-float NTagEventInfo::Norm(float vec[3])
+float NTagEventInfo::Norm(const float vec[3])
 {
     return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 }
@@ -637,7 +638,7 @@ float NTagEventInfo::Norm(float x, float y, float z)
     return sqrt(x*x + y*y + z*z);
 }
 
-float NTagEventInfo::GetDistance(const float vec1[3], float vec2[3])
+float NTagEventInfo::GetDistance(const float vec1[3], const float vec2[3])
 {
     float tmpVec[3];
 
@@ -777,7 +778,7 @@ float NTagEventInfo::MinimizeTRMS(const std::vector<float>& T, const std::vector
     return minTRMS;
 }
 
-std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, int tStartIndex, int nHits)
+std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, int startIndex, int nHits)
 {
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
     if (nHits == 0) return beta;
@@ -787,9 +788,9 @@ std::array<float, 6> NTagEventInfo::GetBetaArray(const std::vector<int>& PMTID, 
     for (int iHit = 0; iHit < nHits; iHit++) {
         float distFromVertexToPMT;
         float vecFromVertexToPMT[3];
-        vecFromVertexToPMT[0] = PMTXYZ[PMTID[tStartIndex+iHit]-1][0] - pvx;
-        vecFromVertexToPMT[1] = PMTXYZ[PMTID[tStartIndex+iHit]-1][1] - pvy;
-        vecFromVertexToPMT[2] = PMTXYZ[PMTID[tStartIndex+iHit]-1][2] - pvz;
+        vecFromVertexToPMT[0] = PMTXYZ[PMTID[startIndex+iHit]-1][0] - pvx;
+        vecFromVertexToPMT[1] = PMTXYZ[PMTID[startIndex+iHit]-1][1] - pvy;
+        vecFromVertexToPMT[2] = PMTXYZ[PMTID[startIndex+iHit]-1][2] - pvz;
         distFromVertexToPMT = Norm(vecFromVertexToPMT);
         uvx[iHit] = vecFromVertexToPMT[0] / distFromVertexToPMT;
         uvy[iHit] = vecFromVertexToPMT[1] / distFromVertexToPMT;
@@ -838,7 +839,6 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
 
 void NTagEventInfo::SortToFSubtractedTQ()
 {
-    nqiskz = static_cast<int>(vTISKZ.size());
     int sortedIndex[nqiskz], pmtID;
 
     // Sort: early hit first
@@ -866,7 +866,7 @@ int NTagEventInfo::GetNhitsFromStartIndex(const std::vector<float>& T, int start
     return TMath::Abs(searchIndex - startIndex);
 }
 
-float NTagEventInfo::GetQhitsFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth)
+float NTagEventInfo::GetQSumFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth)
 {
     int nHits       = Q.size();
     int searchIndex = startIndex;
@@ -966,12 +966,12 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 
 void NTagEventInfo::Clear()
 {
-    runNo = 0; subrunNo = 0; eventNo = 0; trgType = 0; nhitac = 0; nqiskz = 0;
-    trgOffset = 0; qismsk = 0;
+    runNo = 0; subrunNo = 0; eventNo = 0; nhitac = 0; nqiskz = 0;
+    trgOffset = 1000; qismsk = 0;
     apNRings = 0; apNMuE = 0; apNDecays = 0;
     evis = 0; pvx = 0; pvy = 0; pvz = 0; dWall = 0;
     nCandidates = 0; maxN200 = 0;
-    maxT200 = -9999.; firstHitTime_ToF = -9999.;
+    maxN200Time = -9999.; firstHitTime_ToF = -9999.;
 
     nTrueCaptures = 0;
     nSavedSec = 0; nAllSec = 0;
@@ -1008,11 +1008,6 @@ void NTagEventInfo::Clear()
     vVecPX.clear(); vVecPY.clear(); vVecPZ.clear(); vVecMom.clear();
 }
 
-void NTagEventInfo::ClearRawHitInfo()
-{
-    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear();
-}
-
 void NTagEventInfo::SaveSecondary(int secID)
 {
     vSecPID.push_back ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
@@ -1039,8 +1034,8 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     int   N200    = GetNhitsFromCenterTime(vSortedT_ToF, t0 + 5., 200.);
     auto  beta    = GetBetaArray(vSortedPMTID, hitID, N10i);
     float tEnd    = vSortedT_ToF[hitID+N10i-1];
-    float sumQ    = GetQhitsFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
-    float trms = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
+    float sumQ    = GetQSumFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
+    float trms    = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
 
     if ((N10i >= N10TH) && (N10i < N10MX+1)) {
         // Save info
