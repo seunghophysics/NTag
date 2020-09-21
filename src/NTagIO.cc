@@ -31,6 +31,7 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
 NTagIO::~NTagIO()
 {
     WriteOutput();
+    bonsai_end_();
     delete ntvarTree;
     delete truthTree;
 }

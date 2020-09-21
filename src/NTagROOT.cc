@@ -16,7 +16,7 @@
 NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mBONSAI); }
 
-NTagROOT::~NTagROOT() { bonsai_end_(); }
+NTagROOT::~NTagROOT() {}
 
 void NTagROOT::OpenFile()
 {

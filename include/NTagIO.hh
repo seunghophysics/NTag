@@ -34,6 +34,9 @@ class NTagIO : public NTagEventInfo
          * @see NTagIO::CreateBranchesToNtvarTree, NTagIO::CreateBranchesToTruthTree
          */
         NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose);
+        /**
+         * @brief Destructor of NTagIO. Ends BONSAI.
+         */
         ~NTagIO();
 
         // Initialize
@@ -73,7 +76,7 @@ class NTagIO : public NTagEventInfo
              */
             virtual void SKInitialize();
             /**
-             * @brief The main event loop.
+             * @brief Starts reading input file and looping over events.
              * @details The steering code here is \c skread. 
              * \c skread is called and all data variables copied to the SK fortran common blocks
              * are read by the member functions of NTagEventInfo if the read status of the event
