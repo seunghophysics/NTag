@@ -7,19 +7,18 @@ NTag Documentation
    
 .. mdinclude:: ../../../README.md
 
-Another simple header
+Class Description
 =====================
-
-Guide
-^^^^^
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents
    
-   DoxygenIndex
    NTagEventInfo
-
+   NTagIO
+   NTagROOT
+   NTagZBS
+   NTagTMVA
+   NTagTMVAVariables
 
 Indices and tables
 ==================

@@ -149,7 +149,7 @@ class NTagEventInfo
             /**
              * @brief Reads secondary bank from input file and fills \c secndprt common. Called inside
              * NTagEventInfo::SetMCInfo.
-             * @see: NTagZBS::ReadSecondaries, NTagROOT::ReadSecondaries
+             * @see: NTagROOT::ReadSecondaries
              */
             virtual void ReadSecondaries();
             /**
