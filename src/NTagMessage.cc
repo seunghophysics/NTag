@@ -24,11 +24,6 @@ void NTagMessage::PrintTag(Verbosity vType)
 
 void NTagMessage::Print(TString msg, Verbosity vType)
 {
-    Print(msg.Data(), vType);
-}
-
-void NTagMessage::Print(const char* msg, Verbosity vType)
-{
     if (vType <= fVerbosity) {
         PrintTag(vType);
         if (vType == pERROR) {
