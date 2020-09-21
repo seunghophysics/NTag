@@ -1,3 +1,12 @@
+/*******************************************
+*
+* @file SKLibs.hh
+*
+* @brief Defines SKOFL and ATMPD functions
+* to use in NTag.
+*
+********************************************/
+
 #ifndef SKLIBS_HH
 #define SKLIBS_HH 1
 

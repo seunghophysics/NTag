@@ -259,8 +259,6 @@ class NTagEventInfo
              * and if the two times are separated within a specified time window (#TMATCHWINDOW),
              * then returns \c true. Otherwise returns \c false.
              * @param candidateID The ID of a capture candidate.
-             * @param bSave If \c true and \p candidateID matches as a true capture, \p candidateID is pushed back to
-             * #vCandidateID.
              * @return \c true if the reconstructed capture time matches a true capture time, otherwise \c false.
              */
             int IsGdCapture(int candidateID);

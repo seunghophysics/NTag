@@ -76,8 +76,9 @@ class NTagTMVA
         
         /**
          * @brief Constructor function for NTagTMVA.
-         * @details Sets up #msg and #fVariables. Set MVA methods to use using NTagTMVA::SetMethods.
-         * Set default #fSigCut and #fBkgCut as "IsCapture == 1" and "IsCapture == 0".
+         * @details Sets up member NTagMessage and NTagTMVAVariables. 
+         * Sets MVA methods to use using NTagTMVA::SetMethods.
+         * Sets default #fSigCut and #fBkgCut as "IsCapture == 1" and "IsCapture == 0".
          */
         void Constructor();
 
