@@ -37,7 +37,7 @@ fVerbosity(verbose), bData(false), useTMVA(true)
 
     SetN10Limits(7, 50);
     SetN200Max(140);
-    SetT0Limits(2., 600.);   // [us]
+    SetT0Limits(5., 600.);   // [us]
     SetDistanceCut(4000.);   // [cm]
     SetTMatchWindow(40.);    // [ns]
     SetTPeakSeparation(50.); // [us]
@@ -966,7 +966,7 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 
 void NTagEventInfo::Clear()
 {
-    runNo = 0; subrunNo = 0; eventNo = 0; nhitac = 0; nqiskz = 0;
+    runNo = 0; subrunNo = 0; eventNo = 0; nhitac = 0; nqiskz = 0; trgType = 0;
     trgOffset = 1000; qismsk = 0;
     apNRings = 0; apNMuE = 0; apNDecays = 0;
     evis = 0; pvx = 0; pvy = 0; pvz = 0; dWall = 0;

@@ -5,6 +5,7 @@
 #include <skheadC.h>
 #include <skvectC.h>
 
+#include "NTagPath.hh"
 #include "NTagIO.hh"
 #include "SKLibs.hh"
 
@@ -186,6 +187,7 @@ void NTagIO::ReadSHEEvent()
 {
     // DONT'T FORGET TO CLEAR!
     Clear();
+    trgType = 1;
 
     // Prompt-peak info
     SetEventHeader();
@@ -198,6 +200,8 @@ void NTagIO::ReadSHEEvent()
 
 void NTagIO::ReadAFTEvent()
 {
+    trgType = 2;
+    
     // Append hit info (AFT: delayed hits after prompt)
     AppendRawHitInfo();
     SetToFSubtractedTQ();
@@ -281,6 +285,7 @@ void NTagIO::CreateBranchesToNTvarTree()
     ntvarTree->Branch("RunNo", &runNo);
     ntvarTree->Branch("SubrunNo", &subrunNo);
     ntvarTree->Branch("EventNo", &eventNo);
+    ntvarTree->Branch("TrgType", &trgType);
     ntvarTree->Branch("FirstHitTime_ToF", &firstHitTime_ToF);
     ntvarTree->Branch("MaxN200", &maxN200);
     ntvarTree->Branch("MaxN200Time", &maxN200Time);
