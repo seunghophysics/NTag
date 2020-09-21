@@ -604,7 +604,7 @@ void NTagEventInfo::SetTrueCaptureInfo()
 }
 
 
-void NTagEventInfo::GetTMVAoutput()
+void NTagEventInfo::GetTMVAOutput()
 {
     if (useTMVA) {
         std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");

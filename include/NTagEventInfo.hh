@@ -178,7 +178,7 @@ class NTagEventInfo
          * @brief Get classifier output from TMVA.
          * @details Saved variable: #vTMVAOutput
          */
-        virtual void GetTMVAoutput();
+        virtual void GetTMVAOutput();
 
         ////////////////
         // Calculator //
