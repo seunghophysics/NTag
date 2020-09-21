@@ -20,7 +20,7 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     fVerbosity = verbose;
 
     ntvarTree = new TTree("ntvar", "ntag variables");
-    CreateBranchesToNTvarTree();
+    CreateBranchesToNtvarTree();
 
     if (!bData) {
         truthTree = new TTree("truth", "true variables");
@@ -279,7 +279,7 @@ void NTagIO::CreateBranchesToTruthTree()
     truthTree->Branch("VecMom", &vVecMom);
 }
 
-void NTagIO::CreateBranchesToNTvarTree()
+void NTagIO::CreateBranchesToNtvarTree()
 {
     ntvarTree->Branch("NCandidates", &nCandidates);
     ntvarTree->Branch("RunNo", &runNo);
