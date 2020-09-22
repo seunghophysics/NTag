@@ -24,13 +24,13 @@ breathe_projects = {}
 
 if read_the_docs_build:
 
-    subprocess.call('cd ../../doxygen; doxygen Doxyfile; cd ../sphinx/source', shell=True)
-    subprocess.call(["find -name index.xml"])
-    subprocess.call(["pwd"])
-    breathe_projects = { "NTag": "../../../include" }
+    subprocess.call('cd ../../doxygen; doxygen Doxyfile; ls -R; cd ../sphinx/source', shell=True)
+
+    subprocess.call(["ls"])
+    breathe_projects = { "NTag": "../../doxygen/build" }
 
 else:
-    breathe_projects = { "NTag": "../../doxygen/build/xml#" }
+    breathe_projects = { "NTag": "../../doxygen/build/xml" }
     
 
 # -- Project information -----------------------------------------------------
