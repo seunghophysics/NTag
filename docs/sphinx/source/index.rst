@@ -1,11 +1,6 @@
 NTag Documentation
 ================================
 
-.. toctree::
-   :caption: Introduction
-   :maxdepth: 1
-   
-   Introduction
 .. mdinclude:: ../../../README.md
 
 Class Description
