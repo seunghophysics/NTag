@@ -15,6 +15,7 @@ Class Description
    NTagZBS
    NTagTMVA
    NTagTMVAVariables
+   NTagMessage
 
 Indices and tables
 ==================
