@@ -20,11 +20,18 @@ import subprocess, os
 
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
+breathe_projects = {}
+
 if read_the_docs_build:
 
     subprocess.call('cd ../../doxygen; doxygen Doxyfile; cd ../sphinx/source', shell=True)
-    subprocess.call(["ls build/xml"])
+    subprocess.call(["find -name index.xml"])
     subprocess.call(["pwd"])
+    breathe_projects = { "NTag": "../../../include" }
+
+else:
+    breathe_projects = { "NTag": "../../doxygen/build/xml#" }
+    
 
 # -- Project information -----------------------------------------------------
 
@@ -59,7 +66,7 @@ extensions = [
 ]
 
 # Setup breathe
-breathe_projects = { "NTag": "../../doxygen/build/xml/" }
+# breathe_projects = { "NTag": "../../doxygen/build/xml/" }
 breathe_default_project = "NTag"
 
 # Setup exhale
