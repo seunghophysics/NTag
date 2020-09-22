@@ -5,6 +5,7 @@ NTag Documentation
    :caption: Introduction
    :maxdepth: 1
    
+   Introduction
 .. mdinclude:: ../../../README.md
 
 Class Description
