@@ -24,7 +24,7 @@ breathe_projects = {}
 
 if read_the_docs_build:
 
-    subprocess.call('cd ../../doxygen; doxygen Doxyfile; ls -R; cd ../sphinx/source', shell=True)
+    subprocess.call('cd ../../doxygen; doxygen Doxyfile; ls -R; cd ../sphinx/source; make clean', shell=True)
     subprocess.call(["cat", "../../doxygen/build/xml/index.xml"])
     subprocess.call(["echo", "sphinx source;", "ls"])
     
