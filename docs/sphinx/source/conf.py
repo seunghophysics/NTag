@@ -22,12 +22,13 @@ read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 if read_the_docs_build:
 
-    subprocess.call('doxygen ../doxygen/Doxyfile', shell=True)
+    subprocess.call('pwd; doxygen ../doxygen/Doxyfile', shell=True)
 
 # -- Project information -----------------------------------------------------
 
 project = u'NTag'
 copyright = u'2020, The Super-Kamiokande Collaboration'
+author = u'Seungho Han'
 
 # The short X.Y version
 version = u''
