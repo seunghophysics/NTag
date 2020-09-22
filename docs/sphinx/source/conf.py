@@ -25,12 +25,7 @@ breathe_projects = {}
 if read_the_docs_build:
 
     subprocess.call('cd ../../doxygen; doxygen Doxyfile; ls -R; cd ../sphinx/source', shell=True)
-
     subprocess.call(["ls"])
-    breathe_projects = { "NTag": "../../doxygen/build" }
-
-else:
-    breathe_projects = { "NTag": "../../doxygen/build/xml" }
     
 
 # -- Project information -----------------------------------------------------
@@ -66,7 +61,7 @@ extensions = [
 ]
 
 # Setup breathe
-# breathe_projects = { "NTag": "../../doxygen/build/xml/" }
+breathe_projects = { "NTag": "../../doxygen/build/xml/" }
 breathe_default_project = "NTag"
 
 # Setup exhale
