@@ -4,7 +4,7 @@ NTag is a C++-based program to search for neutron capture candidates in SK data/
 
 ## Structure of the program
 
-![Structure][docs/NTag.png]
+![Structure](docs/NTag.png)
 
 All neutron tagging in one event is steered by a mainframe class named `NTagEventInfo`.
 
