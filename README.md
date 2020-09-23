@@ -4,6 +4,8 @@ NTag is a C++-based program to search for neutron capture candidates in SK data/
 
 ## Structure of the program
 
+![Structure][docs/NTag.png]
+
 All neutron tagging in one event is steered by a mainframe class named `NTagEventInfo`.
 
 It searches for the neutron capture candidates from the PMT hit times subtracted by the ToF to each PMT from the assumed neutron creation vertex (which can be either fit with APFit or BONSAI, or given with custom vertex options). The found candidates are fed to CERN ROOT's TMVA to get a classifier output. The higher the candidate's classifier value is, the more likely it is coming from a true neutron capture.
@@ -53,7 +55,7 @@ cd NTag; make
 |-train|`./bin/NTag -in NTagOut.root -train`                               |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
 |-debug|`./bin/NTag (...) -debug`                                          |Show debug messages on output stream.|
 
-## Output structure
+## Output tree structure
 
 * TTree `ntvar`
 

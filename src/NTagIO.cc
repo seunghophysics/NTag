@@ -252,7 +252,7 @@ void NTagIO::CreateBranchesToTruthTree()
     truthTree->Branch("TrgOffset", &trgOffset);
     truthTree->Branch("NSavedSec", &nSavedSec);
     truthTree->Branch("SecPID", &vSecPID);
-    truthTree->Branch("SecIntPID", &vSecIntID);
+    truthTree->Branch("SecIntID", &vSecIntID);
     truthTree->Branch("ParentPID", &vParentPID);
     truthTree->Branch("secvx", &vSecVX);
     truthTree->Branch("secvy", &vSecVY);
@@ -263,7 +263,7 @@ void NTagIO::CreateBranchesToTruthTree()
     truthTree->Branch("secpy", &vSecPY);
     truthTree->Branch("secpz", &vSecPZ);
     truthTree->Branch("SecMom", &vSecMom);
-    truthTree->Branch("CapID", &vCapID);
+    truthTree->Branch("SecCaptureID", &vCapID);
     truthTree->Branch("NeutIntMode", &neutIntMode);
     truthTree->Branch("NVecInNeut", &nVecInNeut);
     truthTree->Branch("NeutVecPID", &vNeutVecPID);
@@ -306,7 +306,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("bsvz", &vBSvz);
     ntvarTree->Branch("BSReconCT", &vBSReconCT);
     ntvarTree->Branch("Beta14_10", &vBeta14_10);
-    ntvarTree->Branch("Beta14_40", &vBeta14_50);
+    ntvarTree->Branch("Beta14_50", &vBeta14_50);
     ntvarTree->Branch("APNrings", &apNRings);
     ntvarTree->Branch("EVis", &evis);
     ntvarTree->Branch("NHITAC", &nhitac);
