@@ -24,6 +24,9 @@ In detail, the data flow and the search process in one event progresses as follo
 
 6. Finally, `NTagIO` will fill its trees with the member variables of `NTagEventInfo`, and clear all variables for the next event. If the file hits the end, the trees will be written to an output file.
 
+For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.jp/~han/NTag/index.html).
+(VPN to Kamioka is required.)
+
 ## Getting Started
 
 ### Dependencies
@@ -93,34 +96,34 @@ in any directory you're in.
 | SubrunNo         | 1           | X  | Subrun number                                           |
 | EventNo          | 1           | X  | Event number                                            |
 | APNDecays        | 1           | X  | # of decay electrons of sub event type                  |
-| APNMuE	         | 1           | X  | # of decay electrons                                    |
-| APNRings		     | APNRings    | X  | # of Cherenkov rings                                    |
+| APNMuE	       | 1           | X  | # of decay electrons                                    |
+| APNRings		   | APNRings    | X  | # of Cherenkov rings                                    |
 | APRingPID	       | APNRings    | X  | PID of ring                                             |
 | APMom	           | APNRings    | X  | Reconstructed ring momentum                             |
-| APMomE	         | APNRings    | X  | Reconstructed ring momentum as e-like                   |
-| APMomMu	         | APNRings    | X  | Reconstructed ring momentum as mu-like                  |
+| APMomE	       | APNRings    | X  | Reconstructed ring momentum as e-like                   |
+| APMomMu	       | APNRings    | X  | Reconstructed ring momentum as mu-like                  |
 | pvx              | 1           | X  | X coordinate of APFit neutrino vertex                   |
 | pvy              | 1           | X  | Y coordinate of APFit neutrino vertex                   |
 | pvz              | 1           | X  | Z coordinate of APFit neutrino vertex                   |
 | DWall	           | 1           | X  | Distance to neutrino vertex from wall (cm)              |
 | EVis	           | 1           | X  | Visible energy (MeV/c)                                  |
-| TrgType	         | 1           | X  | Trigger type (0: MC, 1: SHE, 2: SHE+AFT)                |
-| NHITAC	         | 1           | X  | Number of OD hits                                       |
-| MaxN200		       | 1           | X  | Max N200 in event                                       |
-| MaxN200Time	     | 1           | X  | Time of MaxN200 peak                                    |
-| NCandidates	     | 1           | X  | # of capture candidates                                 |
+| TrgType	       | 1           | X  | Trigger type (0: MC, 1: SHE, 2: SHE+AFT)                |
+| NHITAC	       | 1           | X  | Number of OD hits                                       |
+| MaxN200		   | 1           | X  | Max N200 in event                                       |
+| MaxN200Time	   | 1           | X  | Time of MaxN200 peak                                    |
+| NCandidates	   | 1           | X  | # of capture candidates                                 |
 | FirstHitTime_ToF | 1           | X  | Index of first hit in T_ToF                             |
 | nvx              | NCandidates | X  | X coordinate of Neut-fit vertex                         |
 | nvy              | NCandidates | X  | Y coordinate of Neut-fit vertex                         |
 | nvz              | NCandidates | X  | Z coordinate of Neut-fit vertex                         |
 | N10n             | NCandidates | X  | N10 calculated with Neut-fit vertex                     |
-| N10	             | NCandidates | O  | # of PMT hits in 10 ns                                  |
+| N10	           | NCandidates | O  | # of PMT hits in 10 ns                                  |
 | N50              | NCandidates | O  | # of PMT hits in 50 ns                                  |
 | N200             | NCandidates | O  | # of PMT hits in 200 ns                                 |
-| ReconCT	         | NCandidates | O  | Reconstructed capture time (ns)                         |
+| ReconCT	       | NCandidates | O  | Reconstructed capture time (ns)                         |
 | QSum10           | NCandidates | O  | Sum of Q in 10 ns (p.e.)                                |
 | TRMS10           | NCandidates | O  | RMS of PMT hit time in 10 ns                            |
-| TRMS50	         | NCandidates | O  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
+| TRMS50	       | NCandidates | O  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
 | TSpread          | NCandidates | O  | Spread of PMT hit time (max-min) in 10 ns               |
 | Beta14_10	       | NCandidates | O  | Beta14 calculated in 10 ns                              |
 | Beta14_50	       | NCandidates | O  | Beta14 calculated in 50 ns                              |
@@ -133,36 +136,36 @@ in any directory you're in.
 | bsvx	           | NCandidates | O  | X coordinate of BONSAI vertex                           |
 | bxvy             | NCandidates | O  | Y coordinate of BONSAI vertex                           |
 | bsvz             | NCandidates | O  | Z coordinate of BONSAI vertex                           |
-| BSwall	         | NCandidates | O  | Distance to wall from BONSAI vertex                     |
-| BSgood	         | NCandidates | O  | BONSAI fit goodness paramters                           |
+| BSwall	       | NCandidates | O  | Distance to wall from BONSAI vertex                     |
+| BSgood	       | NCandidates | O  | BONSAI fit goodness paramters                           |
 | BSdirks          | NCandidates | O  | BONSAI dir_KS                                           |
 | BSpatlik         | NCandidates | O  | BONSAI pattern likelihood                               |
 | BSovaq           | NCandidates | O  | BONSAI ovaq                                             |
 | NWall	           | NCandidates | O  | Distance to wall from Neut-fit vertex                   |
 | prompt_bonsai	   | NCandidates | O  | Distance to BONSAI vertex from prompt vertex            |
-| prompt_nfit	     | NCandidates | O  | Distance to Neut-fit vertex from prompt vertex          |
-| bonsai_nfit	     | NCandidates | O  | Distance to Neut-fit vertex from BONSAI vertex          |
-| ReconCTn		     | NCandidates | X  | (MC-only) Capture time with Neut-fit                    |
-| TRMS10n	         | NCandidates | X  | (MC-only) PMT hit time RMS in 10 ns with Neut-fit       |
+| prompt_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from prompt vertex          |
+| bonsai_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from BONSAI vertex          |
+| ReconCTn		   | NCandidates | X  | (MC-only) Capture time with Neut-fit                    |
+| TRMS10n	       | NCandidates | X  | (MC-only) PMT hit time RMS in 10 ns with Neut-fit       |
 | IsCapture	       | NCandidates | X  | (MC-only) 0: Not true capture 1: True capture           |
 | DoubleCount      | NCandidates | X  | (MC-only) 0: Not double count 1: Double count           |
-| CTDiff	         | NCandidates | X  | (MC-only) Diff. between true/recon capture times (ns)   |
+| CTDiff	       | NCandidates | X  | (MC-only) Diff. between true/recon capture times (ns)   |
 | truecapvx	       | NCandidates | X  | (MC-only) X of related true capture vertex (cm)         |
 | truecapvy        | NCandidates | X  | (MC-only) Y of related true capture vertex (cm)         |
 | truecapvz        | NCandidates | X  | (MC-only) Z of related true capture vertex (cm)         |
-| IsGdCapture		   | NCandidates | X  | (MC-only) 0: Not Gd-capture 1: Gd-capture               |
-| TMVAOutput    	 | NCandidates | X  | TMVA classifier output value                            |
+| IsGdCapture	   | NCandidates | X  | (MC-only) 0: Not Gd-capture 1: Gd-capture               |
+| TMVAOutput       | NCandidates | X  | TMVA classifier output value                            |
 
 * TTree `truth`
 
 | Branch name   | Size          | Description                                                   |
 |---------------|---------------|---------------------------------------------------------------|
-| TrgType		    | 1             | Trigger offset                                                |
+| TrgType		| 1             | Trigger offset                                                |
 | NTrueCaptures | 1             | # of true neutron captures                                    |
 | TrueCT        | NTrueCaptures | True capture time (ns)                                        |
-| capvx 	      | NTrueCaptures | True capture vertex (cm)                                      |
-| capvy 	      | NTrueCaptures | True capture vertex (cm)                                      |
-| capvz 	      | NTrueCaptures | True capture vertex (cm)                                      |
+| capvx 	    | NTrueCaptures | True capture vertex (cm)                                      |
+| capvy 	    | NTrueCaptures | True capture vertex (cm)                                      |
+| capvz 	    | NTrueCaptures | True capture vertex (cm)                                      |
 | NGamma        | NTrueCaptures | Gamma multiplicity                                            |
 | TotGammaE	    | NTrueCaptures | Total gamma energy emitted (MeV)                              |
 | NSavedSec     | 1             | # of secondary particles (neutron & capture related)          |
@@ -182,7 +185,7 @@ in any directory you're in.
 | NVecInNeut    | 1             | # of particle at neutrino interaction                         |
 | NeutIntMode   | 1             | Interaction mode of neutrino, see NEUT/nemodsel.F             |
 | NeutIntMom    | 1             | Momentum at neutrino interaction (GeV/c)                      |
-| NnInNeutVec	  | 1             | # of neutron in input vector                                  |
+| NnInNeutVec	| 1             | # of neutron in input vector                                  |
 | NeutVecPID    | NVecInNeut    | Particle code at neutrino interaction (PDG code)              |
 | NVec          | 1             | # of particle of primary vectors in MC                        |
 | vecx          | 1             | X coordinate of primary vector vertex                         |
@@ -193,3 +196,7 @@ in any directory you're in.
 | vecpx         | NVec          | X-direction momentum of primary vector                        |
 | vecpy         | NVec          | Y-direction momentum of primary vector                        |
 | vecpz         | NVec          | Z-direction momentum of primary vector                        |
+
+## Contact
+
+Seungho Han (ICRR) <han@icrr.u-tokyo.ac.jp>
