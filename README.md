@@ -46,23 +46,10 @@ cd NTag; make
 
 ### How to install $PATH
 
-For Bash, 
-```
-. path/bash set
-```
-To uninstall, 
-```
-. path/bash unset
-```
-
-For csh/tcsh,
-```
-source path/csh set
-```
-To uninstall,
-```
-source path/csh unset
-```
+| Shell type | Install command       | Uninstall command       |
+|------------|-----------------------|-------------------------|
+| Bash       | `. path/bash set`     | `. path/bash unset`     |
+| csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
 Executing NTag binary becomes path-independent. To use NTag, just type in, for example, 
 ```
