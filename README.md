@@ -51,7 +51,7 @@ cd NTag; make
 | Bash       | `. path/bash set`     | `. path/bash unset`     |
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
-Executing NTag binary becomes path-independent. To use NTag, just type in, for example, 
+Executing NTag binary becomes path-independent after installing the binary path in $PATH. To use NTag, just type in, for example, 
 ```
 NTag -in (input file)
 ```
