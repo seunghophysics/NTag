@@ -1,9 +1,5 @@
 NTag Documentation
 ================================
-.. toctree::
-   :maxdepth:1
-   
-   Introduction
 
 .. mdinclude:: ../../../README.md
 
@@ -12,7 +8,6 @@ Class Description
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
    
    NTagEventInfo
    NTagIO

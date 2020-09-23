@@ -24,7 +24,7 @@ In detail, the data flow and the search process in one event progresses as follo
 
 6. Finally, `NTagIO` will fill its trees with the member variables of `NTagEventInfo`, and clear all variables for the next event. If the file hits the end, the trees will be written to an output file.
 
-For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.jp/~han/NTag/index.html).
+For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.jp/~han/NTag/annotated.html).
 (VPN to Kamioka is required.)
 
 ## Getting Started
