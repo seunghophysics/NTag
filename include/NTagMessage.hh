@@ -21,23 +21,23 @@
 * @see NTagMessage::Print
 *
 *******************************************/
-enum Verbosity 
+enum Verbosity
 {
 pNONE,    ///< NTag prints no message.
 pERROR,   ///< NTag prints error messages only.
 pWARNING, ///< NTag prints warning and error messages.
 pDEFAULT, ///< NTag prints all messages except debug messages.
-pDEBUG    ///< NTag prints all messages including debug messages. 
+pDEBUG    ///< NTag prints all messages including debug messages.
 };
 
 /********************************************************
  * @brief The class for printing messages.
  *
- * This class is a message printer. Use 
+ * This class is a message printer. Use
  * NTagMessage::Print method to print message.
  * Since all NTagMessage instances in NTag classes are
  * named "msg", in most cases messages can be printed
- * by including a line (for example, a debug message) 
+ * by including a line (for example, a debug message)
  * `msg.Print("Example message.", pDEBUG);`.
  *
  * To include variables in the message,
@@ -61,7 +61,7 @@ class NTagMessage
          */
         NTagMessage(const char* className="", Verbosity verbose=pDEFAULT);
         ~NTagMessage();
-        
+
         /**
          * @brief Prints colored (red for errors and yellow for warnings) tags.
          */

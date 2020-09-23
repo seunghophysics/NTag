@@ -51,30 +51,47 @@ enum VertexMode
     mSTMU    ///< Use the vertex where a stopping muon has stopped inside the tank. Not supported yet.
 };
 
-/********************************************************
+/**********************************************************
  *
- * @brief The steering class of NTag. This class is in
- * charge of extracting and saving event variables
- * and searching for neutron capture candidates from
- * the raw PMT hit information (i.e., TQREAL).
+ * @brief The container of raw TQ hit information,
+ * event variables, and manipulating function library.
  *
- * @details
+ * @details NTagEventInfo has two purposes:
+ * - Containing event variables such as
+ * #qismsk and candidate capture variables such as #vN10n
+ * - Providing a set of manipulating functions that are
+ * used in event handling
  *
- * ### What it does ###
+ * Most of the functions have appropriate names that
+ * are self-explanatory, so please refer to each member
+ * function to get ideas on what this class has to offer.
  *
- * It looks for hit peaks from the raw TQ info and
- * searches for neutron capture candidates.
- * TMVA is used to give classifier output to each
- * candidate.
+ * NTagEventInfo::SearchCaptureCandidates is the core
+ * utility provided by this class as the capture candidates
+ * are sought right in this function. If the search
+ * algorithm for candidates has to change by any reason,
+ * NTagEventInfo::SearchCaptureCandidates should be the
+ * first place to have a look.
  *
- * ### How it does ###
+ * Since this class is merely a container of member
+ * event variables with a bunch of manipulating functions,
+ * this class by itself cannot read any file
+ * nor process events without help of its subclass NTagIO.
+ * NTagIO, as a subclass of NTagEventInfo, uses the
+ * inherited member functions to process each event.
+ * Refer to NTagIO::ReadFile,
+ * which uses the member functions provided by
+ * NTagEventInfo in a specified order in
+ * NTagIO::ReadMCEvent for MC events and
+ * NTagIO::ReadDataEvent, NTagIO::ReadSHEEvent,
+ * and NTagIO::ReadAFTEvent for data events, for the
+ * event-wise instructions applied to the input file.
  *
- * N10 search and then TMVAVariables are saved.
+ * ### Member variables ###
  *
- * ### Class structure ###
- *
- * Raw hit vectors are private. Variables saved to trees
- * in inherited classes are not private, but protected.
+ * Raw hit vectors (#vTISKZ, #vQISKZ, #vCABIZ) are private.
+ * Variables saved to trees are not private, but protected
+ * so that they can be utilized in subclasses.
  *
  ********************************************************/
 class NTagEventInfo
@@ -85,6 +102,7 @@ class NTagEventInfo
         * @details Default search settings for capture candidates, i.e., the range of N10 and T0,
         * are set in this constructor. You can always change the settings using the setter functions
         * provided with this class, but only if you use them before NTagIO::ReadFile is called.
+        * Cuts in calculating TMVA classifier output can also be set using NTagTMVA::SetReaderCutRange method.
         * @param verbose The verbosity of NTagEventInfo and all of its daughter classes.
         */
         NTagEventInfo(Verbosity verbose);
@@ -165,7 +183,8 @@ class NTagEventInfo
 
         /**
          * @brief The main search function for candidate selection before applying neural network.
-         * @details Saved variables: #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
+         * @details See the source code for the details.
+         * Saved variables: #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
          * #vBSvx, #vBSvy, #vBSvz, #vBSReconCT, #vNvx, #vNvy, #vNvz
          * #vTRMS10n, #vN10n, #vReconCTn,
          * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
@@ -176,7 +195,10 @@ class NTagEventInfo
         virtual void SearchCaptureCandidates();
         /**
          * @brief Get classifier output from TMVA.
-         * @details Saved variable: #vTMVAOutput
+         * @details Calls NTagTMVA::GetOutputFromCandidate which calculates the classifer output.
+         * The cuts applied in calculating the TMVA classifier output are set in the constructor NTagEventInfo::NTagEventInfo.
+         * Saved variable: #vTMVAOutput
+         * @see NTagTMVA::GetOutputFromCandidate
          */
         virtual void GetTMVAOutput();
 
@@ -640,7 +662,7 @@ class NTagEventInfo
         // Variables for neutrino interaction
         int                 nNInNeutVec,  ///< Number of neutrons in NEUT vectors.
                             neutIntMode,  ///< NEUT interaction mode. @see: \c nemodsel.F of NEUT.
-                            nVecInNeut; ///< Number of NEUT vectors.
+                            nVecInNeut;   ///< Number of NEUT vectors.
         float               neutIntMom;   ///< NEUT interaction momentum.
         std::vector<int>    vNeutVecPID;  ///< Vector of NEUT vector PIDs. [Size: #nVecInNeut]
 

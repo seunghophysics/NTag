@@ -35,10 +35,10 @@ class NTagROOT : public NTagIO
         // File I/O
         void OpenFile();  ///< @brief Opens SKROOT file.
         void CloseFile(); ///< @brief Closes SKROOT file.
-        
+
         /// @brief Specifies how to read secondary bank.
         void ReadSecondaries();
-        
+
         /// @brief Specifies how to set prompt vertex information.
         void SetFitInfo();
 };

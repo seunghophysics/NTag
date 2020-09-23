@@ -15,12 +15,22 @@
  * @brief The class in charge of SK data I/O.
  *
  * This class is an inherited class of NTagEventInfo.
- * The general idea is to have two main functionalities
- * i.e., file I/O and event processing separate. This 
+ * The general idea is to have two main functions
+ * i.e., file I/O and event processing. This
  * class is also a base class for NTagZBS and NTagROOT.
  * Format-independent functions used for file I/O are
  * implemented in this class. Format-specific functions
  * are implemented in its daughter classes.
+ *
+ * NTagIO, as a subclass of NTagEventInfo, uses the
+ * inherited member functions to process each event.
+ * Refer to NTagIO::ReadFile,
+ * which uses the member functions provided by
+ * NTagEventInfo in a specified order in
+ * NTagIO::ReadMCEvent for MC events and
+ * NTagIO::ReadDataEvent, NTagIO::ReadSHEEvent,
+ * and NTagIO::ReadAFTEvent for data events, for the
+ * event-wise instructions applied to the input file.
  *******************************************************/
 class NTagIO : public NTagEventInfo
 {
@@ -64,7 +74,7 @@ class NTagIO : public NTagEventInfo
             /**
              * @brief Saves prompt vertex fit information.
              * @details This function must be implemented in a daughter class.
-             * If you're using APFit or BONSAI, 
+             * If you're using APFit or BONSAI,
              * just specify either NTagEventInfo::SetAPFitInfo or NTagEventInfo::SetLowFitInfo.
              * @see NTagROOT::SetFitInfo, NTagZBS::SetFitInfo
              */
@@ -77,7 +87,7 @@ class NTagIO : public NTagEventInfo
             virtual void SKInitialize();
             /**
              * @brief Starts reading input file and looping over events.
-             * @details The steering code here is \c skread. 
+             * @details The steering code here is \c skread.
              * \c skread is called and all data variables copied to the SK fortran common blocks
              * are read by the member functions of NTagEventInfo if the read status of the event
              * is normal. For MC, events with prompt vertices within PMTs are skipped.
@@ -86,7 +96,7 @@ class NTagIO : public NTagEventInfo
             virtual void ReadFile();
             /**
              * @brief Gives instructions to each event loop.
-             * @details The steering code here is \c skread. 
+             * @details The steering code here is \c skread.
              * \c skread is called and all data variables copied to the SK fortran common blocks
              * are read by the member functions of NTagEventInfo if the read status of the event
              * is normal. For MC, events with prompt vertices within PMTs are skipped.
@@ -110,7 +120,7 @@ class NTagIO : public NTagEventInfo
              * - If the trigger is AFT :
              *     NTagIO::ReadAFTEvent
              * - If the previous event was SHE but the current event is not AFT :
-             *     Start searching for neutron capture candidates with the previous SHE event only 
+             *     Start searching for neutron capture candidates with the previous SHE event only
              *     and fill the member variables of NTagEventInfo to the tree #ntvarTree.
              */
             virtual void ReadDataEvent();
@@ -118,13 +128,13 @@ class NTagIO : public NTagEventInfo
              * @brief Instructions for SHE-triggered events.
              * @details Saves the prompt vertex information and the raw hit TQ vectors
              * #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
-             * Does not fill #ntvarTree. #ntvarTree is filled at NTagIO::ReadAFTEvent 
+             * Does not fill #ntvarTree. #ntvarTree is filled at NTagIO::ReadAFTEvent
              * if the next event is AFT, otherwise it's filled at NTagIO::ReadMCEvent.
              */
             virtual void ReadSHEEvent();
             /**
              * @brief Instructions for AFT-triggered events.
-             * @details Appends raw TQ information from the common \c sktqz to 
+             * @details Appends raw TQ information from the common \c sktqz to
              * the raw TQ hit vectors #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
              * Neutron capture candidates are searched for and the member variables are
              * filled to the tree #ntvarTree.
@@ -151,8 +161,8 @@ class NTagIO : public NTagEventInfo
          * See the source code for the branch names and filled variables.
          */
         virtual void CreateBranchesToNtvarTree();
-        /** 
-         * @brief Check if the event being processed is MC or data with the run number. 
+        /**
+         * @brief Check if the event being processed is MC or data with the run number.
          */
         virtual void CheckMC();
 

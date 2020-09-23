@@ -40,10 +40,10 @@ typedef std::map<const char*, Range> RangeMap;
  * There are two main functions of NTagTMVA,
  * one is to generate weights for various MVA methods
  * (i.e., training neural networks) and the other is to
- * apply a generated MVA weight and a method to 
+ * apply a generated MVA weight and a method to
  * an NTag output with an \c ntvar tree.
- * 
- * While this class can be standalone to fulfill the 
+ *
+ * While this class can be standalone to fulfill the
  * aforementioned functions, this class is also a public
  * member of NTagEventInfo and handles operation related
  * to TMVA variables and calculating the classifier
@@ -73,10 +73,10 @@ class NTagTMVA
          */
         NTagTMVA(const char* inFileName, const char* outFileName, Verbosity verbose=pDEFAULT);
         ~NTagTMVA();
-        
+
         /**
          * @brief Constructor function for NTagTMVA.
-         * @details Sets up member NTagMessage and NTagTMVAVariables. 
+         * @details Sets up member NTagMessage and NTagTMVAVariables.
          * Sets MVA methods to use using NTagTMVA::SetMethods.
          * Sets default #fSigCut and #fBkgCut as "IsCapture == 1" and "IsCapture == 0".
          */
@@ -103,7 +103,7 @@ class NTagTMVA
         void SetBkgCut(TString bc) { fBkgCut = bc; }
         void AddSigCut(TString sc) { fSigCut += " && " + sc; }
         void AddBkgCut(TString bc) { fBkgCut += " && " + bc; }
-        
+
         /**
          * @brief Generates weights with MVA methods specified with NTagTMVA::SetMethods and NTagTMVA::UseMethod.
          * @details The default path for the generated weights is \c weights/new.
@@ -158,7 +158,8 @@ class NTagTMVA
         /**
          * @brief If the capture candidate passes variable cuts specified by NTagTMVA::SetReaderCutRange,
          * return classifier output of the capture candidate.
-         * @param iCandidate The index of the input neutron capture candidate. (0 < \c iCandidate < #NTagEventInfo::nCandidates)
+         * @param iCandidate The index of the input neutron capture candidate.
+         * (0 < \c iCandidate < #NTagEventInfo::nCandidates)
          * @return The return value of #fReader->EvaluateMVA.
          */
         float GetOutputFromCandidate(int iCandidate);
@@ -167,7 +168,7 @@ class NTagTMVA
          * @brief Applies MVA weight and method to an NTag output with \c ntvar tree.
          * @param methodName MVA method name to apply.
          * @param weightFileName Path of the weight file to apply.
-         * @details Creates the branch "TMVAOutput" and fills the branch with classifier outputs evaluated 
+         * @details Creates the branch "TMVAOutput" and fills the branch with classifier outputs evaluated
          * with the specified MVA method and weight. Replaces the branch if the branch name exists.
          * The default output name for an input name `example_input.root` is `example_input_(methodName).root`.
          */
@@ -186,14 +187,14 @@ class NTagTMVA
         std::map<std::string, int> fUse;
         TMVA::Factory*             fFactory;
         TCut                       fSigCut,  ///< Signal cut
-                                   fBkgCut;  ///< Background cut 
+                                   fBkgCut;  ///< Background cut
 
         // Applying weight
         /** TMVA reader. */
         TMVA::Reader*  fReader;
         TString        fReaderMethodName;
         TString        fReaderWeightFileName;
-        
+
         RangeMap fRangeMap; ///< A map of variable names to cuts (#Range).
 
     friend class NTagTMVAVariables;

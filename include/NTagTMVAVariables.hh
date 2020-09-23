@@ -39,15 +39,15 @@ typedef std::map<const char*, std::vector<float>*> FVecMap;
  * be classified by TMVA. The values of variables that
  * are put in directly to TMVA are saved in #iVariableMap
  * and #fVariableMap, which are containers of integer and
- * float variables, respectively. Meanwhile, 
+ * float variables, respectively. Meanwhile,
  * #iEventVectorMap and #fEventVectorMap are pushed back
- * from NTagEventInfo and thet hold vectors of all 
- * candidate variables obtainable from one event. The 
- * values for one specific candidate is extracted using 
- * the member function 
+ * from NTagEventInfo and thet hold vectors of all
+ * candidate variables obtainable from one event. The
+ * values for one specific candidate is extracted using
+ * the member function
  * NTagTMVAVariables::SetVariablesForCaptureCandidate.
  *
- * The main purpose of this class is to automate 
+ * The main purpose of this class is to automate
  * clearing vectors and setting branches to an output
  * tree, so that users can easily add/remove
  * variables to/from TMVA without a hassle. Add/remove
@@ -60,16 +60,16 @@ class NTagTMVAVariables
     public:
         /**
          * @brief Constructor of NTagTMVAVariables.
-         * @param verbose #Verbosity.
          * @details Calls NTagTMVAVariables::Clear to make rooms for the input variables to use in TMVA classification.
+         * @param verbose #Verbosity.
          */
         NTagTMVAVariables(Verbosity verbose=pDEFAULT);
         ~NTagTMVAVariables();
 
         /**
-         * @brief Sets all map values to default. 
+         * @brief Sets all map values to default.
          * @details This function also serves as a custom list of variables to put into the TMVA.
-         * If you are adding another variable, make sure to put #NTagTMVAVariables::PushBack 
+         * If you are adding another variable, make sure to put #NTagTMVAVariables::PushBack
          * somewhere in NTagEventInfo to save it during the event processing.
          * #iVariableMap, #fVariableMap, #iEventVectorMap, and #fEventVectorMap are set to default.
          * (0 for non-vector members, a new vector for vector members.)
@@ -79,7 +79,7 @@ class NTagTMVAVariables
          * @brief Returns a vector of all variable names (keys).
          */
         std::vector<const char*> Keys();
-        
+
         /**
          * @brief Adds all variables declared in #NTagTMVAVariables::Clear to a TMVA reader.
          * @param reader A TMVA reader to add variables.
@@ -97,7 +97,7 @@ class NTagTMVAVariables
         void MakeBranchesToTree(TTree* tree);
         /**
          * @brief Sets VariableMap[variable] = EventVectorMap[variable][iCandidate].
-         * @details 
+         * @details
          * @param iCandidate The index of a capture candidate. (0 < \c iCandidate < #NTagEventInfo::nCandidates)
          */
         void SetVariablesForCaptureCandidate(int iCandidate);
@@ -114,10 +114,10 @@ class NTagTMVAVariables
         // Functions to store and fetch variables
         /**
          * @brief Type-independent `std::vector.push_back` replacement.
-         * @param key Name of a variable.
-         * @param value A value to push back.
          * @details Pushes \c value back to the event vector map. Typename must be specified to
          * determine whether \c value should be pushed back to #iEventVectorMap or #fEventVectorMap.
+         * @param key Name of a variable.
+         * @param value A value to push back.
          */
         template <typename T>
         void                PushBack(const char* key, T value)
@@ -154,7 +154,7 @@ class NTagTMVAVariables
 
     private:
         IVarMap iVariableMap;    ///< A map from a character key to an integer variable.
-        IVecMap iEventVectorMap; ///< A map from a character key to a vector of integer variables. 
+        IVecMap iEventVectorMap; ///< A map from a character key to a vector of integer variables.
         FVarMap fVariableMap;    ///< A map from a character key to a float variable.
         FVecMap fEventVectorMap; ///< A map from a character key to a vector of float variables.
 

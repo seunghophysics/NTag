@@ -16,7 +16,7 @@
 // original code by @iain from stackoverflow
 
 /********************************************************
- * @brief Argument parser used in main function.
+ * @brief Argument parser used in the main function.
  *******************************************************/
 class NTagArgParser{
 
@@ -30,7 +30,7 @@ class NTagArgParser{
             for (int iArg = 1; iArg < argc; ++iArg)
                 this->tokens.push_back(std::string(argv[iArg]));
         }
-        
+
         /**
          * @brief Get the argument following a flag.
          * @param option Flag string to look up.
@@ -45,7 +45,7 @@ class NTagArgParser{
             static const std::string empty_string("");
             return empty_string;
         }
-        
+
         /**
          * @brief Check if an option is specified.
          * @param option Option string to look up.
