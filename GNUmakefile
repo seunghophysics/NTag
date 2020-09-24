@@ -1,3 +1,4 @@
+SKOFL_ROOT = /home/mharada/skofl/secondary
 include $(SKOFL_ROOT)/config.gmk
 
 NTAG_GD_ROOT = $(shell pwd)

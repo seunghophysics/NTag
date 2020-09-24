@@ -6,7 +6,7 @@
 #include <TMath.h>
 
 // Size limit of secondary tree/bank
-#define SECMAXRNG (4000)
+#define MAXNSCNDPRT (4000)
 
 #include <skroot.h>
 #undef MAXHWSK
@@ -195,7 +195,6 @@ void NTagEventInfo::SetToFSubtractedTQ()
     vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
 
     SortToFSubtractedTQ();
-    msg.Print(Form("NQISKZ: %d", nqiskz), pDEBUG);
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -659,7 +658,7 @@ float NTagEventInfo::TrueCaptureTime(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
     float tClosest = 1.e8;
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if ( fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW) {
             return vTrueCT[iCapture];
@@ -939,7 +938,7 @@ int NTagEventInfo::IsCapture(int candidateID, bool bSave)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (bSave) vCandidateID.push_back(candidateID);
@@ -953,7 +952,7 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (vTotGammaE[iCapture] > 6.) return 1;
