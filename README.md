@@ -55,6 +55,7 @@ cd NTag; make
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
 Executing NTag binary becomes path-independent after installing the binary path in $PATH. 
+
 To use NTag, just type in, for example, 
 ```
 NTag -in (input file)
@@ -84,6 +85,9 @@ in any directory you're in.
 |:-----|-------------------------------------------------------------------|-------------|
 |-apply|`NTag -in NTagOut.root -apply -method MLP -weight weight.xml`|Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
 |-train|`NTag -in NTagOut.root -train`                               |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
+|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
+|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
+|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
 |-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
 
 ## Output tree structure
@@ -196,6 +200,16 @@ in any directory you're in.
 | vecpx         | NVec          | X-direction momentum of primary vector                        |
 | vecpy         | NVec          | Y-direction momentum of primary vector                        |
 | vecpz         | NVec          | Z-direction momentum of primary vector                        |
+
+* TTree `restq`
+
+This tree is generated if `-saveTQ` option is passed to the main function.
+
+| Branch name   | Size              | Description                                                   |
+|---------------|-------------------|---------------------------------------------------------------|
+| T             | # of in-gate hits | ToF-subtracted PMT hit times (ns) sorted in ascending order   |
+| Q             | # of in-gate hits | Q (p.e.) of each hit in T                                     |
+| I             | # of in-gate hits | PMT cable ID of each hit in T                                 |
 
 ## Contact
 

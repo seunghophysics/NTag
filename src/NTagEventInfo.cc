@@ -31,7 +31,7 @@ NTagEventInfo::NTagEventInfo(Verbosity verbose)
 N10TH(7), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
 T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), useTMVA(true)
+fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
     msg = NTagMessage("", fVerbosity);
 

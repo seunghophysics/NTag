@@ -162,6 +162,15 @@ class NTagIO : public NTagEventInfo
          */
         virtual void CreateBranchesToNtvarTree();
         /**
+         * @brief Create branches to #restqTree with raw TQ hit vectors #vTISKZ, #vQISKZ, and #vCABIZ.
+         */
+        virtual void CreateBranchesToRawTQTree();
+        /**
+         * @brief Fills trees.
+         */
+        virtual void FillTrees();
+        
+        /**
          * @brief Check if the event being processed is MC or data with the run number.
          */
         virtual void CheckMC();
@@ -176,6 +185,8 @@ class NTagIO : public NTagEventInfo
                                     @see: NTagIO::CreateBranchesToTruthTree */
         TTree*      ntvarTree; /*!< A tree of member variables.
                                     @see: NTagIO::CreateBranchesToNtvarTree */
+        TTree*      restqTree; /*!< A tree of raw TQ hit vectors. (#vTISKZ, #vQISKZ, and #vCABIZ)
+                                    @see: NTagIO::CreateBranchesToRawTQTree */
 
     private:
         static NTagIO* instance;

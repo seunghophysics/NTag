@@ -19,13 +19,14 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     bData = false;
     fVerbosity = verbose;
 
-    ntvarTree = new TTree("ntvar", "ntag variables");
+    ntvarTree = new TTree("ntvar", "NTag variables");
     CreateBranchesToNtvarTree();
 
-    if (!bData) {
-        truthTree = new TTree("truth", "true variables");
-        CreateBranchesToTruthTree();
-    }
+    truthTree = new TTree("truth", "True variables");
+    CreateBranchesToTruthTree();
+    
+    restqTree = new TTree("restq", "Residual TQ");
+    CreateBranchesToRawTQTree();
 }
 
 NTagIO::~NTagIO()
@@ -148,8 +149,7 @@ void NTagIO::ReadMCEvent()
     GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!
-    ntvarTree->Fill();
-    truthTree->Fill();
+    FillTrees();
 }
 
 void NTagIO::ReadDataEvent()
@@ -170,7 +170,7 @@ void NTagIO::ReadDataEvent()
         SearchCaptureCandidates();
         GetTMVAOutput();
 
-        ntvarTree->Fill();
+        FillTrees();
         
         // DONT'T FORGET TO CLEAR!
         Clear();
@@ -212,8 +212,7 @@ void NTagIO::ReadAFTEvent()
     GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!
-    // (ntvar only for data)
-    ntvarTree->Fill();
+    FillTrees();
 
     // DONT'T FORGET TO CLEAR!
     Clear();
@@ -224,6 +223,7 @@ void NTagIO::WriteOutput()
     TFile* file = new TFile(fOutFileName, "recreate");
     ntvarTree->Write();
     if (!bData) truthTree->Write();
+    if (saveTQ) restqTree->Write();
     file->Close();
 }
 
@@ -332,6 +332,20 @@ void NTagIO::CreateBranchesToNtvarTree()
         ntvarTree->Branch("truecapvy", &vTrueCapVY);
         ntvarTree->Branch("truecapvz", &vTrueCapVZ);
     }
+}
+
+void NTagIO::CreateBranchesToRawTQTree()
+{
+    restqTree->Branch("T", &vSortedT_ToF);
+    restqTree->Branch("Q", &vSortedQ);
+    restqTree->Branch("I", &vSortedPMTID);
+}
+
+void NTagIO::FillTrees()
+{
+    ntvarTree->Fill();
+    if (!bData) truthTree->Fill();
+    if (saveTQ) restqTree->Fill();
 }
 
 void NTagIO::CheckMC()

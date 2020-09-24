@@ -10,7 +10,11 @@
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
 
-void ProcessSKFile(NTagIO* nt, NTagArgParser& parser, std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz);
+void ProcessSKFile(NTagIO* nt, NTagArgParser& parser);
+
+static std::string inputName, outputName, weightName, methodName;
+static std::string installPath = GetENV("NTAGPATH");
+static std::string vx, vy, vz;
 
 int main(int argc, char** argv)
 {
@@ -21,16 +25,16 @@ int main(int argc, char** argv)
     NTagArgParser parser(argc, argv);
 
     // Names
-    const std::string &inputName     = parser.GetOption("-in");
-    const std::string &tmpOutName    = parser.GetOption("-out");
-    const std::string &tmpWeightName = parser.GetOption("-weight");
-    const std::string &tmpMethodName = parser.GetOption("-method");
-
+    inputName     = parser.GetOption("-in");
+    outputName    = parser.GetOption("-out");
+    weightName    = parser.GetOption("-weight");
+    methodName    = parser.GetOption("-method");
+    
     // Custom vertex coordinates
-    const std::string &vx = parser.GetOption("-vx");
-    const std::string &vy = parser.GetOption("-vy");
-    const std::string &vz = parser.GetOption("-vz");
-
+    vx = parser.GetOption("-vx");
+    vy = parser.GetOption("-vy");
+    vz = parser.GetOption("-vz");
+    
     // Verbosity
     Verbosity pVERBOSE = pDEFAULT;
     if (parser.OptionExists("-debug")) {
@@ -40,18 +44,13 @@ int main(int argc, char** argv)
     NTagMessage msg("", pVERBOSE);
 
     // Choose between default name and optional name
-    std::string outputName, weightName, methodName;
-    std::string installPath = GetENV("NTAGPATH");
+    
     if (GetCWD() != installPath)
         msg.Print(Form("Using NTag in $NTAGPATH: ") + installPath);
     
     if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...", pERROR);
-    if (tmpOutName.empty())    outputName = installPath + "out/NTagOut.root";
-    else                       outputName = tmpOutName;
-    if (tmpWeightName.empty()) weightName = installPath + "weights/MLP_Gd0.02p.xml";
-    else                       weightName = tmpWeightName;
-    if (tmpMethodName.empty()) methodName = "MLP";
-    else                       methodName = tmpMethodName;
+    if (weightName.empty()) weightName = installPath + "weights/MLP_Gd0.02p.xml";
+    if (methodName.empty()) methodName = "MLP";
 
     /********************/
     /* Main application */
@@ -60,8 +59,8 @@ int main(int argc, char** argv)
     // Train with MC-based NTag output and generate new weights
     if (parser.OptionExists("-train")) {
 
-        if (tmpOutName.empty())
-            outputName = "weights/new/NTagTMVA_Test_Results.root";
+        if (outputName.empty())
+            outputName = "weights/new/NTagTMVA_TestResults.root";
 
         msg.Print(Form("Start testing MVA methods with input: ") + inputName);
         msg.Print("Generating new weight files in $NTAGPATH/weights/new...");
@@ -77,7 +76,7 @@ int main(int argc, char** argv)
     // Apply weights to an NTag output root file
     else if (parser.OptionExists("-apply")) {
 
-        if (tmpOutName.empty())
+        if (outputName.empty())
             outputName = TString(inputName).ReplaceAll(".root", Form("_%s.root", methodName.c_str()));
 
         msg.Print(Form("Applying %s method with weight %s to an NTag output named %s...",
@@ -87,11 +86,13 @@ int main(int argc, char** argv)
         nt.ApplyWeight(methodName, weightName);
 
         msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
-
+        
     }
 
     // Process SK data / MC files
     else {
+    
+        if (outputName.empty()) outputName = installPath + "out/NTagOut.root";
 
         // Process SKROOT with TQREAL filled
         if (TString(inputName).EndsWith(".root")) {
@@ -99,7 +100,7 @@ int main(int argc, char** argv)
             msg.Print(Form("Processing SKROOT file: ") + inputName);
 
             NTagROOT* nt = new NTagROOT(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            ProcessSKFile(nt, parser, methodName, weightName, vx, vy, vz);
+            ProcessSKFile(nt, parser);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
             delete nt;
@@ -110,7 +111,7 @@ int main(int argc, char** argv)
             msg.Print(Form("Processing ZBS file: ") + inputName);
 
             NTagZBS* nt = new NTagZBS(inputName.c_str(), outputName.c_str(), pVERBOSE);
-            ProcessSKFile(nt, parser, methodName, weightName, vx, vy, vz);
+            ProcessSKFile(nt, parser);
 
             msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
             delete nt;
@@ -121,16 +122,20 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void ProcessSKFile(NTagIO* nt, NTagArgParser& parser, 
-                   std::string methodName, std::string weightName, std::string vx, std::string vy, std::string vz)
+void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 {
     NTagMessage msg("");
 
     nt->TMVATools.SetReader(methodName, weightName);
     
     // Turn TMVA on/off (default: on)
-    if (parser.OptionExists("-nomva")) {
+    if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
+    }
+    
+    // Save residual TQ (default: off)
+    if (parser.OptionExists("-saveTQ")) {
+        nt->SetSaveTQAs(true);
     }
     
     // Vertex options

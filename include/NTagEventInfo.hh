@@ -89,7 +89,6 @@ enum VertexMode
  *
  * ### Member variables ###
  *
- * Raw hit vectors (#vTISKZ, #vQISKZ, #vCABIZ) are private.
  * Variables saved to trees are not private, but protected
  * so that they can be utilized in subclasses.
  *
@@ -476,6 +475,11 @@ class NTagEventInfo
          */
         inline void SetCustomVertex(float x, float y, float z)
                                    { customvx = x; customvy = y; customvz = z; fVertexMode = mCUSTOM; }
+        /**
+         * @brief Choose whether to save residual TQ vectors (#vSortedT_ToF, #vSortedQ, #vSortedPMTID) or not. Sets #saveTQ.
+         * @param b If \c true, #NTagIO::restqTree is written to the output file filled with residual TQ vectors.
+         */
+        inline void SetSaveTQAs(bool b) { saveTQ = b; }
 
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
@@ -511,6 +515,7 @@ class NTagEventInfo
                             vQISKZ; ///< A vector of deposited charge [p.e.] of all recorded hits from an event.
                                     ///< Forms a triplet with #vCABIZ and #vTISKZ.
 
+    protected:
         // Processed TQ hit vectors
         std::vector<int>    vSortedPMTID;   ///< A vector of PMT cable IDs corresponding to each hit
                                             ///< sorted by ToF-subtracted hit time in ascending order.
@@ -523,13 +528,14 @@ class NTagEventInfo
                                             ///< sorted by ToF-subtracted hit time in ascending order.
                                             ///< Forms a triplet with #vSortedT_ToF and #vSortedPMTID.
 
-    protected:
-        NTagMessage  msg;        ///< NTag Message printer.
-        Verbosity    fVerbosity; ///< Verbosity.
-        bool         bData,      /*!< Set \c true for data events, \c false for MC events.
-                                      Automatically determined by the run number at NTagIO::CheckMC. */
-                     useTMVA;    /*!< Set \c true if using TMVA, otherwise \c false.
-                                      Can be set to false from command line with option \c -nomva. */
+        NTagMessage msg;        ///< NTag Message printer.
+        Verbosity   fVerbosity; ///< Verbosity.
+        bool        bData,      /*!< Set \c true for data events, \c false for MC events.
+                                     Automatically determined by the run number at NTagIO::CheckMC. */
+                    useTMVA,    /*!< Set \c true if using TMVA, otherwise \c false.
+                                     Can be set to \c false from command line with option `-noMVA`. */
+                    saveTQ;    /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
+                                     Can be set to \c true from command line with option `-saveTQ`. */
 
 
         /************************************************************************************************/
