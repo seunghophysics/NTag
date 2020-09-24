@@ -51,7 +51,7 @@ cd NTag; make
 
 | Shell type | Install command       | Uninstall command       |
 |------------|-----------------------|-------------------------|
-| Bash       | `. path/bash set`     | `. path/bash unset`     |
+| bash       | `. path/bash set`     | `. path/bash unset`     |
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
 Executing NTag binary becomes path-independent after installing the binary path in $PATH. 
@@ -64,7 +64,7 @@ in any directory you're in.
 
 ### How to run
 ```
-./bin/NTag -in (input filename) -out (output filename)
+NTag -in (input filename) -out (output filename)
 ```
 
 ### Command line options
@@ -84,11 +84,12 @@ in any directory you're in.
 |Option|                      Example usage                                | Description |
 |:-----|-------------------------------------------------------------------|-------------|
 |-apply|`NTag -in NTagOut.root -apply -method MLP -weight weight.xml`|Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
-|-train|`NTag -in NTagOut.root -train`                               |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
-|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
-|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
-|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
-|-debug|`NTag (...) -debug`                                          |Show debug messages on output stream.|
+|-train|`NTag -in NTagOut.root -train` |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
+|-debug|`NTag (...) -debug` |Show debug messages on output stream.|
+|-noMVA|`NTag (...) -noMVA` |Only search for candidates, without applying TMVA to get classifer output. The branch `TMVAOutput` is not generated. |
+|-saveTQ|`NTag (...) -saveTQ`  |Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree `restq`.|
+|-usetruevertex|`NTag (...) -usetruevertex` |Use true vector vertex from common `skvect` as a prompt vertex. |
+|-usestmuvertex|`NTag (...) -usestmuvertex`  |Use muon stopping position as a prompt vertex. |
 
 ## Output tree structure
 

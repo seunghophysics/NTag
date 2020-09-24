@@ -147,7 +147,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     else if (parser.OptionExists("-usetruevertex")) {
         nt->SetVertexMode(mTRUE);
     }
-    else if (parser.OptionExists("-usemuonvertex")) {
+    else if (parser.OptionExists("-usestmuvertex")) {
         nt->SetVertexMode(mSTMU);
     }
 
