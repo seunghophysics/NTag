@@ -25,16 +25,18 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     truthTree = new TTree("truth", "True variables");
     CreateBranchesToTruthTree();
     
-    restqTree = new TTree("restq", "Residual TQ");
+    rawtqTree = new TTree("rawtq", "Raw TQ");
     CreateBranchesToRawTQTree();
+    
+    restqTree = new TTree("restq", "Residual TQ");
+    CreateBranchesToResTQTree();
 }
 
 NTagIO::~NTagIO()
 {
-    WriteOutput();
-    bonsai_end_();
-    delete ntvarTree;
-    delete truthTree;
+    if (ntvarTree) delete ntvarTree;
+    if (truthTree) delete truthTree;
+    if (restqTree) delete restqTree;
 }
 
 void NTagIO::Initialize()
@@ -132,14 +134,14 @@ void NTagIO::ReadMCEvent()
     // DONT'T FORGET TO CLEAR!
     Clear();
 
-    // MC-only truth info
-    SetMCInfo();
-
     // Prompt-peak info
     SetEventHeader();
     SetPromptVertex();
     SetFitInfo();
 
+    // MC-only truth info
+    SetMCInfo();
+    
     // Hit info (all hits)
     AppendRawHitInfo();
     SetToFSubtractedTQ();
@@ -221,10 +223,13 @@ void NTagIO::ReadAFTEvent()
 void NTagIO::WriteOutput()
 {
     TFile* file = new TFile(fOutFileName, "recreate");
+    
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     if (saveTQ) restqTree->Write();
     file->Close();
+    
+    //bonsai_end_();
 }
 
 void NTagIO::DoWhenInterrupted()
@@ -335,6 +340,13 @@ void NTagIO::CreateBranchesToNtvarTree()
 }
 
 void NTagIO::CreateBranchesToRawTQTree()
+{
+    rawtqTree->Branch("T", &vTISKZ);
+    rawtqTree->Branch("Q", &vQISKZ);
+    rawtqTree->Branch("I", &vCABIZ);
+}
+
+void NTagIO::CreateBranchesToResTQTree()
 {
     restqTree->Branch("T", &vSortedT_ToF);
     restqTree->Branch("Q", &vSortedQ);
