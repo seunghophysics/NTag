@@ -101,7 +101,7 @@ void NTagEventInfo::SetPromptVertex()
             pvy = customvy;
             pvz = customvz; break; }
         case mTRUE: {
-            //skgetv_();
+            skgetv_();
             pvx = skvect_.pos[0];
             pvy = skvect_.pos[1];
             pvz = skvect_.pos[2]; break; }
@@ -192,6 +192,7 @@ void NTagEventInfo::SetToFSubtractedTQ()
 {
     // Subtract ToF from raw PMT hit time
     float fitVertex[3] = {pvx, pvy, pvz};
+    //float fitVertex[3] = {vCapVX[0], vCapVY[0], vCapVZ[0]};
     vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
 
     SortToFSubtractedTQ();
@@ -214,6 +215,10 @@ void NTagEventInfo::SetMCInfo()
         vVecPY.push_back   ( skvect_.pin[iVec][1] );
         vVecPZ.push_back   ( skvect_.pin[iVec][2] );
         vVecMom.push_back  ( skvect_.pabs[iVec]   );  // momentum of primaries
+        
+        if (vVecPID[iVec] == 13) // Neutron code in Geant3 is 13
+        msg.Print(Form("Primary neutron %d: [p = %f MeV/c] [dwall: %f cm]", 
+                            iVec, vVecMom[iVec], dWall), pDEBUG);
     }
 
     // Read neutrino interaction vector
@@ -249,6 +254,8 @@ void NTagEventInfo::SetMCInfo()
     // Loop over all secondaries in secondary common block
     for (int iSec = 0; iSec < nAllSec; iSec++) {
 
+        float secMom = Norm(secndprt_.pscnd[iSec]);
+        
         // Save all neutrons
         if (secndprt_.iprtscnd[iSec] == 2112) {
             SaveSecondary(iSec);
@@ -256,20 +263,23 @@ void NTagEventInfo::SetMCInfo()
             msg.Print(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
                          nSecNeutron, secndprt_.tscnd[iSec]*1e-3, Norm(secndprt_.pscnd[iSec])), pDEBUG);
         }
-
-        // deuteron, gamma (no capture electrons?)
-        else if (secndprt_.iprtscnd[iSec] == 100045 || secndprt_.iprtscnd[iSec] == 22) {
+        
+        // deuteron, gamma, electrons
+        else if (secndprt_.iprtscnd[iSec] == 100045 || 
+                 secndprt_.iprtscnd[iSec] == 22 ||
+                 // electrons over Cherenkov threshold momentum
+                 (fabs(secndprt_.iprtscnd[iSec]) == 11 && secMom > 0.579)) {
 
             /* Save capture info from below */
             float vtxR2 = secndprt_.vtxscnd[iSec][0] * secndprt_.vtxscnd[iSec][0]
                         + secndprt_.vtxscnd[iSec][1] * secndprt_.vtxscnd[iSec][1];
             int inPMT;
             inpmt_(secndprt_.vtxscnd[iSec], inPMT);
-
+            
             // Check if the capture is within ID volume
             if (vtxR2 < dr*dr && fabs(secndprt_.vtxscnd[iSec][2]) < dz && !inPMT) {
 
-                // Save secondary (deuteron, gamma)
+                // Save secondary (deuteron, gamma, electrons)
                 SaveSecondary(iSec);
                 bool isNewCapture = true;
 
@@ -314,8 +324,11 @@ void NTagEventInfo::SetMCInfo()
     assert(nSavedSec == static_cast<int>(vCapID.size()));
 
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV]",
-                          iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture]), pDEBUG);
+        msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV] [x: %f y: %f z: %f]",
+                        iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture],
+                        vCapVX[iCapture], vCapVY[iCapture], vCapVZ[iCapture]), pDEBUG);
+        msg.Print(Form("Neutron travel distance from prompt vertex: %f cm", 
+                        Norm(pvx-vCapVX[iCapture], pvy-vCapVY[iCapture], pvz-vCapVZ[iCapture])), pDEBUG);
     }
     msg.Print(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
     msg.Print(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
@@ -458,7 +471,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         float time0 = dt->at(iCandidate);
 
         // Maybe high or low hit noise.
-        if (n1300hits > 999 || n1300hits < 10) {
+        if (n1300hits > 999 || n1300hits < 50) {
             tmptbsenergy = 0.;
             tmptbsvx = 9999.;
             tmptbsvy = 9999.;
@@ -493,7 +506,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS50 = MinimizeTRMS(tiskz50, cabiz50, nv);
-
+        
         vNvx.push_back   ( nv[0]       );
         vNvy.push_back   ( nv[1]       );
         vNvz.push_back   ( nv[2]       );
@@ -533,6 +546,10 @@ void NTagEventInfo::SearchCaptureCandidates()
         TMVATools.fVariables.PushBack("prompt_bonsai", promptBonsai);
         TMVATools.fVariables.PushBack("prompt_nfit", promptNfit);
         TMVATools.fVariables.PushBack("bonsai_nfit", bonsaiNfit);
+        
+        msg.Print(Form("Neut-fit capture vertex: [x: %f y: %f z: %f]", 
+                        vNvx[iCandidate], vNvy[iCandidate], vNvz[iCandidate]), pDEBUG);
+        msg.Print(Form("prompt_nfit: %f cm", promptNfit), pDEBUG);
     }
 
     if (!bData) {
@@ -540,7 +557,6 @@ void NTagEventInfo::SearchCaptureCandidates()
         SetTrueCaptureInfo();
     }
 }
-
 
 void NTagEventInfo::SetTrueCaptureInfo()
 {
@@ -590,6 +606,12 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
             // Check whether capture is on Gd or H
             vIsGdCapture.push_back( IsGdCapture(iCandidate) );
+            
+            msg.Print(Form("Candidate %d: Distance from capture vertex to Neut-fit vertex: %f cm",
+                            iCandidate,
+                            Norm(vTrueCapVX[iCandidate] - vNvx[iCandidate], 
+                                 vTrueCapVY[iCandidate] - vNvy[iCandidate], 
+                                 vTrueCapVZ[iCandidate] - vNvz[iCandidate])), pDEBUG);
         }
         else {
             vDoubleCount.push_back(0);
@@ -621,7 +643,8 @@ void NTagEventInfo::GetTMVAOutput()
             
             int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
             float dt = TMVATools.fVariables.Get<float>("ReconCT", iCandidate);
-            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d N10n: %d TMVAOutput: %f [%s]", 
+                            iCandidate, dt, N10, vN10n[iCandidate], tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
             vTMVAOutput.push_back( tmvaOutput );
         }
     }
@@ -1023,6 +1046,15 @@ void NTagEventInfo::SaveSecondary(int secID)
     vSecT.push_back    ( secndprt_.tscnd[secID]            );  // time created
     vCapID.push_back( -1 );
     nSavedSec++;
+    
+    msg.Print(Form("Saved secondary %d: [PID: %d] [Int code: %d] [Parent PID: %d] [x: %f y: %f z: %f]", 
+                    secID, 
+                    secndprt_.iprtscnd[secID], 
+                    secndprt_.lmecscnd[secID],
+                    secndprt_.iprntprt[secID], 
+                    secndprt_.vtxscnd[secID][0], 
+                    secndprt_.vtxscnd[secID][1], 
+                    secndprt_.vtxscnd[secID][2]), pDEBUG);
 }
 
 void NTagEventInfo::SavePeakFromHit(int hitID)
