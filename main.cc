@@ -9,6 +9,7 @@
 #include "NTagTMVA.hh"
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
+#include "NTagTQReader.hh"
 
 void ProcessSKFile(NTagIO* nt, NTagArgParser& parser);
 
@@ -29,11 +30,6 @@ int main(int argc, char** argv)
     outputName    = parser.GetOption("-out");
     weightName    = parser.GetOption("-weight");
     methodName    = parser.GetOption("-method");
-    
-    // Custom vertex coordinates
-    vx = parser.GetOption("-vx");
-    vy = parser.GetOption("-vy");
-    vz = parser.GetOption("-vz");
     
     // Verbosity
     Verbosity pVERBOSE = pDEFAULT;
@@ -88,6 +84,23 @@ int main(int argc, char** argv)
         msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
         
     }
+    
+    // TQ Reader: Read TQ information only and dump to output
+    else if (parser.OptionExists("-readTQ")) {
+        
+        if (outputName.empty())
+            outputName = TString(inputName).ReplaceAll(".", "_TQ.");
+            
+        msg.Print(Form("Exporting TQ to %s...", outputName.c_str()));
+        
+        NTagTQReader* nt = new NTagTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
+        nt->SetVertexMode(mTRUE);
+        nt->ReadFile();
+        nt->WriteOutput();
+        
+        delete nt;
+    }
+    
 
     // Process SK data / MC files
     else {
@@ -128,6 +141,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 
     nt->TMVATools.SetReader(methodName, weightName);
     
+    // Set N10 threshold
+    const std::string &N10TH = parser.GetOption("-N10TH");
+    if (!N10TH.empty()) {
+        nt->SetN10Limits(std::stoi(N10TH), 50);
+    }
+    
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
@@ -139,6 +158,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     }
     
     // Vertex options
+    
+    // Custom vertex coordinates
+    vx = parser.GetOption("-vx");
+    vy = parser.GetOption("-vy");
+    vz = parser.GetOption("-vz");
+    
     if (!vx.empty() && !vy.empty() && !vz.empty()) {
         msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
                         vx.c_str(), vy.c_str(), vz.c_str()));
@@ -152,4 +177,5 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     }
 
     nt->ReadFile();
+    nt->WriteOutput();
 }
