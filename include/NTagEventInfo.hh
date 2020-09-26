@@ -507,6 +507,8 @@ class NTagEventInfo
                     customvz;     ///< Z coordinate of a custom prompt vertex
         int         fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
 
+
+    protected:
         // Raw TQ hit vectors
         std::vector<int>    vCABIZ; ///< A vector of PMT cable IDs of all recorded hits from an event.
                                     ///< Forms a triplet with #vTISKZ and #vQISKZ.
@@ -514,8 +516,7 @@ class NTagEventInfo
                                     ///< Forms a triplet with #vCABIZ and #vQISKZ.
                             vQISKZ; ///< A vector of deposited charge [p.e.] of all recorded hits from an event.
                                     ///< Forms a triplet with #vCABIZ and #vTISKZ.
-
-    protected:
+                                    
         // Processed TQ hit vectors
         std::vector<int>    vSortedPMTID;   ///< A vector of PMT cable IDs corresponding to each hit
                                             ///< sorted by ToF-subtracted hit time in ascending order.
