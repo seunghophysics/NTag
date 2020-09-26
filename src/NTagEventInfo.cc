@@ -33,6 +33,8 @@ T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
+    nProcessedEvents = 0;
+    
     msg = NTagMessage("", fVerbosity);
 
     SetN10Limits(7, 50);
@@ -50,7 +52,10 @@ fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
     TMVATools.DumpReaderCutRange();
 }
 
-NTagEventInfo::~NTagEventInfo() {}
+NTagEventInfo::~NTagEventInfo()
+{
+    if (fSigTQFile) fSigTQFile->Close();
+}
 
 void NTagEventInfo::SetEventHeader()
 {
@@ -155,6 +160,15 @@ void NTagEventInfo::SetLowFitInfo()
 
 void NTagEventInfo::AppendRawHitInfo()
 {
+    if (fSigTQTree) {
+        fSigTQTree->GetEntry(nProcessedEvents);
+    }
+    
+    // Dump vSIGT and vSIGI
+    for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
+        msg.Print(Form("Signal hit times: %f (CABID: %d)", vSIGT->at(iSigHit), vSIGI->at(iSigHit)), pDEBUG);
+    }
+    
     float tOffset = 0.;
     float tLast   = 0.;
     float qLast   = 0.;
@@ -181,6 +195,22 @@ void NTagEventInfo::AppendRawHitInfo()
             vTISKZ.push_back( sktqz_.tiskz[iHit] + tOffset );
             vQISKZ.push_back( sktqz_.qiskz[iHit]           );
             vCABIZ.push_back( sktqz_.icabiz[iHit]          );
+            
+            if (vSIGT) {
+                bool isSignal = false;
+                msg.Print(Form("TISKZ: %f", sktqz_.tiskz[iHit]), pDEBUG);
+                // Look for matching hits between sig+bkg TQ and sig TQ
+                for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
+                    // If both hit time and PMT ID match, then the current hit iHit is from signal
+                    if (fabs(sktqz_.tiskz[iHit] - vSIGT->at(iSigHit)) < 1e-3 
+                        && sktqz_.icabiz[iHit] == vSIGI->at(iSigHit)) {
+                        isSignal = true;
+                        msg.Print("Signal hit found!", pDEBUG);
+                    }
+                }
+                if (isSignal) vISIGZ.push_back(1);
+                else          vISIGZ.push_back(0);
+            }
         }
     }
 
@@ -227,8 +257,8 @@ void NTagEventInfo::SetMCInfo()
 
     neutIntMode = nework_.modene;       // neutrino interaction mode
     nVecInNeut  = nework_.numne;        // number of particles in vector
-    nNInNeutVec     = 0;                    // number of neutrons
-    neutIntMom    = Norm(nework_.pne[0]);
+    nNInNeutVec = 0;                    // number of neutrons
+    neutIntMom  = Norm(nework_.pne[0]);
 
     for (int i = 0; i < nVecInNeut; i++) {
         vNeutVecPID.push_back(nework_.ipne[i]);     // PIDs in vector
@@ -471,7 +501,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         float time0 = dt->at(iCandidate);
 
         // Maybe high or low hit noise.
-        if (n1300hits > 999 || n1300hits < 50) {
+        //if (n1300hits > 999 || n1300hits < 50) {
             tmptbsenergy = 0.;
             tmptbsvx = 9999.;
             tmptbsvy = 9999.;
@@ -481,11 +511,11 @@ void NTagEventInfo::SearchCaptureCandidates()
             tmptbsdirks = 1.;
             tmptbspatlik = 0.;
             tmptbsovaq = -1.;
-        }
-        else {
-            bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
-                        &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
-        }
+        //}
+        //else {
+        //    bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
+        //                &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+        //}
 
         // Fix tbspatlik->-inf bug
         if (tmptbspatlik < -9999.) tmptbspatlik = -9999.;
@@ -868,9 +898,10 @@ void NTagEventInfo::SortToFSubtractedTQ()
 
     // Save hit info, sorted in (T - ToF)
     for (int iHit = 0; iHit < nqiskz; iHit++) {
-        vSortedPMTID.push_back( vCABIZ[ sortedIndex[iHit] ]         );
-        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
-        vSortedQ.push_back    ( vQISKZ[ sortedIndex[iHit] ]         );
+        vSortedPMTID.push_back  ( vCABIZ[ sortedIndex[iHit] ]         );
+        vSortedT_ToF.push_back  ( vUnsortedT_ToF[ sortedIndex[iHit] ] );
+        vSortedQ.push_back      ( vQISKZ[ sortedIndex[iHit] ]         );
+        vSortedSigFlag.push_back( vISIGZ[ sortedIndex[iHit] ]         );
     }
 }
 
@@ -1002,10 +1033,10 @@ void NTagEventInfo::Clear()
     nVec = 0;
     vecx = 0; vecy = 0; vecz = 0;
 
-    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear();
+    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear(); vISIGZ.clear();
 
     vSortedPMTID.clear();
-    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear(); vSortedSigFlag.clear();
 
     vAPRingPID.clear(); vAPMom.clear(); vAPMomE.clear(); vAPMomMu.clear();
     vFirstHitID.clear(); vN10n.clear(); vN1300.clear();

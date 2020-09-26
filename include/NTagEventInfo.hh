@@ -506,9 +506,20 @@ class NTagEventInfo
                     customvy,     ///< Y coordinate of a custom prompt vertex
                     customvz;     ///< Z coordinate of a custom prompt vertex
         int         fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
+        
+        // For signal hit pattern analysis
+        
 
 
     protected:
+    
+        // # of processed events
+        int nProcessedEvents;
+    
+        // Signal TQ source
+        TFile* fSigTQFile; 
+        TTree* fSigTQTree;
+        
         // Raw TQ hit vectors
         std::vector<int>    vCABIZ; ///< A vector of PMT cable IDs of all recorded hits from an event.
                                     ///< Forms a triplet with #vTISKZ and #vQISKZ.
@@ -516,6 +527,10 @@ class NTagEventInfo
                                     ///< Forms a triplet with #vCABIZ and #vQISKZ.
                             vQISKZ; ///< A vector of deposited charge [p.e.] of all recorded hits from an event.
                                     ///< Forms a triplet with #vCABIZ and #vTISKZ.
+        std::vector<int>    vISIGZ; ///< A vector of signal flags (0: bkg, 1: sig) of all recorded hits from an event.
+                                    ///< If #fSigTQFile is not \c NULL, it is saved in NTagEventInfo::AppendRawHitInfo.
+        std::vector<float>* vSIGT; ///< A vector to save signal hit times from #fSigTQTree temporarily. Not included in output.
+        std::vector<int>*   vSIGI; ///< A vector to save signal hit PMT IDs from #fSigTQTree temporarily. Not included in output.
                                     
         // Processed TQ hit vectors
         std::vector<int>    vSortedPMTID;   ///< A vector of PMT cable IDs corresponding to each hit
@@ -528,6 +543,8 @@ class NTagEventInfo
                             vSortedQ;       ///< A vector of deposited charge [p.e.] corresponding to each hit
                                             ///< sorted by ToF-subtracted hit time in ascending order.
                                             ///< Forms a triplet with #vSortedT_ToF and #vSortedPMTID.
+        std::vector<int>    vSortedSigFlag; ///< A vector of signal flags (0: bkg, 1: sig) corresponding to each hit
+                                            ///< in #vSortedT_ToF.
 
         NTagMessage msg;        ///< NTag Message printer.
         Verbosity   fVerbosity; ///< Verbosity.

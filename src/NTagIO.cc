@@ -12,7 +12,7 @@
 NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
+: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10)
 {
     instance = this;
 
@@ -30,6 +30,8 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     
     restqTree = new TTree("restq", "Residual TQ");
     CreateBranchesToResTQTree();
+    
+    fSigTQFile = NULL; fSigTQTree = NULL;
 }
 
 NTagIO::~NTagIO()
@@ -344,6 +346,7 @@ void NTagIO::CreateBranchesToRawTQTree()
     rawtqTree->Branch("T", &vTISKZ);
     rawtqTree->Branch("Q", &vQISKZ);
     rawtqTree->Branch("I", &vCABIZ);
+    rawtqTree->Branch("IsSignal", &vISIGZ);
 }
 
 void NTagIO::CreateBranchesToResTQTree()
@@ -351,6 +354,7 @@ void NTagIO::CreateBranchesToResTQTree()
     restqTree->Branch("T", &vSortedT_ToF);
     restqTree->Branch("Q", &vSortedQ);
     restqTree->Branch("I", &vSortedPMTID);
+    restqTree->Branch("IsSignal", &vSortedSigFlag);
 }
 
 void NTagIO::FillTrees()
@@ -358,6 +362,16 @@ void NTagIO::FillTrees()
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
     if (saveTQ) restqTree->Fill();
+}
+
+void NTagIO::SetSignalTQ(const char* fSigTQName)
+{
+    fSigTQFile = TFile::Open(fSigTQName);
+    fSigTQTree = (TTree*)fSigTQFile->Get("rawtq");
+    
+    vSIGT = 0; vSIGI = 0;
+    fSigTQTree->SetBranchAddress("T", &vSIGT);
+    fSigTQTree->SetBranchAddress("I", &vSIGI);
 }
 
 void NTagIO::CheckMC()

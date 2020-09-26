@@ -175,6 +175,12 @@ class NTagIO : public NTagEventInfo
         virtual void FillTrees();
         
         /**
+         * @brief Set source file #fSigTQFile and tree #fSigTQTree to extract signal TQ hits 
+         * for #vISIGZ in NTagEventInfo::AppendRawHitInfo.
+         */
+        void SetSignalTQ(const char* fSigTQName);
+        
+        /**
          * @brief Check if the event being processed is MC or data with the run number.
          */
         virtual void CheckMC();
@@ -182,7 +188,6 @@ class NTagIO : public NTagEventInfo
     protected:
         const char* fInFileName;
         const char* fOutFileName;
-        int         nProcessedEvents;
         int         lun;
 
         TTree*      truthTree; /*!< A tree of member variables. (created for MC inputs only)
