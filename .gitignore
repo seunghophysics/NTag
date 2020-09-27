@@ -21,3 +21,5 @@ docs/sphinx/build
 # output
 *.log
 *.out
+src/NTagDict.cc
+src/NTagDict.h

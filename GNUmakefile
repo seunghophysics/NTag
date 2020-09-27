@@ -31,11 +31,15 @@ CXXFLAGS += -std=c++11
 SRCS = $(wildcard src/*.cc)
 OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 
-all: bin/NTag lib/libNTag.so
+all: src/NTagDict.cc bin/NTag lib/libNTag.so
 
+src/NTagDict.cc: include/NTagLinkDef.hh obj
+	@rootcint -f $@ -c $<
+	@$(CXX) $(CXXFLAGS) -c $@ -o obj/NTagDict.o
+	
 bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out
 	@echo "[NTag] Building NTag..."
-	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o $(LDLIBS)
+	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS)
 	@chmod +x path/bash path/csh
 	@echo "[NTag] Done!"
 
