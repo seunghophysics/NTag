@@ -42,7 +42,7 @@ fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
     SetT0Limits(5., 600.);   // [us]
     SetDistanceCut(4000.);   // [cm]
     SetTMatchWindow(40.);    // [ns]
-    SetTPeakSeparation(50.); // [us]
+    SetTPeakSeparation(50.); // [ns]
     SetMaxODHitThreshold(16);
 
     TMVATools = NTagTMVA(verbose);
@@ -59,7 +59,7 @@ NTagEventInfo::~NTagEventInfo()
 
 void NTagEventInfo::SetEventHeader()
 {
-    runNo = skhead_.nrunsk;
+    runNo    = skhead_.nrunsk;
     subrunNo = skhead_.nsubsk;
     eventNo  = skhead_.nevsk;
     
@@ -164,11 +164,6 @@ void NTagEventInfo::AppendRawHitInfo()
         fSigTQTree->GetEntry(nProcessedEvents);
     }
     
-    // Dump vSIGT and vSIGI
-    for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
-        msg.Print(Form("Signal hit times: %f (CABID: %d)", vSIGT->at(iSigHit), vSIGI->at(iSigHit)), pDEBUG);
-    }
-    
     float tOffset = 0.;
     float tLast   = 0.;
     float qLast   = 0.;
@@ -183,6 +178,8 @@ void NTagEventInfo::AppendRawHitInfo()
         pmtLast = vCABIZ.back();
     }
 
+    int nFoundSigHits = 0;
+    
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
 
         if (!coincidenceFound && sktqz_.qiskz[iHit] == qLast && sktqz_.icabiz[iHit] == pmtLast) {
@@ -198,21 +195,21 @@ void NTagEventInfo::AppendRawHitInfo()
             
             if (vSIGT) {
                 bool isSignal = false;
-                msg.Print(Form("TISKZ: %f", sktqz_.tiskz[iHit]), pDEBUG);
                 // Look for matching hits between sig+bkg TQ and sig TQ
                 for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
                     // If both hit time and PMT ID match, then the current hit iHit is from signal
                     if (fabs(sktqz_.tiskz[iHit] - vSIGT->at(iSigHit)) < 1e-3 
                         && sktqz_.icabiz[iHit] == vSIGI->at(iSigHit)) {
                         isSignal = true;
-                        msg.Print("Signal hit found!", pDEBUG);
                     }
                 }
-                if (isSignal) vISIGZ.push_back(1);
-                else          vISIGZ.push_back(0);
+                if (isSignal) { vISIGZ.push_back(1); nFoundSigHits++; }
+                else            vISIGZ.push_back(0);
             }
         }
     }
+                    
+    if (vSIGT) msg.Print(Form("%d / %lu signal hits saved!", nFoundSigHits, vSIGT->size()), pDEBUG);
 
     nqiskz = static_cast<int>(vTISKZ.size());
     msg.Print(Form("nqiskz after append: %d", nqiskz), pDEBUG);
@@ -297,8 +294,8 @@ void NTagEventInfo::SetMCInfo()
         // deuteron, gamma, electrons
         else if (secndprt_.iprtscnd[iSec] == 100045 || 
                  secndprt_.iprtscnd[iSec] == 22 ||
-                 // electrons over Cherenkov threshold momentum
-                 (fabs(secndprt_.iprtscnd[iSec]) == 11 && secMom > 0.579)) {
+                 // electrons over Cherenkov threshold momentum, from interaction other than multiple scattering
+                 (fabs(secndprt_.iprtscnd[iSec]) == 11 && secMom > 0.579 && secndprt_.lmecscnd[iSec] != 2)) {
 
             /* Save capture info from below */
             float vtxR2 = secndprt_.vtxscnd[iSec][0] * secndprt_.vtxscnd[iSec][0]
@@ -463,7 +460,11 @@ void NTagEventInfo::SearchCaptureCandidates()
             // Count N1300 and save hit indices in vSortedT_ToF
             if (vUnsortedT_ToF[iHit] > dt->at(iCandidate) - 520.8
             &&  vUnsortedT_ToF[iHit] < dt->at(iCandidate) + 779.2) {
-                if (n1300hits < 1000) {
+                
+                if (n1300hits < 1000 
+                    // bonsai_fit complains that it's fed a cable ID > MAXPM...
+                    // it may have something to do with SK-geometry.
+                    && vCABIZ[iHit] < MAXPM) {
                     index1300.push_back(iHit);
                     n1300hits++;
                 }
@@ -472,14 +473,14 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         for (int iHit50 = 0; iHit50 < n50hits; iHit50++) {
             cabiz50.push_back( vCABIZ[ index50[iHit50] ] );
-            tiskz50.push_back( vTISKZ[ index50[iHit50] ]  );
-            qiskz50.push_back( vQISKZ[ index50[iHit50] ]  );
+            tiskz50.push_back( vTISKZ[ index50[iHit50] ] );
+            qiskz50.push_back( vQISKZ[ index50[iHit50] ] );
         }
 
         for (int iHit1300 = 0; iHit1300 < n1300hits; iHit1300++) {
             cabiz1300.push_back( vCABIZ[ index1300[iHit1300] ] );
-            tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ]  );
-            qiskz1300.push_back( vQISKZ[ index1300[iHit1300] ]  );
+            tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ] );
+            qiskz1300.push_back( vQISKZ[ index1300[iHit1300] ] );
         }
 
         // Calculate betas for N50 hits
@@ -501,7 +502,7 @@ void NTagEventInfo::SearchCaptureCandidates()
         float time0 = dt->at(iCandidate);
 
         // Maybe high or low hit noise.
-        //if (n1300hits > 999 || n1300hits < 50) {
+        if (n1300hits > 999 || n1300hits < 10) {
             tmptbsenergy = 0.;
             tmptbsvx = 9999.;
             tmptbsvy = 9999.;
@@ -511,11 +512,12 @@ void NTagEventInfo::SearchCaptureCandidates()
             tmptbsdirks = 1.;
             tmptbspatlik = 0.;
             tmptbsovaq = -1.;
-        //}
-        //else {
-        //    bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
-        //                &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
-        //}
+        }
+        else {
+            int isData = 0; if (bData) isData = 1;
+            bonsai_fit_(&isData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
+                        &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
+        }
 
         // Fix tbspatlik->-inf bug
         if (tmptbspatlik < -9999.) tmptbspatlik = -9999.;
@@ -537,9 +539,9 @@ void NTagEventInfo::SearchCaptureCandidates()
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS50 = MinimizeTRMS(tiskz50, cabiz50, nv);
         
-        vNvx.push_back   ( nv[0]       );
-        vNvy.push_back   ( nv[1]       );
-        vNvz.push_back   ( nv[2]       );
+        vNvx.push_back( nv[0] );
+        vNvy.push_back( nv[1] );
+        vNvz.push_back( nv[2] );
 
         TMVATools.fVariables.PushBack("DWalln", wallsk_(nv));
         TMVATools.fVariables.PushBack("TRMS50", minTRMS50);
@@ -892,6 +894,7 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
 void NTagEventInfo::SortToFSubtractedTQ()
 {
     int sortedIndex[nqiskz], pmtID;
+    reverseIndex.clear(); reverseIndex.resize(nqiskz);
 
     // Sort: early hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
@@ -902,6 +905,7 @@ void NTagEventInfo::SortToFSubtractedTQ()
         vSortedT_ToF.push_back  ( vUnsortedT_ToF[ sortedIndex[iHit] ] );
         vSortedQ.push_back      ( vQISKZ[ sortedIndex[iHit] ]         );
         vSortedSigFlag.push_back( vISIGZ[ sortedIndex[iHit] ]         );
+        reverseIndex[sortedIndex[iHit]] = iHit;
     }
 }
 
@@ -1047,7 +1051,12 @@ void NTagEventInfo::Clear()
     vBeta14_10.clear(); vBeta14_50.clear();
     vTMVAOutput.clear();
     TMVATools.fVariables.Clear();
-
+    
+    vHitRawTimes = 0;
+    vHitResTimes = 0;
+    vHitCableIDs = 0;
+    vHitSigFlags = 0;
+    
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
     vIsGdCapture.clear(); vIsCapture.clear();
@@ -1101,8 +1110,8 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
 
     if ((N10i >= N10TH) && (N10i < N10MX+1)) {
         // Save info
-        vFirstHitID.push_back   ( hitID               );
-        vBeta14_10.push_back( beta[1] + 4*beta[4] );
+        vFirstHitID.push_back( hitID               );
+        vBeta14_10.push_back ( beta[1] + 4*beta[4] );
 
         TMVATools.fVariables.PushBack("N10", N10i);
         TMVATools.fVariables.PushBack("N200", N200);

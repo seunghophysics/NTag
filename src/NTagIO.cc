@@ -19,6 +19,8 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     bData = false;
     fVerbosity = verbose;
 
+    outFile = new TFile(fOutFileName, "recreate");
+    
     ntvarTree = new TTree("ntvar", "NTag variables");
     CreateBranchesToNtvarTree();
 
@@ -224,12 +226,12 @@ void NTagIO::ReadAFTEvent()
 
 void NTagIO::WriteOutput()
 {
-    TFile* file = new TFile(fOutFileName, "recreate");
+    outFile->cd();
     
     ntvarTree->Write();
     if (!bData) truthTree->Write();
-    if (saveTQ) restqTree->Write();
-    file->Close();
+    if (saveTQ) restqTree->AutoSave();
+    outFile->Close();
     
     //bonsai_end_();
 }
@@ -326,6 +328,16 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("APMomE", &vAPMomE);
     ntvarTree->Branch("APMomMu", &vAPMomMu);
     ntvarTree->Branch("TMVAOutput", &vTMVAOutput);
+    
+    //vHitRawTimes = 0;
+    //vHitResTimes = 0;
+    //vHitCableIDs = 0;
+    //vHitSigFlags = 0;
+    
+    ntvarTree->Branch("HitRawTimes", "vector<vector<float>>", &vHitRawTimes);
+    ntvarTree->Branch("HitResTimes", "vector<vector<float>>", &vHitResTimes);
+    ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
+    ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
 
     // Make branches from TMVAVariables class
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);

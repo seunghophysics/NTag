@@ -190,6 +190,7 @@ class NTagIO : public NTagEventInfo
         const char* fOutFileName;
         int         lun;
 
+        TFile*      outFile;
         TTree*      truthTree; /*!< A tree of member variables. (created for MC inputs only)
                                     @see: NTagIO::CreateBranchesToTruthTree */
         TTree*      ntvarTree; /*!< A tree of member variables.

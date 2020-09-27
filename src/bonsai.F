@@ -49,9 +49,9 @@ c------------------------------------------------------------------------------
 #include "skday.h"
 #include "skwt.h"
 
-      integer lun
+      integer lun, bdata
 
-      logical bdata, duplicate
+      logical duplicate
       real tisksend(1000), qisksend(1000)
       integer cabsend(1000)
       integer ntisksend, i, j, lfflag, dupid
@@ -75,7 +75,7 @@ c*** branches to skip
       character*100 in_branches_to_skip(nintoskip)
       character*100 out_branches_to_skip(nouttoskip)
 
-      real pawc
+      real pawc, mxq
       common/pawc/pawc(6000000)
       integer ii, cab, n10, nc, nback, nlow
       real*8  like
@@ -107,6 +107,8 @@ c         end do
          end do
 c         print*, "nqisk/ntisksend: " , nqisk, ntisksend
          nqisk = 0
+         mxq = 0
+         mxqisk = 0
          do i = 1, ntisksend
             duplicate = .false.
             dupid = 0
@@ -124,6 +126,11 @@ c                    print*, "i/duplicate: ", i, cabsend(i)
                 tisk(ihcab(i)) = tisksend(i) - dt + 1000
                 qisk(ihcab(i)) = qisksend(i)
                 nqisk = nqisk + 1
+                
+                if (qisk(ihcab(i)).gt.mxq) then
+                     mxq = qisk(ihcab(i))
+                     mxqisk = ihcab(i)
+                endif
             endif
           enddo
 
@@ -137,11 +144,12 @@ c          end do
 c         print*, "ntisksend, nqisk: ", ntisksend, nqisk
 
          call lfclear_all()
-c         write(*,*) 'before lfallfit',mxqisk
-         if (bdata) then
+c         write(*,*) 'before lfallfit', bdata
+         if (bdata == 1) then
 c            print*, "watert/NHITCUT: ", watert, NHITCUT
            call lfallfit_sk4_data(watert, NHITCUT, lfflag)
          else
+c            print*, "lfallfit mc!", mxqisk
            call lfallfit_sk4_mc(watert, NHITCUT, lfflag)
          endif
 

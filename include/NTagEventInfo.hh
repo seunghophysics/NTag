@@ -507,7 +507,7 @@ class NTagEventInfo
                     customvz;     ///< Z coordinate of a custom prompt vertex
         int         fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
         
-        // For signal hit pattern analysis
+        std::vector<int> reverseIndex;
         
 
 
@@ -624,6 +624,12 @@ class NTagEventInfo
                             vBeta14_10,       ///< Vector of &beta;_14's in 10 ns window. [Size: #nCandidates]
                             vBeta14_50,       ///< Vector of &beta;_14's in 50 ns window. [Size: #nCandidates]
                             vTMVAOutput;      ///< Vector of TMVA classifier outputs. [Size: #nCandidates]
+                            
+        std::vector<std::vector<float>> *vHitRawTimes, ///< Vector of residual hit times. [Size: #nCandidates]
+                                        *vHitResTimes; ///< Vector of residual hit times. [Size: #nCandidates]
+        std::vector<std::vector<int>>   *vHitCableIDs, ///< Vector of hit cable IDs. [Size: #nCandidates]
+                                        *vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
+        
 
 
         /////////////////////////
