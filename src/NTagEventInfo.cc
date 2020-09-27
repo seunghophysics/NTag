@@ -405,7 +405,6 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
-                if (t0Previous < 2000) msg.Print(Form("!!! T0: %f", t0Previous), pDEBUG);
                 SavePeakFromHit(iHitPrevious);
             }
             // Reset N10Previous,
@@ -904,8 +903,13 @@ void NTagEventInfo::SortToFSubtractedTQ()
         vSortedPMTID.push_back  ( vCABIZ[ sortedIndex[iHit] ]         );
         vSortedT_ToF.push_back  ( vUnsortedT_ToF[ sortedIndex[iHit] ] );
         vSortedQ.push_back      ( vQISKZ[ sortedIndex[iHit] ]         );
-        vSortedSigFlag.push_back( vISIGZ[ sortedIndex[iHit] ]         );
         reverseIndex[sortedIndex[iHit]] = iHit;
+    }
+    
+    if (!vISIGZ.empty()) {
+        for (int iHit = 0; iHit < nqiskz; iHit++) {
+            vSortedSigFlag.push_back( vISIGZ[ sortedIndex[iHit] ]         );
+        }
     }
 }
 
@@ -1052,10 +1056,10 @@ void NTagEventInfo::Clear()
     vTMVAOutput.clear();
     TMVATools.fVariables.Clear();
     
-    vHitRawTimes = 0;
-    vHitResTimes = 0;
-    vHitCableIDs = 0;
-    vHitSigFlags = 0;
+    vHitRawTimes->clear();
+    vHitResTimes->clear();
+    vHitCableIDs->clear();
+    vHitSigFlags->clear();
     
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
@@ -1072,18 +1076,18 @@ void NTagEventInfo::Clear()
 
 void NTagEventInfo::SaveSecondary(int secID)
 {
-    vSecPID.push_back ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
+    vSecPID.push_back   ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
     vSecIntID.push_back ( secndprt_.lmecscnd[secID]         );  // creation process
-    vParentPID.push_back ( secndprt_.iprntprt[secID]         );  // parent PID
-    vSecVX.push_back ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
-    vSecVY.push_back ( secndprt_.vtxscnd[secID][1]       );
-    vSecVZ.push_back ( secndprt_.vtxscnd[secID][2]       );
+    vParentPID.push_back( secndprt_.iprntprt[secID]         );  // parent PID
+    vSecVX.push_back    ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
+    vSecVY.push_back    ( secndprt_.vtxscnd[secID][1]       );
+    vSecVZ.push_back    ( secndprt_.vtxscnd[secID][2]       );
     vSecDWall.push_back ( wallsk_(secndprt_.vtxscnd[secID]) );  // distance from wall to creation vertex
-    vSecPX.push_back   ( secndprt_.pscnd[secID][0]         );  // momentum vector
-    vSecPY.push_back   ( secndprt_.pscnd[secID][1]         );
-    vSecPZ.push_back   ( secndprt_.pscnd[secID][2]         );
-    vSecMom.push_back ( Norm(secndprt_.pscnd[secID])      );  // momentum
-    vSecT.push_back    ( secndprt_.tscnd[secID]            );  // time created
+    vSecPX.push_back    ( secndprt_.pscnd[secID][0]         );  // momentum vector
+    vSecPY.push_back    ( secndprt_.pscnd[secID][1]         );
+    vSecPZ.push_back    ( secndprt_.pscnd[secID][2]         );
+    vSecMom.push_back   ( Norm(secndprt_.pscnd[secID])      );  // momentum
+    vSecT.push_back     ( secndprt_.tscnd[secID]            );  // time created
     vCapID.push_back( -1 );
     nSavedSec++;
     
@@ -1099,14 +1103,40 @@ void NTagEventInfo::SaveSecondary(int secID)
 
 void NTagEventInfo::SavePeakFromHit(int hitID)
 {
-    // Calculate betas
+    // Containers for hit info
+    std::vector<float> rawTVec, resTVec;
+    std::vector<int>   cabIVec, sigFVec;
+    
+    int tWidth = 10.; // 10 ns window
+    int searchIndex = hitID;
+    
+    while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+        resTVec.push_back(vSortedT_ToF[searchIndex]);
+        rawTVec.push_back(vTISKZ[reverseIndex[searchIndex]]);
+        cabIVec.push_back(vSortedPMTID[searchIndex]);
+        searchIndex++;
+    }
+    
+    if (!vSortedSigFlag.empty()) {
+        searchIndex = hitID;
+        while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+            sigFVec.push_back(vSortedSigFlag[searchIndex]);
+            searchIndex++;
+        }
+    }
+    
+    vHitRawTimes->push_back(rawTVec);
+    vHitResTimes->push_back(resTVec);
+    vHitCableIDs->push_back(cabIVec);
+    vHitSigFlags->push_back(sigFVec);
+
     float t0      = vSortedT_ToF[hitID];
-    int   N10i    = GetNhitsFromStartIndex(vSortedT_ToF, hitID, 10.);
+    int   N10i    = GetNhitsFromStartIndex(vSortedT_ToF, hitID, tWidth);
     int   N200    = GetNhitsFromCenterTime(vSortedT_ToF, t0 + 5., 200.);
     auto  beta    = GetBetaArray(vSortedPMTID, hitID, N10i);
     float tEnd    = vSortedT_ToF[hitID+N10i-1];
-    float sumQ    = GetQSumFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
-    float trms    = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
+    float sumQ    = GetQSumFromStartIndex(vSortedT_ToF, vSortedQ, hitID, tWidth);
+    float trms    = GetTRMSFromStartIndex(vSortedT_ToF, hitID, tWidth);
 
     if ((N10i >= N10TH) && (N10i < N10MX+1)) {
         // Save info

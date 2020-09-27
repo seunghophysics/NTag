@@ -38,9 +38,9 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
 
 NTagIO::~NTagIO()
 {
-    if (ntvarTree) delete ntvarTree;
-    if (truthTree) delete truthTree;
-    if (restqTree) delete restqTree;
+    //if (ntvarTree) delete ntvarTree;
+    //if (truthTree) delete truthTree;
+    //if (restqTree) delete restqTree;
 }
 
 void NTagIO::Initialize()
