@@ -34,16 +34,17 @@ customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
     nProcessedEvents = 0;
+    preRawTrigTime[0] = -1;
     
     msg = NTagMessage("", fVerbosity);
 
-    SetN10Limits(7, 50);
-    SetN200Max(140);
-    SetT0Limits(5., 600.);   // [us]
-    SetDistanceCut(4000.);   // [cm]
-    SetTMatchWindow(40.);    // [ns]
-    SetTPeakSeparation(50.); // [ns]
-    SetMaxODHitThreshold(16);
+    SetN10Limits(defaultN10TH, defaultN10MX);
+    SetN200Max(defaultN200MX);
+    SetT0Limits(defaultT0TH, defaultT0MX);   // [us]
+    SetDistanceCut(defaultVTXSRCRANGE);   // [cm]
+    SetTMatchWindow(defaultTMATCHWINDOW);    // [ns]
+    SetTPeakSeparation(defaultTMINPEAKSEP); // [ns]
+    SetMaxODHitThreshold(defaultODHITMX);
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
@@ -396,7 +397,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // Save maximum N200 and its t0
         float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + 5., 200.);
-        if (t0New > 2.e4 && N200New > maxN200) {
+        if (t0New*1.e-3 > T0TH && N200New > maxN200) {
             maxN200 = N200New;
             maxN200Time = t0New;
         }
@@ -1028,7 +1029,7 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 void NTagEventInfo::Clear()
 {
     runNo = 0; subrunNo = 0; eventNo = 0; nhitac = 0; nqiskz = 0; trgType = 0;
-    trgOffset = 1000; qismsk = 0;
+    trgOffset = 1000; qismsk = 0; tDiff = 0;
     apNRings = 0; apNMuE = 0; apNDecays = 0;
     evis = 0; pvx = 0; pvy = 0; pvz = 0; dWall = 0;
     nCandidates = 0; maxN200 = 0;

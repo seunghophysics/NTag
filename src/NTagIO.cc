@@ -1,4 +1,5 @@
 #include <csignal>
+#include <cmath>
 
 #include <TFile.h>
 
@@ -185,8 +186,21 @@ void NTagIO::ReadDataEvent()
     // If current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
+        
         msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
+        
+        // Calculate time difference from previous event to current event [ms]
+        if (preRawTrigTime[0] < 0)
+             tDiff = 0;
+        else tDiff = (skhead_.nt48sk[0] - preRawTrigTime[0]) * std::pow(2, 32)
+                   + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
+                   + (skhead_.nt48sk[2] - preRawTrigTime[2]);
+        tDiff *= 20.; tDiff /= 1.e6; // [ms]
+        
+        msg.Print(Form("tDiff: %f", tDiff), pDEBUG);
+        
+        for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
     }
 }
 
@@ -296,6 +310,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("SubrunNo", &subrunNo);
     ntvarTree->Branch("EventNo", &eventNo);
     ntvarTree->Branch("TrgType", &trgType);
+    ntvarTree->Branch("TDiff", &tDiff);
     ntvarTree->Branch("FirstHitTime_ToF", &firstHitTime_ToF);
     ntvarTree->Branch("MaxN200", &maxN200);
     ntvarTree->Branch("MaxN200Time", &maxN200Time);
@@ -337,12 +352,12 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("HitRawTimes", "vector<vector<float>>", &vHitRawTimes);
     ntvarTree->Branch("HitResTimes", "vector<vector<float>>", &vHitResTimes);
     ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
-    ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
 
     // Make branches from TMVAVariables class
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {
+        ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
         ntvarTree->Branch("IsGdCapture", &vIsGdCapture);
         ntvarTree->Branch("CTDiff", &vCTDiff);
         ntvarTree->Branch("DoubleCount", &vDoubleCount);
@@ -358,7 +373,7 @@ void NTagIO::CreateBranchesToRawTQTree()
     rawtqTree->Branch("T", &vTISKZ);
     rawtqTree->Branch("Q", &vQISKZ);
     rawtqTree->Branch("I", &vCABIZ);
-    rawtqTree->Branch("IsSignal", &vISIGZ);
+    //rawtqTree->Branch("IsSignal", &vISIGZ);
 }
 
 void NTagIO::CreateBranchesToResTQTree()

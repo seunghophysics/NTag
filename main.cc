@@ -141,10 +141,30 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 
     nt->TMVATools.SetReader(methodName, weightName);
     
-    // Set N10 threshold
+    // Set N10 limits
     const std::string &N10TH = parser.GetOption("-N10TH");
+    const std::string &N10MX = parser.GetOption("-N10MX");
     if (!N10TH.empty()) {
-        nt->SetN10Limits(std::stoi(N10TH), 50);
+        if (!N10MX.empty())
+            nt->SetN10Limits(std::stoi(N10TH), std::stoi(N10MX));
+        else
+            nt->SetN10Limits(std::stoi(N10TH));
+    }
+    else if (!N10MX.empty()) {
+        nt->SetN10Limits(defaultN10TH, std::stoi(N10MX));
+    }
+    
+    // Set T0 limits
+    const std::string &T0TH = parser.GetOption("-T0TH");
+    const std::string &T0MX = parser.GetOption("-T0MX");
+    if (!T0TH.empty()) {
+        if (!T0MX.empty())
+            nt->SetT0Limits(std::stoi(T0TH), std::stoi(T0MX));
+        else
+            nt->SetT0Limits(std::stoi(T0TH));
+    }
+    else if (!T0MX.empty()) {
+        nt->SetT0Limits(defaultT0TH, std::stoi(T0MX));
     }
     
     // Turn TMVA on/off (default: on)
