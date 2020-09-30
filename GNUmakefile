@@ -34,6 +34,7 @@ OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
 all: src/NTagDict.cc bin/NTag lib/libNTag.so
 
 src/NTagDict.cc: include/NTagLinkDef.hh obj
+	@echo "[NTag] Building NTagLinkDef..."
 	@rootcint -f $@ -c $<
 	@$(CXX) $(CXXFLAGS) -c $@ -o obj/NTagDict.o
 	
@@ -65,4 +66,4 @@ bin obj out lib:
 .PHONY: clean
 
 clean:
-	@$(RM) -rf *.o *~ *.log obj bin
+	@$(RM) -rf *.o *~ *.log obj bin src/NTagDict.*
