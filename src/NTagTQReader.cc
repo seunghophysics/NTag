@@ -17,7 +17,7 @@ void NTagTQReader::ReadEvent()
 
 void NTagTQReader::WriteOutput()
 {
-    TFile* file = new TFile(fOutFileName, "recreate");
+    outFile->cd();
     rawtqTree->Write();
-    file->Close();
+    outFile->Close();
 }
