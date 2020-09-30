@@ -78,6 +78,8 @@ NTag -in (input filename) -out (output filename)
 |-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
 |-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
+|-N10TH/MX| (N10 threshold / maximum)     | `NTag -in in.dat -N10TH 5 -N10MX 70`            | optional  |
+|-T0TH/MX | (T0 threshold / maximum)      | `NTag -in in.dat -T0TH 18 -N10MX 835`           | optional  |
 
 * Run options
 
