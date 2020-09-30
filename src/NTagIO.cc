@@ -1,4 +1,5 @@
 #include <csignal>
+#include <cmath>
 
 #include <TFile.h>
 
@@ -12,29 +13,35 @@
 NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), nProcessedEvents(0), lun(10)
+: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10)
 {
     instance = this;
 
     bData = false;
     fVerbosity = verbose;
 
+    outFile = new TFile(fOutFileName, "recreate");
+    
     ntvarTree = new TTree("ntvar", "NTag variables");
     CreateBranchesToNtvarTree();
 
     truthTree = new TTree("truth", "True variables");
     CreateBranchesToTruthTree();
     
-    restqTree = new TTree("restq", "Residual TQ");
+    rawtqTree = new TTree("rawtq", "Raw TQ");
     CreateBranchesToRawTQTree();
+    
+    restqTree = new TTree("restq", "Residual TQ");
+    CreateBranchesToResTQTree();
+    
+    fSigTQFile = NULL; fSigTQTree = NULL;
 }
 
 NTagIO::~NTagIO()
 {
-    WriteOutput();
-    bonsai_end_();
-    delete ntvarTree;
-    delete truthTree;
+    //if (ntvarTree) delete ntvarTree;
+    //if (truthTree) delete truthTree;
+    //if (restqTree) delete restqTree;
 }
 
 void NTagIO::Initialize()
@@ -132,14 +139,14 @@ void NTagIO::ReadMCEvent()
     // DONT'T FORGET TO CLEAR!
     Clear();
 
-    // MC-only truth info
-    SetMCInfo();
-
     // Prompt-peak info
     SetEventHeader();
     SetPromptVertex();
     SetFitInfo();
 
+    // MC-only truth info
+    SetMCInfo();
+    
     // Hit info (all hits)
     AppendRawHitInfo();
     SetToFSubtractedTQ();
@@ -179,8 +186,21 @@ void NTagIO::ReadDataEvent()
     // If current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
+        
         msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
+        
+        // Calculate time difference from previous event to current event [ms]
+        if (preRawTrigTime[0] < 0)
+             tDiff = 0;
+        else tDiff = (skhead_.nt48sk[0] - preRawTrigTime[0]) * std::pow(2, 32)
+                   + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
+                   + (skhead_.nt48sk[2] - preRawTrigTime[2]);
+        tDiff *= 20.; tDiff /= 1.e6; // [ms]
+        
+        msg.Print(Form("tDiff: %f", tDiff), pDEBUG);
+        
+        for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
     }
 }
 
@@ -220,11 +240,14 @@ void NTagIO::ReadAFTEvent()
 
 void NTagIO::WriteOutput()
 {
-    TFile* file = new TFile(fOutFileName, "recreate");
+    outFile->cd();
+    
     ntvarTree->Write();
     if (!bData) truthTree->Write();
-    if (saveTQ) restqTree->Write();
-    file->Close();
+    if (saveTQ) restqTree->AutoSave();
+    outFile->Close();
+    
+    //bonsai_end_();
 }
 
 void NTagIO::DoWhenInterrupted()
@@ -287,6 +310,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("SubrunNo", &subrunNo);
     ntvarTree->Branch("EventNo", &eventNo);
     ntvarTree->Branch("TrgType", &trgType);
+    ntvarTree->Branch("TDiff", &tDiff);
     ntvarTree->Branch("FirstHitTime_ToF", &firstHitTime_ToF);
     ntvarTree->Branch("MaxN200", &maxN200);
     ntvarTree->Branch("MaxN200Time", &maxN200Time);
@@ -319,11 +343,21 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("APMomE", &vAPMomE);
     ntvarTree->Branch("APMomMu", &vAPMomMu);
     ntvarTree->Branch("TMVAOutput", &vTMVAOutput);
+    
+    //vHitRawTimes = 0;
+    //vHitResTimes = 0;
+    //vHitCableIDs = 0;
+    //vHitSigFlags = 0;
+    
+    ntvarTree->Branch("HitRawTimes", "vector<vector<float>>", &vHitRawTimes);
+    ntvarTree->Branch("HitResTimes", "vector<vector<float>>", &vHitResTimes);
+    ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
 
     // Make branches from TMVAVariables class
     TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {
+        ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
         ntvarTree->Branch("IsGdCapture", &vIsGdCapture);
         ntvarTree->Branch("CTDiff", &vCTDiff);
         ntvarTree->Branch("DoubleCount", &vDoubleCount);
@@ -336,9 +370,18 @@ void NTagIO::CreateBranchesToNtvarTree()
 
 void NTagIO::CreateBranchesToRawTQTree()
 {
+    rawtqTree->Branch("T", &vTISKZ);
+    rawtqTree->Branch("Q", &vQISKZ);
+    rawtqTree->Branch("I", &vCABIZ);
+    //rawtqTree->Branch("IsSignal", &vISIGZ);
+}
+
+void NTagIO::CreateBranchesToResTQTree()
+{
     restqTree->Branch("T", &vSortedT_ToF);
     restqTree->Branch("Q", &vSortedQ);
     restqTree->Branch("I", &vSortedPMTID);
+    restqTree->Branch("IsSignal", &vSortedSigFlag);
 }
 
 void NTagIO::FillTrees()
@@ -346,6 +389,16 @@ void NTagIO::FillTrees()
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
     if (saveTQ) restqTree->Fill();
+}
+
+void NTagIO::SetSignalTQ(const char* fSigTQName)
+{
+    fSigTQFile = TFile::Open(fSigTQName);
+    fSigTQTree = (TTree*)fSigTQFile->Get("rawtq");
+    
+    vSIGT = 0; vSIGI = 0;
+    fSigTQTree->SetBranchAddress("T", &vSIGT);
+    fSigTQTree->SetBranchAddress("I", &vSIGI);
 }
 
 void NTagIO::CheckMC()

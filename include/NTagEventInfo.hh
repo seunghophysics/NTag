@@ -51,6 +51,17 @@ enum VertexMode
     mSTMU    ///< Use the vertex where a stopping muon has stopped inside the tank. Not supported yet.
 };
 
+const int defaultN10TH = 7;
+const int defaultN10MX = 50;
+const int defaultN200MX = 200;
+const float defaultT0TH = 5.;
+const float defaultT0MX = 535.;
+const float defaultVTXSRCRANGE = 4000.;
+const float defaultTMATCHWINDOW = 40.;
+const float defaultTMINPEAKSEP = 50.;
+const int defaultODHITMX = 16;
+
+
 /**********************************************************
  *
  * @brief The container of raw TQ hit information,
@@ -417,7 +428,7 @@ class NTagEventInfo
          * @param low Lower limit for N10.
          * @param high Upper limit for N10.
          */
-        inline void SetN10Limits(int low, int high) { N10TH = low; N10MX = high; }
+        inline void SetN10Limits(int low, int high=defaultN10MX) { N10TH = low; N10MX = high; }
         /**
          * @brief Set upper limit N200MX for N200.
          * @param max Upper limit for N200.
@@ -430,7 +441,7 @@ class NTagEventInfo
          * @note Both #T0TH and #T0MX should be in the form of global recorded hit time.
          * Please take into account that tthe rigger offset is ~1,000 ns in this format.
          */
-        inline void SetT0Limits(float low, float high) { T0TH = low; T0MX = high; }
+        inline void SetT0Limits(float low, float high=defaultT0MX) { T0TH = low; T0MX = high; }
         /**
          * @brief Set vertex search range #VTXSRCRANGE in NTagEventInfo::MinimizeTRMS.
          * Use this function to cut T0 of the capture candidates.
@@ -506,7 +517,23 @@ class NTagEventInfo
                     customvy,     ///< Y coordinate of a custom prompt vertex
                     customvz;     ///< Z coordinate of a custom prompt vertex
         int         fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
+        
+        std::vector<int> reverseIndex; ///< Inverse map from indices of vSortedT_ToF to indices of vTISKZ.
+        
 
+
+    protected:
+    
+        /** # of processed events */
+        int nProcessedEvents;
+        
+        /** Raw trigger time (`skhead_.nt48sk`) */
+        int preRawTrigTime[3];
+    
+        // Signal TQ source
+        TFile* fSigTQFile; 
+        TTree* fSigTQTree;
+        
         // Raw TQ hit vectors
         std::vector<int>    vCABIZ; ///< A vector of PMT cable IDs of all recorded hits from an event.
                                     ///< Forms a triplet with #vTISKZ and #vQISKZ.
@@ -514,8 +541,11 @@ class NTagEventInfo
                                     ///< Forms a triplet with #vCABIZ and #vQISKZ.
                             vQISKZ; ///< A vector of deposited charge [p.e.] of all recorded hits from an event.
                                     ///< Forms a triplet with #vCABIZ and #vTISKZ.
-
-    protected:
+        std::vector<int>    vISIGZ; ///< A vector of signal flags (0: bkg, 1: sig) of all recorded hits from an event.
+                                    ///< If #fSigTQFile is not \c NULL, it is saved in NTagEventInfo::AppendRawHitInfo.
+        std::vector<float>* vSIGT; ///< A vector to save signal hit times from #fSigTQTree temporarily. Not included in output.
+        std::vector<int>*   vSIGI; ///< A vector to save signal hit PMT IDs from #fSigTQTree temporarily. Not included in output.
+                                    
         // Processed TQ hit vectors
         std::vector<int>    vSortedPMTID;   ///< A vector of PMT cable IDs corresponding to each hit
                                             ///< sorted by ToF-subtracted hit time in ascending order.
@@ -527,6 +557,8 @@ class NTagEventInfo
                             vSortedQ;       ///< A vector of deposited charge [p.e.] corresponding to each hit
                                             ///< sorted by ToF-subtracted hit time in ascending order.
                                             ///< Forms a triplet with #vSortedT_ToF and #vSortedPMTID.
+        std::vector<int>    vSortedSigFlag; ///< A vector of signal flags (0: bkg, 1: sig) corresponding to each hit
+                                            ///< in #vSortedT_ToF.
 
         NTagMessage msg;        ///< NTag Message printer.
         Verbosity   fVerbosity; ///< Verbosity.
@@ -555,6 +587,7 @@ class NTagEventInfo
                nqiskz,    ///< Number of all hits recorded in #vTISKZ.
                trgType;   ///< Trigger type. MC: 0, SHE: 1, SHE+AFT: 2
         float  trgOffset, ///< Trigger offset of an event. Default set to 1,000 [ns].
+               tDiff,     ///< Time difference from the current event to the previous event. [ms]
                qismsk;    /*!< Total p.e. deposited in ID within 1.3 us around
                                the main trigger of an event. */
 
@@ -606,6 +639,12 @@ class NTagEventInfo
                             vBeta14_10,       ///< Vector of &beta;_14's in 10 ns window. [Size: #nCandidates]
                             vBeta14_50,       ///< Vector of &beta;_14's in 50 ns window. [Size: #nCandidates]
                             vTMVAOutput;      ///< Vector of TMVA classifier outputs. [Size: #nCandidates]
+                            
+        std::vector<std::vector<float>> *vHitRawTimes, ///< Vector of residual hit times. [Size: #nCandidates]
+                                        *vHitResTimes; ///< Vector of residual hit times. [Size: #nCandidates]
+        std::vector<std::vector<int>>   *vHitCableIDs, ///< Vector of hit cable IDs. [Size: #nCandidates]
+                                        *vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
+        
 
 
         /////////////////////////

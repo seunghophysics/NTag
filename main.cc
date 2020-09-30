@@ -9,6 +9,7 @@
 #include "NTagTMVA.hh"
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
+#include "NTagTQReader.hh"
 
 void ProcessSKFile(NTagIO* nt, NTagArgParser& parser);
 
@@ -29,11 +30,6 @@ int main(int argc, char** argv)
     outputName    = parser.GetOption("-out");
     weightName    = parser.GetOption("-weight");
     methodName    = parser.GetOption("-method");
-    
-    // Custom vertex coordinates
-    vx = parser.GetOption("-vx");
-    vy = parser.GetOption("-vy");
-    vz = parser.GetOption("-vz");
     
     // Verbosity
     Verbosity pVERBOSE = pDEFAULT;
@@ -88,6 +84,23 @@ int main(int argc, char** argv)
         msg.Print(Form("NTag output with new TMVA output saved in: ") + outputName);
         
     }
+    
+    // TQ Reader: Read TQ information only and dump to output
+    else if (parser.OptionExists("-readTQ")) {
+        
+        if (outputName.empty())
+            outputName = TString(inputName).ReplaceAll(".", "_TQ.");
+            
+        msg.Print(Form("Exporting TQ to %s...", outputName.c_str()));
+        
+        NTagTQReader* nt = new NTagTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
+        nt->SetVertexMode(mTRUE);
+        nt->ReadFile();
+        nt->WriteOutput();
+        
+        delete nt;
+    }
+    
 
     // Process SK data / MC files
     else {
@@ -128,6 +141,32 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 
     nt->TMVATools.SetReader(methodName, weightName);
     
+    // Set N10 limits
+    const std::string &N10TH = parser.GetOption("-N10TH");
+    const std::string &N10MX = parser.GetOption("-N10MX");
+    if (!N10TH.empty()) {
+        if (!N10MX.empty())
+            nt->SetN10Limits(std::stoi(N10TH), std::stoi(N10MX));
+        else
+            nt->SetN10Limits(std::stoi(N10TH));
+    }
+    else if (!N10MX.empty()) {
+        nt->SetN10Limits(defaultN10TH, std::stoi(N10MX));
+    }
+    
+    // Set T0 limits
+    const std::string &T0TH = parser.GetOption("-T0TH");
+    const std::string &T0MX = parser.GetOption("-T0MX");
+    if (!T0TH.empty()) {
+        if (!T0MX.empty())
+            nt->SetT0Limits(std::stoi(T0TH), std::stoi(T0MX));
+        else
+            nt->SetT0Limits(std::stoi(T0TH));
+    }
+    else if (!T0MX.empty()) {
+        nt->SetT0Limits(defaultT0TH, std::stoi(T0MX));
+    }
+    
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
@@ -138,7 +177,20 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->SetSaveTQAs(true);
     }
     
+    // Save signal flags from source file (MC-only)
+    const std::string &sigTQFileName = parser.GetOption("-sigTQpath");
+    if (!sigTQFileName.empty()) {
+        nt->SetSignalTQ(sigTQFileName.c_str());
+        nt->SetSaveTQAs(true);
+    }
+    
     // Vertex options
+    
+    // Custom vertex coordinates
+    vx = parser.GetOption("-vx");
+    vy = parser.GetOption("-vy");
+    vz = parser.GetOption("-vz");
+    
     if (!vx.empty() && !vy.empty() && !vz.empty()) {
         msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
                         vx.c_str(), vy.c_str(), vz.c_str()));
@@ -152,4 +204,5 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     }
 
     nt->ReadFile();
+    nt->WriteOutput();
 }

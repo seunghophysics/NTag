@@ -6,7 +6,7 @@
 #include <TMath.h>
 
 // Size limit of secondary tree/bank
-#define SECMAXRNG (4000)
+#define MAXNSCNDPRT (4000)
 
 #include <skroot.h>
 #undef MAXHWSK
@@ -33,15 +33,18 @@ T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
+    nProcessedEvents = 0;
+    preRawTrigTime[0] = -1;
+    
     msg = NTagMessage("", fVerbosity);
 
-    SetN10Limits(7, 50);
-    SetN200Max(140);
-    SetT0Limits(5., 600.);   // [us]
-    SetDistanceCut(4000.);   // [cm]
-    SetTMatchWindow(40.);    // [ns]
-    SetTPeakSeparation(50.); // [us]
-    SetMaxODHitThreshold(16);
+    SetN10Limits(defaultN10TH, defaultN10MX);
+    SetN200Max(defaultN200MX);
+    SetT0Limits(defaultT0TH, defaultT0MX);   // [us]
+    SetDistanceCut(defaultVTXSRCRANGE);   // [cm]
+    SetTMatchWindow(defaultTMATCHWINDOW);    // [ns]
+    SetTPeakSeparation(defaultTMINPEAKSEP); // [ns]
+    SetMaxODHitThreshold(defaultODHITMX);
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
@@ -50,11 +53,14 @@ fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
     TMVATools.DumpReaderCutRange();
 }
 
-NTagEventInfo::~NTagEventInfo() {}
+NTagEventInfo::~NTagEventInfo()
+{
+    if (fSigTQFile) fSigTQFile->Close();
+}
 
 void NTagEventInfo::SetEventHeader()
 {
-    runNo = skhead_.nrunsk;
+    runNo    = skhead_.nrunsk;
     subrunNo = skhead_.nsubsk;
     eventNo  = skhead_.nevsk;
     
@@ -101,7 +107,7 @@ void NTagEventInfo::SetPromptVertex()
             pvy = customvy;
             pvz = customvz; break; }
         case mTRUE: {
-            //skgetv_();
+            skgetv_();
             pvx = skvect_.pos[0];
             pvy = skvect_.pos[1];
             pvz = skvect_.pos[2]; break; }
@@ -155,6 +161,10 @@ void NTagEventInfo::SetLowFitInfo()
 
 void NTagEventInfo::AppendRawHitInfo()
 {
+    if (fSigTQTree) {
+        fSigTQTree->GetEntry(nProcessedEvents);
+    }
+    
     float tOffset = 0.;
     float tLast   = 0.;
     float qLast   = 0.;
@@ -169,6 +179,8 @@ void NTagEventInfo::AppendRawHitInfo()
         pmtLast = vCABIZ.back();
     }
 
+    int nFoundSigHits = 0;
+    
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
 
         if (!coincidenceFound && sktqz_.qiskz[iHit] == qLast && sktqz_.icabiz[iHit] == pmtLast) {
@@ -181,8 +193,24 @@ void NTagEventInfo::AppendRawHitInfo()
             vTISKZ.push_back( sktqz_.tiskz[iHit] + tOffset );
             vQISKZ.push_back( sktqz_.qiskz[iHit]           );
             vCABIZ.push_back( sktqz_.icabiz[iHit]          );
+            
+            if (vSIGT) {
+                bool isSignal = false;
+                // Look for matching hits between sig+bkg TQ and sig TQ
+                for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
+                    // If both hit time and PMT ID match, then the current hit iHit is from signal
+                    if (fabs(sktqz_.tiskz[iHit] - vSIGT->at(iSigHit)) < 1e-3 
+                        && sktqz_.icabiz[iHit] == vSIGI->at(iSigHit)) {
+                        isSignal = true;
+                    }
+                }
+                if (isSignal) { vISIGZ.push_back(1); nFoundSigHits++; }
+                else            vISIGZ.push_back(0);
+            }
         }
     }
+                    
+    if (vSIGT) msg.Print(Form("%d / %lu signal hits saved!", nFoundSigHits, vSIGT->size()), pDEBUG);
 
     nqiskz = static_cast<int>(vTISKZ.size());
     msg.Print(Form("nqiskz after append: %d", nqiskz), pDEBUG);
@@ -192,10 +220,10 @@ void NTagEventInfo::SetToFSubtractedTQ()
 {
     // Subtract ToF from raw PMT hit time
     float fitVertex[3] = {pvx, pvy, pvz};
+    //float fitVertex[3] = {vCapVX[0], vCapVY[0], vCapVZ[0]};
     vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
 
     SortToFSubtractedTQ();
-    msg.Print(Form("NQISKZ: %d", nqiskz), pDEBUG);
 }
 
 void NTagEventInfo::SetMCInfo()
@@ -215,6 +243,10 @@ void NTagEventInfo::SetMCInfo()
         vVecPY.push_back   ( skvect_.pin[iVec][1] );
         vVecPZ.push_back   ( skvect_.pin[iVec][2] );
         vVecMom.push_back  ( skvect_.pabs[iVec]   );  // momentum of primaries
+        
+        if (vVecPID[iVec] == 13) // Neutron code in Geant3 is 13
+        msg.Print(Form("Primary neutron %d: [p = %f MeV/c] [dwall: %f cm]", 
+                            iVec, vVecMom[iVec], dWall), pDEBUG);
     }
 
     // Read neutrino interaction vector
@@ -223,8 +255,8 @@ void NTagEventInfo::SetMCInfo()
 
     neutIntMode = nework_.modene;       // neutrino interaction mode
     nVecInNeut  = nework_.numne;        // number of particles in vector
-    nNInNeutVec     = 0;                    // number of neutrons
-    neutIntMom    = Norm(nework_.pne[0]);
+    nNInNeutVec = 0;                    // number of neutrons
+    neutIntMom  = Norm(nework_.pne[0]);
 
     for (int i = 0; i < nVecInNeut; i++) {
         vNeutVecPID.push_back(nework_.ipne[i]);     // PIDs in vector
@@ -250,6 +282,8 @@ void NTagEventInfo::SetMCInfo()
     // Loop over all secondaries in secondary common block
     for (int iSec = 0; iSec < nAllSec; iSec++) {
 
+        float secMom = Norm(secndprt_.pscnd[iSec]);
+        
         // Save all neutrons
         if (secndprt_.iprtscnd[iSec] == 2112) {
             SaveSecondary(iSec);
@@ -257,20 +291,23 @@ void NTagEventInfo::SetMCInfo()
             msg.Print(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
                          nSecNeutron, secndprt_.tscnd[iSec]*1e-3, Norm(secndprt_.pscnd[iSec])), pDEBUG);
         }
-
-        // deuteron, gamma (no capture electrons?)
-        else if (secndprt_.iprtscnd[iSec] == 100045 || secndprt_.iprtscnd[iSec] == 22) {
+        
+        // deuteron, gamma, electrons
+        else if (secndprt_.iprtscnd[iSec] == 100045 || 
+                 secndprt_.iprtscnd[iSec] == 22 ||
+                 // electrons over Cherenkov threshold momentum, from interaction other than multiple scattering
+                 (fabs(secndprt_.iprtscnd[iSec]) == 11 && secMom > 0.579 && secndprt_.lmecscnd[iSec] != 2)) {
 
             /* Save capture info from below */
             float vtxR2 = secndprt_.vtxscnd[iSec][0] * secndprt_.vtxscnd[iSec][0]
                         + secndprt_.vtxscnd[iSec][1] * secndprt_.vtxscnd[iSec][1];
             int inPMT;
             inpmt_(secndprt_.vtxscnd[iSec], inPMT);
-
+            
             // Check if the capture is within ID volume
             if (vtxR2 < dr*dr && fabs(secndprt_.vtxscnd[iSec][2]) < dz && !inPMT) {
 
-                // Save secondary (deuteron, gamma)
+                // Save secondary (deuteron, gamma, electrons)
                 SaveSecondary(iSec);
                 bool isNewCapture = true;
 
@@ -315,8 +352,11 @@ void NTagEventInfo::SetMCInfo()
     assert(nSavedSec == static_cast<int>(vCapID.size()));
 
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV]",
-                          iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture]), pDEBUG);
+        msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV] [x: %f y: %f z: %f]",
+                        iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture],
+                        vCapVX[iCapture], vCapVY[iCapture], vCapVZ[iCapture]), pDEBUG);
+        msg.Print(Form("Neutron travel distance from prompt vertex: %f cm", 
+                        Norm(pvx-vCapVX[iCapture], pvy-vCapVY[iCapture], pvz-vCapVZ[iCapture])), pDEBUG);
     }
     msg.Print(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
     msg.Print(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
@@ -357,7 +397,7 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         // Save maximum N200 and its t0
         float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + 5., 200.);
-        if (t0New > 2.e4 && N200New > maxN200) {
+        if (t0New*1.e-3 > T0TH && N200New > maxN200) {
             maxN200 = N200New;
             maxN200Time = t0New;
         }
@@ -366,7 +406,6 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
-                if (t0Previous < 2000) msg.Print(Form("!!! T0: %f", t0Previous), pDEBUG);
                 SavePeakFromHit(iHitPrevious);
             }
             // Reset N10Previous,
@@ -421,7 +460,11 @@ void NTagEventInfo::SearchCaptureCandidates()
             // Count N1300 and save hit indices in vSortedT_ToF
             if (vUnsortedT_ToF[iHit] > dt->at(iCandidate) - 520.8
             &&  vUnsortedT_ToF[iHit] < dt->at(iCandidate) + 779.2) {
-                if (n1300hits < 1000) {
+                
+                if (n1300hits < 1000 
+                    // bonsai_fit complains that it's fed a cable ID > MAXPM...
+                    // it may have something to do with SK-geometry.
+                    && vCABIZ[iHit] < MAXPM) {
                     index1300.push_back(iHit);
                     n1300hits++;
                 }
@@ -430,14 +473,14 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         for (int iHit50 = 0; iHit50 < n50hits; iHit50++) {
             cabiz50.push_back( vCABIZ[ index50[iHit50] ] );
-            tiskz50.push_back( vTISKZ[ index50[iHit50] ]  );
-            qiskz50.push_back( vQISKZ[ index50[iHit50] ]  );
+            tiskz50.push_back( vTISKZ[ index50[iHit50] ] );
+            qiskz50.push_back( vQISKZ[ index50[iHit50] ] );
         }
 
         for (int iHit1300 = 0; iHit1300 < n1300hits; iHit1300++) {
             cabiz1300.push_back( vCABIZ[ index1300[iHit1300] ] );
-            tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ]  );
-            qiskz1300.push_back( vQISKZ[ index1300[iHit1300] ]  );
+            tiskz1300.push_back( vTISKZ[ index1300[iHit1300] ] );
+            qiskz1300.push_back( vQISKZ[ index1300[iHit1300] ] );
         }
 
         // Calculate betas for N50 hits
@@ -471,7 +514,8 @@ void NTagEventInfo::SearchCaptureCandidates()
             tmptbsovaq = -1.;
         }
         else {
-            bonsai_fit_(&bData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
+            int isData = 0; if (bData) isData = 1;
+            bonsai_fit_(&isData, &time0, tiskz1300.data(), qiskz1300.data(), cabiz1300.data(), &n1300hits, &tmptbsenergy,
                         &tmptbsvx, &tmptbsvy, &tmptbsvz, &tmptbsvt, &tmptbsgood, &tmptbsdirks, &tmptbspatlik, &tmptbsovaq);
         }
 
@@ -494,10 +538,10 @@ void NTagEventInfo::SearchCaptureCandidates()
 
         float nv[3];	// vertex to fit by minimizing tRMS
         float minTRMS50 = MinimizeTRMS(tiskz50, cabiz50, nv);
-
-        vNvx.push_back   ( nv[0]       );
-        vNvy.push_back   ( nv[1]       );
-        vNvz.push_back   ( nv[2]       );
+        
+        vNvx.push_back( nv[0] );
+        vNvy.push_back( nv[1] );
+        vNvz.push_back( nv[2] );
 
         TMVATools.fVariables.PushBack("DWalln", wallsk_(nv));
         TMVATools.fVariables.PushBack("TRMS50", minTRMS50);
@@ -534,6 +578,10 @@ void NTagEventInfo::SearchCaptureCandidates()
         TMVATools.fVariables.PushBack("prompt_bonsai", promptBonsai);
         TMVATools.fVariables.PushBack("prompt_nfit", promptNfit);
         TMVATools.fVariables.PushBack("bonsai_nfit", bonsaiNfit);
+        
+        msg.Print(Form("Neut-fit capture vertex: [x: %f y: %f z: %f]", 
+                        vNvx[iCandidate], vNvy[iCandidate], vNvz[iCandidate]), pDEBUG);
+        msg.Print(Form("prompt_nfit: %f cm", promptNfit), pDEBUG);
     }
 
     if (!bData) {
@@ -541,7 +589,6 @@ void NTagEventInfo::SearchCaptureCandidates()
         SetTrueCaptureInfo();
     }
 }
-
 
 void NTagEventInfo::SetTrueCaptureInfo()
 {
@@ -591,6 +638,12 @@ void NTagEventInfo::SetTrueCaptureInfo()
 
             // Check whether capture is on Gd or H
             vIsGdCapture.push_back( IsGdCapture(iCandidate) );
+            
+            msg.Print(Form("Candidate %d: Distance from capture vertex to Neut-fit vertex: %f cm",
+                            iCandidate,
+                            Norm(vTrueCapVX[iCandidate] - vNvx[iCandidate], 
+                                 vTrueCapVY[iCandidate] - vNvy[iCandidate], 
+                                 vTrueCapVZ[iCandidate] - vNvz[iCandidate])), pDEBUG);
         }
         else {
             vDoubleCount.push_back(0);
@@ -622,7 +675,8 @@ void NTagEventInfo::GetTMVAOutput()
             
             int  N10 = TMVATools.fVariables.Get<int>("N10", iCandidate);
             float dt = TMVATools.fVariables.Get<float>("ReconCT", iCandidate);
-            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d TMVAOutput: %f [%s]", iCandidate, dt, N10, tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
+            msg.Print(Form("iCandidate: %d T0: %f [ns] N10: %d N10n: %d TMVAOutput: %f [%s]", 
+                            iCandidate, dt, N10, vN10n[iCandidate], tmvaOutput, trueCaptureInfo.Data()), pDEBUG);
             vTMVAOutput.push_back( tmvaOutput );
         }
     }
@@ -659,7 +713,7 @@ float NTagEventInfo::TrueCaptureTime(int candidateID)
     float tRecon = ReconCaptureTime(candidateID);
     float tClosest = 1.e8;
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if ( fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW) {
             return vTrueCT[iCapture];
@@ -840,15 +894,23 @@ float NTagEventInfo::GetLegendreP(int i, float& x)
 void NTagEventInfo::SortToFSubtractedTQ()
 {
     int sortedIndex[nqiskz], pmtID;
+    reverseIndex.clear(); reverseIndex.resize(nqiskz);
 
     // Sort: early hit first
     TMath::Sort(nqiskz, vUnsortedT_ToF.data(), sortedIndex, false);
 
     // Save hit info, sorted in (T - ToF)
     for (int iHit = 0; iHit < nqiskz; iHit++) {
-        vSortedPMTID.push_back( vCABIZ[ sortedIndex[iHit] ]         );
-        vSortedT_ToF.push_back( vUnsortedT_ToF[ sortedIndex[iHit] ] );
-        vSortedQ.push_back    ( vQISKZ[ sortedIndex[iHit] ]         );
+        vSortedPMTID.push_back  ( vCABIZ[ sortedIndex[iHit] ]         );
+        vSortedT_ToF.push_back  ( vUnsortedT_ToF[ sortedIndex[iHit] ] );
+        vSortedQ.push_back      ( vQISKZ[ sortedIndex[iHit] ]         );
+        reverseIndex[sortedIndex[iHit]] = iHit;
+    }
+    
+    if (!vISIGZ.empty()) {
+        for (int iHit = 0; iHit < nqiskz; iHit++) {
+            vSortedSigFlag.push_back( vISIGZ[ sortedIndex[iHit] ]         );
+        }
     }
 }
 
@@ -939,7 +1001,7 @@ int NTagEventInfo::IsCapture(int candidateID, bool bSave)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (bSave) vCandidateID.push_back(candidateID);
@@ -953,7 +1015,7 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 {
     float tRecon = ReconCaptureTime(candidateID);
 
-    if (nAllSec >= SECMAXRNG) return -1;
+    if (nAllSec >= MAXNSCNDPRT) return -1;
     for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
         if (fabs(vTrueCT[iCapture] - tRecon) < TMATCHWINDOW ) {
             if (vTotGammaE[iCapture] > 6.) return 1;
@@ -967,7 +1029,7 @@ int NTagEventInfo::IsGdCapture(int candidateID)
 void NTagEventInfo::Clear()
 {
     runNo = 0; subrunNo = 0; eventNo = 0; nhitac = 0; nqiskz = 0; trgType = 0;
-    trgOffset = 1000; qismsk = 0;
+    trgOffset = 1000; qismsk = 0; tDiff = 0;
     apNRings = 0; apNMuE = 0; apNDecays = 0;
     evis = 0; pvx = 0; pvy = 0; pvz = 0; dWall = 0;
     nCandidates = 0; maxN200 = 0;
@@ -980,10 +1042,10 @@ void NTagEventInfo::Clear()
     nVec = 0;
     vecx = 0; vecy = 0; vecz = 0;
 
-    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear();
+    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear(); vISIGZ.clear();
 
     vSortedPMTID.clear();
-    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear();
+    vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear(); vSortedSigFlag.clear();
 
     vAPRingPID.clear(); vAPMom.clear(); vAPMomE.clear(); vAPMomMu.clear();
     vFirstHitID.clear(); vN10n.clear(); vN1300.clear();
@@ -994,7 +1056,12 @@ void NTagEventInfo::Clear()
     vBeta14_10.clear(); vBeta14_50.clear();
     vTMVAOutput.clear();
     TMVATools.fVariables.Clear();
-
+    
+    vHitRawTimes->clear();
+    vHitResTimes->clear();
+    vHitCableIDs->clear();
+    vHitSigFlags->clear();
+    
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
     vIsGdCapture.clear(); vIsCapture.clear();
@@ -1010,37 +1077,72 @@ void NTagEventInfo::Clear()
 
 void NTagEventInfo::SaveSecondary(int secID)
 {
-    vSecPID.push_back ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
+    vSecPID.push_back   ( secndprt_.iprtscnd[secID]         );  // PID of secondaries
     vSecIntID.push_back ( secndprt_.lmecscnd[secID]         );  // creation process
-    vParentPID.push_back ( secndprt_.iprntprt[secID]         );  // parent PID
-    vSecVX.push_back ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
-    vSecVY.push_back ( secndprt_.vtxscnd[secID][1]       );
-    vSecVZ.push_back ( secndprt_.vtxscnd[secID][2]       );
+    vParentPID.push_back( secndprt_.iprntprt[secID]         );  // parent PID
+    vSecVX.push_back    ( secndprt_.vtxscnd[secID][0]       );  // creation vertex
+    vSecVY.push_back    ( secndprt_.vtxscnd[secID][1]       );
+    vSecVZ.push_back    ( secndprt_.vtxscnd[secID][2]       );
     vSecDWall.push_back ( wallsk_(secndprt_.vtxscnd[secID]) );  // distance from wall to creation vertex
-    vSecPX.push_back   ( secndprt_.pscnd[secID][0]         );  // momentum vector
-    vSecPY.push_back   ( secndprt_.pscnd[secID][1]         );
-    vSecPZ.push_back   ( secndprt_.pscnd[secID][2]         );
-    vSecMom.push_back ( Norm(secndprt_.pscnd[secID])      );  // momentum
-    vSecT.push_back    ( secndprt_.tscnd[secID]            );  // time created
+    vSecPX.push_back    ( secndprt_.pscnd[secID][0]         );  // momentum vector
+    vSecPY.push_back    ( secndprt_.pscnd[secID][1]         );
+    vSecPZ.push_back    ( secndprt_.pscnd[secID][2]         );
+    vSecMom.push_back   ( Norm(secndprt_.pscnd[secID])      );  // momentum
+    vSecT.push_back     ( secndprt_.tscnd[secID]            );  // time created
     vCapID.push_back( -1 );
     nSavedSec++;
+    
+    msg.Print(Form("Saved secondary %d: [PID: %d] [Int code: %d] [Parent PID: %d] [x: %f y: %f z: %f]", 
+                    secID, 
+                    secndprt_.iprtscnd[secID], 
+                    secndprt_.lmecscnd[secID],
+                    secndprt_.iprntprt[secID], 
+                    secndprt_.vtxscnd[secID][0], 
+                    secndprt_.vtxscnd[secID][1], 
+                    secndprt_.vtxscnd[secID][2]), pDEBUG);
 }
 
 void NTagEventInfo::SavePeakFromHit(int hitID)
 {
-    // Calculate betas
+    // Containers for hit info
+    std::vector<float> rawTVec, resTVec;
+    std::vector<int>   cabIVec, sigFVec;
+    
+    int tWidth = 10.; // 10 ns window
+    int searchIndex = hitID;
+    
+    while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+        resTVec.push_back(vSortedT_ToF[searchIndex]);
+        rawTVec.push_back(vTISKZ[reverseIndex[searchIndex]]);
+        cabIVec.push_back(vSortedPMTID[searchIndex]);
+        searchIndex++;
+    }
+    
+    if (!vSortedSigFlag.empty()) {
+        searchIndex = hitID;
+        while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+            sigFVec.push_back(vSortedSigFlag[searchIndex]);
+            searchIndex++;
+        }
+    }
+    
+    vHitRawTimes->push_back(rawTVec);
+    vHitResTimes->push_back(resTVec);
+    vHitCableIDs->push_back(cabIVec);
+    vHitSigFlags->push_back(sigFVec);
+
     float t0      = vSortedT_ToF[hitID];
-    int   N10i    = GetNhitsFromStartIndex(vSortedT_ToF, hitID, 10.);
+    int   N10i    = GetNhitsFromStartIndex(vSortedT_ToF, hitID, tWidth);
     int   N200    = GetNhitsFromCenterTime(vSortedT_ToF, t0 + 5., 200.);
     auto  beta    = GetBetaArray(vSortedPMTID, hitID, N10i);
     float tEnd    = vSortedT_ToF[hitID+N10i-1];
-    float sumQ    = GetQSumFromStartIndex(vSortedT_ToF, vSortedQ, hitID, 10.);
-    float trms    = GetTRMSFromStartIndex(vSortedT_ToF, hitID, 10.);
+    float sumQ    = GetQSumFromStartIndex(vSortedT_ToF, vSortedQ, hitID, tWidth);
+    float trms    = GetTRMSFromStartIndex(vSortedT_ToF, hitID, tWidth);
 
     if ((N10i >= N10TH) && (N10i < N10MX+1)) {
         // Save info
-        vFirstHitID.push_back   ( hitID               );
-        vBeta14_10.push_back( beta[1] + 4*beta[4] );
+        vFirstHitID.push_back( hitID               );
+        vBeta14_10.push_back ( beta[1] + 4*beta[4] );
 
         TMVATools.fVariables.PushBack("N10", N10i);
         TMVATools.fVariables.PushBack("N200", N200);

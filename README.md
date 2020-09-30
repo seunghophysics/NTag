@@ -31,13 +31,13 @@ For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.
 
 ### Dependencies
 
-> SKOFL: `skofl_19b`
+> SKOFL: `skofl-trunk` (As of Sep 30, 2020: required if you're using SecondaryInfo for SKROOT)
 >
 > ATMPD: `ATMPD_19b`
 >
 > ROOT: `v5.28.00h`
 >
-> TMVA: `v.4.2.0`
+> TMVA: `v.4.2.0` (At the moment, the default path for TMVA is `/disk02/usr6/han/Apps/TMVA`.)
 
 ### How to install
 ```
