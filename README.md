@@ -31,7 +31,7 @@ For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.
 
 ### Dependencies
 
-> SKOFL: `skofl_19b`
+> SKOFL: `skofl-trunk` (As of Sep 30, 2020: required if you're using SecondaryInfo for SKROOT)
 >
 > ATMPD: `ATMPD_19b`
 >

@@ -1,4 +1,4 @@
-SKOFL_ROOT = /home/mharada/skofl/secondary
+SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
 include $(SKOFL_ROOT)/config.gmk
 
 NTAG_GD_ROOT = $(shell pwd)
