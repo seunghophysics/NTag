@@ -193,9 +193,11 @@ class NTagEventInfo
 
         /**
          * @brief The main search function for candidate selection before applying neural network.
-         * @details See the source code for the details.
-         * Saved variables: #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
-         * #vBSvx, #vBSvy, #vBSvz, #vBSReconCT, #vNvx, #vNvy, #vNvz
+         * @details NTagEventInfo::SavePeakFromHit is called to save peaks that match 
+         * the primary selection conditions as neutron capture candidates.
+         * See the source code for the details.
+         * Saved variables: #vFirstHitID, #vBeta14_10, #nCandidates
+         * #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
          * #vTRMS10n, #vN10n, #vReconCTn,
          * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
          * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
@@ -203,6 +205,15 @@ class NTagEventInfo
          * tn_neutron2.pdf">Tristan's ntag technote</a> for the description of Neut-fit.
          */
         virtual void SearchCaptureCandidates();
+        /**
+         * @brief Function for setting capture variables.
+         * @details For MC input, NTagEventInfo::SetTrueCaptureInfo is invoked to separate true captures from false candidates.
+         * See the source code for the details.
+         * Saved variables: #vTRMS10n, #vN10n, #vReconCTn, #vN1300, #vBeta14_50, #vNvx, #vNvy, #vNvz
+         * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
+         * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
+         */
+        virtual void SetCandidateVariables();
         /**
          * @brief Get classifier output from TMVA.
          * @details Calls NTagTMVA::GetOutputFromCandidate which calculates the classifer output.

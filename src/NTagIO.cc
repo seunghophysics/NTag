@@ -153,6 +153,7 @@ void NTagIO::ReadMCEvent()
 
     // Tagging starts here!
     SearchCaptureCandidates();
+    SetCandidateVariables();
     GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!
@@ -175,6 +176,7 @@ void NTagIO::ReadDataEvent()
 
         // Tagging starts here!
         SearchCaptureCandidates();
+        SetCandidateVariables();
         GetTMVAOutput();
 
         FillTrees();
@@ -229,6 +231,7 @@ void NTagIO::ReadAFTEvent()
 
     // Tagging starts here!
     SearchCaptureCandidates();
+    SetCandidateVariables();
     GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!

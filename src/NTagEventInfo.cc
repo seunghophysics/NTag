@@ -423,7 +423,10 @@ void NTagEventInfo::SearchCaptureCandidates()
     }
     // Save the last peak
     SavePeakFromHit(iHitPrevious);
+}
 
+void NTagEventInfo::SetCandidateVariables()
+{
     // Select hits within 50 ns around each capture candidate
     // to calculate beta and feed BONSAI
 
@@ -432,7 +435,7 @@ void NTagEventInfo::SearchCaptureCandidates()
     std::vector<int>    cabiz50, cabiz1300;
     std::vector<float>  tiskz50, qiskz50, tiskz1300, qiskz1300;
 
-    msg.Print("Searching for new N10 via TRMS minimization...", pDEBUG);
+    msg.Print("Setting capture candidate variables...", pDEBUG);
     msg.Print(Form("Number of candidates : %d", nCandidates), pDEBUG);
 
     std::vector<float>* dt = TMVATools.fVariables.GetVector("ReconCT");
@@ -450,7 +453,6 @@ void NTagEventInfo::SearchCaptureCandidates()
         for (int iHit = 0; iHit < nqiskz; iHit++) {
 
             // Count N50 and save hit indices in vSortedT_ToF
-            //if (fabs(vUnsortedT_ToF[iHit] - vDt[iCandidate]) < 25.) {
             if (fabs(vUnsortedT_ToF[iHit] - dt->at(iCandidate)) < 25.) {
                   index50.push_back(iHit);
                   n50hits++;
