@@ -18,6 +18,7 @@
 
 #include "NTagMessage.hh"
 #include "NTagTMVA.hh"
+#include "NTagCandidate.hh"
 
 /******************************************
 *
@@ -734,6 +735,8 @@ class NTagEventInfo
                             vVecMom; ///< Vector of initial momenta of primary vectors. [MeV/c] [Size: #nVec]
 
         /************************************************************************************************/
+        
+        std::vector<NTagCandidate> vCandidates;
 };
 
 #endif

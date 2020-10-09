@@ -1075,6 +1075,8 @@ void NTagEventInfo::Clear()
     vNeutVecPID.clear();
     vVecPID.clear();
     vVecPX.clear(); vVecPY.clear(); vVecPZ.clear(); vVecMom.clear();
+    
+    vCandidates.clear();
 }
 
 void NTagEventInfo::SaveSecondary(int secID)
@@ -1106,27 +1108,36 @@ void NTagEventInfo::SaveSecondary(int secID)
 
 void NTagEventInfo::SavePeakFromHit(int hitID)
 {
+    // Initialize candidate
+    vCandidates.push_back(NTagCandidate());
+    
     // Containers for hit info
-    std::vector<float> rawTVec, resTVec;
+    std::vector<float> rawTVec, resTVec, pmtQVec;
     std::vector<int>   cabIVec, sigFVec;
     
     int tWidth = 10.; // 10 ns window
     int searchIndex = hitID;
     
-    while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+    while (searchIndex < nqiskz-1 && vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID] < tWidth) {
         resTVec.push_back(vSortedT_ToF[searchIndex]);
         rawTVec.push_back(vTISKZ[reverseIndex[searchIndex]]);
+        pmtQVec.push_back(vSortedQ[searchIndex]);
         cabIVec.push_back(vSortedPMTID[searchIndex]);
+        
         searchIndex++;
     }
     
     if (!vSortedSigFlag.empty()) {
         searchIndex = hitID;
-        while (searchIndex < nqiskz-1 && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+        while (searchIndex < nqiskz-1 && vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID] < tWidth) {
             sigFVec.push_back(vSortedSigFlag[searchIndex]);
             searchIndex++;
         }
     }
+    
+    // Save hit info to candidate
+    vCandidates.back().SetHitInfo(rawTVec, resTVec, pmtQVec, cabIVec, sigFVec);
+    vCandidates.back().DumpHitInfo();
     
     vHitRawTimes->push_back(rawTVec);
     vHitResTimes->push_back(resTVec);
