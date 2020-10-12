@@ -161,6 +161,8 @@ class NTagIO : public NTagEventInfo
          * See the source code for the branch names and filled variables.
          */
         virtual void CreateBranchesToNtvarTree();
+        
+        virtual void AddCandidateVariablesToNtvarTree();
         /**
          * @brief Create branches to #rawtqTree with raw TQ hit vectors #vTISKZ, #vQISKZ, and #vCABIZ.
          */
@@ -189,6 +191,7 @@ class NTagIO : public NTagEventInfo
         const char* fInFileName;
         const char* fOutFileName;
         int         lun;
+        bool        candidateVariablesAdded;
 
         TFile*      outFile;
         TTree*      truthTree; /*!< A tree of member variables. (created for MC inputs only)

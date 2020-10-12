@@ -151,7 +151,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
             nt->SetN10Limits(std::stoi(N10TH));
     }
     else if (!N10MX.empty()) {
-        nt->SetN10Limits(defaultN10TH, std::stoi(N10MX));
+        nt->SetN10Limits(NTagDefault::N10TH, std::stoi(N10MX));
     }
     
     // Set T0 limits
@@ -164,7 +164,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
             nt->SetT0Limits(std::stoi(T0TH));
     }
     else if (!T0MX.empty()) {
-        nt->SetT0Limits(defaultT0TH, std::stoi(T0MX));
+        nt->SetT0Limits(NTagDefault::T0TH, std::stoi(T0MX));
     }
     
     // Turn TMVA on/off (default: on)

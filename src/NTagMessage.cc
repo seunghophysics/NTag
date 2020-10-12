@@ -22,15 +22,18 @@ void NTagMessage::PrintTag(Verbosity vType)
     }
 }
 
-void NTagMessage::Print(TString msg, Verbosity vType)
+void NTagMessage::Print(TString msg, Verbosity vType, bool endLine)
 {
     if (vType <= fVerbosity) {
         PrintTag(vType);
         if (vType == pERROR) {
-            std::cerr << "\033[m " << msg << std::endl;
+            std::cerr << "\033[m " << msg;
             exit(1);
         }
-        else std::cout << "\033[m" << msg << std::endl;
+        else {
+            std::cout << "\033[m" << msg;
+            if (endLine) std::cout << std::endl;
+        }
     }
 }
 

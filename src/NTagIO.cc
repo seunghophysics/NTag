@@ -13,7 +13,8 @@
 NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10)
+: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10),
+candidateVariablesAdded(false)
 {
     instance = this;
 
@@ -154,7 +155,7 @@ void NTagIO::ReadMCEvent()
     // Tagging starts here!
     SearchCaptureCandidates();
     SetCandidateVariables();
-    GetTMVAOutput();
+    //GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!
     FillTrees();
@@ -177,7 +178,7 @@ void NTagIO::ReadDataEvent()
         // Tagging starts here!
         SearchCaptureCandidates();
         SetCandidateVariables();
-        GetTMVAOutput();
+        //GetTMVAOutput();
 
         FillTrees();
         
@@ -232,7 +233,7 @@ void NTagIO::ReadAFTEvent()
     // Tagging starts here!
     SearchCaptureCandidates();
     SetCandidateVariables();
-    GetTMVAOutput();
+    //GetTMVAOutput();
 
     // DONT'T FORGET TO FILL!
     FillTrees();
@@ -320,20 +321,20 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("pvx", &pvx);
     ntvarTree->Branch("pvy", &pvy);
     ntvarTree->Branch("pvz", &pvz);
-    ntvarTree->Branch("nvx", &vNvx);
-    ntvarTree->Branch("nvy", &vNvy);
-    ntvarTree->Branch("nvz", &vNvz);
-    ntvarTree->Branch("DWall", &dWall);
-    ntvarTree->Branch("N10n", &vN10n);
-    ntvarTree->Branch("N1300", &vN1300);
-    ntvarTree->Branch("TRMS10n", &vTRMS10n);
-    ntvarTree->Branch("ReconCTn", &vReconCTn);
-    ntvarTree->Branch("bsvx", &vBSvx);
-    ntvarTree->Branch("bsvy", &vBSvy);
-    ntvarTree->Branch("bsvz", &vBSvz);
-    ntvarTree->Branch("BSReconCT", &vBSReconCT);
-    ntvarTree->Branch("Beta14_10", &vBeta14_10);
-    ntvarTree->Branch("Beta14_50", &vBeta14_50);
+    //ntvarTree->Branch("nvx", &vNvx);
+    //ntvarTree->Branch("nvy", &vNvy);
+    //ntvarTree->Branch("nvz", &vNvz);
+    //ntvarTree->Branch("DWall", &dWall);
+    //ntvarTree->Branch("N10n", &vN10n);
+    //ntvarTree->Branch("N1300", &vN1300);
+    //ntvarTree->Branch("TRMS10n", &vTRMS10n);
+    //ntvarTree->Branch("ReconCTn", &vReconCTn);
+    //ntvarTree->Branch("bsvx", &vBSvx);
+    //ntvarTree->Branch("bsvy", &vBSvy);
+    //ntvarTree->Branch("bsvz", &vBSvz);
+    //ntvarTree->Branch("BSReconCT", &vBSReconCT);
+    //ntvarTree->Branch("Beta14_10", &vBeta14_10);
+    //ntvarTree->Branch("Beta14_50", &vBeta14_50);
     ntvarTree->Branch("APNrings", &apNRings);
     ntvarTree->Branch("EVis", &evis);
     ntvarTree->Branch("NHITAC", &nhitac);
@@ -345,7 +346,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("APMom", &vAPMom);
     ntvarTree->Branch("APMomE", &vAPMomE);
     ntvarTree->Branch("APMomMu", &vAPMomMu);
-    ntvarTree->Branch("TMVAOutput", &vTMVAOutput);
+    //ntvarTree->Branch("TMVAOutput", &vTMVAOutput);
     
     //vHitRawTimes = 0;
     //vHitResTimes = 0;
@@ -357,7 +358,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
 
     // Make branches from TMVAVariables class
-    TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
+    //TMVATools.fVariables.MakeBranchesToTree(ntvarTree);
 
     if (!bData) {
         ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
@@ -369,6 +370,19 @@ void NTagIO::CreateBranchesToNtvarTree()
         ntvarTree->Branch("truecapvy", &vTrueCapVY);
         ntvarTree->Branch("truecapvz", &vTrueCapVZ);
     }
+}
+
+void NTagIO::AddCandidateVariablesToNtvarTree()
+{
+    for (auto& pair: iCandidateVarMap) {
+        ntvarTree->Branch(pair.first, &(pair.second));
+    }
+    for (auto& pair: fCandidateVarMap) {
+        if (!iCandidateVarMap.count(pair.first))
+            ntvarTree->Branch(pair.first, &(pair.second));
+    }
+    
+    candidateVariablesAdded = true;
 }
 
 void NTagIO::CreateBranchesToRawTQTree()
@@ -389,6 +403,11 @@ void NTagIO::CreateBranchesToResTQTree()
 
 void NTagIO::FillTrees()
 {
+    if (!candidateVariablesAdded) {
+        AddCandidateVariablesToNtvarTree();
+    }
+    //DumpCandidateVariables();
+
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
     if (saveTQ) restqTree->Fill();

@@ -200,6 +200,7 @@ class NTagTMVA
     friend class NTagTMVAVariables;
     friend class NTagEventInfo;
     friend class NTagIO;
+    friend class NTagCandidate;
 };
 
 #endif

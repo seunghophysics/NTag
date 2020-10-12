@@ -16,8 +16,15 @@
 #include <TString.h>
 #include <TMVA/Reader.h>
 
+#undef MAXPM
+#undef MAXPMA
+
+#include <skparmC.h>
+#include <geopmtC.h>
+
 #include "NTagMessage.hh"
 #include "NTagTMVA.hh"
+#include "NTagTMVAVariables.hh"
 #include "NTagCandidate.hh"
 
 /******************************************
@@ -52,16 +59,22 @@ enum VertexMode
     mSTMU    ///< Use the vertex where a stopping muon has stopped inside the tank. Not supported yet.
 };
 
-const int defaultN10TH = 7;
-const int defaultN10MX = 50;
-const int defaultN200MX = 200;
-const float defaultT0TH = 5.;
-const float defaultT0MX = 535.;
-const float defaultVTXSRCRANGE = 4000.;
-const float defaultTMATCHWINDOW = 40.;
-const float defaultTMINPEAKSEP = 50.;
-const int defaultODHITMX = 16;
+namespace NTagConstant{
+    constexpr float (*PMTXYZ)[3] = geopmt_.xyzpm;
+    constexpr float C_WATER = 21.5833;
+}
 
+namespace NTagDefault{
+    constexpr int N10TH = 7;
+    constexpr int N10MX = 50;
+    constexpr int N200MX = 200;
+    constexpr float T0TH = 5.;
+    constexpr float T0MX = 535.;
+    constexpr float VTXSRCRANGE = 4000.;
+    constexpr float TMATCHWINDOW = 40.;
+    constexpr float TMINPEAKSEP = 50.;
+    constexpr int ODHITMX = 16;
+}
 
 /**********************************************************
  *
@@ -186,7 +199,7 @@ class NTagEventInfo
              * @details Saved variables: #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
              * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
              */
-            virtual void SetTrueCaptureInfo();
+            //virtual void SetTrueCaptureInfo();
 
         /////////////
         // Tagging //
@@ -222,7 +235,7 @@ class NTagEventInfo
          * Saved variable: #vTMVAOutput
          * @see NTagTMVA::GetOutputFromCandidate
          */
-        virtual void GetTMVAOutput();
+        //virtual void GetTMVAOutput();
 
         ////////////////
         // Calculator //
@@ -233,7 +246,7 @@ class NTagEventInfo
          * @param vec A size-3 float array.
          * @return The norm of the given array.
          */
-        inline float Norm(const float vec[3]);
+        //inline float Norm(const float vec[3]);
         /**
          * @brief Get norm of the vector with given x, y, z coordinates.
          * @param x X coordinate of a vector.
@@ -241,21 +254,21 @@ class NTagEventInfo
          * @param z Z coordinate of a vector.
          * @return The norm of the vector with given coordinates.
          */
-        inline float Norm(float x, float y, float z);
+        //inline float Norm(float x, float y, float z);
         /**
          * @brief Get distance between two points specified by the two given size-3 float arrays.
          * @param vec1 A size-3 float array of coordinates of a vector 1.
          * @param vec2 A size-3 float array of coordinates of a vector 2.
          * @return The distance between vector 1 and 2.
          */
-        float GetDistance(const float vec1[3], const float vec2[3]);
+        //float GetDistance(const float vec1[3], const float vec2[3]);
         /**
          * @brief Get i-th Legendre polynomial P_i(x) evaluated at x.
          * @param i The order of Legendre polynomial.
          * @param x The x value to evaluate the polynomial.
          * @return The i-th Legendre polynomial P_i(x) evaluated at x.
          */
-        float GetLegendreP(int i, float& x); // legendre polynomials for betas
+        //float GetLegendreP(int i, float& x); // legendre polynomials for betas
         /**
          * @brief Evaluate &beta;_i values of a hit cluster for i = 1...5 and return those in an array.
          * @param PMTID A vector of PMT cable IDs. The locations of the PMTs are fetched from #PMTXYZ.
@@ -266,7 +279,7 @@ class NTagEventInfo
          * @see For the details of the &beta; values, see Eq. (5) of the SNO review article at
          * <a href="https://arxiv.org/pdf/1602.02469.pdf">arXiv:1602.02469</a>.
          */
-        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, int startIndex, int nHits);
+        //std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, int startIndex, int nHits);
 
         ////////////////////////////////
         // Variable-related functions //
@@ -284,7 +297,7 @@ class NTagEventInfo
              * @return Reconstructed capture time subtracted by the event's trigger offset.
              * @see NTagEventInfo::IsCapture, NTagEventInfo::IsGdCapture, NTagEventInfo::TrueCaptureTime
              */
-            inline float ReconCaptureTime(int candidateID);
+            //inline float ReconCaptureTime(int candidateID);
             /**
              * @brief Checks if a caputure candidate is indeed a true capture.
              * @details It compares the reconstructed capture time (NTagEventInfo::ReconCaptureTime) of the candidate
@@ -295,7 +308,7 @@ class NTagEventInfo
              * @param bSave If \c true, the candidate ID is
              * @return \c true if the reconstructed capture time matches a true capture time, otherwise \c false.
              */
-            int IsCapture(int candidateID, bool bSave=false);
+            //int IsCapture(int candidateID, bool bSave=false);
             /**
              * @brief Checks if a caputure candidate is indeed a capture due to Gd.
              * @details It compares the reconstructed capture time (NTagEventInfo::ReconCaptureTime) of the candidate
@@ -305,19 +318,19 @@ class NTagEventInfo
              * @param candidateID The ID of a capture candidate.
              * @return \c true if the reconstructed capture time matches a true capture time, otherwise \c false.
              */
-            int IsGdCapture(int candidateID);
+            //int IsGdCapture(int candidateID);
             /**
              * @brief Looks for the matching true capture time for \p candidateID from #vTrueCT.
              * @param candidateID The ID of a capture candidate.
              * @return A matching true capture time if \p candidateID is a true capture, otherwise -9999.
              */
-            float TrueCaptureTime(int candidateID);
+            //float TrueCaptureTime(int candidateID);
             /**
              * @brief Gets a true capture vertex if the given capture candidate is a true capture.
              * @param candidateID The ID of a capture candidate.
              * @return A matching true capture vertex if \p candidateID is a true capture, otherwise {0, 0, 0}.
              */
-            std::array<float, 3> TrueCaptureVertex(int candidateID);
+            //std::array<float, 3> TrueCaptureVertex(int candidateID);
 
             /*********************/
             /* functions on hits */
@@ -335,7 +348,7 @@ class NTagEventInfo
              * @param tWidth The width of the time window [ns] to count hits within.
              * @return The number of hits within \p tWidth [ns] starting from index \p startIndex.
              */
-            int GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
+            //int GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
             /**
              * @brief Gets number of hits within \p tWidth [ns] whose center comes at time \p centerTime [ns].
              * @param T A vector of PMT hit times. [ns]
@@ -344,7 +357,7 @@ class NTagEventInfo
              * of this \p tWidth.
              * @return The number of hits within \p tWidth [ns] whose center comes at time \p centerTime [ns].
              */
-            int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
+            //int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
             /**
              * @brief Gets the summed charge [p.e.] of a hit cluster or a capture candidate, starting from
              * index \p startIndex within a time window with \p tWidth [ns].
@@ -356,8 +369,8 @@ class NTagEventInfo
              * @return The summed charge [p.e.] of a hit cluster or a capture candidate from \p startIndex within
              * \p tWidth [ns].
              */
-            float GetQSumFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q,
-                                                        int startIndex, float tWidth);
+            //float GetQSumFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q,
+            //                                            int startIndex, float tWidth);
             /**
              * @brief Gets ToF from a vertex specified by \p vertex to a PMT with cable ID \p pmtID.
              * @param vertex A size-3 \c float array of x, y, and z-coordinates of some point in the SK coordinate system.
@@ -370,7 +383,7 @@ class NTagEventInfo
              * @param T A vector of PMT hit times. [ns]
              * @return The RMS value of a hit-time vector \p T.
              */
-            float GetTRMS(const std::vector<float>& T);
+            //float GetTRMS(const std::vector<float>& T);
             /**
              * @brief Gets the RMS value of a hit cluster extracted from a hit-time vector.
              * @param T A vector of PMT hit times. [ns]
@@ -378,7 +391,7 @@ class NTagEventInfo
              * @param tWidth The width of the time window [ns] to count hits within.
              * @return The RMS value of the extracted hit cluster from the input hit-tme vector \p T.
              */
-            float GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
+            //float GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
             /**
              * @brief Gets the minimum RMS value of hit-times by searching for the minizing vertex.
              * @param T A vector of PMT hit times. [ns]
@@ -388,7 +401,7 @@ class NTagEventInfo
              * \p fitVertex is also returned as the coordinates of the TRMS minimizing vertex of \p T.
              * @note The input hit-time vector must not have ToF subtracted as ToF will be subtracted inside this function.
              */
-            float MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float fitVertex[3]);
+            //float MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float fitVertex[3]);
             /**
              * @brief Gets the ToF-subtracted version of an input hit-time vector \p T.
              * @param T A vector of PMT hit times. [ns]
@@ -440,7 +453,7 @@ class NTagEventInfo
          * @param low Lower limit for N10.
          * @param high Upper limit for N10.
          */
-        inline void SetN10Limits(int low, int high=defaultN10MX) { N10TH = low; N10MX = high; }
+        inline void SetN10Limits(int low, int high=NTagDefault::N10MX) { N10TH = low; N10MX = high; }
         /**
          * @brief Set upper limit N200MX for N200.
          * @param max Upper limit for N200.
@@ -453,7 +466,7 @@ class NTagEventInfo
          * @note Both #T0TH and #T0MX should be in the form of global recorded hit time.
          * Please take into account that tthe rigger offset is ~1,000 ns in this format.
          */
-        inline void SetT0Limits(float low, float high=defaultT0MX) { T0TH = low; T0MX = high; }
+        inline void SetT0Limits(float low, float high=NTagDefault::T0MX) { T0TH = low; T0MX = high; }
         /**
          * @brief Set vertex search range #VTXSRCRANGE in NTagEventInfo::MinimizeTRMS.
          * Use this function to cut T0 of the capture candidates.
@@ -503,6 +516,16 @@ class NTagEventInfo
          * @param b If \c true, #NTagIO::restqTree is written to the output file filled with residual TQ vectors.
          */
         inline void SetSaveTQAs(bool b) { saveTQ = b; }
+        
+        /**
+         * @brief 
+         */
+        inline Verbosity GetVerbosity() { return fVerbosity; }
+         
+        void InitializeCandidateVariableVectors();
+        void ExtractCandidateVariables();
+        void DumpCandidateVariables();
+         
 
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
@@ -510,7 +533,7 @@ class NTagEventInfo
 
     private:
         const float (*PMTXYZ)[3]; ///< A map from PMT cable ID to coordinates. Equivalent to \c geopmt_.xyzpm.
-        const float C_WATER;      ///< Speed-of-light in water. [cm/ns]
+        //const float C_WATER;      ///< Speed-of-light in water. [cm/ns]
 
         // Tag conditions
         int         N10TH,        ///< Lower limit for N10. @see NTagEventInfo::SetN10Limits
@@ -532,7 +555,7 @@ class NTagEventInfo
         
         std::vector<int> reverseIndex; ///< Inverse map from indices of vSortedT_ToF to indices of vTISKZ.
         
-
+        bool candidateVariablesInitalized;
 
     protected:
     
@@ -737,6 +760,11 @@ class NTagEventInfo
         /************************************************************************************************/
         
         std::vector<NTagCandidate> vCandidates;
+        
+        IVecMap iCandidateVarMap;
+        FVecMap fCandidateVarMap;
+        
+    friend class NTagCandidate;
 };
 
 #endif

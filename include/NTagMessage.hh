@@ -70,7 +70,7 @@ class NTagMessage
          * @brief Prints one-liners.
          * @details Sample usage: `msg.Print("some message", pWARNING);`
          */
-        virtual void  Print(TString, Verbosity vType=pDEFAULT);
+        virtual void  Print(TString, Verbosity vType=pDEFAULT, bool endLine=true);
         /**
          * @brief Prints time that has been taken since the input \c tStart.
          * @details A `std::clock_t` object \c tStart must have been declared before using this method.

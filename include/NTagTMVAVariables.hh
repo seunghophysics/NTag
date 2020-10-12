@@ -151,6 +151,10 @@ class NTagTMVAVariables
          */
         std::vector<float>* GetVector(const char* key)
                             { return fEventVectorMap[key]; }
+                            
+        inline void Set(const char* key, float var) { fVariableMap[key] = var; }
+        void FillVectorMap();
+        bool IsTMVAVariable(const char* key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
 
     private:
         IVarMap iVariableMap;    ///< A map from a character key to an integer variable.
