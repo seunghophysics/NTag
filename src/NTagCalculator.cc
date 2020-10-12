@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 
 #include <TMath.h>
 
@@ -58,50 +59,75 @@ float GetTRMS(const std::vector<float>& T)
     return sqrt(tVar);
 }
 
+std::vector<float> GetVectorFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
+{
+    std::vector<float> selectedT;
+    selectedT.push_back(T[startIndex]);
+    
+    unsigned int searchIndex = (unsigned int)startIndex + 1;
+    
+    while (searchIndex < T.size() && T[searchIndex] - T[startIndex] < tWidth) {
+        selectedT.push_back(T[searchIndex]);
+        searchIndex++;
+    }
+    
+    return selectedT;
+}
+
 int GetNhitsFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
 {
-    int searchIndex = startIndex;
-    int nHits       = T.size();
+    std::vector<float> selectedT = GetVectorFromStartIndex(T, startIndex, tWidth);
+    
+    //int searchIndex = startIndex;
+    //int nHits       = T.size();
 
-    while (1) {
-        searchIndex++;
-        if ((searchIndex > nHits-1) || (TMath::Abs((T[searchIndex] - T[startIndex])) > tWidth))
-            break;
-    }
+    //while (1) {
+    //    searchIndex++;
+    //    if (searchIndex > nHits-1 || fabs((T[searchIndex] - T[startIndex])) > tWidth)
+    //        break;
+    //}
     // Return number of hits within the time window
-    return TMath::Abs(searchIndex - startIndex);
+    return selectedT.size();
 }
 
 float GetQSumFromStartIndex(const std::vector<float>& T, const std::vector<float>& Q, int startIndex, float tWidth)
 {
-    int nHits       = Q.size();
-    int searchIndex = startIndex;
+    //int nHits       = Q.size();
+    //int searchIndex = startIndex;
+    
+    std::vector<float> selectedT = GetVectorFromStartIndex(T, startIndex, tWidth);
     float sumQ      = 0.;
 
-    while (1) {
-        sumQ += Q[searchIndex];
-        searchIndex++;
-        if ((searchIndex > nHits-1) || (TMath::Abs((T[searchIndex] - T[startIndex])) > tWidth))
-            break;
+    for (unsigned int iHit = 0; iHit < selectedT.size(); iHit++) {
+        sumQ += Q[iHit];
     }
+
+    //while (1) {
+    //    sumQ += Q[searchIndex];
+    //    searchIndex++;
+    //    if (searchIndex > nHits-1 || fabs((T[searchIndex] - T[startIndex])) > tWidth)
+    //        break;
+    //}
     // Return total hit charge within the time window
     return sumQ;
 }
 
 float GetTRMSFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth)
 {
-    int nHits = T.size();
-    int searchIndex = startIndex;
-    std::vector<float> tList;
+    //int nHits = T.size();
+    //int searchIndex = startIndex;
+    //std::vector<float> tList;
 
-    while (1) {
-        tList.push_back(T[searchIndex]);
-        searchIndex++;
-        if ((searchIndex > nHits -1) || (TMath::Abs((T[searchIndex] - T[startIndex])) > tWidth))
-            break;
-    }
+    //while (1) {
+    //    tList.push_back(T[searchIndex]);
+    //    searchIndex++;
+    //    if (searchIndex > nHits -1 || fabs((T[searchIndex] - T[startIndex])) > tWidth)
+    //        break;
+    //}
+    
+    std::vector<float> selectedT = GetVectorFromStartIndex(T, startIndex, tWidth);
 
-    return GetTRMS(tList);
+    return GetTRMS(selectedT);
 }
 
 int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth)

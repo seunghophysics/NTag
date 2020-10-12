@@ -174,14 +174,14 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     
     // Save residual TQ (default: off)
     if (parser.OptionExists("-saveTQ")) {
-        nt->SetSaveTQAs(true);
+        nt->SetSaveTQFlagAs(true);
     }
     
     // Save signal flags from source file (MC-only)
     const std::string &sigTQFileName = parser.GetOption("-sigTQpath");
     if (!sigTQFileName.empty()) {
         nt->SetSignalTQ(sigTQFileName.c_str());
-        nt->SetSaveTQAs(true);
+        nt->SetSaveTQFlagAs(true);
     }
     
     // Vertex options

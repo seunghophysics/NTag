@@ -162,7 +162,7 @@ c*** save info
          tvx = bsvertex(1)
          tvy = bsvertex(2)
          tvz = bsvertex(3)
-         tvt = bsvertex(4)
+         tvt = bsvertex(4) + dt - 1000
          tgood = bsgood(2)
          tbsdirks = bsdirks
          tbspatlik = bspatlik

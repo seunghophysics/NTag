@@ -33,7 +33,7 @@ candidateVariablesAdded(false)
     CreateBranchesToRawTQTree();
     
     restqTree = new TTree("restq", "Residual TQ");
-    CreateBranchesToResTQTree();
+    if (saveTQ) CreateBranchesToResTQTree();
     
     fSigTQFile = NULL; fSigTQTree = NULL;
 }

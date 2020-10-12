@@ -21,7 +21,10 @@ void NTagTMVAVariables::Clear()
     iVariableMap["N200"] = 0;
 
     for (const auto& pair: iVariableMap) {
-        iEventVectorMap[pair.first] = new std::vector<int>();
+        if (iEventVectorMap.find(pair.first) == iEventVectorMap.end())
+            iEventVectorMap[pair.first] = new std::vector<int>();
+        else
+            iEventVectorMap[pair.first]->clear();
         fVariableMap[pair.first] = 0.;
     }
 
@@ -47,7 +50,10 @@ void NTagTMVAVariables::Clear()
     //fVariableMap["bonsai_nfit"] = 0.;
 
     for (const auto& pair: fVariableMap) {
-        fEventVectorMap[pair.first] = new std::vector<float>();
+        if (fEventVectorMap.find(pair.first) == fEventVectorMap.end())
+            fEventVectorMap[pair.first] = new std::vector<float>();
+        else
+            fEventVectorMap[pair.first]->clear();
     }
 }
 

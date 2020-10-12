@@ -4,9 +4,9 @@
 #include <TMath.h>
 #include <TMVA/Reader.h>
 
-#include <skparmC.h>
+//#include <skparmC.h>
 #include <geotnkC.h>
-#include <geopmtC.h>
+//#include <geopmtC.h>
 
 #include "SKLibs.hh"
 #include "NTagCalculator.hh"
@@ -112,7 +112,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
                 fVarMap["ReconCTn"] = (tiskz50_ToF[iHit] + tiskz50_ToF[iHit+tmpBestN10n-1]) / 2.;
             }
         }
-        fVarMap["TRMS10n"] = GetNhitsFromStartIndex(tiskz50_ToF, bestIndex, 10.);
+        fVarMap["TRMS10n"] = GetTRMSFromStartIndex(tiskz50_ToF, bestIndex, 10.);
         
         fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
                                       currentEvent->pvy - fVarMap["nvy"],
@@ -177,7 +177,7 @@ void NTagCandidate::SetTMVAOutput()
 void NTagCandidate::DumpHitInfo()
 {   
     msg.Print("---------------------------------------------------------------------------");
-    msg.Print("HitRawTimes    HitResTimes    HitChargePE    HitCableIDs    HitSigFlags");
+    msg.Print("RawHitT [ns]   ResHitT [ns]   Q [p.e.]       PMT ID         IsSignalHit?");
     msg.Print("---------------------------------------------------------------------------");
     
     for (unsigned int iHit = 0; iHit < vHitRawTimes.size(); iHit++) {

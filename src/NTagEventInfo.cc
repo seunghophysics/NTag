@@ -37,27 +37,25 @@
 NTagEventInfo::NTagEventInfo(Verbosity verbose)
 :
 //PMTXYZ(geopmt_.xyzpm), //C_WATER(21.5833),
-N10TH(7), N10MX(50), N200MX(140), VTXSRCRANGE(4000.),
-T0TH(2.), T0MX(600.), TMATCHWINDOW(40.), TMINPEAKSEP(50.), ODHITMX(16.),
-customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
-{
-    candidateVariablesInitalized = false;
-    doRBNReduction = true;
-    tRBNWidth = NTagDefault::TRBNWIDTH;
-    
+N10TH(NTagDefault::N10TH), N10MX(NTagDefault::N10MX), N200MX(NTagDefault::N200MX),
+T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX), TRBNWIDTH(NTagDefault::TRBNWIDTH),
+TMATCHWINDOW(NTagDefault::TMATCHWINDOW), TMINPEAKSEP(NTagDefault::TMINPEAKSEP), ODHITMX(NTagDefault::ODHITMX), 
+VTXSRCRANGE(NTagDefault::VTXSRCRANGE), customvx(0.), customvy(0.), customvz(0.),
+fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false), 
+candidateVariablesInitialized(false), doRBNReduction(true)
+{   
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
     
     msg = NTagMessage("", fVerbosity);
 
-    SetN10Limits(NTagDefault::N10TH, NTagDefault::N10MX);
-    SetN200Max(NTagDefault::N200MX);
-    SetT0Limits(NTagDefault::T0TH, NTagDefault::T0MX);   // [us]
-    SetDistanceCut(NTagDefault::VTXSRCRANGE);   // [cm]
-    SetTMatchWindow(NTagDefault::TMATCHWINDOW);    // [ns]
-    SetTPeakSeparation(NTagDefault::TMINPEAKSEP); // [ns]
-    SetMaxODHitThreshold(NTagDefault::ODHITMX);
+    //SetN10Limits(NTagDefault::N10TH, NTagDefault::N10MX);
+    //SetN200Max(NTagDefault::N200MX);
+    //SetT0Limits(NTagDefault::T0TH, NTagDefault::T0MX);   // [us]
+    //SetDistanceCut(NTagDefault::VTXSRCRANGE);   // [cm]
+    //SetTMatchWindow(NTagDefault::TMATCHWINDOW);    // [ns]
+    //SetTPeakSeparation(NTagDefault::TMINPEAKSEP); // [ns]
+    //SetMaxODHitThreshold(NTagDefault::ODHITMX);
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
@@ -193,7 +191,7 @@ void NTagEventInfo::AppendRawHitInfo()
     }
 
     int nFoundSigHits = 0;
-    float pmtHitTimes[MAXPM+1];
+    int nRemovedHits = 0;
     
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
 
@@ -202,23 +200,29 @@ void NTagEventInfo::AppendRawHitInfo()
             coincidenceFound = true;
             msg.Print(Form("Coincidence found: t = %f ns, (offset: %f ns)", tLast, tOffset), pDEBUG);
         }
-            int hitPMTID = sktqz_.icabiz[iHit];
+        
+        int hitPMTID = sktqz_.icabiz[iHit];
+        float hitTime = sktqz_.tiskz[iHit] + tOffset;
         
         // Use hits that are in-gate and within MAXPM only
         if (sktqz_.ihtiflz[iHit] & (1<<1) && hitPMTID <= MAXPM) {
         
-            if (pmtHitTimes[hitPMTID] - )
+            if (fabs(hitTime - vPMTHitTime[hitPMTID]) < TRBNWIDTH*1.e3) {
+                nRemovedHits++;
+                continue;
+            }
             
-            vTISKZ.push_back( sktqz_.tiskz[iHit] + tOffset );
+            vTISKZ.push_back( hitTime );
             vQISKZ.push_back( sktqz_.qiskz[iHit]           );
             vCABIZ.push_back( hitPMTID          );
+            vPMTHitTime[hitPMTID] = hitTime;
             
             if (vSIGT) {
                 bool isSignal = false;
                 // Look for matching hits between sig+bkg TQ and sig TQ
                 for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
                     // If both hit time and PMT ID match, then the current hit iHit is from signal
-                    if (fabs(sktqz_.tiskz[iHit] - vSIGT->at(iSigHit)) < 1e-3 
+                    if (fabs(hitTime - vSIGT->at(iSigHit)) < 1e-3 
                         && sktqz_.icabiz[iHit] == vSIGI->at(iSigHit)) {
                         isSignal = true;
                     }
@@ -229,6 +233,7 @@ void NTagEventInfo::AppendRawHitInfo()
         }
     }
                     
+    msg.Print(Form("Removed hits: %d", nRemovedHits), pDEBUG);
     if (vSIGT) msg.Print(Form("%d / %lu signal hits saved!", nFoundSigHits, vSIGT->size()), pDEBUG);
 
     nqiskz = static_cast<int>(vTISKZ.size());
@@ -441,16 +446,19 @@ void NTagEventInfo::SearchCaptureCandidates()
         N200Previous = N200New;
     }
     // Save the last peak
-    SavePeakFromHit(iHitPrevious);
+    if ( N10Previous >= N10TH)
+        SavePeakFromHit(iHitPrevious);
 }
 
 void NTagEventInfo::SetCandidateVariables()
 {
-    if (!candidateVariablesInitalized) 
-        InitializeCandidateVariableVectors();
-        
-    ExtractCandidateVariables();
-    DumpCandidateVariables();
+    if (vCandidates.size() > 0) {
+        if (!candidateVariablesInitialized) 
+            InitializeCandidateVariableVectors();
+            
+        ExtractCandidateVariables();
+        DumpCandidateVariables();
+    }
     
     // Select hits within 50 ns around each capture candidate
     // to calculate beta and feed BONSAI
@@ -1070,7 +1078,7 @@ void NTagEventInfo::Clear()
     nVec = 0;
     vecx = 0; vecy = 0; vecz = 0;
 
-    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear(); vISIGZ.clear();
+    vTISKZ.clear(); vQISKZ.clear(); vCABIZ.clear(); vISIGZ.clear(); vPMTHitTime.fill(0);
 
     vSortedPMTID.clear();
     vSortedT_ToF.clear(); vUnsortedT_ToF.clear(); vSortedQ.clear(); vSortedSigFlag.clear();
@@ -1105,10 +1113,10 @@ void NTagEventInfo::Clear()
     vCandidates.clear();
     
     for (auto pair: iCandidateVarMap) {
-        pair.second = new std::vector<int>();
+        pair.second->clear();
     }
     for (auto pair: fCandidateVarMap) {
-        pair.second = new std::vector<float>();
+        pair.second->clear();
     }
 }
 
@@ -1145,28 +1153,35 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     vCandidates.push_back(NTagCandidate(vCandidates.size(), this));
     
     // Containers for hit info
-    std::vector<float> rawTVec, resTVec, pmtQVec;
-    std::vector<int>   cabIVec, sigFVec;
+    float tWidth = 10.;
+    std::vector<float> resTVec = GetVectorFromStartIndex(vSortedT_ToF, hitID, tWidth);
+    int n10 = resTVec.size();
     
-    int tWidth = 10.; // 10 ns window
-    int searchIndex = hitID;
+    std::vector<float> rawTVec = SliceVector(vTISKZ, hitID, n10, reverseIndex.data());
+    std::vector<float> pmtQVec = SliceVector(vSortedQ, hitID, n10);
+    std::vector<int>   cabIVec = SliceVector(vSortedPMTID, hitID, n10);
+    std::vector<int>   sigFVec = SliceVector(vSortedSigFlag, hitID, n10);
     
-    while (searchIndex < nqiskz-1 && vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID] < tWidth) {
-        resTVec.push_back(vSortedT_ToF[searchIndex]);
-        rawTVec.push_back(vTISKZ[reverseIndex[searchIndex]]);
-        pmtQVec.push_back(vSortedQ[searchIndex]);
-        cabIVec.push_back(vSortedPMTID[searchIndex]);
-        
-        searchIndex++;
-    }
+    //int tWidth = 10.; // 10 ns window
+    //int searchIndex = hitID;
     
-    if (!vSortedSigFlag.empty()) {
-        searchIndex = hitID;
-        while (searchIndex < nqiskz-1 && vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID] < tWidth) {
-            sigFVec.push_back(vSortedSigFlag[searchIndex]);
-            searchIndex++;
-        }
-    }
+    //while (searchIndex < nqiskz && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+    //    resTVec.push_back(vSortedT_ToF[searchIndex]);
+    //    rawTVec.push_back(vTISKZ[reverseIndex[searchIndex]]);
+    //    pmtQVec.push_back(vSortedQ[searchIndex]);
+    //    cabIVec.push_back(vSortedPMTID[searchIndex]);
+    //    searchIndex++;
+    //}
+    //
+    //if (!vSortedSigFlag.empty()) {
+    //    searchIndex = hitID;
+    //    while (searchIndex < nqiskz && fabs(vSortedT_ToF[searchIndex] - vSortedT_ToF[hitID]) < tWidth) {
+    //        sigFVec.push_back(vSortedSigFlag[searchIndex]);
+    //        searchIndex++;
+    //    }
+    //}
+    
+    //rawTVec = 0;
     
     // Save hit info to candidate
     vCandidates.back().SetHitInfo(rawTVec, resTVec, pmtQVec, cabIVec, sigFVec);
@@ -1210,7 +1225,7 @@ void NTagEventInfo::InitializeCandidateVariableVectors()
         msg.Print(Form("Initializing variable %s...", pair.first), pDEBUG);
         fCandidateVarMap[pair.first] = new std::vector<float>();
     }
-    candidateVariablesInitalized = true;
+    candidateVariablesInitialized = true;
 }
 
 void NTagEventInfo::ExtractCandidateVariables()

@@ -38,6 +38,24 @@ float GetLegendreP(int i, float& x);
  */
 float GetTRMS(const std::vector<float>& T);
 
+template <typename T>
+std::vector<T> SliceVector(const std::vector<T>& vec, int startIndex, int nElements, int* indexOrder=0)
+{
+    std::vector<T> slicedVec;
+    
+    for (int i = startIndex; i < startIndex + nElements; i++) {
+        if (indexOrder) {
+            slicedVec.push_back(vec[indexOrder[i]]);
+        }
+        else
+            slicedVec.push_back(vec[i]);
+    }
+    
+    return slicedVec;
+}
+
+std::vector<float> GetVectorFromStartIndex(const std::vector<float>& T, int startIndex, float tWidth);
+
 /**
  * @brief Gets number of hits within \p tWidth [ns] starting from index \p startIndex.
  * @param T A vector of PMT hit times. [ns]

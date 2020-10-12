@@ -516,7 +516,7 @@ class NTagEventInfo
          * @brief Choose whether to save residual TQ vectors (#vSortedT_ToF, #vSortedQ, #vSortedPMTID) or not. Sets #saveTQ.
          * @param b If \c true, #NTagIO::restqTree is written to the output file filled with residual TQ vectors.
          */
-        inline void SetSaveTQAs(bool b) { saveTQ = b; }
+        inline void SetSaveTQFlagAs(bool b) { saveTQ = b; }
         
         /**
          * @brief 
@@ -540,14 +540,15 @@ class NTagEventInfo
         int         N10TH,        ///< Lower limit for N10. @see NTagEventInfo::SetN10Limits
                     N10MX,        ///< Upper limit for N10. @see NTagEventInfo::SetN10Limits
                     N200MX;       ///< Upper limit for N200. @see NTagEventInfo::SetN200Max
-        float       VTXSRCRANGE;  ///< Vertex search range in NTagEventInfo::MinimizeTRMS. @see NTagEventInfo::SetDistanceCut
         float       T0TH,         ///< Lower limit for T0. @see: NTagEventInfo::SetT0Limits
                     T0MX;         ///< Upper limit for T0. @see: NTagEventInfo::SetT0Limits
+        float       TRBNWIDTH;
         float       TMATCHWINDOW; ///< Width of the true-reconstructed capture time matching window. [ns]
                                   ///< @see: NTagEventInfo::SetTMatchWindow
         float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see: NTagEventInfo::SetTPeakSeparation
         float       ODHITMX;      ///< Threshold on the number of OD hits. Not used at the moment.
-
+        float       VTXSRCRANGE;  ///< Vertex search range in NTagEventInfo::MinimizeTRMS. @see NTagEventInfo::SetDistanceCut
+        
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex
                     customvy,     ///< Y coordinate of a custom prompt vertex
@@ -555,11 +556,6 @@ class NTagEventInfo
         int         fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
         
         std::vector<int> reverseIndex; ///< Inverse map from indices of vSortedT_ToF to indices of vTISKZ.
-        
-        bool candidateVariablesInitalized;
-        bool doRBNReduction;
-        
-        float tRBNWidth;
 
     protected:
     
@@ -584,6 +580,8 @@ class NTagEventInfo
                                     ///< If #fSigTQFile is not \c NULL, it is saved in NTagEventInfo::AppendRawHitInfo.
         std::vector<float>* vSIGT; ///< A vector to save signal hit times from #fSigTQTree temporarily. Not included in output.
         std::vector<int>*   vSIGI; ///< A vector to save signal hit PMT IDs from #fSigTQTree temporarily. Not included in output.
+        std::array<float, MAXPM+1> vPMTHitTime;                            
+                                    
                                     
         // Processed TQ hit vectors
         std::vector<int>    vSortedPMTID;   ///< A vector of PMT cable IDs corresponding to each hit
@@ -607,6 +605,8 @@ class NTagEventInfo
                                      Can be set to \c false from command line with option `-noMVA`. */
                     saveTQ;    /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
                                      Can be set to \c true from command line with option `-saveTQ`. */
+        bool candidateVariablesInitialized;
+        bool doRBNReduction;
 
 
         /************************************************************************************************/
