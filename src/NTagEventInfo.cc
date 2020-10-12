@@ -44,6 +44,7 @@ fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
     candidateVariablesInitalized = false;
     doRBNReduction = true;
+    tRBNWidth = NTagDefault::TRBNWIDTH;
     
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
@@ -192,6 +193,7 @@ void NTagEventInfo::AppendRawHitInfo()
     }
 
     int nFoundSigHits = 0;
+    float pmtHitTimes[MAXPM+1];
     
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
 
@@ -200,11 +202,16 @@ void NTagEventInfo::AppendRawHitInfo()
             coincidenceFound = true;
             msg.Print(Form("Coincidence found: t = %f ns, (offset: %f ns)", tLast, tOffset), pDEBUG);
         }
+            int hitPMTID = sktqz_.icabiz[iHit];
+        
         // Use hits that are in-gate and within MAXPM only
-        if (sktqz_.ihtiflz[iHit] & (1<<1) && sktqz_.icabiz[iHit] <= MAXPM) {
+        if (sktqz_.ihtiflz[iHit] & (1<<1) && hitPMTID <= MAXPM) {
+        
+            if (pmtHitTimes[hitPMTID] - )
+            
             vTISKZ.push_back( sktqz_.tiskz[iHit] + tOffset );
             vQISKZ.push_back( sktqz_.qiskz[iHit]           );
-            vCABIZ.push_back( sktqz_.icabiz[iHit]          );
+            vCABIZ.push_back( hitPMTID          );
             
             if (vSIGT) {
                 bool isSignal = false;

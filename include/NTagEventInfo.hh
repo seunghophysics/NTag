@@ -74,6 +74,7 @@ namespace NTagDefault{
     constexpr float TMATCHWINDOW = 40.;
     constexpr float TMINPEAKSEP = 50.;
     constexpr int ODHITMX = 16;
+    constexpr float TRBNWIDTH = 6.;
 }
 
 /**********************************************************
@@ -557,6 +558,8 @@ class NTagEventInfo
         
         bool candidateVariablesInitalized;
         bool doRBNReduction;
+        
+        float tRBNWidth;
 
     protected:
     
