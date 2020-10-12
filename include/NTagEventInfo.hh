@@ -556,6 +556,7 @@ class NTagEventInfo
         std::vector<int> reverseIndex; ///< Inverse map from indices of vSortedT_ToF to indices of vTISKZ.
         
         bool candidateVariablesInitalized;
+        bool doRBNReduction;
 
     protected:
     

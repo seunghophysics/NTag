@@ -43,6 +43,7 @@ customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose), bData(false), useTMVA(true), saveTQ(false)
 {
     candidateVariablesInitalized = false;
+    doRBNReduction = true;
     
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
