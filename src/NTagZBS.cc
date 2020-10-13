@@ -5,8 +5,8 @@
 #include <skheadC.h>
 #include <skvectC.h>
 
-#include "NTagZBS.hh"
 #include "SKLibs.hh"
+#include "NTagZBS.hh"
 
 NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mAPFIT); }

@@ -5,6 +5,7 @@
 
 #include "NTagPath.hh"
 #include "NTagTMVA.hh"
+#include "NTagEventInfo.hh"
 
 NTagTMVA::NTagTMVA(Verbosity verbose):
 fVerbosity(verbose)
@@ -333,9 +334,6 @@ void NTagTMVA::SetReader(TString methodName, TString weightFileName)
 {
     fReaderMethodName = methodName + " method";
     fReaderWeightFileName = weightFileName;
-
-    SetReaderCutRange("N10", 7, 50);
-    SetReaderCutRange("ReconCT", 2.e3, 600.e3);
 }
 
 void NTagTMVA::InstantiateReader()

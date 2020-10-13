@@ -32,7 +32,7 @@ class NTagZBS : public NTagIO
                 Verbosity verbose=pDEFAULT);
         ~NTagZBS();
 
-         // File I/O
+        // File I/O
         void OpenFile();  ///< @brief Opens ZBS file.
         void CloseFile(); ///< @brief Opens ZBS file.
 

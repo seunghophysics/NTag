@@ -64,6 +64,7 @@ class NTagTMVA
          * @details Calls NTagTMVA::Constructor.
          */
         NTagTMVA(Verbosity verbose=pDEFAULT);
+
         /**
          * @brief Constructor of NTagTMVA.
          * @param inFileName Input file name.
@@ -72,6 +73,7 @@ class NTagTMVA
          * @details Calls NTagTMVA::Constructor.
          */
         NTagTMVA(const char* inFileName, const char* outFileName, Verbosity verbose=pDEFAULT);
+
         ~NTagTMVA();
 
         /**
@@ -92,6 +94,7 @@ class NTagTMVA
          * @details See the source code to which MVA method can be turned on or off.
          */
         void SetMethods();
+
         /**
          * @brief Turns on/off an MVA method in generating weights.
          * @param methodName MVA method name to turn on or off.
@@ -124,6 +127,7 @@ class NTagTMVA
          * @see NTagTMVA::SetReaderCutRange
          */
         void SetReader(TString methodName, TString weightFileName);
+
         /**
          * @brief Instantiate the TMVA reader #fReader and add variables to it. Also books the specified MVA method.
          */
@@ -139,15 +143,18 @@ class NTagTMVA
          * @see NTagTMVAVariables::Clear for the available `key`s.
          */
         void SetReaderCutRange(const char* key, float low, float up) { fRangeMap[key] = Range(low, up); }
+
         /**
          * @brief Prints out all specified cuts to the output stream.
          */
         void DumpReaderCutRange();
+
         /**
          * @brief Checks if the variable `key` is within the cut range specified by NTagTMVA::SetReaderCutRange.
          * @return \c true if the variable \c key passes the cut, otherwise \c false.
          */
         bool IsInRange(const char* key);
+
         /**
          * @brief Checks if the capture candidate passes all cuts specified by NTagTMVA::SetReaderCutRange.
          * @return The result of the && operator applied to each return value of NTagTMVA::IsInRange with each variable.

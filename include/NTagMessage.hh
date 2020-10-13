@@ -42,7 +42,7 @@ pDEBUG    ///< NTag prints all messages including debug messages.
  *
  * To include variables in the message,
  * use the method `Form` provided by CERN's ROOT package
- * and the format specifiers of C printf.
+ * and the format specifiers of C \c printf.
  * For instance:
  * `msg.Print(Form("Some float variable: %f", float_var));`
  *
@@ -68,20 +68,25 @@ class NTagMessage
         virtual void  PrintTag(Verbosity);
         /**
          * @brief Prints one-liners.
+         * @param line A line to print.
+         * @param vType Message type (in #Verbosity). If \c vType &le #fVerbosity, \c line is printed.
+         * @param endLine If \c false, no new line is made at the end of output.
          * @details Sample usage: `msg.Print("some message", pWARNING);`
          */
-        virtual void  Print(TString, Verbosity vType=pDEFAULT, bool endLine=true);
+        virtual void  Print(TString line, Verbosity vType=pDEFAULT, bool endLine=true);
         /**
          * @brief Prints time that has been taken since the input \c tStart.
+         * @param line A line to print.
+         * @param vType Message type (in #Verbosity). If \c vType &le #fVerbosity, \c line is printed.
+         * @param tStart The start time of the timer.
          * @details A `std::clock_t` object \c tStart must have been declared before using this method.
          * Sample usage: `std::clock_t startTimer; (some codes...;) msg.Timer("Code execution", startTimer);`
-         * @param tStart The start time of the timer.
          */
-        virtual float Timer(TString, std::clock_t tStart, Verbosity vType=pDEFAULT);
+        virtual float Timer(TString line, std::clock_t tStart, Verbosity vType=pDEFAULT);
 
     private:
         const char*  fClassName;
-        Verbosity fVerbosity;
+        Verbosity    fVerbosity;
 };
 
 #endif

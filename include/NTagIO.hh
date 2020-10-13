@@ -44,33 +44,48 @@ class NTagIO : public NTagEventInfo
          * @see NTagIO::CreateBranchesToNtvarTree, NTagIO::CreateBranchesToTruthTree
          */
         NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose);
+
         /**
          * @brief Destructor of NTagIO. Ends BONSAI.
          */
         ~NTagIO();
 
-        // Initialize
+
+
+        /////////////////
+        // Initializer //
+        /////////////////
+
         /**
          * @brief Initialize SK data options and opens the input file.
          * @see NTagIO::SKInitialize, NTagIO::OpenFile
          */
         virtual void Initialize();
 
-        // File I/O
 
+
+        ///////////////
+        // File I/O //
+        //////////////
+
+            /*******************/
             /* format-specific */
+            /*******************/
+
             /**
              * @brief Opens SK data file.
              * @details This function must be implemented in a daughter class.
              * @see NTagROOT::OpenFile, NTagZBS::OpenFile
              */
             virtual void OpenFile() {}
+
             /**
              * @brief Closes SK data file.
              * @details This function must be implemented in a daughter class.
              * @see NTagROOT::CloseFile, NTagZBS::CloseFile
              */
             virtual void CloseFile() {}
+
             /**
              * @brief Saves prompt vertex fit information.
              * @details This function must be implemented in a daughter class.
@@ -80,11 +95,16 @@ class NTagIO : public NTagEventInfo
              */
             virtual void SetFitInfo() {}
 
+
+            /**********************/
             /* format-independent */
+            /**********************/
+
             /**
              * @brief Sets SK options and geometry. Initializes Zebra and BONSAI.
              */
             virtual void SKInitialize();
+
             /**
              * @brief Starts reading input file and looping over events.
              * @details The steering code here is \c skread.
@@ -94,23 +114,18 @@ class NTagIO : public NTagEventInfo
              * @see NTagIO::ReadEvent
              */
             virtual void ReadFile();
-            /**
-             * @brief Gives instructions to each event loop.
-             * @details The steering code here is \c skread.
-             * \c skread is called and all data variables copied to the SK fortran common blocks
-             * are read by the member functions of NTagEventInfo if the read status of the event
-             * is normal. For MC, events with prompt vertices within PMTs are skipped.
-             * @see NTagIO::ReadEvent
-             */
+
             /**
              * @brief Calls NTagIO::ReadMCEvent for MC and NTagIO::ReadDataEvent for data events.
              */
             virtual void ReadEvent();
+
             /**
              * @brief Instructions to each loop for an MC event.
              * @details See the source code for details.
              */
             virtual void ReadMCEvent();
+
             /**
              * @brief Instructions to each loop for a data event.
              * @details The trigger information is read from the common variable \c skhead_.idtgsk
@@ -124,6 +139,7 @@ class NTagIO : public NTagEventInfo
              *     and fill the member variables of NTagEventInfo to the tree #ntvarTree.
              */
             virtual void ReadDataEvent();
+
             /**
              * @brief Instructions for SHE-triggered events.
              * @details Saves the prompt vertex information and the raw hit TQ vectors
@@ -132,6 +148,7 @@ class NTagIO : public NTagEventInfo
              * if the next event is AFT, otherwise it's filled at NTagIO::ReadMCEvent.
              */
             virtual void ReadSHEEvent();
+
             /**
              * @brief Instructions for AFT-triggered events.
              * @details Appends raw TQ information from the common \c sktqz to
@@ -140,48 +157,69 @@ class NTagIO : public NTagEventInfo
              * filled to the tree #ntvarTree.
              */
             virtual void ReadAFTEvent();
+
             /** @brief Creates output file and write trees.
              * #truthTree is written only if the input file is MC.
              */
             virtual void WriteOutput();
+
             /** @brief Instructions for SIGINT signal, i.e., \c Ctrl+c.
              * NTagIO::WriteOutput is called.
              */
             virtual void DoWhenInterrupted();
+
             static void  SIGINTHandler(int sigNo);
 
-        // Tree-related
+
+
+        //////////////////
+        // Tree-related //
+        //////////////////
+
         /**
          * @brief Creates branches to #truthTree with certain member variables from MC.
          * See the source code for the branch names and filled variables.
          */
         virtual void CreateBranchesToTruthTree();
+
         /**
          * @brief Creates branches to #truthTree with member variables.
          * See the source code for the branch names and filled variables.
          */
         virtual void CreateBranchesToNtvarTree();
-        
+
+        /**
+         * @brief Creates additional branches out of feature variables
+         * declared in NTagCandidate::SetVariables to #ntvarTree.
+         */
         virtual void AddCandidateVariablesToNtvarTree();
+
         /**
          * @brief Create branches to #rawtqTree with raw TQ hit vectors #vTISKZ, #vQISKZ, and #vCABIZ.
          */
         virtual void CreateBranchesToRawTQTree();
+
         /**
          * @brief Create branches to #restqTree with residual TQ hit vectors #vSortedT, #vSortedT, and #vSortedPMTID.
          */
         virtual void CreateBranchesToResTQTree();
+
         /**
          * @brief Fills trees.
          */
         virtual void FillTrees();
-        
+
+
+        ////////////
+        // Others //
+        ////////////
+
         /**
-         * @brief Set source file #fSigTQFile and tree #fSigTQTree to extract signal TQ hits 
+         * @brief Set source file #fSigTQFile and tree #fSigTQTree to extract signal TQ hits
          * for #vISIGZ in NTagEventInfo::AppendRawHitInfo.
          */
         void SetSignalTQ(const char* fSigTQName);
-        
+
         /**
          * @brief Check if the event being processed is MC or data with the run number.
          */

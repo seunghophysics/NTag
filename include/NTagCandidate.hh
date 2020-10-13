@@ -1,3 +1,11 @@
+/*******************************************
+*
+* @file NTagCandidate.hh
+*
+* @brief Defines NTagCandidate.
+*
+********************************************/
+
 #ifndef NTAGCANDIDATE_HH
 #define NTAGCANDIDATE_HH 1
 
@@ -5,33 +13,143 @@
 #include <vector>
 
 #include "NTagMessage.hh"
+#include "NTagTMVAVariables.hh"
 
 class NTagEventInfo;
 
-typedef std::map<const char*, int> IVarMap;
-typedef std::map<const char*, float> FVarMap;
-
+/********************************************************
+ * @brief The class representing a neutron capture
+ * candidate.
+ *
+ * The vectors of TQ information that are
+ * extracted in NTagEventInfo::SearchCaptureCandidates
+ * are input to this class via NTagCandidate::SetHitInfo
+ * and all relevant feature variables are calculated
+ * within this class using its member functions.
+ *
+ * The hit information are saved in #vHitRawTimes,
+ * #vHitResTimes, #vHitChargePE, #vHitCableIDs, and
+ * #vHitSigFlags. Feature variables that are extracted
+ * by NTagCandidate::SetVariables are saved in #iVarMap
+ * if the variable is integer and #fVarMap if the
+ * variable is float. These variable containers are of
+ * type IVarMap and FVarMap, which are basically maps
+ * from C++ STL.
+ *
+ * All variables initialized in these maps are
+ * automatically pushed to
+ * NTagEventInfo::iCandidateVarMap and
+ * NTagEventInfo::fCandidateVarMap via
+ * NTagEventInfo::SetCandidateVariables,
+ * and eventually filled in the \c ntvar tree via
+ * NTagIO::AddCandidateVariablesToNtvarTree. Since these
+ * branches are not known until one event is fully
+ * processed, they are created when the \c ntvar tree is
+ * filled for the first time at NTagIO::FillTrees.
+ *
+ * Some of the feature variables with matching names in
+ * NTagTMVAVariables::Clear will be pushed back to
+ * NTagTMVAVariables and generate classifier output.
+ *******************************************************/
 class NTagCandidate
 {
     public:
+
+        /**
+         * @brief Constructor of NTagCandidate.
+         * @param id Candidate ID of the constructed candidate.
+         * @param eventInfo A pointer to the concurrent NTagEventInfo.
+         */
         NTagCandidate(int id, NTagEventInfo* eventInfo);
+
+        /**
+         * @brief Destructor of NTagCandidate.
+         */
         ~NTagCandidate();
-        
+
+
+        //////////////////////////////////////////////
+        // Setter functions for candidate variables //
+        //////////////////////////////////////////////
+
+        /**
+         * @brief Copies input vectors to private member vectors:
+         * #vHitResTimes, #vHitChargePE, #vHitCableIDs, and #vHitSigFlags.
+         * @param rawT A vector of raw PMT hit times. [ns]
+         * @param resT A vector of residual (ToF-subtracted) PMT hit times. [ns]
+         * @param Q A vector of PMT deposit charge in p.e.
+         * @param I A vector of hit PMT cable IDs.
+         * @param sigF A vector of hit signal flags. (0: bkg, 1: sig)
+         */
         void SetHitInfo(const std::vector<float>& rawT,
                         const std::vector<float>& resT,
                         const std::vector<float>& Q,
                         const std::vector<int>& I,
                         const std::vector<int>& sigF);
+
+        /**
+         * @brief Set feature variables in #iVarMap and #fVarMap.
+         * @details Called inside NTagEventInfo::SavePeakFromHit which is called in
+         * NTagEventInfo::SearchCaptureCandidates. Calls other setter functions,
+         * i.e., NTagCandidate::SetVariablesWithinTWindow, NTagCandidate::SetTrueInfo,
+         * NTagCandidate::SetNNVariables, NTagCandidate::SetTMVAOutput.
+         */
         void SetVariables();
+
+        /**
+         * @brief Set feature variables within given time window \c tWindow.
+         * @details The input parameter \c tWindow serves as a mode for setting variables.
+         * Currently two modes (50 ns and 1300 ns) are supported, so that for 50 ns mode,
+         * this function searches for TRMS-minimizing vertex (Neut-fit vertex) within &plusmn
+         * 25 ns, and for 1300 ns mode, it feeds all hits within [-520.8 ns, +779.2 ns] with
+         * the reconstructed capture time \a "ReconCT" being 0 into BONSAI to extracxt
+         * BONSAI variables, i.e., \a "BSgood", \a "BSpatlik", \a "BSovaq", etc.
+         * See the source code for details.
+         * @param tWindow Time window modes in ns. Only 50 and 1300 are supported at the moment.
+         * @see NTagCandidate::MinimizeTRMS for the Neut-fit algorithm.
+         */
         void SetVariablesWithinTWindow(int tWindow);
+
+        /**
+         * @brief Searches for the relevant true capture in case the input file is MC.
+         * @details This function looks for the relevant true capture by looking for a true capture
+         * time (from #NTagEventInfo::vTruecT) that is close to the candidate's reconstructed capture time.
+         * The width of the time window for a match, which is NTagEventInfo::TMATCHWINDOW,
+         * is by default NTagDefault::TMATCHWINDOW and can be manually set by
+         * NTagEventInfo::SetTMatchWindow.
+         */
         void SetTrueInfo();
+
+        /**
+         * @brief Pushes back feature variables that are specified in NTagTMVAVariables to a neural network.
+         */
         void SetNNVariables();
+
+        /**
+         * @brief Extracts TMVA classifier output by calling NTagTMVA::GetOutputFromCandidate.
+         */
         void SetTMVAOutput();
-        
+
+
+        ///////////////////////
+        // Printer functions //
+        ///////////////////////
+
+        /**
+         * @brief Dump raw hit info, i.e., #vHitResTimes, #vHitChargePE, #vHitCableIDs, and #vHitSigFlags.
+         */
         void DumpHitInfo();
+
+        /**
+         * @brief Dump all feature variables stored in #iVarMap and #fVarMap.
+         */
         void DumpVariables();
-        
-        // Calculator
+
+
+        //////////////////////////
+        // Calculator functions //
+        //////////////////////////
+
         /**
          * @brief Evaluate &beta;_i values of a hit cluster for i = 1...5 and return those in an array.
          * @param PMTID A vector of PMT cable IDs. The locations of the PMTs are fetched from #PMTXYZ.
@@ -57,59 +175,22 @@ class NTagCandidate
     private:
         Verbosity fVerbosity;
         NTagMessage msg;
-        NTagEventInfo* currentEvent;
-        
-        FVarMap fVarMap;
-        IVarMap iVarMap;
-    
-        int candidateID;
-        //
-        //int   candidateID,
-        //      firstHitID, ///< Vector of all indices of the earliest hit in each candidate.
-        //                  ///< The indices are based off #vSortedT_ToF.
-        //      captureType,
-        //      trueCaptureID,
-        //      n10,        /// Number of hits in 10 ns window.
-        //      n50,        /// Number of hits in 50 ns window.
-        //      n200,       /// Number of hits in 200 ns window.
-        //      n10n,       ///< Vector of Neut-fit N10.  [Size: #nCandidates]
-        //      n1300;      ///< Vector of N1300. [Size: #nCandidates]
-        //float tRMS10,     ///< RMS of PMT hit times in 10 ns
-        //      tRMS10n,    ///< Vector of Neut-fit TRMS in 10 ns window. [Size: #nCandidates]
-        //      tRMS50,     ///< Vector of TRMS in 10 ns window. [Size: #nCandidates]
-        //      tSpread10,  ///< Spread of PMT hit times (max-min) in 10 ns
-        //      qSum10,     /// Sum of Q in 10 ns (p.e.)
-        //      reconCT,    ///< Reconstructed capture time (ns)
-        //      reconCTn,   ///< Vector of Neut-fit reconstructed capture time. [Size: #nCandidates]
-        //      nvx,        /*!< Vector of X coordinates of Neut-fit capture vertex. */
-        //      nvy,        /*!< Vector of Y coordinates of Neut-fit capture vertex. */
-        //      nvz,        /*!< Vector of Z coordinates of Neut-fit capture vertex. */
-        //      dWalln,
-        //      bsvx,       /*!< Vector of X coordinates of BONSAI-fit capture vertex. */
-        //      bsvy,       /*!< Vector of X coordinates of BONSAI-fit capture vertex. */
-        //      bsvz,       /*!< Vector of X coordinates of BONSAI-fit capture vertex. */
-        //      bsE,
-        //      bsGood,
-        //      bsDirks,
-        //      bsPatlik,
-        //      bsOvaq,
-        //      bsReconCT,  ///< Vector of BONSAI-fit capture time. [ns] [Size: #nCandidates]
-        //      beta14_10,  ///< Vector of &beta;_14's in 10 ns window. [Size: #nCandidates]
-        //      beta14_50,  ///< Vector of &beta;_14's in 50 ns window. [Size: #nCandidates]
-        //      prompt_bonsai,
-        //      prompt_nfit,
-        //      bonsai_nfit,
-        //      tMVAOutput; ///< Vector of TMVA classifier outputs. [Size: #nCandidates]
-              
-        std::array<float, 6> beta_10;
-        std::array<float, 6> beta_50;
-                            
-        std::vector<float> vHitRawTimes, ///< Vector of residual hit times. [Size: #nCandidates]
-                           vHitResTimes, ///< Vector of residual hit times. [Size: #nCandidates]
-                           vHitChargePE; ///< Vector of deposited charge in photoelectrons.
-        std::vector<int>   vHitCableIDs, ///< Vector of hit cable IDs. [Size: #nCandidates]
-                           vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
-                           
+        NTagEventInfo* currentEvent; ///< A pointer to the concurrent NTagEventInfo.
+
+        FVarMap fVarMap; ///< A map of integer feature variables.
+        IVarMap iVarMap; ///< A map of float feature variables.
+
+        int candidateID; ///< Candidate ID of the candidate.
+
+        std::array<float, 6> beta_10; ///< An array of beta variables calculated within 10 ns.
+        std::array<float, 6> beta_50; ///< An array of beta variables calculated within 50 ns.
+
+        std::vector<float> vHitRawTimes, ///< Vector of residual hit times. [Size: N10]
+                           vHitResTimes, ///< Vector of residual hit times. [Size: N10]
+                           vHitChargePE; ///< Vector of deposited charge in photoelectrons. [Size: N10]
+        std::vector<int>   vHitCableIDs, ///< Vector of hit cable IDs. [Size: N10]
+                           vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: N10]
+
     friend class NTagEventInfo;
 };
 

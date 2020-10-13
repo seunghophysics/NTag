@@ -75,6 +75,7 @@ class NTagTMVAVariables
          * (0 for non-vector members, a new vector for vector members.)
          */
         void Clear();
+
         /**
          * @brief Returns a vector of all variable names (keys).
          */
@@ -85,26 +86,31 @@ class NTagTMVAVariables
          * @param reader A TMVA reader to add variables.
          */
         void AddVariablesToReader(TMVA::Reader* reader);
+
         /**
          * @brief Sets branch address of variables to a tree.
          * @param tree A tree to set branch address.
          */
         void SetBranchAddressToTree(TTree* tree);
+
         /**
          * @brief Make branches of the variables to a tree.
          * @param tree A tree to make branches.
          */
         void MakeBranchesToTree(TTree* tree);
+
         /**
          * @brief Sets VariableMap[variable] = EventVectorMap[variable][iCandidate].
          * @details
          * @param iCandidate The index of a capture candidate. (0 < \c iCandidate < #NTagEventInfo::nCandidates)
          */
         void SetVariablesForCaptureCandidate(int iCandidate);
+
         /**
          * @brief Dump the keys and values of #iVariableMap and and #fVariableMap to the output stream.
          */
         void DumpCurrentVariables();
+
         /**
          * @brief Returns the number of candidates saved in this class.
          * @return The size of a vector (key: "N10") held by #iEventVectorMap.
@@ -123,6 +129,7 @@ class NTagTMVAVariables
         void                PushBack(const char* key, T value)
                             { if (std::is_integral<T>::value) iEventVectorMap[key]->push_back(value);
                               else fEventVectorMap[key]->push_back(value); }
+
         /**
          * @brief Gets the value of a given key.
          * @param key Name of a variable.
@@ -133,6 +140,7 @@ class NTagTMVAVariables
         T                   Get(const char* key)
                             { if (std::is_integral<T>::value) return iVariableMap[key];
                               else return fVariableMap[key]; }
+
         /**
          * @brief Gets the variable value of a specific capture candidate.
          * @param key Name of a variable.
@@ -144,6 +152,7 @@ class NTagTMVAVariables
         T                   Get(const char* key, int iCandidate)
                             { if (std::is_integral<T>::value) return iEventVectorMap[key]->at(iCandidate);
                               else return fEventVectorMap[key]->at(iCandidate); }
+
         /**
          * @brief Gets float vector of \c key.
          * @param key Name of a variable.
@@ -151,9 +160,23 @@ class NTagTMVAVariables
          */
         std::vector<float>* GetVector(const char* key)
                             { return fEventVectorMap[key]; }
-                            
+
+        /**
+         * @brief Sets the \c key value of #fVariableMap as \c var.
+         * @param key Feature variable name.
+         * @param var Feature variable value.
+         */
         inline void Set(const char* key, float var) { fVariableMap[key] = var; }
+
+        /**
+         * @brief Pushes back variables from variable maps to the corresponding vectors in event vector maps.
+         */
         void FillVectorMap();
+        /**
+         * @brief Checks if a \c key is a input feature variable to TMVA NN.
+         * @param key Feature variable name.
+         * @return \c true if \p key is in #fVariableMap, otherwise \c false.
+         */
         bool IsTMVAVariable(const char* key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
 
     private:

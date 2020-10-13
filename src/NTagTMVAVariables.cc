@@ -1,7 +1,6 @@
 #include <algorithm>
 
 #include <TTree.h>
-
 #include <TMVA/Reader.h>
 
 #include "NTagTMVAVariables.hh"
@@ -28,7 +27,6 @@ void NTagTMVAVariables::Clear()
         fVariableMap[pair.first] = 0.;
     }
 
-    //fVariableMap["ReconCT"] = 0.;
     fVariableMap["QSum10"] = 0.;
     fVariableMap["TSpread10"] = 0.;
     fVariableMap["TRMS10"] = 0.;
@@ -38,16 +36,8 @@ void NTagTMVAVariables::Clear()
     fVariableMap["Beta3"] = 0.;
     fVariableMap["Beta4"] = 0.;
     fVariableMap["Beta5"] = 0.;
-    //fVariableMap["BSenergy"] = 0.;
-    //fVariableMap["BSwall"] = 0.;
-    //fVariableMap["BSgood"] = 0.;
-    //fVariableMap["BSdirks"] = 0.;
-    //fVariableMap["BSpatlik"] = 0.;
-    //fVariableMap["BSovaq"] = 0.;
     fVariableMap["DWalln"] = 0.;
-    //fVariableMap["prompt_bonsai"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
-    //fVariableMap["bonsai_nfit"] = 0.;
 
     for (const auto& pair: fVariableMap) {
         if (fEventVectorMap.find(pair.first) == fEventVectorMap.end())
