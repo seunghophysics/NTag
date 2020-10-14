@@ -67,8 +67,10 @@ void NTagEventInfo::SetEventHeader()
     odpc_2nd_s_(&nhitac);
 
     // Read trigger offset
-    msg.PrintBlock("Reading trigger information...", pSUBEVENT, pDEFAULT, false);
-    trginfo_(&trgOffset);
+    if (!bData) {
+        msg.PrintBlock("Reading trigger information...", pSUBEVENT, pDEFAULT, false);
+        trginfo_(&trgOffset);
+    }
 }
 
 void NTagEventInfo::SetPromptVertex()
@@ -217,11 +219,11 @@ void NTagEventInfo::SetToFSubtractedTQ()
 
 void NTagEventInfo::DumpEventVariables()
 {
-    msg.PrintBlock(Form("Event #%d summary", nProcessedEvents+1), pSUBEVENT, pDEFAULT, false);
+    msg.PrintBlock(Form("Event #%d summary", nProcessedEvents), pSUBEVENT, pDEFAULT, false);
     
     // Event header
     // runno, subrunno, eventno, evis
-    msg.Print("* Event header");
+    msg.Print("\033[1;36m* Event header\033[m");
     msg.Print("\033[4mRun       Subrun    Event     Evis (MeV)\033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(10) << runNo;
@@ -239,7 +241,7 @@ void NTagEventInfo::DumpEventVariables()
     
     // Trigger information
     // trgtype, trgOffset, tDiff
-    msg.Print("* Trigger");
+    msg.Print("\033[1;36m* Trigger\033[m");
     msg.Print("\033[4mTrgType     TrgTime (ns)   TDiff (ns)   \033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(12);
@@ -253,29 +255,34 @@ void NTagEventInfo::DumpEventVariables()
     
     // Hit information
     // qismsk, nhitac, reducedHits, signalHits
-    msg.Print("* Hits");
+    msg.Print("\033[1;36m* Hits\033[m");
     msg.Print("\033[4mTotal hits          Signal hits         \033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(20) << nTotalHits;
-    std::cout << std::left << std::setw(20) << vSIGT->size();
+    std::cout << std::left << std::setw(20);
+    if (vSIGT) std::cout << vSIGT->size();
+    else       std::cout << "-";
     std::cout << std::endl;
     msg.Print("");
     
     // RBN reduction information
     int nFoundHits = nTotalHits - nRemovedHits;
-    msg.Print(Form("* RBN reduction (Deadtime: %d us)", (int)TRBNWIDTH));
+    msg.Print(Form("\033[1;36m* RBN reduction (Deadtime: %d us)\033[m", (int)TRBNWIDTH));
     msg.Print("\033[4mSurvived hits       Survived signal     \033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(20)
               << Form("%d (%d%%)", nFoundHits, (int)(100*nFoundHits/(nTotalHits+1.e-3)));
-    std::cout << std::left << std::setw(20) 
-              << Form("%d (%d%%)", nFoundSigHits, (int)(100*nFoundSigHits/(vSIGT->size()+1.e-3)));
+    std::cout << std::left << std::setw(20);
+    if (vSIGT) {
+        std::cout << Form("%d (%d%%)", nFoundSigHits, (int)(100*nFoundSigHits/(vSIGT->size()+1.e-3)));
+    }
+    else std::cout << "-";
     std::cout << std::endl;
     msg.Print("");
     
     // Prompt vertex
     // pvx, pvy, pvz, dwall
-    msg.Print("* Prompt vertex (neutron search vertex)");
+    msg.Print("\033[1;36m* Prompt vertex (neutron search vertex)\033[m");
     msg.Print("\033[4mX (cm)    Y (cm)    Z (cm)    dWall (cm)\033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(10) << pvx;
@@ -291,7 +298,7 @@ void NTagEventInfo::DumpEventVariables()
     
     if (!bData) {
         // Primary information (MC)
-        msg.Print("* (MC) Primary vectors");
+        msg.Print("\033[1;36m* (MC) Primary vectors\033[m");
         msg.Print("\033[4mID  PID   Mom. (MeV/c)  dWall (cm)      \033[0m");
         msg.Print("", pDEFAULT, false);
         for (unsigned int iVec = 0; iVec < vVecPID.size(); iVec++) {
@@ -308,7 +315,7 @@ void NTagEventInfo::DumpEventVariables()
         
         if (fVerbosity > pDEFAULT) {
             // Secondary information (MC)
-            msg.Print("* (MC) Secondaries");
+            msg.Print("\033[1;36m* (MC) Secondaries\033[m");
             msg.Print("\033[4mID  PID   IntID   ParentPID Mom. (MeV/c)\033[0m");
             for (unsigned int iSec = 0; iSec < vSecPID.size(); iSec++) {
                 msg.Print("", pDEFAULT, false);
@@ -323,7 +330,7 @@ void NTagEventInfo::DumpEventVariables()
         }
         
         // True capture information (MC)
-        msg.Print("* (MC) True captures");
+        msg.Print("\033[1;36m* (MC) True captures\033[m");
         msg.Print("\033[4mID  Time (us)  E (MeV)  TravelDist. (cm)\033[0m");
         for (unsigned int iCap = 0; iCap < vTrueCT.size(); iCap++) {
             msg.Print("", pDEFAULT, false);
@@ -341,7 +348,7 @@ void NTagEventInfo::DumpEventVariables()
     
     // Neutron capture candidate information
     // nCandidates, n10, tmvaoutput
-    msg.Print("* Found neutron capture candidates");
+    msg.Print("\033[1;36m* Found neutron capture candidates\033[m");
     msg.Print("\033[4mID  Time (us)  N10  Type  Classifier    \033[0m");
     for (auto& candidate: vCandidates) {
         msg.Print("", pDEFAULT, false);
@@ -553,7 +560,9 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     std::vector<float> rawTVec = SliceVector(vTISKZ, hitID, n10, reverseIndex.data());
     std::vector<float> pmtQVec = SliceVector(vSortedQ, hitID, n10);
     std::vector<int>   cabIVec = SliceVector(vSortedPMTID, hitID, n10);
-    std::vector<int>   sigFVec = SliceVector(vSortedSigFlag, hitID, n10);
+    std::vector<int>   sigFVec;
+    
+    if (!vSortedSigFlag.empty()) sigFVec = SliceVector(vSortedSigFlag, hitID, n10);
 
     // Save hit info to candidate
     vCandidates.back().SetHitInfo(rawTVec, resTVec, pmtQVec, cabIVec, sigFVec);

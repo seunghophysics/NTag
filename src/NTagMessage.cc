@@ -41,15 +41,16 @@ void NTagMessage::Print(TString msg, Verbosity vType, bool newLine)
 void NTagMessage::PrintBlock(TString line, BlockSize size, Verbosity vType, bool newLine)
 {
     std::string blockWall(size, '=');
+    TString coloredLine = "\033[1;36m" + line + "\033[m";
     
     std::cout << std::endl;
     Print(blockWall, vType);
     if (size == pMAIN) {
         Print("", vType, false);
-        std::cout << std::right << std::setw((size + line.Length())/2) << line << std::endl;
+        std::cout << std::right << std::setw((size + coloredLine.Length())/2) << coloredLine << std::endl;
     }
     else
-        Print(line, vType);
+        Print(coloredLine, vType);
     Print(blockWall, vType);
     
     if (newLine) std::cout << std::endl;

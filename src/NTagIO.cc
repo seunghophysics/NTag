@@ -88,12 +88,13 @@ void NTagIO::ReadFile()
 
         switch (readStatus) {
             case 0: // event read
-                std::cout << "\n\n" << std::endl;
-                msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents+1), 
-                               pEVENT, pDEFAULT, false);
-
+            
                 // If MC
                 if (!bData) {
+                    std::cout << "\n\n" << std::endl;
+                    msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents), 
+                               pEVENT, pDEFAULT, false);
+                               
                     int inPMT;
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
@@ -102,13 +103,12 @@ void NTagIO::ReadFile()
                     if (inPMT) {
                         msg.Print(
                             Form("True vertex is in PMT. Skipping event %d...",
-                                 nProcessedEvents+1), pDEBUG);
+                                 nProcessedEvents), pDEBUG);
                         break;
                     }
                 }
 
                 ReadEvent();
-                nProcessedEvents++;
 
                 break;
 
@@ -121,7 +121,7 @@ void NTagIO::ReadFile()
                 CloseFile();
                 bEOF = true;
 
-                msg.Print(Form("Number of processed events: %d", nProcessedEvents), pDEFAULT);
+                msg.Print(Form("Number of savedd events: %d", nProcessedEvents), pDEFAULT);
                 msg.Timer("Reading this file", startTime, pDEFAULT);
                 break;
         }
@@ -186,6 +186,9 @@ void NTagIO::ReadDataEvent()
     // If current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
+        std::cout << "\n\n" << std::endl;
+        msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents), 
+                       pEVENT, pDEFAULT, false);
 
         msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
@@ -251,7 +254,8 @@ void NTagIO::WriteOutput()
 void NTagIO::DoWhenInterrupted()
 {
     WriteOutput();
-    msg.Print(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s", nProcessedEvents, fOutFileName), pWARNING);
+    std::cout << std::endl;
+    msg.Print(Form("Interrupted by SIGINT. Events up to #%d are saved at: %s", nProcessedEvents-1, fOutFileName), pWARNING);
     exit(1);
 }
 
@@ -377,6 +381,8 @@ void NTagIO::FillTrees()
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
     if (bSaveTQ) restqTree->Fill();
+    
+    nProcessedEvents++;
 }
 
 void NTagIO::SetSignalTQ(const char* fSigTQName)

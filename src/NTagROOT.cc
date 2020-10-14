@@ -23,6 +23,7 @@ NTagROOT::~NTagROOT() {}
 
 void NTagROOT::OpenFile()
 {
+    msg.PrintBlock("Opening input SKROOT...");
     skroot_open_read_(&lun);
     skroot_set_input_file_(&lun, fInFileName, strlen(fInFileName));
     skroot_init_(&lun);
@@ -30,6 +31,7 @@ void NTagROOT::OpenFile()
 
 void NTagROOT::CloseFile()
 {
+    msg.PrintBlock("Closing input SKROOT...");
     skroot_close_(&lun);
     skroot_end_();
 }

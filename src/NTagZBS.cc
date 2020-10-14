@@ -31,6 +31,7 @@ void NTagZBS::OpenFile()
 
 void NTagZBS::CloseFile()
 {
+    msg.PrintBlock("Closing input ZBS...");
     skclosef_(&lun);
 }
 
