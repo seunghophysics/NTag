@@ -2,7 +2,15 @@
 #include <iostream>
 #include <string>
 
+#include <geotnkC.h>
+
+#include "NTagEventInfo.hh"
 #include "NTagCalculator.hh"
+
+float Dot(const float a[3], const float b[3])
+{
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+}
 
 float Norm(const float vec[3])
 {
@@ -109,6 +117,39 @@ int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float 
     }
 
     return NXX;
+}
+
+float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
+{
+    float dWall;
+    int nHits = PMTID.size();
+    float u[3] = {0., 0., 0.};
+    
+    // Calculate mean direction
+    for (int iHit = 0; iHit < nHits; iHit++) {
+        float distFromVertexToPMT;
+        float vecFromVertexToPMT[3];
+        for (int dim = 0; dim < 3; dim++) {
+            vecFromVertexToPMT[dim] = NTagConstant::PMTXYZ[PMTID[iHit]-1][dim] - v[dim];
+            distFromVertexToPMT = Norm(vecFromVertexToPMT);
+            u[dim] += vecFromVertexToPMT[dim] / distFromVertexToPMT;
+        }
+    }
+    
+    float uNorm = Norm(u);
+    for (int dim = 0; dim < 3; dim++)
+        u[dim] /= uNorm;
+    
+    float dot = u[0]*v[0] + u[1]*v[1];
+    float uSq = u[0]*u[0] + u[1]*u[1];
+    float vSq = v[0]*v[0] + v[1]*v[1];
+    
+    // Calculate distance to barrel and distance to top/bottom
+    float distR = (- dot + sqrt(dot*dot - uSq*(vSq-RINTK*RINTK))) / uSq;
+    float distZ = u[2] > 0 ? (ZPINTK-v[2])/u[2] : (ZMINTK-v[2])/u[2];
+
+    // Return the smaller
+    return distR < distZ ? distR : distZ;
 }
 
 TString GetParticleName(int pid)

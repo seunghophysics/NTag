@@ -19,6 +19,14 @@ static std::map<int, TString> pidMap;
 static std::map<int, TString> intMap;
 
 /**
+ * @brief Get dot produt of two arrays.
+ * @param vec1 A size-3 float array.
+ * @param vec2 A size-3 float array.
+ * @return The dot product of the given two arrays.
+ */
+float Dot(const float vec1[3], const float vec2[3]);
+
+/**
  * @brief Get norm of a size-3 float array.
  * @param vec A size-3 float array.
  * @return The norm of the given array.
@@ -132,6 +140,14 @@ float GetTRMSFromStartIndex(const std::vector<float>& sortedT, int startIndex, f
  * @return The number of hits within \p tWidth [ns] whose center comes at time \p centerTime [ns].
  */
 int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
+
+/**
+ * @brief Calculate distance to the wall in the averaged direction from a vertex to hit PMTs.
+ * @param vertex An array of vertex coordinates. [cm]
+ * @param PMTID A vector of PMT cable IDs.
+ * @return The distance to the wall in the averaged direction from \c vertex to each PMT.
+ */
+float GetDWallInMeanDirection(const std::vector<int>& PMTID, float vertex[3]);
 
 /**
  * @brief Returns particle name given a PDG encoding.

@@ -41,8 +41,8 @@ void NTagTMVA::SetMethods()
     fUse["CutsSA"]          = 0;
     //
     // --- 1-dimensional likelihood ("naive Bayes estimator")
-    fUse["Likelihood"]      = 1;
-    fUse["LikelihoodD"]     = 1; // the "D" extension indicates decorrelated input variables (see option strings)
+    fUse["Likelihood"]      = 0;
+    fUse["LikelihoodD"]     = 0; // the "D" extension indicates decorrelated input variables (see option strings)
     fUse["LikelihoodPCA"]   = 0; // the "PCA" extension indicates PCA-transformed input variables (see option strings)
     fUse["LikelihoodKDE"]   = 0;
     fUse["LikelihoodMIX"]   = 0;
@@ -52,14 +52,14 @@ void NTagTMVA::SetMethods()
     fUse["PDERSD"]          = 0;
     fUse["PDERSPCA"]        = 0;
     fUse["PDEFoam"]         = 0;
-    fUse["PDEFoamBoost"]    = 1; // fUses generalised MVA method boosting
+    fUse["PDEFoamBoost"]    = 0; // fUses generalised MVA method boosting
     fUse["KNN"]             = 0; // k-nearest neighbour method
     //
     // --- Linear Discriminant Analysis
     fUse["LD"]              = 0; // Linear Discriminant identical to Fisher
     fUse["Fisher"]          = 0;
     fUse["FisherG"]         = 0;
-    fUse["BoostedFisher"]   = 1; // fUses generalised MVA method boosting
+    fUse["BoostedFisher"]   = 0; // fUses generalised MVA method boosting
     fUse["HMatrix"]         = 0;
     //
     // --- Function Discriminant analysis
@@ -73,7 +73,7 @@ void NTagTMVA::SetMethods()
     // --- Neural Networks (all are feed-forward Multilayer Perceptrons)
     fUse["MLP"]             = 1; // Recommended ANN
     fUse["MLPBFGS"]         = 0; // Recommended ANN with optional training method
-    fUse["MLPBNN"]          = 1; // Recommended ANN with BFGS training method and bayesian regulator
+    fUse["MLPBNN"]          = 0; // Recommended ANN with BFGS training method and bayesian regulator
     fUse["MLPBNN10"]        = 0; // Recommended ANN with BFGS training method and bayesian regulator
     fUse["MLPBNN4"]         = 0; // Recommended ANN with BFGS training method and bayesian regulator
     fUse["MLPBNN6"]         = 0; // Recommended ANN with BFGS training method and bayesian regulator
@@ -255,7 +255,7 @@ void NTagTMVA::MakeWeights()
 
     // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
     if (fUse["MLP"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator" );
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:!V:NeuronType=sigmoid:VarTransform=N,U:NCycles=50:HiddenLayers=N+5:TestRate=5:!UseRegulator" );
 
     if (fUse["MLPBFGS"])
         fFactory->BookMethod( TMVA::Types::kMLP, "MLPBFGS", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator" );

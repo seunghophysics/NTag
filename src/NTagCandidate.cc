@@ -37,6 +37,7 @@ void NTagCandidate::SetVariables()
     fVarMap["QSum10"] = std::accumulate(vHitChargePE.begin(), vHitChargePE.end(), 0.);
     fVarMap["ReconCT"] = (vHitResTimes.back() + vHitResTimes[0]) / 2.;
     fVarMap["TSpread10"] = (vHitResTimes.back() - vHitResTimes[0]);
+    
     beta_10 = GetBetaArray(vHitCableIDs);
 
     SetVariablesWithinTWindow(50);
@@ -93,6 +94,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
         fVarMap["TRMS50"] = MinimizeTRMS(tiskz, cabiz, nv);
         fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
         fVarMap["DWalln"] = wallsk_(nv);
+        fVarMap["DWallnMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, nv);
 
         auto tiskz50_ToF = currentEvent->GetToFSubtracted(tiskz, cabiz, nv, true);
 
