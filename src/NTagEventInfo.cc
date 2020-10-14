@@ -63,15 +63,12 @@ void NTagEventInfo::SetEventHeader()
         }
     }
 
-    msg.Print(Form("qismsk: %f", qismsk), pDEBUG);
-
     // Number of OD hits
     odpc_2nd_s_(&nhitac);
-    msg.Print(Form("Number of OD hits: %d", nhitac), pDEBUG);
 
     // Read trigger offset
+    msg.PrintBlock("Reading trigger information...", pSUBEVENT, pDEFAULT, false);
     trginfo_(&trgOffset);
-    msg.Print(Form("Trigger offset: %f", trgOffset), pDEBUG);
 }
 
 void NTagEventInfo::SetPromptVertex()
@@ -107,16 +104,12 @@ void NTagEventInfo::SetPromptVertex()
 
     float tmp_v[3] = {pvx, pvy, pvz};
     dWall = wallsk_(tmp_v);
-
-    msg.Print(Form("Prompt vertex: %f, %f, %f", pvx, pvy, pvz), pDEBUG);
-    msg.Print(Form("d_wall: %f", dWall), pDEBUG);
 }
 
 void NTagEventInfo::SetAPFitInfo()
 {
     // E_vis
     evis = apcomene_.apevis;
-    msg.Print(Form("e_vis: %f", evis), pDEBUG);
 
     // AP ring information
     apNRings = apcommul_.apnring;
@@ -146,7 +139,6 @@ void NTagEventInfo::SetLowFitInfo()
 
     // E_vis
     evis = LOWE->bsenergy;
-    msg.Print(Form("e_vis: %f", evis), pDEBUG);
 }
 
 void NTagEventInfo::AppendRawHitInfo()
@@ -169,9 +161,6 @@ void NTagEventInfo::AppendRawHitInfo()
         pmtLast = vCABIZ.back();
     }
 
-    int nFoundSigHits = 0;
-    int nRemovedHits = 0;
-
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
 
         if (!coincidenceFound && sktqz_.qiskz[iHit] == qLast && sktqz_.icabiz[iHit] == pmtLast) {
@@ -185,7 +174,9 @@ void NTagEventInfo::AppendRawHitInfo()
 
         // Use hits that are in-gate and within MAXPM only
         if (sktqz_.ihtiflz[iHit] & (1<<1) && hitPMTID <= MAXPM) {
-
+            
+            nTotalHits++;
+            
             if (fabs(hitTime - vPMTHitTime[hitPMTID]) < TRBNWIDTH*1.e3) {
                 nRemovedHits++;
                 continue;
@@ -211,12 +202,8 @@ void NTagEventInfo::AppendRawHitInfo()
             }
         }
     }
-
-    msg.Print(Form("Removed hits: %d", nRemovedHits), pDEBUG);
-    if (vSIGT) msg.Print(Form("%d / %lu signal hits saved!", nFoundSigHits, vSIGT->size()), pDEBUG);
-
+    
     nqiskz = static_cast<int>(vTISKZ.size());
-    msg.Print(Form("nqiskz after append: %d", nqiskz), pDEBUG);
 }
 
 void NTagEventInfo::SetToFSubtractedTQ()
@@ -228,6 +215,151 @@ void NTagEventInfo::SetToFSubtractedTQ()
     SortToFSubtractedTQ();
 }
 
+void NTagEventInfo::DumpEventVariables()
+{
+    msg.PrintBlock(Form("Event #%d summary", nProcessedEvents+1), pSUBEVENT, pDEFAULT, false);
+    
+    // Event header
+    // runno, subrunno, eventno, evis
+    msg.Print("* Event header");
+    msg.Print("\033[4mRun       Subrun    Event     Evis (MeV)\033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(10) << runNo;
+    std::cout << std::left << std::setw(10) << subrunNo;
+    std::cout << std::left << std::setw(10) << eventNo;
+    std::cout << std::left << std::setw(10) << evis;
+    std::cout << std::endl;
+    msg.Print("");
+    msg.Print("\033[4mQISMSK (p.e.)       OD Hits             \033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(20) << qismsk;
+    std::cout << std::left << std::setw(20) << nhitac;
+    std::cout << std::endl;
+    msg.Print("");
+    
+    // Trigger information
+    // trgtype, trgOffset, tDiff
+    msg.Print("* Trigger");
+    msg.Print("\033[4mTrgType     TrgTime (ns)   TDiff (ns)   \033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(12);
+    if (trgType == 0) std::cout << "MC";
+    else if (trgType == 1) std::cout << "SHE-only";
+    else if (trgType == 2) std::cout << "SHE+AFT";;
+    std::cout << std::left << std::setw(15) << trgOffset;
+    std::cout << std::left << std::setw(13) << tDiff;
+    std::cout << std::endl;
+    msg.Print("");
+    
+    // Hit information
+    // qismsk, nhitac, reducedHits, signalHits
+    msg.Print("* Hits");
+    msg.Print("\033[4mTotal hits          Signal hits         \033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(20) << nTotalHits;
+    std::cout << std::left << std::setw(20) << vSIGT->size();
+    std::cout << std::endl;
+    msg.Print("");
+    
+    // RBN reduction information
+    int nFoundHits = nTotalHits - nRemovedHits;
+    msg.Print(Form("* RBN reduction (Deadtime: %d us)", (int)TRBNWIDTH));
+    msg.Print("\033[4mSurvived hits       Survived signal     \033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(20)
+              << Form("%d (%d%%)", nFoundHits, (int)(100*nFoundHits/(nTotalHits+1.e-3)));
+    std::cout << std::left << std::setw(20) 
+              << Form("%d (%d%%)", nFoundSigHits, (int)(100*nFoundSigHits/(vSIGT->size()+1.e-3)));
+    std::cout << std::endl;
+    msg.Print("");
+    
+    // Prompt vertex
+    // pvx, pvy, pvz, dwall
+    msg.Print("* Prompt vertex (neutron search vertex)");
+    msg.Print("\033[4mX (cm)    Y (cm)    Z (cm)    dWall (cm)\033[0m");
+    msg.Print("", pDEFAULT, false);
+    std::cout << std::left << std::setw(10) << pvx;
+    std::cout << std::left << std::setw(10) << pvy;
+    std::cout << std::left << std::setw(10) << pvz;
+    std::cout << std::left << std::setw(10) << dWall;
+    std::cout << std::endl;
+    msg.Print("");
+    
+    // APFit information
+    
+    // NEUT information
+    
+    if (!bData) {
+        // Primary information (MC)
+        msg.Print("* (MC) Primary vectors");
+        msg.Print("\033[4mID  PID   Mom. (MeV/c)  dWall (cm)      \033[0m");
+        msg.Print("", pDEFAULT, false);
+        for (unsigned int iVec = 0; iVec < vVecPID.size(); iVec++) {
+            std::cout << std::left << std::setw(4) << iVec;
+            std::cout << std::left << std::setw(6);
+            if (vVecPID[iVec] == 13) std::cout << "n";
+            else                     std::cout << vVecPID[iVec];  
+            std::cout << std::left << std::setw(14) << std::setprecision(4) << vVecMom[iVec];
+            float vecV[3] = {vVecPX[iVec], vVecPY[iVec], vVecPZ[iVec]};
+            std::cout << std::left << std::setw(17) << wallsk_(vecV);
+            std::cout << std::setprecision(6) << std::endl;
+        }
+        msg.Print("");
+        
+        if (fVerbosity > pDEFAULT) {
+            // Secondary information (MC)
+            msg.Print("* (MC) Secondaries");
+            msg.Print("\033[4mID  PID   IntID   ParentPID Mom. (MeV/c)\033[0m");
+            for (unsigned int iSec = 0; iSec < vSecPID.size(); iSec++) {
+                msg.Print("", pDEFAULT, false);
+                std::cout << std::left << std::setw(4) << iSec;
+                std::cout << std::left << std::setw(6) << GetParticleName(vSecPID[iSec]);
+                std::cout << std::left << std::setw(8) << GetInteractionName(vSecIntID[iSec]);
+                std::cout << std::left << std::setw(10) << GetParticleName(vParentPID[iSec]);
+                std::cout << std::left << std::setw(13) << std::setprecision(3) << vSecMom[iSec];
+                std::cout << std::setprecision(6) << std::endl;
+            }
+            msg.Print("");
+        }
+        
+        // True capture information (MC)
+        msg.Print("* (MC) True captures");
+        msg.Print("\033[4mID  Time (us)  E (MeV)  TravelDist. (cm)\033[0m");
+        for (unsigned int iCap = 0; iCap < vTrueCT.size(); iCap++) {
+            msg.Print("", pDEFAULT, false);
+            std::cout << std::left << std::setw(4) << iCap;
+            std::cout << std::left << std::setw(11) << (int)(vTrueCT[iCap]*1.e-3);
+            std::cout << std::left << std::setw(9) << std::setprecision(3)
+                      << vTotGammaE[iCap];
+            std::cout << std::left << std::setw(16) << Norm(pvx - vCapVX[iCap],
+                                                            pvy - vCapVY[iCap],
+                                                            pvz - vCapVZ[iCap]);
+            std::cout << std::setprecision(6) << std::endl;
+        }
+        msg.Print("");
+    }
+    
+    // Neutron capture candidate information
+    // nCandidates, n10, tmvaoutput
+    msg.Print("* Found neutron capture candidates");
+    msg.Print("\033[4mID  Time (us)  N10  Type  Classifier    \033[0m");
+    for (auto& candidate: vCandidates) {
+        msg.Print("", pDEFAULT, false);
+        std::cout << std::left << std::setw(4) << candidate.candidateID;
+        std::cout << std::left << std::setw(11) << (int)(candidate.fVarMap["ReconCT"]*1.e-3);
+        std::cout << std::left << std::setw(5) << candidate.iVarMap["N10"];
+        std::cout << std::left << std::setw(6);
+        if (bData) std::cout << "-";
+        else if (candidate.iVarMap["CaptureType"] == 0) std::cout << "Bkg";
+        else if (candidate.iVarMap["CaptureType"] == 1) std::cout << "H";
+        else if (candidate.iVarMap["CaptureType"] == 2) std::cout << "Gd";
+        std::cout << std::left << std::setw(14); 
+        if (bUseTMVA) std::cout << candidate.fVarMap["TMVAOutput"];
+        else          std::cout << "-";
+        std::cout << std::endl;
+    }
+}
+
 void NTagEventInfo::SetMCInfo()
 {
     // Read SKVECT (primaries)
@@ -237,21 +369,16 @@ void NTagEventInfo::SetMCInfo()
     vecy = skvect_.pos[1];
     vecz = skvect_.pos[2];
 
-    msg.Print(Form("True Vector: %d", nVec), pDEBUG);
-
     for (int iVec = 0; iVec < nVec; iVec++) {
         vVecPID.push_back( skvect_.ip[iVec]     );  // PID of primaries
         vVecPX. push_back( skvect_.pin[iVec][0] );  // momentum vector of primaries
         vVecPY. push_back( skvect_.pin[iVec][1] );
         vVecPZ. push_back( skvect_.pin[iVec][2] );
         vVecMom.push_back( skvect_.pabs[iVec]   );  // momentum of primaries
-
-        if (vVecPID[iVec] == 13) // Neutron code in Geant3 is 13
-        msg.Print(Form("Primary neutron %d: [p = %f MeV/c] [dwall: %f cm]",
-                            iVec, vVecMom[iVec], dWall), pDEBUG);
     }
 
     // Read neutrino interaction vector
+    msg.PrintBlock("Reading NEUT vectors...", pSUBEVENT, pDEFAULT, false);
     float posnu[3];
     nerdnebk_(posnu);
 
@@ -264,7 +391,6 @@ void NTagEventInfo::SetMCInfo()
         vNeutVecPID.push_back(nework_.ipne[i]); // PIDs in vector
         if (vNeutVecPID[i] == 2112 && i >= 3) nNInNeutVec++; // count neutrons
     }
-    msg.Print(Form("Number of neutrons in NEUT primary stack: %d", nNInNeutVec), pDEBUG);
 
     // Initialize number of n captures
     nTrueCaptures = 0;
@@ -290,8 +416,6 @@ void NTagEventInfo::SetMCInfo()
         if (secndprt_.iprtscnd[iSec] == 2112) {
             SaveSecondary(iSec);
             nSecNeutron++;
-            msg.Print(Form("Secondary neutron (#%d): [t = %f ns] [p = %f MeV/c]",
-                         nSecNeutron, secndprt_.tscnd[iSec]*1e-3, Norm(secndprt_.pscnd[iSec])), pDEBUG);
         }
 
         // deuteron, gamma, electrons
@@ -350,16 +474,6 @@ void NTagEventInfo::SetMCInfo()
     }
     assert(nSavedSec == static_cast<int>(vSecPID.size()));
     assert(nSavedSec == static_cast<int>(vCapID.size()));
-
-    for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-        msg.Print(Form("CaptureID %d: [t: %f us] [Gamma E: %f MeV] [x: %f y: %f z: %f]",
-                        iCapture, vTrueCT[iCapture]*1e-3, vTotGammaE[iCapture],
-                        vCapVX[iCapture], vCapVY[iCapture], vCapVZ[iCapture]), pDEBUG);
-        msg.Print(Form("Neutron travel distance from prompt vertex: %f cm",
-                        Norm(pvx-vCapVX[iCapture], pvy-vCapVY[iCapture], pvz-vCapVZ[iCapture])), pDEBUG);
-    }
-    msg.Print(Form("Number of secondary neutrons saved in bank: %d", nSecNeutron), pDEBUG);
-    msg.Print(Form("Number of captures: %d", nTrueCaptures), pDEBUG);
 }
 
 void NTagEventInfo::ReadSecondaries()
@@ -462,13 +576,13 @@ void NTagEventInfo::SetCandidateVariables()
             InitializeCandidateVariableVectors();
 
         ExtractCandidateVariables();
-        DumpCandidateVariables();
     }
 }
 
 
 void NTagEventInfo::InitializeCandidateVariableVectors()
 {
+    msg.PrintBlock("Initializing feature variables...", pSUBEVENT, pDEBUG, false);
     for (auto const& pair: vCandidates[0].iVarMap) {
         msg.Print(Form("Initializing variable %s...", pair.first), pDEBUG);
         iCandidateVarMap[pair.first] = new std::vector<int>();
@@ -587,6 +701,8 @@ void NTagEventInfo::Clear()
     vHitResTimes->clear();
     vHitCableIDs->clear();
     vHitSigFlags->clear();
+    
+    nTotalHits = 0; nFoundSigHits = 0; nRemovedHits = 0;
 
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();
@@ -626,12 +742,12 @@ void NTagEventInfo::SaveSecondary(int secID)
     vCapID.    push_back( -1 );
     nSavedSec++;
 
-    msg.Print(Form("Saved secondary %d: [PID: %d] [Int code: %d] [Parent PID: %d] [x: %f y: %f z: %f]",
-                    secID,
-                    secndprt_.iprtscnd[secID],
-                    secndprt_.lmecscnd[secID],
-                    secndprt_.iprntprt[secID],
-                    secndprt_.vtxscnd[secID][0],
-                    secndprt_.vtxscnd[secID][1],
-                    secndprt_.vtxscnd[secID][2]), pDEBUG);
+    //msg.Print(Form("Saved secondary %d: [PID: %d] [Int code: %d] [Parent PID: %d] [x: %f y: %f z: %f]",
+    //                secID,
+    //                secndprt_.iprtscnd[secID],
+    //                secndprt_.lmecscnd[secID],
+    //                secndprt_.iprntprt[secID],
+    //                secndprt_.vtxscnd[secID][0],
+    //                secndprt_.vtxscnd[secID][1],
+    //                secndprt_.vtxscnd[secID][2]), pDEBUG);
 }

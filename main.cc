@@ -11,6 +11,11 @@
 #include "NTagMessage.hh"
 #include "NTagZBSTQReader.hh"
 
+static std::string NTagVersion = "0.0.1";
+static std::string NTagDate    = "Oct 14, 2020";
+void PrintNTag();
+void PrintVersion();
+
 void ProcessSKFile(NTagIO* nt, NTagArgParser& parser);
 
 static std::string inputName, outputName, weightName, methodName;
@@ -19,6 +24,8 @@ static std::string vx, vy, vz;
 
 int main(int argc, char** argv)
 {
+    PrintNTag();
+
     /********************/
     /* Argument parsing */
     /********************/
@@ -58,8 +65,9 @@ int main(int argc, char** argv)
         if (outputName.empty())
             outputName = "weights/new/NTagTMVA_TestResults.root";
 
-        msg.Print(Form("Start testing MVA methods with input: ") + inputName);
-        msg.Print("Generating new weight files in $NTAGPATH/weights/new...");
+        msg.PrintBlock("Train mode", pMAIN, pDEFAULT, false);
+        msg.Print("Input file         : " + inputName);
+        msg.Print("Output weight path : " + installPath + "weights/new\n\n");
 
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
         nt.MakeWeights();
@@ -110,7 +118,9 @@ int main(int argc, char** argv)
         // Process SKROOT with TQREAL filled
         if (TString(inputName).EndsWith(".root")) {
 
-            msg.Print(Form("Processing SKROOT file: ") + inputName);
+            msg.PrintBlock("Tag mode", pMAIN, pDEFAULT, false);
+            msg.Print("Input file  : " + inputName);
+            msg.Print("Output file : " + outputName);
 
             NTagROOT* nt = new NTagROOT(inputName.c_str(), outputName.c_str(), pVERBOSE);
             ProcessSKFile(nt, parser);
@@ -121,7 +131,10 @@ int main(int argc, char** argv)
 
         // Process ZBS
         else {
-            msg.Print(Form("Processing ZBS file: ") + inputName);
+
+            msg.PrintBlock("Tag mode", pMAIN, pDEFAULT, false);
+            msg.Print("Input file  : " + inputName);
+            msg.Print("Output file : " + outputName);
 
             NTagZBS* nt = new NTagZBS(inputName.c_str(), outputName.c_str(), pVERBOSE);
             ProcessSKFile(nt, parser);
@@ -170,7 +183,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     // Set PMT dead time width for RBN reduction
     const std::string &TRBNWIDTH = parser.GetOption("-TRBNWIDTH");
     if (!TRBNWIDTH.empty()) {
-        nt->SetTRBNWidth(std::stof(TRBNWIDTH)*1.e3);
+        nt->SetTRBNWidth(std::stof(TRBNWIDTH));
     }
 
     // Turn TMVA on/off (default: on)
@@ -211,4 +224,26 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 
     nt->ReadFile();
     nt->WriteOutput();
+}
+
+void PrintNTag()
+{
+    std::cout << "\n" <<std::endl;
+    std::cout << "              _____________________________________"       << std::endl;
+    std::cout << "                _   _     _____      _       ____  "       << std::endl;
+    std::cout << "               | \\ |\"|   |_ \" _| U  /\"\\  uU /\"___|u" << std::endl;
+    std::cout << "              <|  \\| |>    | |    \\/ _ \\/ \\| |  _ /"   << std::endl;
+    std::cout << "              U| |\\  |u   /| |\\   / ___ \\  | |_| | "    << std::endl;
+    std::cout << "               |_| \\_|   u |_|U  /_/   \\_\\  \\____| "   << std::endl;
+    std::cout << "               ||   \\\\,-._// \\\\_  \\\\    >>  _)(|_  " << std::endl;
+    std::cout << "               (_\")  (_/(__) (__)(__)  (__)(__)__) "      << std::endl;
+    std::cout << "              _____________________________________"       << std::endl;
+
+    PrintVersion();
+}
+
+void PrintVersion()
+{
+    std::cout << "                  NTag Version " << NTagVersion
+              << " (" << NTagDate << ")\n\n" << std::endl;
 }

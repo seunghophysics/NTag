@@ -10,7 +10,13 @@
 #ifndef NTAGCALCULATOR_HH
 #define NTAGCALCULATOR_HH 1
 
+#include <map>
 #include <vector>
+
+#include <TString.h>
+
+static std::map<int, TString> pidMap;
+static std::map<int, TString> intMap;
 
 /**
  * @brief Get norm of a size-3 float array.
@@ -126,5 +132,19 @@ float GetTRMSFromStartIndex(const std::vector<float>& sortedT, int startIndex, f
  * @return The number of hits within \p tWidth [ns] whose center comes at time \p centerTime [ns].
  */
 int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
+
+/**
+ * @brief Returns particle name given a PDG encoding.
+ * @param pid The PDG encoding of a particle.
+ * @return Particle name in `TString`.
+ */
+TString GetParticleName(int pid);
+
+/**
+ * @brief Returns interaction name given a Geant3 interaction code.
+ * @param lmec The Geant3 interaction code of an interaction.
+ * @return Interaction name in `TString`.
+ */
+TString GetInteractionName(int lmec);
 
 #endif

@@ -117,11 +117,16 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
 
     // 1300 ns window
     else if (tWindow == 1300) {
+        if (currentEvent->nProcessedEvents == 0 && candidateID == 0)
+            msg.PrintBlock("Initializing BONSAI lfallfit...", pSUBEVENT);
+            
         iVarMap["N1300"] = tiskz.size();
         int isData = 0; if (currentEvent->bData) isData = 1;
+        
         bonsai_fit_(&isData, &fVarMap["ReconCT"], tiskz.data(), qiskz.data(), cabiz.data(), &iVarMap["N1300"],
                     &fVarMap["BSenergy"], &fVarMap["bsvx"], &fVarMap["bsvy"], &fVarMap["bsvz"],
                     &fVarMap["BSReconCT"], &fVarMap["BSgood"], &fVarMap["BSdirks"], &fVarMap["BSpatlik"], &fVarMap["BSovaq"]);
+        
         // Fix bsPatlik->-inf bug
         if (fVarMap["BSpatlik"] < -9999.) fVarMap["BSpatlik"] = -9999.;
 
@@ -189,11 +194,8 @@ void NTagCandidate::DumpHitInfo()
 
 void NTagCandidate::DumpVariables()
 {
-    std::cout << std::endl;
-    msg.Print("==================================");
-    msg.Print(Form("CandidateID: %d", candidateID));
-    msg.Print("==================================");
-
+    msg.PrintBlock(Form("CandidateID: %d", candidateID), pCANDIDATE, pDEFAULT, false);
+    
     DumpHitInfo();
 
     msg.Print("----------------------------------");

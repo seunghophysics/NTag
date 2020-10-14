@@ -75,13 +75,13 @@ namespace NTagDefault{
     constexpr int   N10TH        = 7;     ///< Default value for NTagEventInfo::N10TH.
     constexpr int   N10MX        = 50;    ///< Default value for NTagEventInfo::N10MX.
     constexpr int   N200MX       = 200;   ///< Default value for NTagEventInfo::N200MX.
-    constexpr float T0TH         = 5.;    ///< Default value for NTagEventInfo::T0TH.
-    constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX.
-    constexpr float VTXSRCRANGE  = 4000.; ///< Default value for NTagEventInfo::VTXSRCRANGE.
-    constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW.
-    constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP.
+    constexpr float T0TH         = 5.;    ///< Default value for NTagEventInfo::T0TH. (us)
+    constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX. (us)
+    constexpr float VTXSRCRANGE  = 4000.; ///< Default value for NTagEventInfo::VTXSRCRANGE. (cm)
+    constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
+    constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
-    constexpr float TRBNWIDTH    = 6.;    ///< Default value for NTagEventInfo::TRBNWIDTH.
+    constexpr float TRBNWIDTH    = 6.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
 }
 
 /**********************************************************
@@ -189,6 +189,11 @@ class NTagEventInfo
              * @details Saved variables: #vUnsortedT_ToF, #vSortedT_ToF, #vSortedPMTID, #vSortedQ
              */
             virtual void SetToFSubtractedTQ();
+            
+            /**
+             * @brief Dump event variables and statistics.
+             */
+            virtual void DumpEventVariables();
 
 
             /***********/
@@ -557,7 +562,12 @@ class NTagEventInfo
                                         *vHitResTimes; ///< Vector of residual hit times. [Size: #nCandidates]
         std::vector<std::vector<int>>   *vHitCableIDs, ///< Vector of hit cable IDs. [Size: #nCandidates]
                                         *vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
-
+        
+        int nTotalHits;    ///< Number of total hits, including unrecorded hits.
+        int nFoundSigHits; ///< Number of registered signal hits.
+        int nRemovedHits;  ///< Number of removed hits due to RBN reduction.
+        
+        
 
         /////////////////////////
         // MC truth event info //

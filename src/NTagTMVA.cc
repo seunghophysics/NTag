@@ -111,8 +111,9 @@ void NTagTMVA::MakeWeights()
     fVariables = NTagTMVAVariables(fVerbosity);
     auto varKeys = fVariables.Keys();
 
+    std::cout << "\n" << std::endl;
     for (const auto& key: varKeys) {
-        msg.Print(Form("Adding variable %s to TMVA factory...", key));
+        msg.Print(Form("Adding feature variable : %s", key));
         if (key[0] == 'N') fFactory->AddVariable(key, 'I');
         else fFactory->AddVariable(key, 'F');
     }

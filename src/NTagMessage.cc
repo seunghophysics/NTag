@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "NTagMessage.hh"
 
@@ -22,7 +23,7 @@ void NTagMessage::PrintTag(Verbosity vType)
     }
 }
 
-void NTagMessage::Print(TString msg, Verbosity vType, bool endLine)
+void NTagMessage::Print(TString msg, Verbosity vType, bool newLine)
 {
     if (vType <= fVerbosity) {
         PrintTag(vType);
@@ -32,9 +33,26 @@ void NTagMessage::Print(TString msg, Verbosity vType, bool endLine)
         }
         else {
             std::cout << "\033[m" << msg;
-            if (endLine) std::cout << std::endl;
+            if (newLine) std::cout << std::endl;
         }
     }
+}
+
+void NTagMessage::PrintBlock(TString line, BlockSize size, Verbosity vType, bool newLine)
+{
+    std::string blockWall(size, '=');
+    
+    std::cout << std::endl;
+    Print(blockWall, vType);
+    if (size == pMAIN) {
+        Print("", vType, false);
+        std::cout << std::right << std::setw((size + line.Length())/2) << line << std::endl;
+    }
+    else
+        Print(line, vType);
+    Print(blockWall, vType);
+    
+    if (newLine) std::cout << std::endl;
 }
 
 float NTagMessage::Timer(TString msg, std::clock_t tStart, Verbosity vType)

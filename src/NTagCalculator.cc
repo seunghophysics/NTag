@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #include "NTagCalculator.hh"
 
@@ -108,4 +109,35 @@ int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float 
     }
 
     return NXX;
+}
+
+TString GetParticleName(int pid)
+{
+    if (!pidMap.count(2112)) {
+        pidMap[2112] = "n";
+        pidMap[2212] = "p";
+        pidMap[22] = "gamma";
+        pidMap[11] = "e-";
+        pidMap[100045] = "d";
+    }
+    if (pidMap.count(pid))
+        return pidMap[pid];
+    else 
+        return TString(std::to_string(pid));
+}
+
+TString GetInteractionName(int lmec)
+{
+    if (!intMap.count(18)) {
+        intMap[18] = "Capture";
+        intMap[7]  = "Compt.";
+        intMap[9]  = "Brems.";
+        intMap[10] = "Delta";
+        intMap[11] = "Annihi.";
+        intMap[12] = "Hadr.";
+    }
+    if (intMap.count(lmec))
+        return intMap[lmec];
+    else 
+        return TString(std::to_string(lmec));
 }

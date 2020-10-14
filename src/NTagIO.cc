@@ -41,7 +41,7 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
 NTagIO::~NTagIO() {}
 
 void NTagIO::Initialize()
-{
+{   
     SKInitialize();
     OpenFile();
 }
@@ -50,10 +50,14 @@ void NTagIO::SKInitialize()
 {
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
+    msg.PrintBlock("Setting SK geometry...");
     skheadg_.sk_geometry = 5; geoset_();
 
     // Initialize BONSAI
+    msg.PrintBlock("Initializing ZBS...");
     kzinit_();
+    std::cout << std::endl;
+    msg.PrintBlock("Initializing BONSAI...");
     bonsai_ini_();
 }
 
@@ -84,11 +88,9 @@ void NTagIO::ReadFile()
 
         switch (readStatus) {
             case 0: // event read
-                std::cout << "\n" << std::endl;
-                msg.Print("###########################", pDEBUG);
-                msg.Print(Form("RUN %d EVENT %d", skhead_.nrunsk, skhead_.nevsk), pDEBUG);
-                msg.Print(Form("Process No. %d", nProcessedEvents+1), pDEBUG);
-                msg.Print("###########################", pDEBUG);
+                std::cout << "\n\n" << std::endl;
+                msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents+1), 
+                               pEVENT, pDEFAULT, false);
 
                 // If MC
                 if (!bData) {
@@ -195,8 +197,6 @@ void NTagIO::ReadDataEvent()
                    + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
                    + (skhead_.nt48sk[2] - preRawTrigTime[2]);
         tDiff *= 20.; tDiff /= 1.e6; // [ms]
-
-        msg.Print(Form("tDiff: %f", tDiff), pDEBUG);
 
         for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
     }
@@ -367,6 +367,9 @@ void NTagIO::CreateBranchesToResTQTree()
 
 void NTagIO::FillTrees()
 {
+    DumpEventVariables();
+    if (fVerbosity > pDEFAULT) DumpCandidateVariables();
+
     if (!candidateVariablesAdded) {
         AddCandidateVariablesToNtvarTree();
     }
@@ -390,10 +393,8 @@ void NTagIO::CheckMC()
 {
     if (skhead_.nrunsk != 999999) {
         bData = true;
-        msg.Print(Form("Reading event #%d from data...", nProcessedEvents+1));
     }
     else {
         bData = false;
-        msg.Print(Form("Reading event #%d from MC...", nProcessedEvents+1));
     }
 }
