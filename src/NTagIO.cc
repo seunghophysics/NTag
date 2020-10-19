@@ -121,7 +121,7 @@ void NTagIO::ReadFile()
                 CloseFile();
                 bEOF = true;
 
-                msg.Print(Form("Number of savedd events: %d", nProcessedEvents), pDEFAULT);
+                msg.Print(Form("Number of saved events: %d", nProcessedEvents), pDEFAULT);
                 msg.Timer("Reading this file", startTime, pDEFAULT);
                 break;
         }

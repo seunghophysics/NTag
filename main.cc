@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     if (parser.OptionExists("-train")) {
 
         if (outputName.empty())
-            outputName = "weights/new/NTagTMVA_TestResults.root";
+            outputName = installPath + "weights/new/NTagTMVA_TestResults.root";
 
         msg.PrintBlock("Train mode", pMAIN, pDEFAULT, false);
         msg.Print("Input file         : " + inputName);

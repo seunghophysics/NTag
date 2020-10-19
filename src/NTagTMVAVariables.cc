@@ -16,7 +16,7 @@ NTagTMVAVariables::~NTagTMVAVariables() {}
 void NTagTMVAVariables::Clear()
 {
     iVariableMap["N10"] = 0;
-    iVariableMap["N50"] = 0;
+    //iVariableMap["N50"] = 0;
     iVariableMap["N200"] = 0;
 
     for (const auto& pair: iVariableMap) {
@@ -27,8 +27,11 @@ void NTagTMVAVariables::Clear()
         fVariableMap[pair.first] = 0.;
     }
 
-    fVariableMap["QSum10"] = 0.;
-    fVariableMap["TSpread10"] = 0.;
+    fVariableMap["AngleMean"] = 0.;
+    fVariableMap["AngleMedian"] = 0.;
+    fVariableMap["AngleStdev"] = 0.;
+    fVariableMap["AngleSkew"] = 0.;
+    //fVariableMap["QSum10"] = 0.;
     fVariableMap["TRMS10"] = 0.;
     fVariableMap["TRMS50"] = 0.;
     fVariableMap["Beta1"] = 0.;
@@ -37,6 +40,7 @@ void NTagTMVAVariables::Clear()
     fVariableMap["Beta4"] = 0.;
     fVariableMap["Beta5"] = 0.;
     fVariableMap["DWalln"] = 0.;
+    fVariableMap["DWallnMeanDir"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
 
     for (const auto& pair: fVariableMap) {

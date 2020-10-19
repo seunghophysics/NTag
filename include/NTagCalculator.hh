@@ -10,10 +10,13 @@
 #ifndef NTAGCALCULATOR_HH
 #define NTAGCALCULATOR_HH 1
 
+#include <algorithm>
+#include <array>
 #include <map>
 #include <vector>
 
 #include <TString.h>
+#include <TVector3.h>
 
 static std::map<int, TString> pidMap;
 static std::map<int, TString> intMap;
@@ -142,12 +145,78 @@ float GetTRMSFromStartIndex(const std::vector<float>& sortedT, int startIndex, f
 int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
 
 /**
- * @brief Calculate distance to the wall in the averaged direction from a vertex to hit PMTs.
+ * @brief Calculates distance to the wall in the averaged direction from a vertex to hit PMTs.
  * @param vertex An array of vertex coordinates. [cm]
  * @param PMTID A vector of PMT cable IDs.
  * @return The distance to the wall in the averaged direction from \c vertex to each PMT.
  */
 float GetDWallInMeanDirection(const std::vector<int>& PMTID, float vertex[3]);
+
+/**
+ * @brief Calculates an opening angle given three unit vectors.
+ * @param uA A unit vector.
+ * @param uB A unit vector.
+ * @param uC A unit vector.
+ * @return The opening angle (deg) defined by `uA`, `uB`, and `uC`.
+ */
+float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC);
+
+/**
+ * @brief Calculates the mean of the value distribution of the given vector.
+ * @param vec The vector to calculate mean.
+ * @return The mean of the value distribution of \c vec.
+ */
+template <typename T>
+float GetMean(const std::vector<T>& vec)
+{
+    return std::accumulate(vec.begin(), vec.end(), 0.0) / (float)(vec.size());
+}
+
+/**
+ * @brief Calculates the median of the value distribution of the given vector.
+ * @param vec The vector to calculate median.
+ * @return The median of the value distribution of \c vec.
+ */
+template <typename T>
+float GetMedian(const std::vector<T>& vec)
+{
+    std::vector<T> v = vec;
+    std::sort(v.begin(), v.end());
+    int N = v.size();
+    
+    if (N % 2 == 0)
+        return (v[N/2 - 1] + v[N/2]) / 2.;
+    else
+        return v[N/2];
+}
+
+/**
+ * @brief Calculates the skewness of the value distribution of the given vector.
+ * @param vec The vector to calculate skewness.
+ * @return The skewness of the value distribution of \c vFloat.
+ */
+template <typename T>
+float GetSkew(const std::vector<T>& vec)
+{
+    float m3 = 0;
+    float mean = GetMean(vec);
+    float N = vec.size();
+    
+    for (auto const& value: vec) {
+        m3 += pow((value - mean), 3.);
+    }
+    m3 /= N;
+    
+    return m3 / pow(GetTRMS(vec), 1.5);
+}
+
+/**
+ * @brief Calculates the mean, stdev, and skewness of opening angles from input vertex to given PMT positions.
+ * @param PMTID A vector of hit PMT cable IDs.
+ * @param vertex Input vertex.
+ * @return A size-2 array of mean (element 0) and standard deviation (element 1).
+ */
+std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float vertex[3]);
 
 /**
  * @brief Returns particle name given a PDG encoding.

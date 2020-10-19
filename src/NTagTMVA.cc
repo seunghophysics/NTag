@@ -1,3 +1,6 @@
+#include <TH1F.h>
+#include <TChain.h>
+
 #include <TMVA/Config.h>
 #include <TMVA/Tools.h>
 #include <TMVA/Factory.h>
@@ -27,8 +30,8 @@ void NTagTMVA::Constructor()
     fVariables = NTagTMVAVariables(fVerbosity);
     SetMethods();
 
-    SetSigCut("IsCapture == 1");
-    SetBkgCut("IsCapture == 0");
+    SetSigCut("CaptureType > 0");
+    SetBkgCut("CaptureType == 0");
 }
 
 void NTagTMVA::SetMethods()
@@ -71,7 +74,7 @@ void NTagTMVA::SetMethods()
     fUse["FDA_MCMT"]        = 0;
     //
     // --- Neural Networks (all are feed-forward Multilayer Perceptrons)
-    fUse["MLP"]             = 1; // Recommended ANN
+    fUse["MLP"]             = 0; // Recommended ANN
     fUse["MLPBFGS"]         = 0; // Recommended ANN with optional training method
     fUse["MLPBNN"]          = 0; // Recommended ANN with BFGS training method and bayesian regulator
     fUse["MLPBNN10"]        = 0; // Recommended ANN with BFGS training method and bayesian regulator
@@ -95,7 +98,7 @@ void NTagTMVA::SetMethods()
     fUse["BDTF"]            = 0; // allow usage of fisher discriminant for node splitting
     //
     // --- Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
-    fUse["RuleFit"]         = 1;
+    fUse["RuleFit"]         = 0;
 }
 
 void NTagTMVA::MakeWeights()
@@ -104,7 +107,7 @@ void NTagTMVA::MakeWeights()
 
     TFile* outFile = TFile::Open( fOutFileName, "recreate" );
     TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile,
-                                               "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
+                                               "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;U;G,D:AnalysisType=Classification" );
 
     (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGPATH") + "weights/new";
 
@@ -118,18 +121,26 @@ void NTagTMVA::MakeWeights()
         else fFactory->AddVariable(key, 'F');
     }
 
-    TFile *inFile = TFile::Open( fInFileName );
+    //TFile *inFile = TFile::Open( fInFileName );
 
     msg.Print(Form("Input name: %s", fInFileName));
 
-    TTree *sigTree = (TTree*)inFile->Get("ntvar");
-    TTree *bkgTree = (TTree*)inFile->Get("ntvar");
+    //TTree *evTree = (TTree*)inFile->Get("ntvar");
+    //Tree *bkgTree = (TTree*)inFile->Get("ntvar");
+    TChain* chain = new TChain("ntvar");
+    chain->Add(fInFileName);
 
-    fFactory->AddSignalTree    ( sigTree, 1.0, TMVA::Types::kTraining);
-    fFactory->AddBackgroundTree( bkgTree, 1.0, TMVA::Types::kTraining);
-
-    fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut,
-                                        "nTrain_Signal=0:nTrain_Background=0:SplitMode=Random:NormMode=NumEvents:!V" );
+    //fFactory->AddSignalTree    ( sigTree, 1.0, TMVA::Types::kTraining);
+    //fFactory->AddBackgroundTree( bkgTree, 1.0, TMVA::Types::kTraining);
+    TH1F hH("hH", "hH", 1, 0, 100);
+    chain->Draw("NCandidates>>hH", "CaptureType==0", "goff");
+    int totalH = hH.GetMean() * hH.GetEntries();
+    
+    fFactory->SetInputTrees( chain, fSigCut, fBkgCut );
+    float trainRatio = 0.8;
+    TString factoryOption = Form("nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=EqualNumEvents:!V");
+    //, (int)(trainRatio*totalH), (int)(trainRatio*totalH), (int)((1-trainRatio)*totalH), (int)((1-trainRatio)*totalH));
+    fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut, factoryOption );
 
     // Cut optimisation
     if (fUse["Cuts"])
@@ -255,13 +266,13 @@ void NTagTMVA::MakeWeights()
 
     // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
     if (fUse["MLP"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:!V:NeuronType=sigmoid:VarTransform=N,U:NCycles=50:HiddenLayers=N+5:TestRate=5:!UseRegulator" );
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:!V:CreateMVAPdfs:NeuronType=sigmoid:VarTransform=N,G:NCycles=100:HiddenLayers=N,N:TestRate=5:!UseRegulator" );
 
     if (fUse["MLPBFGS"])
         fFactory->BookMethod( TMVA::Types::kMLP, "MLPBFGS", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator" );
 
     if (fUse["MLPBNN"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator" ); // BFGS training with bayesian regulators
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN", "H:!V:CreateMVAPdfs:NeuronType=sigmoid:VarTransform=N,G:NCycles=500:HiddenLayers=N,N:TestRate=10:UseRegulator:EstimatorType=CE" ); // BFGS training with bayesian regulators
 
     if (fUse["MLPBNN10"])
         fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN10", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+10:TestRate=5:TrainingMethod=BFGS:UseRegulator" ); // BFGS training with bayesian regulators
@@ -299,11 +310,11 @@ void NTagTMVA::MakeWeights()
     // Boosted Decision Trees
     if (fUse["BDTG"]) // Gradient Boost
         fFactory->BookMethod( TMVA::Types::kBDT, "BDTG",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=-1:MaxDepth=3" );
+                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:MaxDepth=3" );
 
     if (fUse["BDT"])  // Adaptive Boost
         fFactory->BookMethod( TMVA::Types::kBDT, "BDT",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=-1" );
+                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex" );
 
     if (fUse["BDTB"]) // Bagging
         fFactory->BookMethod( TMVA::Types::kBDT, "BDTB",
@@ -311,7 +322,7 @@ void NTagTMVA::MakeWeights()
 
     if (fUse["BDTD"]) // Decorrelation + Adaptive Boost
         fFactory->BookMethod( TMVA::Types::kBDT, "BDTD",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=-1:VarTransform=Decorrelate" );
+                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:VarTransform=Decorrelate" );
 
     if (fUse["BDTF"])  // Allow Using Fisher discriminant in node splitting for (strong) linearly correlated variables
         fFactory->BookMethod( TMVA::Types::kBDT, "BDTMitFisher",

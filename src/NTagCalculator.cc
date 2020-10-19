@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <numeric>
 #include <string>
 
 #include <geotnkC.h>
@@ -61,7 +62,7 @@ float GetTRMS(const std::vector<float>& T)
     for (int iHit = 0; iHit < nHits; iHit++)
         tMean += T[iHit] / nHits;
     for (int iHit = 0; iHit < nHits; iHit++)
-        tVar += (T[iHit]-tMean)*(T[iHit]-tMean) / nHits;
+        tVar += (T[iHit]-tMean)*(T[iHit]-tMean) / (nHits-1);
 
     return sqrt(tVar);
 }
@@ -150,6 +151,55 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
 
     // Return the smaller
     return distR < distZ ? distR : distZ;
+}
+
+float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
+{
+    float dAB2 = (uA-uB).Mag2();
+    float dBC2 = (uB-uC).Mag2();
+    float dCA2 = (uC-uA).Mag2();
+    
+    float r2 = dAB2 * dBC2 * dCA2;
+    r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
+    
+    return (180./M_PI) * sinf(sqrt(r2));
+}
+
+std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v[3])
+{
+    std::vector<float> openingAngles;
+    int nHits = PMTID.size();
+    int hit[3];
+    
+    // Pick 3 hits without repetition
+    for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
+        for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
+            for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
+                
+                // Define an array of three unit vectors
+                TVector3 u[3];
+                for (int i = 0; i < 3; i++) {
+                    
+                    // Fill i-th vector from vertex to the hit PMT
+                    float i_th_vec[3];
+                    for (int dim = 0; dim < 3; dim++) {
+                        i_th_vec[dim] = NTagConstant::PMTXYZ[PMTID[hit[i]-1]][dim] - v[dim];
+                    }
+                    
+                    // Get i-th unit vector
+                    u[i] = TVector3(i_th_vec).Unit();
+                }
+                openingAngles.push_back(GetOpeningAngle(u[0], u[1], u[2]));
+            }
+        }
+    }
+    
+    float mean     = GetMean(openingAngles);
+    float median   = GetMedian(openingAngles);
+    float stdev    = GetTRMS(openingAngles);
+    float skewness = GetSkew(openingAngles);
+    
+    return std::array<float, 4>{mean, median, stdev, skewness};
 }
 
 TString GetParticleName(int pid)

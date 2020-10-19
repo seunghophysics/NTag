@@ -33,13 +33,19 @@ void NTagCandidate::SetHitInfo(const std::vector<float>& rawT,
 void NTagCandidate::SetVariables()
 {
     iVarMap["N10"] = vHitResTimes.size();
+    iVarMap["N200"] = GetNhitsFromCenterTime(currentEvent->vSortedT_ToF, vHitResTimes[0]+5., 200.);
     fVarMap["TRMS10"] = GetTRMS(vHitResTimes);
     fVarMap["QSum10"] = std::accumulate(vHitChargePE.begin(), vHitChargePE.end(), 0.);
     fVarMap["ReconCT"] = (vHitResTimes.back() + vHitResTimes[0]) / 2.;
     fVarMap["TSpread10"] = (vHitResTimes.back() - vHitResTimes[0]);
-    
-    beta_10 = GetBetaArray(vHitCableIDs);
 
+    beta_10 = GetBetaArray(vHitCableIDs);
+    fVarMap["Beta1"] = beta_10[1];
+    fVarMap["Beta2"] = beta_10[2];
+    fVarMap["Beta3"] = beta_10[3];
+    fVarMap["Beta4"] = beta_10[4];
+    fVarMap["Beta5"] = beta_10[5];
+    
     SetVariablesWithinTWindow(50);
     SetVariablesWithinTWindow(1300);
     fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
@@ -90,11 +96,19 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
     if (tWindow == 50) {
         iVarMap["N50"] = tiskz.size();
         beta_50 = GetBetaArray(cabiz);
+
         float nv[3];
         fVarMap["TRMS50"] = MinimizeTRMS(tiskz, cabiz, nv);
         fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
+
         fVarMap["DWalln"] = wallsk_(nv);
         fVarMap["DWallnMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, nv);
+
+        const auto& openingAngleStats = GetOpeningAngleStats(vHitCableIDs, nv);
+        fVarMap["AngleMean"]   = openingAngleStats[0];
+        fVarMap["AngleMedian"] = openingAngleStats[1];
+        fVarMap["AngleStdev"]  = openingAngleStats[2];
+        fVarMap["AngleSkew"]   = openingAngleStats[3];
 
         auto tiskz50_ToF = currentEvent->GetToFSubtracted(tiskz, cabiz, nv, true);
 
@@ -121,14 +135,14 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
     else if (tWindow == 1300) {
         if (currentEvent->nProcessedEvents == 0 && candidateID == 0)
             msg.PrintBlock("Initializing BONSAI lfallfit...", pSUBEVENT);
-            
+
         iVarMap["N1300"] = tiskz.size();
         int isData = 0; if (currentEvent->bData) isData = 1;
-        
+
         bonsai_fit_(&isData, &fVarMap["ReconCT"], tiskz.data(), qiskz.data(), cabiz.data(), &iVarMap["N1300"],
                     &fVarMap["BSenergy"], &fVarMap["bsvx"], &fVarMap["bsvy"], &fVarMap["bsvz"],
                     &fVarMap["BSReconCT"], &fVarMap["BSgood"], &fVarMap["BSdirks"], &fVarMap["BSpatlik"], &fVarMap["BSovaq"]);
-        
+
         // Fix bsPatlik->-inf bug
         if (fVarMap["BSpatlik"] < -9999.) fVarMap["BSpatlik"] = -9999.;
 
@@ -146,7 +160,8 @@ void NTagCandidate::SetTrueInfo()
 
     // Search for matching capture time within true capture vector of current event
     for (int iCapture = 0; iCapture < currentEvent->nTrueCaptures; iCapture++) {
-        if (fabs(currentEvent->vTrueCT[iCapture] + currentEvent->trgOffset - fVarMap["ReconCT"]) < currentEvent->TMATCHWINDOW ) {
+        if (fabs(currentEvent->vTrueCT[iCapture] + currentEvent->trgOffset - fVarMap["ReconCT"])
+            < currentEvent->TMATCHWINDOW ) {
             iVarMap["TrueCaptureID"] = iCapture;
             if (currentEvent->vTotGammaE[iCapture] > 6.) iVarMap["CaptureType"] = 2; // Gd
             else                                         iVarMap["CaptureType"] = 1; // H
@@ -180,7 +195,7 @@ void NTagCandidate::SetTMVAOutput()
 void NTagCandidate::DumpHitInfo()
 {
     msg.Print("---------------------------------------------------------------------------");
-    msg.Print("RawHitT [ns]   ResHitT [ns]   Q [p.e.]       PMT ID         IsSignalHit?");
+    msg.Print("RawHitT [ns]   ResHitT [ns]   Q [p.e.]       PMT ID         IsSignalHit?   ");
     msg.Print("---------------------------------------------------------------------------");
 
     for (unsigned int iHit = 0; iHit < vHitRawTimes.size(); iHit++) {
@@ -197,7 +212,7 @@ void NTagCandidate::DumpHitInfo()
 void NTagCandidate::DumpVariables()
 {
     msg.PrintBlock(Form("CandidateID: %d", candidateID), pCANDIDATE, pDEFAULT, false);
-    
+
     DumpHitInfo();
 
     msg.Print("----------------------------------");
@@ -289,7 +304,8 @@ float NTagCandidate::MinimizeTRMS(const std::vector<float>& T, const std::vector
                     srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
 
                     if (srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
-                    if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2]) > vertexSearchRange) continue;
+                    if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2])
+                        > vertexSearchRange) continue;
 
                     t_ToF = currentEvent->GetToFSubtracted(T, PMTID, srcVertex.data(), doSort);
 
