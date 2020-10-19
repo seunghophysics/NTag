@@ -160,9 +160,13 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     float dCA2 = (uC-uA).Mag2();
     
     float r2 = dAB2 * dBC2 * dCA2;
-    r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
     
-    return (180./M_PI) * sinf(sqrt(r2));
+    if (r2 == 0) 
+        return 0;
+    else {
+        r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
+        return (180./M_PI) * sinf(sqrt(r2));
+    }
 }
 
 std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v[3])
@@ -198,6 +202,14 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
     float median   = GetMedian(openingAngles);
     float stdev    = GetTRMS(openingAngles);
     float skewness = GetSkew(openingAngles);
+    
+    if (isnan(mean) || isnan(median) || isnan(stdev) || isnan(skewness)) {
+        std::cout << "!!!! NaN detected !!!!" << std::endl;
+        std::cout << "======================" << std::endl;
+        for (auto const& angle: openingAngles) {
+            std::cout << angle;
+        }
+    }
     
     return std::array<float, 4>{mean, median, stdev, skewness};
 }

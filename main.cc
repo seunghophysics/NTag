@@ -12,7 +12,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Oct 14, 2020";
+static std::string NTagDate    = "Oct 18, 2020";
 void PrintNTag();
 void PrintVersion();
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 
     // Train with MC-based NTag output and generate new weights
     if (parser.OptionExists("-train")) {
-
+        
         if (outputName.empty())
             outputName = installPath + "weights/new/NTagTMVA_TestResults.root";
 
