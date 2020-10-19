@@ -155,11 +155,11 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
 
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
-    float dAB2 = (uA-uB).Mag2();
-    float dBC2 = (uB-uC).Mag2();
-    float dCA2 = (uC-uA).Mag2();
+    double dAB2 = (uA-uB).Mag2();
+    double dBC2 = (uB-uC).Mag2();
+    double dCA2 = (uC-uA).Mag2();
     
-    float r2 = dAB2 * dBC2 * dCA2;
+    double r2 = dAB2 * dBC2 * dCA2;
     
     if (r2 == 0) 
         return 0;
