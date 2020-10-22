@@ -93,13 +93,13 @@ class NTagTMVA
          * @brief Specifies which MVA method to use in generating weights.
          * @details See the source code to which MVA method can be turned on or off.
          */
-        void SetMethods();
+        void SetMethods(bool turnOn);
 
         /**
          * @brief Turns on/off an MVA method in generating weights.
          * @param methodName MVA method name to turn on or off.
          */
-        void UseMethod(const char* methodName) { fUse[methodName] = 1; }
+        void UseMethod(const char* methodName, bool turnOn=true);
 
         // Cuts used in training
         void SetSigCut(TString sc) { fSigCut = sc; }
@@ -112,7 +112,7 @@ class NTagTMVA
          * @details The default path for the generated weights is \c weights/new.
          * @see <a href="https://root.cern.ch/doc/v610/TMVAClassification_8C.html">TMVA classification tutorial</a>.
          */
-        void MakeWeights();
+        void MakeWeights(bool isMultiClass=false);
 
         /*******************/
         /* Applying weight */
@@ -191,7 +191,7 @@ class NTagTMVA
         const char* fOutFileName;
 
         // Making weights
-        std::map<std::string, int> fUse;
+        std::map<std::string, bool> fUse;
         TMVA::Factory*             fFactory;
         TCut                       fSigCut,  ///< Signal cut
                                    fBkgCut;  ///< Background cut

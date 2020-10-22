@@ -191,8 +191,9 @@ void NTagEventInfo::AppendRawHitInfo()
 
             if (vSIGT) {
                 bool isSignal = false;
+                nTotalSigHits = vSIGT->size();
                 // Look for matching hits between sig+bkg TQ and sig TQ
-                for (unsigned int iSigHit = 0; iSigHit < vSIGT->size(); iSigHit++) {
+                for (int iSigHit = 0; iSigHit < nTotalSigHits; iSigHit++) {
                     // If both hit time and PMT ID match, then the current hit iHit is from signal
                     if (fabs(hitTime - vSIGT->at(iSigHit)) < 1e-3
                         && sktqz_.icabiz[iHit] == vSIGI->at(iSigHit)) {
@@ -711,7 +712,7 @@ void NTagEventInfo::Clear()
     vHitCableIDs->clear();
     vHitSigFlags->clear();
     
-    nTotalHits = 0; nFoundSigHits = 0; nRemovedHits = 0;
+    nTotalHits = 0; nTotalSigHits = 0; nFoundSigHits = 0; nRemovedHits = 0;
 
     vNGamma.clear(); vCandidateID.clear();
     vTrueCT.clear(); vCapVX.clear(); vCapVY.clear(); vCapVZ.clear(); vTotGammaE.clear();

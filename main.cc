@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <TROOT.h>
+#include <TString.h>
 
 #include "NTagPath.hh"
 #include "NTagROOT.hh"
@@ -12,7 +13,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Oct 18, 2020";
+static std::string NTagDate    = "Oct 22, 2020";
 void PrintNTag();
 void PrintVersion();
 
@@ -70,7 +71,19 @@ int main(int argc, char** argv)
         msg.Print("Output weight path : " + installPath + "weights/new\n\n");
 
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
-        nt.MakeWeights();
+        
+        // Set training methods if custom options are given
+        TString methods = TString(parser.GetOption("-method"));
+        
+        if (!methods.IsNull()) {
+            nt.SetMethods(false);
+            TObjArray* methodArray = methods.Tokenize(",");
+            for (int i = 0; i < methodArray->GetEntries(); i++)
+                nt.UseMethod(((TObjString *)(methodArray->At(i)))->String().Data());
+        }
+        
+        bool isMultiClass = parser.OptionExists("-multiclass") ? true : false;
+        nt.MakeWeights(isMultiClass);
 
         msg.Print("Training complete. New weights are in directory weights/new.");
         msg.Print(Form("Test results saved in output: ") + outputName);

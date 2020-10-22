@@ -1,5 +1,6 @@
 #include <TH1F.h>
 #include <TChain.h>
+#include <TROOT.h>
 
 #include <TMVA/Config.h>
 #include <TMVA/Tools.h>
@@ -28,86 +29,77 @@ void NTagTMVA::Constructor()
 {
     msg = NTagMessage("TMVA", fVerbosity);
     fVariables = NTagTMVAVariables(fVerbosity);
-    SetMethods();
+    SetMethods(true);
 
     SetSigCut("CaptureType > 0");
     SetBkgCut("CaptureType == 0");
 }
 
-void NTagTMVA::SetMethods()
+void NTagTMVA::SetMethods(bool turnOn)
 {
     // --- Cut optimisation
-    fUse["Cuts"]            = 0;
-    fUse["CutsD"]           = 0;
-    fUse["CutsPCA"]         = 0;
-    fUse["CutsGA"]          = 0;
-    fUse["CutsSA"]          = 0;
-    //
-    // --- 1-dimensional likelihood ("naive Bayes estimator")
-    fUse["Likelihood"]      = 0;
-    fUse["LikelihoodD"]     = 0; // the "D" extension indicates decorrelated input variables (see option strings)
-    fUse["LikelihoodPCA"]   = 0; // the "PCA" extension indicates PCA-transformed input variables (see option strings)
-    fUse["LikelihoodKDE"]   = 0;
-    fUse["LikelihoodMIX"]   = 0;
-    //
+    fUse["Cuts"]            = true;
+    
+    // --- 1-dimensional likelihood
+    fUse["Likelihood"]      = true;
+    fUse["LikelihoodPCA"]   = true;
+    fUse["LikelihoodKDE"]   = true;
+
     // --- Mutidimensional likelihood and Nearest-Neighbour methods
-    fUse["PDERS"]           = 0;
-    fUse["PDERSD"]          = 0;
-    fUse["PDERSPCA"]        = 0;
-    fUse["PDEFoam"]         = 0;
-    fUse["PDEFoamBoost"]    = 0; // fUses generalised MVA method boosting
-    fUse["KNN"]             = 0; // k-nearest neighbour method
-    //
+    fUse["PDERS"]           = true;
+    fUse["PDEFoam"]         = true;
+    fUse["PDEFoamBoost"]    = true;
+    fUse["KNN"]             = true;
+
     // --- Linear Discriminant Analysis
-    fUse["LD"]              = 0; // Linear Discriminant identical to Fisher
-    fUse["Fisher"]          = 0;
-    fUse["FisherG"]         = 0;
-    fUse["BoostedFisher"]   = 0; // fUses generalised MVA method boosting
-    fUse["HMatrix"]         = 0;
-    //
-    // --- Function Discriminant analysis
-    fUse["FDA_GA"]          = 0; // minimisation of fUser-defined function using Genetics Algorithm
-    fUse["FDA_SA"]          = 0;
-    fUse["FDA_MC"]          = 0;
-    fUse["FDA_MT"]          = 0;
-    fUse["FDA_GAMT"]        = 0;
-    fUse["FDA_MCMT"]        = 0;
-    //
+    fUse["LD"]              = true;
+    fUse["BoostedFisher"]   = true;
+    fUse["HMatrix"]         = true;
+
     // --- Neural Networks (all are feed-forward Multilayer Perceptrons)
-    fUse["MLP"]             = 0; // Recommended ANN
-    fUse["MLPBFGS"]         = 0; // Recommended ANN with optional training method
-    fUse["MLPBNN"]          = 0; // Recommended ANN with BFGS training method and bayesian regulator
-    fUse["MLPBNN10"]        = 0; // Recommended ANN with BFGS training method and bayesian regulator
-    fUse["MLPBNN4"]         = 0; // Recommended ANN with BFGS training method and bayesian regulator
-    fUse["MLPBNN6"]         = 0; // Recommended ANN with BFGS training method and bayesian regulator
-    fUse["CFMlpANN"]        = 0; // Depreciated ANN from ALEPH
-    fUse["TMlpANN"]         = 0; // ROOT's own ANN
-    //
+    fUse["MLP"]             = true; // Recommended ANN with BFGS training method and bayesian regulator
+
     // --- Support Vector Machine
-    fUse["SVM"]             = 1;
-    fUse["SVM1"]            = 0;
-    fUse["SVM2"]            = 0;
-    fUse["SVM5"]            = 0;
-    fUse["SVM10"]           = 0;
-    //
+    fUse["SVM"]             = true;
+
     // --- Boosted Decision Trees
-    fUse["BDT"]             = 1; // fUses Adaptive Boost
-    fUse["BDTG"]            = 0; // fUses Gradient Boost
-    fUse["BDTB"]            = 0; // fUses Bagging
-    fUse["BDTD"]            = 1; // decorrelation + Adaptive Boost
-    fUse["BDTF"]            = 0; // allow usage of fisher discriminant for node splitting
-    //
-    // --- Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
-    fUse["RuleFit"]         = 0;
+    fUse["AdaBDT"]          = true; // fUses Adaptive Boost
+    fUse["GradBDT"]         = true; // fUses Gradient Boost
+    
+    if (!turnOn) {
+        for (auto const& pair: fUse)
+            fUse[pair.first] = false;
+    }
 }
 
-void NTagTMVA::MakeWeights()
+void NTagTMVA::UseMethod(const char* methodName, bool turnOn)
+{
+    if (fUse.count(methodName)) {
+        if (turnOn)
+            fUse[methodName] = true;
+        else
+            fUse[methodName] = false;
+    }
+    else
+        msg.Print(Form("MVA method name [%s] not found! Please enter a valid method name.\n", methodName), pERROR);
+}
+
+void NTagTMVA::MakeWeights(bool isMultiClass)
 {
     TMVA::Tools::Instance();
 
     TFile* outFile = TFile::Open( fOutFileName, "recreate" );
-    TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile,
-                                               "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;U;G,D:AnalysisType=Classification" );
+    
+    TString factoryOption = TString("!V:")
+                          + TString("!Silent:")
+                          + TString("DrawProgressBar:")
+                          + TString("Transformations=I;P;U;G,U(N10,N200):");
+    if (isMultiClass)
+        factoryOption += TString("AnalysisType=multiclass");
+    else
+        factoryOption += TString("AnalysisType=Classification");
+    
+    TMVA::Factory *fFactory = new TMVA::Factory( "NTagTMVA", outFile, factoryOption );
 
     (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGPATH") + "weights/new";
 
@@ -120,10 +112,11 @@ void NTagTMVA::MakeWeights()
         if (key[0] == 'N') fFactory->AddVariable(key, 'I');
         else fFactory->AddVariable(key, 'F');
     }
+    
+    fFactory->AddSpectator("CaptureType", 'I');
+    std::cout << std::endl;
 
     //TFile *inFile = TFile::Open( fInFileName );
-
-    msg.Print(Form("Input name: %s", fInFileName));
 
     //TTree *evTree = (TTree*)inFile->Get("ntvar");
     //Tree *bkgTree = (TTree*)inFile->Get("ntvar");
@@ -132,61 +125,58 @@ void NTagTMVA::MakeWeights()
 
     //fFactory->AddSignalTree    ( sigTree, 1.0, TMVA::Types::kTraining);
     //fFactory->AddBackgroundTree( bkgTree, 1.0, TMVA::Types::kTraining);
-    TH1F hH("hH", "hH", 1, 0, 100);
-    chain->Draw("NCandidates>>hH", "CaptureType==0", "goff");
-    int totalH = hH.GetMean() * hH.GetEntries();
+    //TH1F hH("hH", "hH", 1, 0, 100);
+    //chain->Draw("NCandidates>>hH", "CaptureType==0", "goff");
+    //int totalH = hH.GetMean() * hH.GetEntries();
     
-    fFactory->SetInputTrees( chain, fSigCut, fBkgCut );
-    float trainRatio = 0.8;
-    TString factoryOption = Form("nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=EqualNumEvents:!V");
-    //, (int)(trainRatio*totalH), (int)(trainRatio*totalH), (int)((1-trainRatio)*totalH), (int)((1-trainRatio)*totalH));
-    fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut, factoryOption );
+    if (isMultiClass) {
+        gROOT->cd();
+        TTree* bTree = (TTree*)chain->CopyTree("CaptureType==0");
+        TTree* hTree = (TTree*)chain->CopyTree("CaptureType==1");
+        TTree* gTree = (TTree*)chain->CopyTree("CaptureType==2");
+        
+        fFactory->AddTree(bTree, "Bkg");
+        fFactory->AddTree(hTree, "H");
+        fFactory->AddTree(gTree, "Gd");
+        
+        fFactory->PrepareTrainingAndTestTree( "", "SplitMode=Random:NormMode=EqualNumEvents:V" );
+    }
+    else {
+        fFactory->SetInputTrees( chain, fSigCut, fBkgCut );
 
+        //float trainRatio = 0.8;
+        TString trainingOption = TString("nTrain_Signal=0:")
+                               + TString("nTrain_Background=0:")
+                               + TString("nTest_Signal=0:")
+                               + TString("nTest_Background=0:")
+                               + TString("SplitMode=Random:")
+                               + TString("NormMode=EqualNumEvents:")
+                               + TString("V:");
+                              
+        //Form("nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:MixMode=Random:NormMode=EqualNumEvents:!V");
+        //, (int)(trainRatio*totalH), (int)(trainRatio*totalH), (int)((1-trainRatio)*totalH), (int)((1-trainRatio)*totalH));
+    
+    fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut, trainingOption );
+    
     // Cut optimisation
     if (fUse["Cuts"])
         fFactory->BookMethod( TMVA::Types::kCuts, "Cuts",
-                           "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart" );
-
-    if (fUse["CutsD"])
-        fFactory->BookMethod( TMVA::Types::kCuts, "CutsD",
-                           "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart:VarTransform=Decorrelate" );
-
-    if (fUse["CutsPCA"])
-        fFactory->BookMethod( TMVA::Types::kCuts, "CutsPCA",
-                           "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart:VarTransform=PCA" );
-
-    if (fUse["CutsGA"])
-        fFactory->BookMethod( TMVA::Types::kCuts, "CutsGA",
-                           "H:!V:FitMethod=GA:CutRangeMin[0]=10:CutRangeMax[0]=50:VarProp=FSmart:EffSel:Steps=30:Cycles=3:PopSize=400:SC_steps=10:SC_rate=5:SC_factor=0.95" );
-
-    if (fUse["CutsSA"])
-        fFactory->BookMethod( TMVA::Types::kCuts, "CutsSA",
-                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale" );
+                           "H:V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart" );
 
     // Likelihood ("naive Bayes estimator")
     if (fUse["Likelihood"])
         fFactory->BookMethod( TMVA::Types::kLikelihood, "Likelihood",
-                           "H:!V:TransformOutput:PDFInterpol=Spline2:NSmooth=1:NAvEvtPerBin=50" );
+                           "H:V:TransformOutput:PDFInterpol=Spline2:NSmooth=1:NAvEvtPerBin=50" );
 
     // Decorrelated likelihood
-    if (fUse["LikelihoodD"])
-        fFactory->BookMethod( TMVA::Types::kLikelihood, "LikelihoodD",
-                           "!H:!V:TransformOutput:PDFInterpol=Spline2:NSmooth=1:NAvEvtPerBin=50:VarTransform=Decorrelate" );
-
-    // PCA-transformed likelihood
     if (fUse["LikelihoodPCA"])
         fFactory->BookMethod( TMVA::Types::kLikelihood, "LikelihoodPCA",
-                           "!H:!V:!TransformOutput:PDFInterpol=Spline2:NSmooth=1:NAvEvtPerBin=50:VarTransform=PCA" );
+                           "H:V:TransformOutput:PDFInterpol=Spline2:NSmooth=1:NAvEvtPerBin=50:VarTransform=P,G,P,G,U(N10,N200)" );
 
     // Use a kernel density estimator to approximate the PDFs
     if (fUse["LikelihoodKDE"])
         fFactory->BookMethod( TMVA::Types::kLikelihood, "LikelihoodKDE",
-                           "!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:KDEFineFactor=1:KDEborder=Mirror:NAvEvtPerBin=50" );
-
-    // Use a variable-dependent mix of splines and kernel density estimator
-    if (fUse["LikelihoodMIX"])
-        fFactory->BookMethod( TMVA::Types::kLikelihood, "LikelihoodMIX",
-                           "!H:!V:!TransformOutput:PDFInterpolSig[0]=KDE:PDFInterpolBkg[0]=KDE:PDFInterpolSig[1]=KDE:PDFInterpolBkg[1]=KDE:PDFInterpolSig[2]=Spline2:PDFInterpolBkg[2]=Spline2:PDFInterpolSig[3]=Spline2:PDFInterpolBkg[3]=Spline2:KDEtype=Gauss:KDEiter=Nonadaptive:KDEborder=None:NAvEvtPerBin=50" );
+                           "H:V:TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:KDEFineFactor=1:KDEborder=Mirror:NAvEvtPerBin=50:VarTransform=P,G,P,G,U(N10,N200)" );
 
     // Test the multi-dimensional probability density estimator
     // here are the options strings for the MinMax and RMS methods, respectively:
@@ -194,29 +184,16 @@ void NTagTMVA::MakeWeights()
     //      "!H:!V:VolumeRangeMode=RMS:DeltaFrac=3:KernelEstimator=Gauss:GaussSigma=0.3" );
     if (fUse["PDERS"])
         fFactory->BookMethod( TMVA::Types::kPDERS, "PDERS",
-                           "!H:!V:NormTree=T:VolumeRangeMode=Adaptive:KernelEstimator=Gauss:GaussSigma=0.3:NEventsMin=400:NEventsMax=600" );
-
-    if (fUse["PDERSD"])
-        fFactory->BookMethod( TMVA::Types::kPDERS, "PDERSD",
-                           "!H:!V:VolumeRangeMode=Adaptive:KernelEstimator=Gauss:GaussSigma=0.3:NEventsMin=400:NEventsMax=600:VarTransform=Decorrelate" );
-
-    if (fUse["PDERSPCA"])
-        fFactory->BookMethod( TMVA::Types::kPDERS, "PDERSPCA",
-                           "!H:!V:VolumeRangeMode=Adaptive:KernelEstimator=Gauss:GaussSigma=0.3:NEventsMin=400:NEventsMax=600:VarTransform=PCA" );
-
-    // Multi-dimensional likelihood estimator using self-adapting phase-space binning
-    if (fUse["PDEFoam"])
-        fFactory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam",
-                           "!H:!V:SigBgSeparate=F:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
+                           "H:V:NormTree=T:VolumeRangeMode=MinMax:KernelEstimator=Gauss:GaussSigma=0.3:NEventsMin=400:NEventsMax=600:VarTransform=G,U(N10,N200)" );
 
     if (fUse["PDEFoamBoost"])
         fFactory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoamBoost",
-                           "!H:!V:Boost_Num=30:Boost_Transform=linear:SigBgSeparate=F:MaxDepth=4:UseYesNoCell=T:DTLogic=MisClassificationError:FillFoamWithOrigWeights=F:TailCut=0:nActiveCells=500:nBin=20:Nmin=400:Kernel=None:Compress=T" );
+                           "H:V:nSampl=3000:nActiveCells=500:nBin=5:Nmin=10:Kernel=Gauss:Compress=T:VarTransform=G:Boost_Num=100:Boost_Transform=linear:MaxDepth=4" );
 
     // K-Nearest Neighbour classifier (KNN)
     if (fUse["KNN"])
         fFactory->BookMethod( TMVA::Types::kKNN, "KNN",
-                           "H:nkNN=20:ScaleFrac=0.8:SigmaFact=1.0:Kernel=Gaus:UseKernel=F:UseWeight=T:!Trim" );
+                           "H:V:nkNN=20:ScaleFrac=0.8:SigmaFact=1.0:Kernel=Gaus:UseKernel=F:UseWeight=T:!Trim" );
 
     // H-Matrix (chi2-squared) method
     if (fUse["HMatrix"])
@@ -226,112 +203,33 @@ void NTagTMVA::MakeWeights()
     if (fUse["LD"])
         fFactory->BookMethod( TMVA::Types::kLD, "LD", "H:!V:VarTransform=None:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10" );
 
-    // Fisher discriminant (same as LD)
-    if (fUse["Fisher"])
-        fFactory->BookMethod( TMVA::Types::kFisher, "Fisher", "H:!V:Fisher:VarTransform=None:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10" );
-
-    // Fisher with Gauss-transformed input variables
-    if (fUse["FisherG"])
-        fFactory->BookMethod( TMVA::Types::kFisher, "FisherG", "H:!V:VarTransform=Gauss" );
-
     // Composite classifier: ensemble (tree) of boosted Fisher classifiers
     if (fUse["BoostedFisher"])
         fFactory->BookMethod( TMVA::Types::kFisher, "BoostedFisher",
-                           "H:!V:Boost_Num=20:Boost_Transform=log:Boost_Type=AdaBoost:Boost_AdaBoostBeta=0.2:!Boost_DetailedMonitoring" );
-
-    // Function discrimination analysis (FDA) -- test of various fitters - the recommended one is Minuit (or GA or SA)
-    if (fUse["FDA_MC"])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_MC",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=MC:SampleSize=100000:Sigma=0.1" );
-
-    if (fUse["FDA_GA"]) // can also use Simulated Annealing (SA) algorithm (see Cuts_SA options])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_GA",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=GA:PopSize=300:Cycles=3:Steps=20:Trim=True:SaveBestGen=1" );
-
-    if (fUse["FDA_SA"]) // can also use Simulated Annealing (SA) algorithm (see Cuts_SA options])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_SA",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=SA:MaxCalls=15000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale" );
-
-    if (fUse["FDA_MT"])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_MT",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=MINUIT:ErrorLevel=1:PrintLevel=-1:FitStrategy=2:UseImprove:UseMinos:SetBatch" );
-
-    if (fUse["FDA_GAMT"])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_GAMT",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=GA:Converger=MINUIT:ErrorLevel=1:PrintLevel=-1:FitStrategy=0:!UseImprove:!UseMinos:SetBatch:Cycles=1:PopSize=5:Steps=5:Trim" );
-
-    if (fUse["FDA_MCMT"])
-        fFactory->BookMethod( TMVA::Types::kFDA, "FDA_MCMT",
-                           "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=MC:Converger=MINUIT:ErrorLevel=1:PrintLevel=-1:FitStrategy=0:!UseImprove:!UseMinos:SetBatch:SampleSize=20" );
-
-    // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
-    if (fUse["MLP"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:!V:CreateMVAPdfs:NeuronType=sigmoid:VarTransform=N,G:NCycles=100:HiddenLayers=N,N:TestRate=5:!UseRegulator" );
-
-    if (fUse["MLPBFGS"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBFGS", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator" );
-
-    if (fUse["MLPBNN"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN", "H:!V:CreateMVAPdfs:NeuronType=sigmoid:VarTransform=N,G:NCycles=500:HiddenLayers=N,N:TestRate=10:UseRegulator:EstimatorType=CE" ); // BFGS training with bayesian regulators
-
-    if (fUse["MLPBNN10"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN10", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+10:TestRate=5:TrainingMethod=BFGS:UseRegulator" ); // BFGS training with bayesian regulators
-
-    if (fUse["MLPBNN4"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN4", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+4:TestRate=5:TrainingMethod=BFGS:UseRegulator" ); // BFGS training with bayesian regulators
-
-    if (fUse["MLPBNN6"])
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLPBNN6", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+6:TestRate=5:TrainingMethod=BFGS:UseRegulator" ); // BFGS training with bayesian regulators
-
-    // CF(Clermont-Ferrand)ANN
-    if (fUse["CFMlpANN"])
-        fFactory->BookMethod( TMVA::Types::kCFMlpANN, "CFMlpANN", "!H:!V:NCycles=2000:HiddenLayers=N+1,N"  ); // n_cycles:#nodes:#nodes:...
-
-    // Tmlp(Root)ANN
-    if (fUse["TMlpANN"])
-        fFactory->BookMethod( TMVA::Types::kTMlpANN, "TMlpANN", "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"  ); // n_cycles:#nodes:#nodes:...
+                           "H:V:Boost_Num=20:Boost_Transform=log:Boost_Type=AdaBoost:Boost_AdaBoostBeta=0.2:!Boost_DetailedMonitoring" );
 
     // Support Vector Machine
     if (fUse["SVM"])
-        fFactory->BookMethod( TMVA::Types::kSVM, "SVM", "Gamma=0.25:Tol=0.001:VarTransform=Norm" );
+        fFactory->BookMethod( TMVA::Types::kSVM, "SVM", "H:V:Gamma=0.25:Tol=0.001:VarTransform=G,U(N10,N200)" );
 
-    if (fUse["SVM1"])
-        fFactory->BookMethod( TMVA::Types::kSVM, "SVM1", "Gamma=0.1:Tol=0.001:VarTransform=Norm" );
+    if (fUse["AdaBDT"])  // Adaptive Boost
+        fFactory->BookMethod( TMVA::Types::kBDT, "AdaBDT",
+                           "H:V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.2:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=CrossEntropy" );
+    }
 
-    if (fUse["SVM2"])
-        fFactory->BookMethod( TMVA::Types::kSVM, "SVM2", "Gamma=0.2:Tol=0.001:VarTransform=Norm" );
+    // Multi-dimensional likelihood estimator using self-adapting phase-space binning
+    if (fUse["PDEFoam"])
+        fFactory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam",
+                           "H:V:nActiveCells=500:nBin=5:Nmin=10:Kernel=Gauss:Compress=T:VarTransform=G,U(N10,N200)" );
 
-    if (fUse["SVM5"])
-        fFactory->BookMethod( TMVA::Types::kSVM, "SVM5", "Gamma=0.5:Tol=0.001:VarTransform=Norm" );
-
-    if (fUse["SVM10"])
-        fFactory->BookMethod( TMVA::Types::kSVM, "SVM10", "Gamma=1.:Tol=0.001:VarTransform=Norm" );
+    // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
+    if (fUse["MLP"])
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:V:NeuronType=sigmoid:VarTransform=G,U(N10,N200):NCycles=500:HiddenLayers=N+1,N-1:TestRate=10:UseRegulator:EstimatorType=CE" );
 
     // Boosted Decision Trees
-    if (fUse["BDTG"]) // Gradient Boost
-        fFactory->BookMethod( TMVA::Types::kBDT, "BDTG",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:MaxDepth=3" );
-
-    if (fUse["BDT"])  // Adaptive Boost
-        fFactory->BookMethod( TMVA::Types::kBDT, "BDT",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex" );
-
-    if (fUse["BDTB"]) // Bagging
-        fFactory->BookMethod( TMVA::Types::kBDT, "BDTB",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=Bagging:SeparationType=GiniIndex:nCuts=-1" );
-
-    if (fUse["BDTD"]) // Decorrelation + Adaptive Boost
-        fFactory->BookMethod( TMVA::Types::kBDT, "BDTD",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:VarTransform=Decorrelate" );
-
-    if (fUse["BDTF"])  // Allow Using Fisher discriminant in node splitting for (strong) linearly correlated variables
-        fFactory->BookMethod( TMVA::Types::kBDT, "BDTMitFisher",
-                           "!H:!V:NTrees=1000:MinNodeSize=2.5%:UseFisherCuts:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=-1" );
-
-    // RuleFit -- TMVA implementation of Friedman's method
-    if (fUse["RuleFit"])
-        fFactory->BookMethod( TMVA::Types::kRuleFit, "RuleFit",
-                           "H:!V:RuleFitModule=RFTMVA:Model=ModRuleLinear:MinImp=0.001:RuleMinDist=0.001:NTrees=20:fEventsMin=0.01:fEventsMax=0.5:GDTau=-1.0:GDTauPrec=0.01:GDStep=0.01:GDNSteps=10000:GDErrScale=1.02" );
+    if (fUse["GradBDT"]) // Gradient Boost
+        fFactory->BookMethod( TMVA::Types::kBDT, "GradBDT",
+                           "H:V:NTrees=1000:MinNodeSize=2.5%:Boost_num=30:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:MaxDepth=3:NegWeightTreatment=IgnoreNegWeightsInTraining" );
 
     fFactory->TrainAllMethods();
     fFactory->TestAllMethods();

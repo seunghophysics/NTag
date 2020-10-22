@@ -335,9 +335,14 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("HitRawTimes", "vector<vector<float>>", &vHitRawTimes);
     ntvarTree->Branch("HitResTimes", "vector<vector<float>>", &vHitResTimes);
     ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
+    
+    ntvarTree->Branch("NTotalHits", &nTotalHits);
+    ntvarTree->Branch("NRemovedHits", &nRemovedHits);
 
     if (!bData) {
         ntvarTree->Branch("HitSigFlags", "vector<vector<int>>", &vHitSigFlags);
+        ntvarTree->Branch("NTotalSigHits", &nTotalSigHits);
+        ntvarTree->Branch("NFoundSigHits", &nFoundSigHits);
     }
 }
 

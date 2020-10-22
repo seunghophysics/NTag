@@ -182,6 +182,10 @@ void NTagCandidate::SetNNVariables()
             currentEvent->TMVATools.fVariables.Set(pair.first, pair.second);
         }
     }
+    
+    if (currentEvent->bUseTMVA) {
+        currentEvent->TMVATools.fVariables.SetCaptureType(iVarMap["CaptureType"]);
+    }
 
     // Push back to TMVA float variable vector map
     currentEvent->TMVATools.fVariables.FillVectorMap();

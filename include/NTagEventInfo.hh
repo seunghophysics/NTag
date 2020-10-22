@@ -564,6 +564,7 @@ class NTagEventInfo
                                         *vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
         
         int nTotalHits;    ///< Number of total hits, including unrecorded hits.
+        int nTotalSigHits; ///< Number of total signal hits, including unrecorded signal hits.
         int nFoundSigHits; ///< Number of registered signal hits.
         int nRemovedHits;  ///< Number of removed hits due to RBN reduction.
         

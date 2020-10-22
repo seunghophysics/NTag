@@ -178,13 +178,17 @@ class NTagTMVAVariables
          * @return \c true if \p key is in #fVariableMap, otherwise \c false.
          */
         bool IsTMVAVariable(const char* key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
-
+        
+        void SetCaptureType(int id) { captureType = id; }
+        
     private:
         IVarMap iVariableMap;    ///< A map from a character key to an integer variable.
         IVecMap iEventVectorMap; ///< A map from a character key to a vector of integer variables.
         FVarMap fVariableMap;    ///< A map from a character key to a float variable.
         FVecMap fEventVectorMap; ///< A map from a character key to a vector of float variables.
 
+        int captureType;
+        
         NTagMessage msg;
 
         friend class NTagTMVA;

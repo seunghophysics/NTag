@@ -28,12 +28,12 @@ void NTagTMVAVariables::Clear()
     }
 
     fVariableMap["AngleMean"] = 0.;
-    fVariableMap["AngleMedian"] = 0.;
+    //fVariableMap["AngleMedian"] = 0.;
     fVariableMap["AngleStdev"] = 0.;
     fVariableMap["AngleSkew"] = 0.;
     //fVariableMap["QSum10"] = 0.;
     fVariableMap["TRMS10"] = 0.;
-    fVariableMap["TRMS50"] = 0.;
+    //fVariableMap["TRMS50"] = 0.;
     fVariableMap["Beta1"] = 0.;
     fVariableMap["Beta2"] = 0.;
     fVariableMap["Beta3"] = 0.;
@@ -68,6 +68,8 @@ void NTagTMVAVariables::AddVariablesToReader(TMVA::Reader* reader)
         msg.Print(Form("Adding variable %s...", pair.first), pDEBUG);
         reader->AddVariable(pair.first, &pair.second);
     }
+    
+    reader->AddSpectator("CaptureType", &captureType);
 }
 
 void NTagTMVAVariables::SetBranchAddressToTree(TTree* tree)
@@ -96,9 +98,9 @@ void NTagTMVAVariables::MakeBranchesToTree(TTree* tree)
 
 void NTagTMVAVariables::SetVariablesForCaptureCandidate(int iCandidate)
 {
-    for (const auto& pair: iEventVectorMap) {
-        iVariableMap[pair.first] = pair.second->at(iCandidate);
-    }
+    //for (const auto& pair: iEventVectorMap) {
+    //    iVariableMap[pair.first] = pair.second->at(iCandidate);
+    //}
 
     for (const auto& pair: fEventVectorMap) {
         if (iVariableMap.count(pair.first))
