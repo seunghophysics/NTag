@@ -68,6 +68,7 @@ void NTagTMVAVariables::AddVariablesToReader(TMVA::Reader* reader)
         msg.Print(Form("Adding variable %s...", pair.first), pDEBUG);
         reader->AddVariable(pair.first, &pair.second);
     }
+    std::cout << std::endl;
     
     reader->AddSpectator("CaptureType", &captureType);
 }
@@ -98,9 +99,9 @@ void NTagTMVAVariables::MakeBranchesToTree(TTree* tree)
 
 void NTagTMVAVariables::SetVariablesForCaptureCandidate(int iCandidate)
 {
-    //for (const auto& pair: iEventVectorMap) {
-    //    iVariableMap[pair.first] = pair.second->at(iCandidate);
-    //}
+    for (const auto& pair: iEventVectorMap) {
+        iVariableMap[pair.first] = pair.second->at(iCandidate);
+    }
 
     for (const auto& pair: fEventVectorMap) {
         if (iVariableMap.count(pair.first))

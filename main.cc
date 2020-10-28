@@ -13,7 +13,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Oct 22, 2020";
+static std::string NTagDate    = "Oct 24, 2020";
 void PrintNTag();
 void PrintVersion();
 
@@ -96,9 +96,10 @@ int main(int argc, char** argv)
         if (outputName.empty())
             outputName = TString(inputName).ReplaceAll(".root", Form("_%s.root", methodName.c_str()));
 
-        msg.Print(Form("Applying %s method with weight %s to an NTag output named %s...",
-                        methodName.c_str(), weightName.c_str(), inputName.c_str()));
-
+        msg.PrintBlock("Apply mode", pMAIN, pDEFAULT, false);
+        msg.Print("Input file  : " + inputName);
+        msg.Print("Output file : " + outputName + "\n\n");
+        
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
         nt.ApplyWeight(methodName, weightName);
 

@@ -162,11 +162,13 @@ class NTagTMVAVariables
                             { return fEventVectorMap[key]; }
 
         /**
-         * @brief Sets the \c key value of #fVariableMap as \c var.
+         * @brief Sets the \c key value of #iVariableMap or #fVariableMap as \c var.
          * @param key Feature variable name.
          * @param var Feature variable value.
          */
-        inline void Set(const char* key, float var) { fVariableMap[key] = var; }
+        template <typename T>
+        void Set(const char* key, T var) { if (std::is_integral<T>::value) iVariableMap[key] = var;
+                                           else fVariableMap[key] = var; }
 
         /**
          * @brief Pushes back variables from variable maps to the corresponding vectors in event vector maps.

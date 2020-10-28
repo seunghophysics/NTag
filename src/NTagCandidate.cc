@@ -171,15 +171,17 @@ void NTagCandidate::SetTrueInfo()
 
 void NTagCandidate::SetNNVariables()
 {
-    // Copy integer map to float map
+    // Set TMVA integer variable map
     for (auto const& pair: iVarMap) {
-        fVarMap[pair.first] = pair.second;
+        if (currentEvent->TMVATools.fVariables.IsTMVAVariable(pair.first)) {
+            currentEvent->TMVATools.fVariables.PushBack(pair.first, pair.second);
+        }
     }
 
     // Set TMVA float variable map
     for (auto const& pair: fVarMap) {
         if (currentEvent->TMVATools.fVariables.IsTMVAVariable(pair.first)) {
-            currentEvent->TMVATools.fVariables.Set(pair.first, pair.second);
+            currentEvent->TMVATools.fVariables.PushBack(pair.first, pair.second);
         }
     }
     
@@ -188,7 +190,7 @@ void NTagCandidate::SetNNVariables()
     }
 
     // Push back to TMVA float variable vector map
-    currentEvent->TMVATools.fVariables.FillVectorMap();
+    //currentEvent->TMVATools.fVariables.FillVectorMap();
 }
 
 void NTagCandidate::SetTMVAOutput()

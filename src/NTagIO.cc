@@ -35,7 +35,7 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
     CreateBranchesToRawTQTree();
 
     restqTree = new TTree("restq", "Residual TQ");
-    if (bSaveTQ) CreateBranchesToResTQTree();
+    CreateBranchesToResTQTree();
 }
 
 NTagIO::~NTagIO() {}
