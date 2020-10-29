@@ -130,8 +130,8 @@ void NTagIO::ReadFile()
 
 void NTagIO::ReadEvent()
 {
-    if (bData) ReadDataEvent(); // Data
-    else       ReadMCEvent();   // MC
+    if (bData & !bForceMC) ReadDataEvent(); // Data
+    else                   ReadMCEvent();   // MC
 }
 
 void NTagIO::ReadMCEvent()

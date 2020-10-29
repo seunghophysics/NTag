@@ -31,7 +31,7 @@ NTagEventInfo::NTagEventInfo(Verbosity verbose)
 T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX), TRBNWIDTH(NTagDefault::TRBNWIDTH),
 TMATCHWINDOW(NTagDefault::TMATCHWINDOW), TMINPEAKSEP(NTagDefault::TMINPEAKSEP), ODHITMX(NTagDefault::ODHITMX),
 VTXSRCRANGE(NTagDefault::VTXSRCRANGE), customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), bUseTMVA(true), bSaveTQ(false)
+fVerbosity(verbose), bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;

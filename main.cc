@@ -209,12 +209,17 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (parser.OptionExists("-saveTQ")) {
         nt->SetSaveTQFlagAs(true);
     }
+    
+    // Force MC mode (default: off)
+    if (parser.OptionExists("-forceMC")) {
+        nt->SetForceMC(true);
+    }
 
     // Save signal flags from source file (MC-only)
     const std::string &sigTQFileName = parser.GetOption("-sigTQpath");
     if (!sigTQFileName.empty()) {
         nt->SetSignalTQ(sigTQFileName.c_str());
-        nt->SetSaveTQFlagAs(true);
+        //nt->SetSaveTQFlagAs(true);
     }
 
     // Vertex options

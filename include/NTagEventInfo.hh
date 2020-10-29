@@ -424,6 +424,8 @@ class NTagEventInfo
          * @param b If \c true, #NTagIO::restqTree is written to the output file filled with residual TQ vectors.
          */
         inline void SetSaveTQFlagAs(bool b) { bSaveTQ = b; }
+        
+        inline void SetForceMC(bool b) { bForceMC = b; };
 
 
 
@@ -503,7 +505,7 @@ class NTagEventInfo
                                           Can be set to \c false from command line with option `-noMVA`. */
                     bSaveTQ;         /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
                                           Can be set to \c true from command line with option `-saveTQ`. */
-
+        bool bForceMC;
         bool candidateVariablesInitialized; /*!< A flag to check if #iCandidateVarMap and #fCandidateVarMap
                                                  are initialized. */
 
