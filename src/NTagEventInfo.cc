@@ -31,7 +31,7 @@ NTagEventInfo::NTagEventInfo(Verbosity verbose)
 T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX), TRBNWIDTH(NTagDefault::TRBNWIDTH),
 TMATCHWINDOW(NTagDefault::TMATCHWINDOW), TMINPEAKSEP(NTagDefault::TMINPEAKSEP), ODHITMX(NTagDefault::ODHITMX),
 VTXSRCRANGE(NTagDefault::VTXSRCRANGE), customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false)
+fVerbosity(verbose), bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
@@ -212,8 +212,12 @@ void NTagEventInfo::AppendRawHitInfo()
 void NTagEventInfo::SetToFSubtractedTQ()
 {
     // Subtract ToF from raw PMT hit time
-    float fitVertex[3] = {pvx, pvy, pvz};
-    vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
+    if (bUseResidual) {
+        float fitVertex[3] = {pvx, pvy, pvz};
+        vUnsortedT_ToF = GetToFSubtracted(vTISKZ, vCABIZ, fitVertex, false);
+    }
+    else
+        vUnsortedT_ToF = vTISKZ;
 
     SortToFSubtractedTQ();
 }

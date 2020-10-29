@@ -425,7 +425,9 @@ class NTagEventInfo
          */
         inline void SetSaveTQFlagAs(bool b) { bSaveTQ = b; }
         
-        inline void SetForceMC(bool b) { bForceMC = b; };
+        inline void ForceMCMode(bool b) { bForceMC = b; };
+        
+        inline void UseResidual(bool b) { bUseResidual = b; }
 
 
 
@@ -506,6 +508,7 @@ class NTagEventInfo
                     bSaveTQ;         /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
                                           Can be set to \c true from command line with option `-saveTQ`. */
         bool bForceMC;
+        bool bUseResidual;
         bool candidateVariablesInitialized; /*!< A flag to check if #iCandidateVarMap and #fCandidateVarMap
                                                  are initialized. */
 

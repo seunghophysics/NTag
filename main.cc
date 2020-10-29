@@ -212,7 +212,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     
     // Force MC mode (default: off)
     if (parser.OptionExists("-forceMC")) {
-        nt->SetForceMC(true);
+        nt->ForceMCMode(true);
+    }
+    
+    // Use ToF-subtracted (residual) time (default: on)
+    if (parser.OptionExists("-noTOF")) {
+        nt->UseResidual(false);
     }
 
     // Save signal flags from source file (MC-only)
