@@ -180,10 +180,7 @@ class NTagCandidate
         IVarMap iVarMap; ///< A map of float feature variables.
 
         int candidateID; ///< Candidate ID of the candidate.
-        float TWIDTH;  ///< TWIDTH
-
-        //std::array<float, 6> beta_10; ///< An array of beta variables calculated within 10 ns.
-        //std::array<float, 6> beta_50; ///< An array of beta variables calculated within 50 ns.
+        float TWIDTH;    ///< TWIDTH for NHits counting. (ns) Taken from NTagCandidate::currentEvent.
 
         std::vector<float> vHitRawTimes, ///< Vector of residual hit times. [Size: NHits]
                            vHitResTimes, ///< Vector of residual hit times. [Size: NHits]

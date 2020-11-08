@@ -190,14 +190,14 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
         // Search for a new best NHits (NHitsn) from these new ToF corrected hits
         int bestIndex = 0;
         for (int iHit = 0; iHit < iVarMap["N200Raw"]; iHit++) {
-            NHitsn_iHit = GetNhitsFromStartIndex(tiskz200_ToF, iHit, currentEvent->TWIDTH);
+            NHitsn_iHit = GetNhitsFromStartIndex(tiskz200_ToF, iHit, TWIDTH);
             if (NHitsn_iHit > tmpBestNHitsn) {
                 tmpBestNHitsn = NHitsn_iHit; bestIndex = iHit;
                 iVarMap["NHits_n"] = tmpBestNHitsn;
                 fVarMap["ReconCT_n"] = (tiskz200_ToF[iHit] + tiskz200_ToF[iHit+tmpBestNHitsn-1]) / 2.;
             }
         }
-        fVarMap["TRMSXX_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, currentEvent->TWIDTH);
+        fVarMap["TRMSXX_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, TWIDTH);
 
         //fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
         //                              currentEvent->pvy - fVarMap["nvy"],

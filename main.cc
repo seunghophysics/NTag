@@ -205,6 +205,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (!TWIDTH.empty()) {
         nt->SetNHitsWidth(std::stof(TWIDTH));
     }
+    
+    // Set prompt vertex resolution
+    const std::string &PVXRES = parser.GetOption("-PVXRES");
+    if (!PVXRES.empty()) {
+        nt->SetVertexResolution(std::stof(PVXRES));
+    }
 
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {

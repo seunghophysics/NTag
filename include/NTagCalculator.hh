@@ -183,7 +183,7 @@ float GetMedian(const std::vector<T>& vec)
     std::vector<T> v = vec;
     std::sort(v.begin(), v.end());
     int N = v.size();
-    
+
     if (N % 2 == 0)
         return (v[N/2 - 1] + v[N/2]) / 2.;
     else
@@ -201,12 +201,12 @@ float GetSkew(const std::vector<T>& vec)
     float m3 = 0;
     float mean = GetMean(vec);
     float N = vec.size();
-    
+
     for (auto const& value: vec) {
         m3 += pow((value - mean), 3.);
     }
     m3 /= N;
-    
+
     return m3 / pow(GetTRMS(vec), 1.5);
 }
 

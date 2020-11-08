@@ -180,17 +180,21 @@ class NTagTMVAVariables
          * @return \c true if \p key is in #fVariableMap, otherwise \c false.
          */
         bool IsTMVAVariable(std::string key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
-        
+
+        /**
+         * @brief Sets candidate capture type NTagTMVAVariables::captureType.
+         * @param id Capture type (0: Bkg, 1: H, 2: Gd) of a candidate.
+         */
         void SetCaptureType(int id) { captureType = id; }
-        
+
     private:
         IVarMap iVariableMap;    ///< A map from a character key to an integer variable.
         IVecMap iEventVectorMap; ///< A map from a character key to a vector of integer variables.
         FVarMap fVariableMap;    ///< A map from a character key to a float variable.
         FVecMap fEventVectorMap; ///< A map from a character key to a vector of float variables.
 
-        int captureType;
-        
+        int captureType; ///< This variable is a spectator variable that is input to TMVA.
+
         NTagMessage msg;
 
         friend class NTagTMVA;

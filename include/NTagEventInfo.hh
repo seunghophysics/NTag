@@ -83,6 +83,7 @@ namespace NTagDefault{
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
     constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
+    constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
 }
 
 /**********************************************************
@@ -190,7 +191,7 @@ class NTagEventInfo
              * @details Saved variables: #vUnsortedT_ToF, #vSortedT_ToF, #vSortedPMTID, #vSortedQ
              */
             virtual void SetToFSubtractedTQ();
-            
+
             /**
              * @brief Dump event variables and statistics.
              */
@@ -297,7 +298,7 @@ class NTagEventInfo
          */
         std::vector<float> GetToFSubtracted(const std::vector<float>& T, const std::vector<int>& PMTID,
                                               float vertex[3], bool doSort=false);
-        
+
         /**
          * @brief Sort ToF-subtracted hit vector #vUnsortedT_ToF.
          * @details Saved variables: #vSortedT_ToF, #vSortedQ, #vSortedPMTID.
@@ -339,11 +340,11 @@ class NTagEventInfo
         ////////////////////////
 
         /**
-         * @brief Set width of NHits. 
+         * @brief Set width of NHits.
          * @param w Time width of TWIDTH. [ns]
          */
         inline void SetNHitsWidth(float w) { TWIDTH = w; }
-        
+
         /**
          * @brief Set limits #NHITSTH and #NHITSMX for NHits.
          * @param low Lower limit for NHits.
@@ -410,6 +411,12 @@ class NTagEventInfo
         inline void SetVertexMode(VertexMode m) { fVertexMode = m; }
 
         /**
+         * @brief Sets NTagEventInfo::PVXRES.
+         * @param s Prompt vertex resolution. [cm]
+         */
+        inline void SetVertexResolution(float s) { PVXRES = s; }
+
+        /**
          * @brief Chooses whether to use TMVA or not. Sets #bUseTMVA.
          * @param b If \c true, TMVA is used to produce classifier output. (#vTMVAOutput)
          */
@@ -430,14 +437,27 @@ class NTagEventInfo
          * @param b If \c true, #NTagIO::restqTree is written to the output file filled with residual TQ vectors.
          */
         inline void SetSaveTQFlagAs(bool b) { bSaveTQ = b; }
-        
+
+        /**
+         * @brief Set \c true to force MC mode for data files. Useful for dummy data files with no trigger separation.
+         * @param b If \c true, NTagIO::ReadMCEvent will be called instead of NTagIO::ReadDataEvent.
+         * @see NTagIO::ReadEvent()
+         */
         inline void ForceMCMode(bool b) { bForceMC = b; };
-        
+
+        /**
+         * @brief Set \c false to not subtract ToF from each PMT hit times. Raw hit times will replace #vUnsortedT_ToF.
+         * @param b If \c false, neutron candidates will be searched for from raw hit times rather than residual.
+         */
         inline void UseResidual(bool b) { bUseResidual = b; }
-        
+
+        /**
+         * @brief Set \c false to not go through Neut-fit for all candidates, which sometimes takes ages to complete.
+         * @param b If \c false, NTag will not use Neut-fit and therefore no related variables will be saved.
+         * @details Especially useful when finding primary selection efficiency.
+         * @see NTagCandidate::SetVariables
+         */
         inline void UseNeutFit(bool b) { bUseNeutFit = b; }
-
-
 
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
@@ -446,10 +466,9 @@ class NTagEventInfo
     private:
 
         // Tag conditions
-        float       TWIDTH;     ///< Width of NHits. (By default it's 10 ns.) @see NTagEventInfo::SetNHitsWidth
-        
-        int         NHITSTH,        ///< Lower limit for NHits. @see NTagEventInfo::SetNHitsLimits
-                    NHITSMX,        ///< Upper limit for NHits. @see NTagEventInfo::SetNHitsLimits
+        float       TWIDTH;       ///< Width of NHits. (By default it's 10 ns.) @see NTagEventInfo::SetNHitsWidth
+        int         NHITSTH,      ///< Lower limit for NHits. @see NTagEventInfo::SetNHitsLimits
+                    NHITSMX,      ///< Upper limit for NHits. @see NTagEventInfo::SetNHitsLimits
                     N200MX;       ///< Upper limit for N200. @see NTagEventInfo::SetN200Max
         float       T0TH,         ///< Lower limit for T0. @see: NTagEventInfo::SetT0Limits
                     T0MX;         ///< Upper limit for T0. @see: NTagEventInfo::SetT0Limits
@@ -459,6 +478,7 @@ class NTagEventInfo
         float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see: NTagEventInfo::SetTPeakSeparation
         float       ODHITMX;      ///< Threshold on the number of OD hits. Not used at the moment.
         float       VTXSRCRANGE;  ///< Vertex search range in NTagEventInfo::MinimizeTRMS. @see NTagEventInfo::SetDistanceCut
+        float       PVXRES;       ///< Prompt vertex resolution. (Half-&Gamma of Breit-Wigner distribution) [cm]
 
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex
@@ -492,7 +512,7 @@ class NTagEventInfo
                                     ///< If #fSigTQFile is not \c NULL, it is saved in NTagEventInfo::AppendRawHitInfo.
         std::vector<float>* vSIGT;  ///< A vector to save signal hit times from #fSigTQTree temporarily. Not included in output.
         std::vector<int>*   vSIGI;  ///< A vector to save signal hit PMT IDs from #fSigTQTree temporarily. Not included in output.
-        
+
         std::array<float, MAXPM+1> vPMTHitTime; ///< An array to save hit times for each PMT. Used for RBN reduction.
 
         // Processed TQ hit vectors
@@ -511,15 +531,18 @@ class NTagEventInfo
         std::vector<int> reverseIndex;      ///< Inverse map from indices of vSortedT_ToF to indices of vTISKZ.
 
         // event processing options
-        bool        bData,           /*!< Set \c true for data events, \c false for MC events.
-                                          Automatically determined by the run number at NTagIO::CheckMC. */
-                    bUseTMVA,        /*!< Set \c true if using TMVA, otherwise \c false.
-                                          Can be set to \c false from command line with option `-noMVA`. */
-                    bSaveTQ;         /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
-                                          Can be set to \c true from command line with option `-saveTQ`. */
-        bool bForceMC;
-        bool bUseResidual;
-        bool bUseNeutFit;
+        bool        bData,          /*!< Set \c true for data events, \c false for MC events.
+                                         Automatically determined by the run number at NTagIO::CheckMC. */
+                    bUseTMVA,       /*!< Set \c true if using TMVA, otherwise \c false.
+                                         Can be set to \c false from command line with option `-noMVA`. */
+                    bSaveTQ,        /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
+                                         Can be set to \c true from command line with option `-saveTQ`. */
+                    bForceMC,       /*!< Set \c true if forcing MC mode, otherwise \c false.
+                                         Can be set to \c true from command line with option `-forceMC`. */
+                    bUseResidual,   /*!< Set \c false if not using ToF-subtracted hit times, otherwise \c false.
+                                         Can be set to \c false from command line with option `-noTOF`. */
+                    bUseNeutFit;    /*!< Set \c false if not using Neut-fit and MVA, otherwise \c false.
+                                         Can be set to \c false from command line with option `-noFit`. */
         bool candidateVariablesInitialized; /*!< A flag to check if #iCandidateVarMap and #fCandidateVarMap
                                                  are initialized. */
 
@@ -578,13 +601,13 @@ class NTagEventInfo
                                         *vHitResTimes; ///< Vector of residual hit times. [Size: #nCandidates]
         std::vector<std::vector<int>>   *vHitCableIDs, ///< Vector of hit cable IDs. [Size: #nCandidates]
                                         *vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: #nCandidates]
-        
+
         int nTotalHits;    ///< Number of total hits, including unrecorded hits.
         int nTotalSigHits; ///< Number of total signal hits, including unrecorded signal hits.
         int nFoundSigHits; ///< Number of registered signal hits.
         int nRemovedHits;  ///< Number of removed hits due to RBN reduction.
-        
-        
+
+
 
         /////////////////////////
         // MC truth event info //

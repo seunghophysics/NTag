@@ -4,6 +4,7 @@
 #include <numeric>
 
 #include <TMath.h>
+#include <TRandom.h>
 
 // Size limit of secondary tree/bank
 #define MAXNSCNDPRT (4000)
@@ -99,9 +100,9 @@ void NTagEventInfo::SetPromptVertex()
             pvz = customvz; break; }
         case mTRUE: {
             skgetv_();
-            pvx = skvect_.pos[0];
-            pvy = skvect_.pos[1];
-            pvz = skvect_.pos[2]; break; }
+            pvx = skvect_.pos[0] + gRandom->BreitWigner(0, PVXRES);
+            pvy = skvect_.pos[1] + gRandom->BreitWigner(0, PVXRES);
+            pvz = skvect_.pos[2] + gRandom->BreitWigner(0, PVXRES); break; }
         case mSTMU: {
             /* STMU */ break; }
     }

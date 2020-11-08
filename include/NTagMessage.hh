@@ -31,7 +31,7 @@ pDEBUG    ///< NTag prints all messages including debug messages.
 };
 
 /******************************************
-* @brief Block sizes for 
+* @brief Block sizes for
 * NTagMessage::PrintBlock.
 *******************************************/
 enum BlockSize
