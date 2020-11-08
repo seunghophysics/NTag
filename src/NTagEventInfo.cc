@@ -106,9 +106,15 @@ void NTagEventInfo::SetPromptVertex()
             pvz = customvz; break; }
         case mTRUE: {
             skgetv_();
-            pvx = skvect_.pos[0] + gRandom->BreitWigner(0, PVXRES);
-            pvy = skvect_.pos[1] + gRandom->BreitWigner(0, PVXRES);
-            pvz = skvect_.pos[2] + gRandom->BreitWigner(0, PVXRES); break; }
+            float dx, dy, dz;
+            while (abs(dx) > RINTK || abs(dy) > RINTK || abs(dz) > ZPINTK) {
+                dx = gRandom->BreitWigner(0, PVXRES);
+                dy = gRandom->BreitWigner(0, PVXRES);
+                dz = gRandom->BreitWigner(0, PVXRES);
+            }
+            pvx = skvect_.pos[0] + dx;
+            pvy = skvect_.pos[1] + dy;
+            pvz = skvect_.pos[2] + dz; break; }
         case mSTMU: {
             /* STMU */ break; }
     }
@@ -502,8 +508,8 @@ void NTagEventInfo::ReadSecondaries()
 void NTagEventInfo::SearchCaptureCandidates()
 {
     int   iHitPrevious    = 0;
-    int   NHitsNew          = 0;
-    int   NHitsPrevious     = 0;
+    int   NHitsNew        = 0;
+    int   NHitsPrevious   = 0;
     int   N200Previous    = 0;
     float t0Previous      = -1.;
 
