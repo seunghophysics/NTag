@@ -106,7 +106,7 @@ void NTagEventInfo::SetPromptVertex()
             pvz = customvz; break; }
         case mTRUE: {
             skgetv_();
-            float dx, dy, dz;
+            float dx = 0, dy = 0, dz = 0;
             while (abs(dx) > RINTK || abs(dy) > RINTK || abs(dz) > ZPINTK) {
                 dx = gRandom->BreitWigner(0, PVXRES);
                 dy = gRandom->BreitWigner(0, PVXRES);
