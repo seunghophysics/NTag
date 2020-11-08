@@ -40,7 +40,7 @@ void NTagCandidate::SetVariables()
     fVarMap["QSum"] = std::accumulate(vHitChargePE.begin(), vHitChargePE.end(), 0.);
     fVarMap["ReconCT"] = (vHitResTimes.back() + vHitResTimes[0]) / 2.;
     fVarMap["TSpread"] = (vHitResTimes.back() - vHitResTimes[0]);
-    
+
     float pv[3] = {currentEvent->pvx, currentEvent->pvy, currentEvent->pvz};
     auto beta_10 = GetBetaArray(vHitCableIDs, pv);
     fVarMap["Beta1"] = beta_10[1];
@@ -48,7 +48,7 @@ void NTagCandidate::SetVariables()
     fVarMap["Beta3"] = beta_10[3];
     fVarMap["Beta4"] = beta_10[4];
     fVarMap["Beta5"] = beta_10[5];
-    
+
     fVarMap["DWall"] = wallsk_(pv);
     fVarMap["DWallMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, pv);
 
@@ -64,13 +64,13 @@ void NTagCandidate::SetVariables()
         else
             SetVariablesWithinTWindow(200);
     }
-    
+
     SetVariablesWithinTWindow(1300);
     if (currentEvent->bUseNeutFit)
         fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
                                       fVarMap["bsvy"] - fVarMap["nvy"],
                                       fVarMap["bsvz"] - fVarMap["nvz"]);
-                                      
+
     if (!currentEvent->bData)  SetTrueInfo();
     if (currentEvent->bUseTMVA) {
         SetNNVariables();
@@ -121,7 +121,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
         float nv[3];
         fVarMap["MinTRMS50_n"] = MinimizeTRMS(tiskz, cabiz, nv);
         fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
-        
+
         auto beta_n = GetBetaArray(vHitCableIDs, nv);
         fVarMap["Beta1_n"] = beta_n[1];
         fVarMap["Beta2_n"] = beta_n[2];
@@ -158,11 +158,11 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
                                       currentEvent->pvy - fVarMap["nvy"],
                                       currentEvent->pvz - fVarMap["nvz"]);
     }
-    
+
     // 500 ns window
     else if (tWindow == 200) {
         iVarMap["N200Raw"] = tiskz.size();
-        
+
         float nv[3];
         fVarMap["MinTRMS30_n"] = MinimizeTRMS(vHitRawTimes, vHitCableIDs, nv);
         fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
@@ -173,7 +173,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
         fVarMap["Beta3_n"] = beta_100[3];
         fVarMap["Beta4_n"] = beta_100[4];
         fVarMap["Beta5_n"] = beta_100[5];
-        
+
         fVarMap["DWall_n"] = wallsk_(nv);
         fVarMap["DWallMeanDir_n"] = GetDWallInMeanDirection(vHitCableIDs, nv);
 
@@ -197,7 +197,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
                 fVarMap["ReconCT_n"] = (tiskz200_ToF[iHit] + tiskz200_ToF[iHit+tmpBestNHitsn-1]) / 2.;
             }
         }
-        fVarMap["TRMSXX_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, TWIDTH);
+        fVarMap["TRMS_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, TWIDTH);
 
         //fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
         //                              currentEvent->pvy - fVarMap["nvy"],
@@ -257,13 +257,10 @@ void NTagCandidate::SetNNVariables()
             currentEvent->TMVATools.fVariables.PushBack(pair.first, pair.second);
         }
     }
-    
+
     if (currentEvent->bUseTMVA) {
         currentEvent->TMVATools.fVariables.SetCaptureType(iVarMap["CaptureType"]);
     }
-
-    // Push back to TMVA float variable vector map
-    //currentEvent->TMVATools.fVariables.FillVectorMap();
 }
 
 void NTagCandidate::SetTMVAOutput()

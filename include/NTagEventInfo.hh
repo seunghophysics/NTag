@@ -478,7 +478,7 @@ class NTagEventInfo
         float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see: NTagEventInfo::SetTPeakSeparation
         float       ODHITMX;      ///< Threshold on the number of OD hits. Not used at the moment.
         float       VTXSRCRANGE;  ///< Vertex search range in NTagEventInfo::MinimizeTRMS. @see NTagEventInfo::SetDistanceCut
-        float       PVXRES;       ///< Prompt vertex resolution. (Half-&Gamma of Breit-Wigner distribution) [cm]
+        float       PVXRES;       ///< Prompt vertex resolution. (&Gamma of Breit-Wigner distribution) [cm]
 
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex

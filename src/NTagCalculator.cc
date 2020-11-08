@@ -125,7 +125,7 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
     float dWall;
     int nHits = PMTID.size();
     float u[3] = {0., 0., 0.};
-    
+
     // Calculate mean direction
     for (int iHit = 0; iHit < nHits; iHit++) {
         float distFromVertexToPMT;
@@ -136,15 +136,15 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
             u[dim] += vecFromVertexToPMT[dim] / distFromVertexToPMT;
         }
     }
-    
+
     float uNorm = Norm(u);
     for (int dim = 0; dim < 3; dim++)
         u[dim] /= uNorm;
-    
+
     float dot = u[0]*v[0] + u[1]*v[1];
     float uSq = u[0]*u[0] + u[1]*u[1];
     float vSq = v[0]*v[0] + v[1]*v[1];
-    
+
     // Calculate distance to barrel and distance to top/bottom
     float distR = (-dot + sqrt(dot*dot - uSq*(vSq-RINTK*RINTK))) / uSq;
     float distZ = u[2] > 0 ? (ZPINTK-v[2])/u[2] : (ZMINTK-v[2])/u[2];
@@ -158,10 +158,10 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     double dAB2 = (uA-uB).Mag2();
     double dBC2 = (uB-uC).Mag2();
     double dCA2 = (uC-uA).Mag2();
-    
+
     double r2 = dAB2 * dBC2 * dCA2;
-    
-    if (r2 == 0) 
+
+    if (r2 == 0)
         return 0;
     else {
         r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
@@ -174,22 +174,22 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
     std::vector<float> openingAngles;
     int nHits = PMTID.size();
     int hit[3];
-    
+
     // Pick 3 hits without repetition
     for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
         for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
             for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
-                
+
                 // Define an array of three unit vectors
                 TVector3 u[3];
                 for (int i = 0; i < 3; i++) {
-                    
+
                     // Fill i-th vector from vertex to the hit PMT
                     float i_th_vec[3];
                     for (int dim = 0; dim < 3; dim++) {
                         i_th_vec[dim] = NTagConstant::PMTXYZ[PMTID[hit[i]-1]][dim] - v[dim];
                     }
-                    
+
                     // Get i-th unit vector
                     u[i] = TVector3(i_th_vec).Unit();
                 }
@@ -197,20 +197,21 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
             }
         }
     }
-    
+
     float mean     = GetMean(openingAngles);
     float median   = GetMedian(openingAngles);
     float stdev    = GetTRMS(openingAngles);
     float skewness = GetSkew(openingAngles);
-    
+
     if (isnan(mean) || isnan(median) || isnan(stdev) || isnan(skewness)) {
         std::cout << "!!!! NaN detected !!!!" << std::endl;
         std::cout << "======================" << std::endl;
         for (auto const& angle: openingAngles) {
             std::cout << angle;
         }
+        abort();
     }
-    
+
     return std::array<float, 4>{mean, median, stdev, skewness};
 }
 
@@ -225,7 +226,7 @@ TString GetParticleName(int pid)
     }
     if (pidMap.count(pid))
         return pidMap[pid];
-    else 
+    else
         return TString(std::to_string(pid));
 }
 
@@ -241,6 +242,6 @@ TString GetInteractionName(int lmec)
     }
     if (intMap.count(lmec))
         return intMap[lmec];
-    else 
+    else
         return TString(std::to_string(lmec));
 }

@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
     // Train with MC-based NTag output and generate new weights
     if (parser.OptionExists("-train")) {
-        
+
         if (outputName.empty())
             outputName = installPath + "weights/new/NTagTMVA_TestResults.root";
 
@@ -71,17 +71,17 @@ int main(int argc, char** argv)
         msg.Print("Output weight path : " + installPath + "weights/new\n\n");
 
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
-        
+
         // Set training methods if custom options are given
         TString methods = TString(parser.GetOption("-method"));
-        
+
         if (!methods.IsNull()) {
             nt.SetMethods(false);
             TObjArray* methodArray = methods.Tokenize(",");
             for (int i = 0; i < methodArray->GetEntries(); i++)
                 nt.UseMethod(((TObjString *)(methodArray->At(i)))->String().Data());
         }
-        
+
         bool isMultiClass = parser.OptionExists("-multiclass") ? true : false;
         nt.MakeWeights(isMultiClass);
 
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         msg.PrintBlock("Apply mode", pMAIN, pDEFAULT, false);
         msg.Print("Input file  : " + inputName);
         msg.Print("Output file : " + outputName + "\n\n");
-        
+
         NTagTMVA nt(inputName.c_str(), outputName.c_str(), pVERBOSE);
         nt.ApplyWeight(methodName, weightName);
 
@@ -113,7 +113,9 @@ int main(int argc, char** argv)
         if (outputName.empty())
             outputName = TString(inputName).ReplaceAll(".", "_TQ.");
 
-        msg.Print(Form("Exporting TQ to %s...", outputName.c_str()));
+        msg.PrintBlock("TQReader mode", pMAIN, pDEFAULT, false);
+        msg.Print("Input file  : " + inputName);
+        msg.Print("Output file : " + outputName + "\n\n");
 
         NTagZBSTQReader* nt = new NTagZBSTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
         nt->SetVertexMode(mTRUE);
@@ -199,13 +201,13 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (!TRBNWIDTH.empty()) {
         nt->SetTRBNWidth(std::stof(TRBNWIDTH));
     }
-    
+
     // Set TWIDTH
     const std::string &TWIDTH = parser.GetOption("-TWIDTH");
     if (!TWIDTH.empty()) {
         nt->SetNHitsWidth(std::stof(TWIDTH));
     }
-    
+
     // Set prompt vertex resolution
     const std::string &PVXRES = parser.GetOption("-PVXRES");
     if (!PVXRES.empty()) {
@@ -216,7 +218,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
     }
-    
+
     // Turn Neut-fit on/off (default: on)
     if (parser.OptionExists("-noFit")) {
         nt->UseTMVA(false);
@@ -227,12 +229,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (parser.OptionExists("-saveTQ")) {
         nt->SetSaveTQFlagAs(true);
     }
-    
+
     // Force MC mode (default: off)
     if (parser.OptionExists("-forceMC")) {
         nt->ForceMCMode(true);
     }
-    
+
     // Use ToF-subtracted (residual) time (default: on)
     if (parser.OptionExists("-noTOF")) {
         nt->UseResidual(false);

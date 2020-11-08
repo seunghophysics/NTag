@@ -41,7 +41,7 @@ NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbos
 NTagIO::~NTagIO() {}
 
 void NTagIO::Initialize()
-{   
+{
     SKInitialize();
     OpenFile();
 }
@@ -88,13 +88,13 @@ void NTagIO::ReadFile()
 
         switch (readStatus) {
             case 0: // event read
-            
+
                 // If MC
                 if (!bData) {
                     std::cout << "\n\n" << std::endl;
-                    msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents), 
+                    msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
                                pEVENT, pDEFAULT, false);
-                               
+
                     int inPMT;
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
@@ -187,7 +187,7 @@ void NTagIO::ReadDataEvent()
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
         std::cout << "\n\n" << std::endl;
-        msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents), 
+        msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
                        pEVENT, pDEFAULT, false);
 
         msg.Print("Reading SHE...", pDEBUG);
@@ -335,7 +335,7 @@ void NTagIO::CreateBranchesToNtvarTree()
     ntvarTree->Branch("HitRawTimes", "vector<vector<float>>", &vHitRawTimes);
     ntvarTree->Branch("HitResTimes", "vector<vector<float>>", &vHitResTimes);
     ntvarTree->Branch("HitCableIDs", "vector<vector<int>>", &vHitCableIDs);
-    
+
     ntvarTree->Branch("NTotalHits", &nTotalHits);
     ntvarTree->Branch("NRemovedHits", &nRemovedHits);
 
@@ -386,7 +386,7 @@ void NTagIO::FillTrees()
     ntvarTree->Fill();
     if (!bData) truthTree->Fill();
     if (bSaveTQ) restqTree->Fill();
-    
+
     nProcessedEvents++;
 }
 

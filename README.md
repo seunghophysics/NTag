@@ -6,7 +6,7 @@ NTag is a C++-based program to search for neutron capture candidates in SK data/
 
 ![Structure](docs/NTag.png)
 
-All neutron tagging in one event is steered by a mainframe class named `NTagEventInfo`, shown as the orange box in the above figure. This class holds information that can be classified into three main categories: raw TQ hits, event variables, and the TMVA variables which are grouped by a class named `NTagTMVAVariables` and eventually fed into the neural network of the MVA tool. The class `NTagEventInfo` also has a bunch of functions that manipulate the information from the input data to form the aforementioned three categories of information that we need in our search for neutron capture candidates. All manipulation of information and variables are handled by the member functions of `NTagEventInfo`.
+All neutron tagging in one event is steered by the mainframe class named `NTagEventInfo`, shown as the orange box in the above figure. This class holds information that can be classified into three main categories: raw TQ hits, event variables, and the TMVA variables which are grouped by a class named `NTagTMVAVariables` and eventually fed into the neural network of the MVA tool. The class `NTagEventInfo` also has a bunch of functions that manipulate the information from the input data to form the aforementioned three categories of information that we need in our search for neutron capture candidates. All manipulation of information and variables are handled by the member functions of `NTagEventInfo`.
 
 `NTagIO`shown as the blue box in the above figure is a subclass of `NTagEventInfo`, and it deals with the I/O of SK data fies. It reads the SK data files with `skread`, and uses the member functions of its base class `NTagEventInfo` to set its member variables, i.e., the raw TQ hits, event variables, and the TMVA variables. At the end of an event, `NTagIO` will fill its trees with the above member variables, and will clear all member variables to move on to the next event and loop again. At the end of the input file (EOF), the data trees will be written to an output file.
 
@@ -77,9 +77,14 @@ NTag -in (input filename) -out (output filename)
 |-out     | (output filename)             | `NTag -in in.dat -out out.root`                 | optional  |
 |-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
 |-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
+|-method  | (MVA training method name)    | `NTag -in in.dat -method MLP,BDT,LD,SVM -train` | optional  |
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
-|-NHITSTH/MX| (NHits threshold / maximum)     | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`            | optional  |
-|-T0TH/MX | (T0 threshold / maximum)      | `NTag -in in.dat -T0TH 18 -NHITSMX 835`           | optional  |
+|-NHITSTH/MX| (NHits threshold / maximum) | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`        | optional  |
+|-TWIDTH  | (Sliding T window width) [ns] | `NTag -in in.dat -TWIDTH 13`                    | optional  |
+|-T0TH/MX | (T0 threshold / maximum) [ns] | `NTag -in in.dat -T0TH 18 -NHITSMX 835`         | optional  |
+|-TRBNWIDTH | (PMT deadtime width) [&mus] | `NTag -in in.dat -TRBNWIDTH 6`                  | optional  |
+|-PVXRES | (1D prompt vertex resolution, &Gamma of Breit-Wigner distribution) [cm] | `NTag -in in.dat -PVXRES 10`                   | optional  |
+|-sigTQpath | (path to signal TQ data)    | `NTag -in in.dat -sigTQpath sigtq.root`         | optional  |
 
 * Run options
 
@@ -87,9 +92,14 @@ NTag -in (input filename) -out (output filename)
 |:-----|-------------------------------------------------------------------|-------------|
 |-apply|`NTag -in NTagOut.root -apply -method MLP -weight weight.xml`|Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
 |-train|`NTag -in NTagOut.root -train` |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
+|-multiclass|`NTag (...) -train -multiclass`  |Start multiclass (Gd/H/Noise) classification instead of binary.|
 |-debug|`NTag (...) -debug` |Show debug messages on output stream.|
 |-noMVA|`NTag (...) -noMVA` |Only search for candidates, without applying TMVA to get classifer output. The branch `TMVAOutput` is not generated. |
+|-noFit|`NTag (...) -noFit` |Neut-fit is not used and no related variables are saved to save time. `-noMVA` is automatically called. |
+|-noTOF|`NTag (...) -noFit` |Stop subtracting ToF from raw hit times. This option removes prompt vertex dependency. |
+|-readTQ|`NTag (...) -readTQ`  |Extract raw TQ from input file and save to a flat ROOT tree `rawtq`. Applicable to ZBS only. |
 |-saveTQ|`NTag (...) -saveTQ`  |Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree `restq`.|
+|-forceMC|`NTag (...) -forceMC`  |Force MC mode for data files. Useful for dummy data without trigger information. |
 |-usetruevertex|`NTag (...) -usetruevertex` |Use true vector vertex from common `skvect` as a prompt vertex. |
 |-usestmuvertex|`NTag (...) -usestmuvertex`  |Use muon stopping position as a prompt vertex. |
 
@@ -123,22 +133,20 @@ NTag -in (input filename) -out (output filename)
 | nvx              | NCandidates | X  | X coordinate of Neut-fit vertex                         |
 | nvy              | NCandidates | X  | Y coordinate of Neut-fit vertex                         |
 | nvz              | NCandidates | X  | Z coordinate of Neut-fit vertex                         |
-| NHitsn             | NCandidates | X  | NHits calculated with Neut-fit vertex                     |
-| NHits	           | NCandidates | O  | # of PMT hits in 10 ns                                  |
+| NHits_n          | NCandidates | X  | NHits calculated with Neut-fit vertex                   |
+| NHits	           | NCandidates | O  | # of PMT hits in NTagEventInfo::TWIDTH (ns)             |
 | N50              | NCandidates | O  | # of PMT hits in 50 ns                                  |
 | N200             | NCandidates | O  | # of PMT hits in 200 ns                                 |
 | ReconCT	       | NCandidates | O  | Reconstructed capture time (ns)                         |
-| QSum10           | NCandidates | O  | Sum of Q in 10 ns (p.e.)                                |
-| TRMS           | NCandidates | O  | RMS of PMT hit time in 10 ns                            |
+| QSum             | NCandidates | O  | Sum of Q in 10 ns (p.e.)                                |
+| TRMS             | NCandidates | O  | RMS of PMT hit time in TWIDTH                           |
 | TRMS50	       | NCandidates | O  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
-| TSpread          | NCandidates | O  | Spread of PMT hit time (max-min) in 10 ns               |
-| Beta14_10	       | NCandidates | O  | Beta14 calculated in 10 ns                              |
-| Beta14_50	       | NCandidates | O  | Beta14 calculated in 50 ns                              |
-| Beta1            | NCandidates | O  | Beta1 calculated in 10 ns                               |
-| Beta2            | NCandidates | O  | Beta2 calculated in 10 ns                               |
-| Beta3            | NCandidates | O  | Beta3 calculated in 10 ns                               |
-| Beta4            | NCandidates | O  | Beta4 calculated in 10 ns                               |
-| Beta5            | NCandidates | O  | Beta5 calculated in 10 ns                               |
+| TSpread          | NCandidates | O  | Spread of PMT hit time (max-min) in TWIDTH              |
+| Beta1            | NCandidates | O  | Beta1 calculated in TWIDTH                              |
+| Beta2            | NCandidates | O  | Beta2 calculated in TWIDTH                              |
+| Beta3            | NCandidates | O  | Beta3 calculated in TWIDTH                              |
+| Beta4            | NCandidates | O  | Beta4 calculated in TWIDTH                              |
+| Beta5            | NCandidates | O  | Beta5 calculated in TWIDTH                              |
 | BSenergy	       | NCandidates | O  | BONSAI energy in 50 ns                                  |
 | bsvx	           | NCandidates | O  | X coordinate of BONSAI vertex                           |
 | bxvy             | NCandidates | O  | Y coordinate of BONSAI vertex                           |
@@ -148,19 +156,15 @@ NTag -in (input filename) -out (output filename)
 | BSdirks          | NCandidates | O  | BONSAI dir_KS                                           |
 | BSpatlik         | NCandidates | O  | BONSAI pattern likelihood                               |
 | BSovaq           | NCandidates | O  | BONSAI ovaq                                             |
-| NWall	           | NCandidates | O  | Distance to wall from Neut-fit vertex                   |
 | prompt_bonsai	   | NCandidates | O  | Distance to BONSAI vertex from prompt vertex            |
 | prompt_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from prompt vertex          |
 | bonsai_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from BONSAI vertex          |
-| ReconCTn		   | NCandidates | X  | (MC-only) Capture time with Neut-fit                    |
-| TRMS_n	       | NCandidates | X  | (MC-only) PMT hit time RMS in 10 ns with Neut-fit       |
-| IsCapture	       | NCandidates | X  | (MC-only) 0: Not true capture 1: True capture           |
 | DoubleCount      | NCandidates | X  | (MC-only) 0: Not double count 1: Double count           |
 | CTDiff	       | NCandidates | X  | (MC-only) Diff. between true/recon capture times (ns)   |
-| truecapvx	       | NCandidates | X  | (MC-only) X of related true capture vertex (cm)         |
-| truecapvy        | NCandidates | X  | (MC-only) Y of related true capture vertex (cm)         |
-| truecapvz        | NCandidates | X  | (MC-only) Z of related true capture vertex (cm)         |
-| IsGdCapture	   | NCandidates | X  | (MC-only) 0: Not Gd-capture 1: Gd-capture               |
+| capvx 	       | NCandidates | X  | (MC-only) X of related true capture vertex (cm)         |
+| capvy            | NCandidates | X  | (MC-only) Y of related true capture vertex (cm)         |
+| capvz            | NCandidates | X  | (MC-only) Z of related true capture vertex (cm)         |
+| CaptureType	   | NCandidates | X  | (MC-only) 0: Noise 1: H-capture 2: Gd-capture           |
 | TMVAOutput       | NCandidates | X  | TMVA classifier output value                            |
 
 * TTree `truth`

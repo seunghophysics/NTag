@@ -27,13 +27,19 @@
 #include "NTagEventInfo.hh"
 #include "SKLibs.hh"
 
-NTagEventInfo::NTagEventInfo(Verbosity verbose)
-: TWIDTH(NTagDefault::TWIDTH), 
-NHITSTH(NTagDefault::NHITSTH), NHITSMX(NTagDefault::NHITSMX), N200MX(NTagDefault::N200MX),
-T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX), TRBNWIDTH(NTagDefault::TRBNWIDTH),
-TMATCHWINDOW(NTagDefault::TMATCHWINDOW), TMINPEAKSEP(NTagDefault::TMINPEAKSEP), ODHITMX(NTagDefault::ODHITMX),
-VTXSRCRANGE(NTagDefault::VTXSRCRANGE), customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), 
+NTagEventInfo::NTagEventInfo(Verbosity verbose):
+TWIDTH(NTagDefault::TWIDTH),
+NHITSTH(NTagDefault::NHITSTH), NHITSMX(NTagDefault::NHITSMX),
+N200MX(NTagDefault::N200MX),
+T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX),
+TRBNWIDTH(NTagDefault::TRBNWIDTH),
+TMATCHWINDOW(NTagDefault::TMATCHWINDOW),
+TMINPEAKSEP(NTagDefault::TMINPEAKSEP),
+ODHITMX(NTagDefault::ODHITMX),
+VTXSRCRANGE(NTagDefault::VTXSRCRANGE),
+PVXRES(NTagDefault::PVXRES),
+customvx(0.), customvy(0.), customvz(0.),
+fVerbosity(verbose),
 bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true), bUseNeutFit(true)
 {
     nProcessedEvents = 0;
@@ -179,9 +185,9 @@ void NTagEventInfo::AppendRawHitInfo()
 
         // Use hits that are in-gate and within MAXPM only
         if (sktqz_.ihtiflz[iHit] & (1<<1) && hitPMTID <= MAXPM) {
-            
+
             nTotalHits++;
-            
+
             if (fabs(hitTime - vPMTHitTime[hitPMTID]) < TRBNWIDTH*1.e3) {
                 nRemovedHits++;
                 continue;
@@ -208,7 +214,7 @@ void NTagEventInfo::AppendRawHitInfo()
             }
         }
     }
-    
+
     nqiskz = static_cast<int>(vTISKZ.size());
 }
 
@@ -228,9 +234,8 @@ void NTagEventInfo::SetToFSubtractedTQ()
 void NTagEventInfo::DumpEventVariables()
 {
     msg.PrintBlock(Form("Event #%d summary", nProcessedEvents), pSUBEVENT, pDEFAULT, false);
-    
+
     // Event header
-    // runno, subrunno, eventno, evis
     msg.Print("\033[1;36m* Event header\033[m");
     msg.Print("\033[4mRun       Subrun    Event     Evis (MeV)\033[0m");
     msg.Print("", pDEFAULT, false);
@@ -246,9 +251,8 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(20) << nhitac;
     std::cout << std::endl;
     msg.Print("");
-    
+
     // Trigger information
-    // trgtype, trgOffset, tDiff
     msg.Print("\033[1;36m* Trigger\033[m");
     msg.Print("\033[4mTrgType     TrgTime (ns)   TDiff (ns)   \033[0m");
     msg.Print("", pDEFAULT, false);
@@ -260,9 +264,8 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(13) << tDiff;
     std::cout << std::endl;
     msg.Print("");
-    
+
     // Hit information
-    // qismsk, nhitac, reducedHits, signalHits
     msg.Print("\033[1;36m* Hits\033[m");
     msg.Print("\033[4mTotal hits          Signal hits         \033[0m");
     msg.Print("", pDEFAULT, false);
@@ -272,7 +275,7 @@ void NTagEventInfo::DumpEventVariables()
     else       std::cout << "-";
     std::cout << std::endl;
     msg.Print("");
-    
+
     // RBN reduction information
     int nFoundHits = nTotalHits - nRemovedHits;
     msg.Print(Form("\033[1;36m* RBN reduction (Deadtime: %d us)\033[m", (int)TRBNWIDTH));
@@ -287,9 +290,8 @@ void NTagEventInfo::DumpEventVariables()
     else std::cout << "-";
     std::cout << std::endl;
     msg.Print("");
-    
+
     // Prompt vertex
-    // pvx, pvy, pvz, dwall
     msg.Print("\033[1;36m* Prompt vertex (neutron search vertex)\033[m");
     msg.Print("\033[4mX (cm)    Y (cm)    Z (cm)    dWall (cm)\033[0m");
     msg.Print("", pDEFAULT, false);
@@ -299,11 +301,11 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(10) << dWall;
     std::cout << std::endl;
     msg.Print("");
-    
+
     // APFit information
-    
+
     // NEUT information
-    
+
     if (!bData) {
         // Primary information (MC)
         msg.Print("\033[1;36m* (MC) Primary vectors\033[m");
@@ -313,14 +315,14 @@ void NTagEventInfo::DumpEventVariables()
             std::cout << std::left << std::setw(4) << iVec;
             std::cout << std::left << std::setw(6);
             if (vVecPID[iVec] == 13) std::cout << "n";
-            else                     std::cout << vVecPID[iVec];  
+            else                     std::cout << vVecPID[iVec];
             std::cout << std::left << std::setw(14) << std::setprecision(4) << vVecMom[iVec];
             float vecV[3] = {vVecPX[iVec], vVecPY[iVec], vVecPZ[iVec]};
             std::cout << std::left << std::setw(17) << wallsk_(vecV);
             std::cout << std::setprecision(6) << std::endl;
         }
         msg.Print("");
-        
+
         if (fVerbosity > pDEFAULT) {
             // Secondary information (MC)
             msg.Print("\033[1;36m* (MC) Secondaries\033[m");
@@ -336,7 +338,7 @@ void NTagEventInfo::DumpEventVariables()
             }
             msg.Print("");
         }
-        
+
         // True capture information (MC)
         msg.Print("\033[1;36m* (MC) True captures\033[m");
         msg.Print("\033[4mID  Time (us)  E (MeV)  TravelDist. (cm)\033[0m");
@@ -353,9 +355,8 @@ void NTagEventInfo::DumpEventVariables()
         }
         msg.Print("");
     }
-    
+
     // Neutron capture candidate information
-    // nCandidates, Nhits, tmvaoutput
     msg.Print("\033[1;36m* Found neutron capture candidates\033[m");
     msg.Print(Form("\033[4mID  T (us)  N    N_n   Type  Out    \033[0m"));
     for (auto& candidate: vCandidates) {
@@ -369,7 +370,7 @@ void NTagEventInfo::DumpEventVariables()
         else if (candidate.iVarMap["CaptureType"] == 0) std::cout << "Bkg";
         else if (candidate.iVarMap["CaptureType"] == 1) std::cout << "H";
         else if (candidate.iVarMap["CaptureType"] == 2) std::cout << "Gd";
-        std::cout << std::left << std::setw(11); 
+        std::cout << std::left << std::setw(11);
         if (bUseTMVA) std::cout << std::setprecision(3) << candidate.fVarMap["TMVAOutput"];
         else          std::cout << "-";
         std::cout << std::endl;
@@ -518,12 +519,10 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Calculate NHitsNew:
         // number of hits in 10 ns window from the i-th hit
         int NHits_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, TWIDTH);
-        //int N30_iHit   = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 30.);
 
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
-        if ((NHits_iHit < NHITSTH)) continue; //& (N30_iHit < 12)) continue;
-        if (NHits_iHit > NHITSMX) continue;
-        
+        if ((NHits_iHit < NHITSTH) || (NHits_iHit > NHITSMX)) continue;
+
         // We've found a new peak.
         NHitsNew = NHits_iHit;
         float t0New = vSortedT_ToF[iHit];
@@ -573,7 +572,7 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     std::vector<float> pmtQVec = SliceVector(vSortedQ, hitID, nHits);
     std::vector<int>   cabIVec = SliceVector(vSortedPMTID, hitID, nHits);
     std::vector<int>   sigFVec;
-    
+
     if (!vSortedSigFlag.empty()) sigFVec = SliceVector(vSortedSigFlag, hitID, nHits);
 
     // Save hit info to candidate
@@ -599,7 +598,6 @@ void NTagEventInfo::SetCandidateVariables()
         ExtractCandidateVariables();
     }
 }
-
 
 void NTagEventInfo::InitializeCandidateVariableVectors()
 {
@@ -722,7 +720,7 @@ void NTagEventInfo::Clear()
     vHitResTimes->clear();
     vHitCableIDs->clear();
     vHitSigFlags->clear();
-    
+
     nTotalHits = 0; nTotalSigHits = 0; nFoundSigHits = 0; nRemovedHits = 0;
 
     vNGamma.clear(); vCandidateID.clear();
@@ -762,13 +760,4 @@ void NTagEventInfo::SaveSecondary(int secID)
     vSecT.     push_back( secndprt_.tscnd[secID]            );  // time created
     vCapID.    push_back( -1 );
     nSavedSec++;
-
-    //msg.Print(Form("Saved secondary %d: [PID: %d] [Int code: %d] [Parent PID: %d] [x: %f y: %f z: %f]",
-    //                secID,
-    //                secndprt_.iprtscnd[secID],
-    //                secndprt_.lmecscnd[secID],
-    //                secndprt_.iprntprt[secID],
-    //                secndprt_.vtxscnd[secID][0],
-    //                secndprt_.vtxscnd[secID][1],
-    //                secndprt_.vtxscnd[secID][2]), pDEBUG);
 }

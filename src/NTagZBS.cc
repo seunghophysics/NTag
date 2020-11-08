@@ -21,7 +21,7 @@ void NTagZBS::OpenFile()
 
     set_rflist_(&lun, fInFileName, "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
                 strlen(fInFileName),5,0,3,0,0,20,0,0);
-    
+
     msg.PrintBlock("Opening input ZBS...");
     skopenf_(&lun, &ipt, "Z", &openError);
 

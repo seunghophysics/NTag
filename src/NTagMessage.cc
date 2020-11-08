@@ -42,7 +42,7 @@ void NTagMessage::PrintBlock(TString line, BlockSize size, Verbosity vType, bool
 {
     std::string blockWall(size, '=');
     TString coloredLine = "\033[1;36m" + line + "\033[m";
-    
+
     std::cout << std::endl;
     Print(blockWall, vType);
     if (size == pMAIN) {
@@ -52,7 +52,7 @@ void NTagMessage::PrintBlock(TString line, BlockSize size, Verbosity vType, bool
     else
         Print(coloredLine, vType);
     Print(blockWall, vType);
-    
+
     if (newLine) std::cout << std::endl;
 }
 

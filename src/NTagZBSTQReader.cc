@@ -10,6 +10,8 @@ void NTagZBSTQReader::ReadEvent()
 
     rawtqTree->Fill();
     Clear();
+    
+    nProcessedEvents++;
 }
 
 void NTagZBSTQReader::WriteOutput()
