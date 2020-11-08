@@ -84,7 +84,7 @@ NTag -in (input filename) -out (output filename)
 |-T0TH/MX | (T0 threshold / maximum) [ns] | `NTag -in in.dat -T0TH 18 -NHITSMX 835`         | optional  |
 |-TRBNWIDTH | (PMT deadtime width) [&mus] | `NTag -in in.dat -TRBNWIDTH 6`                  | optional  |
 |-PVXRES | (Prompt vertex resolution) [cm] | `NTag -in in.dat -PVXRES 10`                   | optional  |
-|-sigTQpath | (path to signal TQ data)    | `NTag -in in.dat -sigTQpath sigtq.root`         | optional  |
+|-sigTQpath | (output from `-readTQ` option) | `NTag -in in.dat -sigTQpath sigtq.root`      | optional  |
 
 * Run options
 
