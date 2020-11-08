@@ -167,6 +167,8 @@ NTag -in (input filename) -out (output filename)
 | CaptureType	   | NCandidates | X  | (MC-only) 0: Noise 1: H-capture 2: Gd-capture           |
 | TMVAOutput       | NCandidates | X  | TMVA classifier output value                            |
 
+All variables with suffix `_n` are variables calculated using the Neut-fit vertex instead of the prompt vertex.
+
 * TTree `truth`
 
 | Branch name   | Size          | Description                                                   |
