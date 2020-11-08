@@ -133,7 +133,6 @@ NTag -in (input filename) -out (output filename)
 | nvx              | NCandidates | X  | X coordinate of Neut-fit vertex                         |
 | nvy              | NCandidates | X  | Y coordinate of Neut-fit vertex                         |
 | nvz              | NCandidates | X  | Z coordinate of Neut-fit vertex                         |
-| NHits_n          | NCandidates | X  | NHits calculated with Neut-fit vertex                   |
 | NHits	           | NCandidates | O  | # of PMT hits in NTagEventInfo::TWIDTH (ns)             |
 | N50              | NCandidates | O  | # of PMT hits in 50 ns                                  |
 | N200             | NCandidates | O  | # of PMT hits in 200 ns                                 |
