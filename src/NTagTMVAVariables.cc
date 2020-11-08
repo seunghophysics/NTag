@@ -36,7 +36,7 @@ void NTagTMVAVariables::Clear()
     fVariableMap["Beta3"] = 0.;
     fVariableMap["Beta4"] = 0.;
     fVariableMap["Beta5"] = 0.;
-    fVariableMap["DWalln"] = 0.;
+    fVariableMap["DWall"] = 0.;
     fVariableMap["DWallMeanDir"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
 

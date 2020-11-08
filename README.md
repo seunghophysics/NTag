@@ -122,7 +122,6 @@ NTag -in (input filename) -out (output filename)
 | pvx              | 1           | X  | X coordinate of APFit neutrino vertex                   |
 | pvy              | 1           | X  | Y coordinate of APFit neutrino vertex                   |
 | pvz              | 1           | X  | Z coordinate of APFit neutrino vertex                   |
-| DWall	           | 1           | X  | Distance to neutrino vertex from wall (cm)              |
 | EVis	           | 1           | X  | Visible energy (MeV/c)                                  |
 | TrgType	       | 1           | X  | Trigger type (0: MC, 1: SHE, 2: SHE+AFT)                |
 | NHITAC	       | 1           | X  | Number of OD hits                                       |
@@ -133,31 +132,36 @@ NTag -in (input filename) -out (output filename)
 | nvx              | NCandidates | X  | X coordinate of Neut-fit vertex                         |
 | nvy              | NCandidates | X  | Y coordinate of Neut-fit vertex                         |
 | nvz              | NCandidates | X  | Z coordinate of Neut-fit vertex                         |
+| N50              | NCandidates | X  | # of PMT hits in 50 ns                                  |
+| ReconCT	       | NCandidates | X  | Reconstructed capture time (ns)                         |
+| QSum             | NCandidates | X  | Sum of Q in 10 ns (p.e.)                                |
+| TRMS50	       | NCandidates | X  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
+| TSpread          | NCandidates | X  | Spread of PMT hit time (max-min) in TWIDTH              |
 | NHits	           | NCandidates | O  | # of PMT hits in NTagEventInfo::TWIDTH (ns)             |
-| N50              | NCandidates | O  | # of PMT hits in 50 ns                                  |
 | N200             | NCandidates | O  | # of PMT hits in 200 ns                                 |
-| ReconCT	       | NCandidates | O  | Reconstructed capture time (ns)                         |
-| QSum             | NCandidates | O  | Sum of Q in 10 ns (p.e.)                                |
 | TRMS             | NCandidates | O  | RMS of PMT hit time in TWIDTH                           |
-| TRMS50	       | NCandidates | O  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
-| TSpread          | NCandidates | O  | Spread of PMT hit time (max-min) in TWIDTH              |
+| DWall	           | NCandidates | O  | Distance from prompt vertex to wall (cm)                |
+| DWallMeanDir	   | NCandidates | O  | Distance from vertex to wall in mean hit direction (cm) |
+| AngleMean 	   | NCandidates | O  | Mean of all possible opening angles (deg)               |
+| AngleStdev	   | NCandidates | O  | Standard deviation of all possible opening angles (deg) |
+| AngleSkew 	   | NCandidates | O  | Skewness of all possibile opening angles                |
 | Beta1            | NCandidates | O  | Beta1 calculated in TWIDTH                              |
 | Beta2            | NCandidates | O  | Beta2 calculated in TWIDTH                              |
 | Beta3            | NCandidates | O  | Beta3 calculated in TWIDTH                              |
 | Beta4            | NCandidates | O  | Beta4 calculated in TWIDTH                              |
 | Beta5            | NCandidates | O  | Beta5 calculated in TWIDTH                              |
-| BSenergy	       | NCandidates | O  | BONSAI energy in 50 ns                                  |
-| bsvx	           | NCandidates | O  | X coordinate of BONSAI vertex                           |
-| bxvy             | NCandidates | O  | Y coordinate of BONSAI vertex                           |
-| bsvz             | NCandidates | O  | Z coordinate of BONSAI vertex                           |
-| BSwall	       | NCandidates | O  | Distance to wall from BONSAI vertex                     |
-| BSgood	       | NCandidates | O  | BONSAI fit goodness paramters                           |
-| BSdirks          | NCandidates | O  | BONSAI dir_KS                                           |
-| BSpatlik         | NCandidates | O  | BONSAI pattern likelihood                               |
-| BSovaq           | NCandidates | O  | BONSAI ovaq                                             |
-| prompt_bonsai	   | NCandidates | O  | Distance to BONSAI vertex from prompt vertex            |
 | prompt_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from prompt vertex          |
-| bonsai_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from BONSAI vertex          |
+| BSenergy	       | NCandidates | X  | BONSAI energy in 50 ns                                  |
+| bsvx	           | NCandidates | X  | X coordinate of BONSAI vertex                           |
+| bxvy             | NCandidates | X  | Y coordinate of BONSAI vertex                           |
+| bsvz             | NCandidates | X  | Z coordinate of BONSAI vertex                           |
+| BSwall	       | NCandidates | X  | Distance to wall from BONSAI vertex                     |
+| BSgood	       | NCandidates | X  | BONSAI fit goodness paramters                           |
+| BSdirks          | NCandidates | X  | BONSAI dir_KS                                           |
+| BSpatlik         | NCandidates | X  | BONSAI pattern likelihood                               |
+| BSovaq           | NCandidates | X  | BONSAI ovaq                                             |
+| prompt_bonsai	   | NCandidates | X  | Distance to BONSAI vertex from prompt vertex            |
+| bonsai_nfit	   | NCandidates | X  | Distance to Neut-fit vertex from BONSAI vertex          |
 | DoubleCount      | NCandidates | X  | (MC-only) 0: Not double count 1: Double count           |
 | CTDiff	       | NCandidates | X  | (MC-only) Diff. between true/recon capture times (ns)   |
 | capvx 	       | NCandidates | X  | (MC-only) X of related true capture vertex (cm)         |
