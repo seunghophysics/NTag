@@ -18,7 +18,7 @@ In detail, the data flow and the search process in one event progresses as follo
 
 3. The "ReadEvent" functions mentioned above also call `NTagEventInfo::AppendRawHitInfo` to append the raw TQ hit information from the common block `sktqz` to the private member vectors of `NTagEventInfo`: `vTISKZ`, `vQISKZ`, and `vCABIZ`. The neutron capture candidates will be searched for within these raw TQ vectors.
 
-4. If the raw TQ vectors are set, `NTagEventInfo::SearchNeutronCaptures` will search for neutron capture candidates, looking for N10 peaks within the ToF-subtracted `vTISKZ`. The properties of the found capture candidates will be passed on to the class `NTagTMVAVariables`, which holds the variables to be fed to the neural network.
+4. If the raw TQ vectors are set, `NTagEventInfo::SearchNeutronCaptures` will search for neutron capture candidates, looking for NHits peaks within the ToF-subtracted `vTISKZ`. The properties of the found capture candidates will be passed on to the class `NTagTMVAVariables`, which holds the variables to be fed to the neural network.
 
 5. The class `NTagTMVA` will feed variables from `NTagTMVAVariables` to ROOT::TMVA, and the TMVA reader will evaluate the weights and the input variables to find the classifier output. The classifier output will be copied to the event variables in `NTagEventInfo`.
 
@@ -78,8 +78,8 @@ NTag -in (input filename) -out (output filename)
 |-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
 |-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
-|-N10TH/MX| (N10 threshold / maximum)     | `NTag -in in.dat -N10TH 5 -N10MX 70`            | optional  |
-|-T0TH/MX | (T0 threshold / maximum)      | `NTag -in in.dat -T0TH 18 -N10MX 835`           | optional  |
+|-NHITSTH/MX| (NHits threshold / maximum)     | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`            | optional  |
+|-T0TH/MX | (T0 threshold / maximum)      | `NTag -in in.dat -T0TH 18 -NHITSMX 835`           | optional  |
 
 * Run options
 
@@ -123,13 +123,13 @@ NTag -in (input filename) -out (output filename)
 | nvx              | NCandidates | X  | X coordinate of Neut-fit vertex                         |
 | nvy              | NCandidates | X  | Y coordinate of Neut-fit vertex                         |
 | nvz              | NCandidates | X  | Z coordinate of Neut-fit vertex                         |
-| N10n             | NCandidates | X  | N10 calculated with Neut-fit vertex                     |
-| N10	           | NCandidates | O  | # of PMT hits in 10 ns                                  |
+| NHitsn             | NCandidates | X  | NHits calculated with Neut-fit vertex                     |
+| NHits	           | NCandidates | O  | # of PMT hits in 10 ns                                  |
 | N50              | NCandidates | O  | # of PMT hits in 50 ns                                  |
 | N200             | NCandidates | O  | # of PMT hits in 200 ns                                 |
 | ReconCT	       | NCandidates | O  | Reconstructed capture time (ns)                         |
 | QSum10           | NCandidates | O  | Sum of Q in 10 ns (p.e.)                                |
-| TRMS10           | NCandidates | O  | RMS of PMT hit time in 10 ns                            |
+| TRMS           | NCandidates | O  | RMS of PMT hit time in 10 ns                            |
 | TRMS50	       | NCandidates | O  | RMS of PMT hit time in 50 ns with Neut-fit vertex       |
 | TSpread          | NCandidates | O  | Spread of PMT hit time (max-min) in 10 ns               |
 | Beta14_10	       | NCandidates | O  | Beta14 calculated in 10 ns                              |
@@ -153,7 +153,7 @@ NTag -in (input filename) -out (output filename)
 | prompt_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from prompt vertex          |
 | bonsai_nfit	   | NCandidates | O  | Distance to Neut-fit vertex from BONSAI vertex          |
 | ReconCTn		   | NCandidates | X  | (MC-only) Capture time with Neut-fit                    |
-| TRMS10n	       | NCandidates | X  | (MC-only) PMT hit time RMS in 10 ns with Neut-fit       |
+| TRMS_n	       | NCandidates | X  | (MC-only) PMT hit time RMS in 10 ns with Neut-fit       |
 | IsCapture	       | NCandidates | X  | (MC-only) 0: Not true capture 1: True capture           |
 | DoubleCount      | NCandidates | X  | (MC-only) 0: Not double count 1: Double count           |
 | CTDiff	       | NCandidates | X  | (MC-only) Diff. between true/recon capture times (ns)   |

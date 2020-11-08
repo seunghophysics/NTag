@@ -153,14 +153,13 @@ class NTagCandidate
         /**
          * @brief Evaluate &beta;_i values of a hit cluster for i = 1...5 and return those in an array.
          * @param PMTID A vector of PMT cable IDs. The locations of the PMTs are fetched from #PMTXYZ.
-         * @param startIndex The starting index of a hit cluster.
-         * @param nHits The number of total hits in a cluster.
+         * @param v A 3D array of float that represents the SK coordinates of photon emission vertex.
          * @return An size-6 array of &beta; values. The i-th element of the returned array
          * is the i-th &beta; value. The 0-th element is a dummy filled with 0.
          * @see For the details of the &beta; values, see Eq. (5) of the SNO review article at
          * <a href="https://arxiv.org/pdf/1602.02469.pdf">arXiv:1602.02469</a>.
          */
-        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID);
+        std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, float v[3]);
         /**
          * @brief Gets the minimum RMS value of hit-times by searching for the minizing vertex.
          * @param T A vector of PMT hit times. [ns]
@@ -181,15 +180,16 @@ class NTagCandidate
         IVarMap iVarMap; ///< A map of float feature variables.
 
         int candidateID; ///< Candidate ID of the candidate.
+        float TWIDTH;  ///< TWIDTH
 
-        std::array<float, 6> beta_10; ///< An array of beta variables calculated within 10 ns.
-        std::array<float, 6> beta_50; ///< An array of beta variables calculated within 50 ns.
+        //std::array<float, 6> beta_10; ///< An array of beta variables calculated within 10 ns.
+        //std::array<float, 6> beta_50; ///< An array of beta variables calculated within 50 ns.
 
-        std::vector<float> vHitRawTimes, ///< Vector of residual hit times. [Size: N10]
-                           vHitResTimes, ///< Vector of residual hit times. [Size: N10]
-                           vHitChargePE; ///< Vector of deposited charge in photoelectrons. [Size: N10]
-        std::vector<int>   vHitCableIDs, ///< Vector of hit cable IDs. [Size: N10]
-                           vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: N10]
+        std::vector<float> vHitRawTimes, ///< Vector of residual hit times. [Size: NHits]
+                           vHitResTimes, ///< Vector of residual hit times. [Size: NHits]
+                           vHitChargePE; ///< Vector of deposited charge in photoelectrons. [Size: NHits]
+        std::vector<int>   vHitCableIDs, ///< Vector of hit cable IDs. [Size: NHits]
+                           vHitSigFlags; ///< Vector of signal flags. (0: bkg, 1: sig) [Size: NHits]
 
     friend class NTagEventInfo;
 };

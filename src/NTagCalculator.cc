@@ -146,7 +146,7 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
     float vSq = v[0]*v[0] + v[1]*v[1];
     
     // Calculate distance to barrel and distance to top/bottom
-    float distR = (- dot + sqrt(dot*dot - uSq*(vSq-RINTK*RINTK))) / uSq;
+    float distR = (-dot + sqrt(dot*dot - uSq*(vSq-RINTK*RINTK))) / uSq;
     float distZ = u[2] > 0 ? (ZPINTK-v[2])/u[2] : (ZMINTK-v[2])/u[2];
 
     // Return the smaller
@@ -217,10 +217,10 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
 TString GetParticleName(int pid)
 {
     if (!pidMap.count(2112)) {
-        pidMap[2112] = "n";
-        pidMap[2212] = "p";
-        pidMap[22] = "gamma";
-        pidMap[11] = "e-";
+        pidMap[2112]   = "n";
+        pidMap[2212]   = "p";
+        pidMap[22]     = "gamma";
+        pidMap[11]     = "e-";
         pidMap[100045] = "d";
     }
     if (pidMap.count(pid))

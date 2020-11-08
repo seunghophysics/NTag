@@ -27,11 +27,13 @@
 #include "SKLibs.hh"
 
 NTagEventInfo::NTagEventInfo(Verbosity verbose)
-: N10TH(NTagDefault::N10TH), N10MX(NTagDefault::N10MX), N200MX(NTagDefault::N200MX),
+: TWIDTH(NTagDefault::TWIDTH), 
+NHITSTH(NTagDefault::NHITSTH), NHITSMX(NTagDefault::NHITSMX), N200MX(NTagDefault::N200MX),
 T0TH(NTagDefault::T0TH), T0MX(NTagDefault::T0MX), TRBNWIDTH(NTagDefault::TRBNWIDTH),
 TMATCHWINDOW(NTagDefault::TMATCHWINDOW), TMINPEAKSEP(NTagDefault::TMINPEAKSEP), ODHITMX(NTagDefault::ODHITMX),
 VTXSRCRANGE(NTagDefault::VTXSRCRANGE), customvx(0.), customvy(0.), customvz(0.),
-fVerbosity(verbose), bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true)
+fVerbosity(verbose), 
+bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true), bUseNeutFit(true)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
@@ -352,21 +354,22 @@ void NTagEventInfo::DumpEventVariables()
     }
     
     // Neutron capture candidate information
-    // nCandidates, n10, tmvaoutput
+    // nCandidates, Nhits, tmvaoutput
     msg.Print("\033[1;36m* Found neutron capture candidates\033[m");
-    msg.Print("\033[4mID  Time (us)  N10  Type  Classifier    \033[0m");
+    msg.Print(Form("\033[4mID  T (us)  N    N_n   Type  Out    \033[0m"));
     for (auto& candidate: vCandidates) {
         msg.Print("", pDEFAULT, false);
         std::cout << std::left << std::setw(4) << candidate.candidateID;
-        std::cout << std::left << std::setw(11) << (int)(candidate.fVarMap["ReconCT"]*1.e-3);
-        std::cout << std::left << std::setw(5) << candidate.iVarMap["N10"];
+        std::cout << std::left << std::setw(8) << (int)(candidate.fVarMap["ReconCT"]*1.e-3);
+        std::cout << std::left << std::setw(5) << candidate.iVarMap["NHits"];
+        std::cout << std::left << std::setw(6) << candidate.iVarMap["NHits_n"];
         std::cout << std::left << std::setw(6);
         if (bData) std::cout << "-";
         else if (candidate.iVarMap["CaptureType"] == 0) std::cout << "Bkg";
         else if (candidate.iVarMap["CaptureType"] == 1) std::cout << "H";
         else if (candidate.iVarMap["CaptureType"] == 2) std::cout << "Gd";
-        std::cout << std::left << std::setw(14); 
-        if (bUseTMVA) std::cout << candidate.fVarMap["TMVAOutput"];
+        std::cout << std::left << std::setw(11); 
+        if (bUseTMVA) std::cout << std::setprecision(3) << candidate.fVarMap["TMVAOutput"];
         else          std::cout << "-";
         std::cout << std::endl;
     }
@@ -375,6 +378,7 @@ void NTagEventInfo::DumpEventVariables()
 void NTagEventInfo::SetMCInfo()
 {
     // Read SKVECT (primaries)
+    msg.PrintBlock("Reading MC vectors...", pSUBEVENT, pDEFAULT, false);
     skgetv_();
     nVec = skvect_.nvect;   // number of primaries
     vecx = skvect_.pos[0];  // initial vertex of primaries
@@ -496,8 +500,8 @@ void NTagEventInfo::ReadSecondaries()
 void NTagEventInfo::SearchCaptureCandidates()
 {
     int   iHitPrevious    = 0;
-    int   N10New          = 0;
-    int   N10Previous     = 0;
+    int   NHitsNew          = 0;
+    int   NHitsPrevious     = 0;
     int   N200Previous    = 0;
     float t0Previous      = -1.;
 
@@ -510,19 +514,21 @@ void NTagEventInfo::SearchCaptureCandidates()
         // Save time of first hit
         if (firstHitTime_ToF == 0.) firstHitTime_ToF = vSortedT_ToF[iHit];
 
-        // Calculate N10New:
+        // Calculate NHitsNew:
         // number of hits in 10 ns window from the i-th hit
-        int N10_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 10.);
+        int NHits_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, TWIDTH);
+        //int N30_iHit   = GetNhitsFromStartIndex(vSortedT_ToF, iHit, 30.);
 
-        // If N10TH <= N10_iHit <= N10MX:
-        if ((N10_iHit < N10TH) || (N10_iHit >= N10MX+1)) continue;
-
+        // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
+        if ((NHits_iHit < NHITSTH)) continue; //& (N30_iHit < 12)) continue;
+        if (NHits_iHit > NHITSMX) continue;
+        
         // We've found a new peak.
-        N10New = N10_iHit;
+        NHitsNew = NHits_iHit;
         float t0New = vSortedT_ToF[iHit];
 
         // Save maximum N200 and its t0
-        float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + 5., 200.);
+        float N200New = GetNhitsFromCenterTime(vSortedT_ToF, t0New + TWIDTH/2, 200.);
         if (t0New*1.e-3 > T0TH && N200New > maxN200) {
             maxN200 = N200New;
             maxN200Time = t0New;
@@ -534,21 +540,21 @@ void NTagEventInfo::SearchCaptureCandidates()
             if (N200Previous < N200MX && t0Previous*1.e-3 > T0TH) {
                 SavePeakFromHit(iHitPrevious);
             }
-            // Reset N10Previous,
+            // Reset NHitsPrevious,
             // if peaks are separated enough
-            N10Previous = 0;
+            NHitsPrevious = 0;
         }
 
-        // If N10 is not greater than previous, skip
-        if ( N10New <= N10Previous ) continue;
+        // If NHits is not greater than previous, skip
+        if ( NHitsNew <= NHitsPrevious ) continue;
 
         iHitPrevious = iHit;
         t0Previous   = t0New;
-        N10Previous  = N10New;
+        NHitsPrevious  = NHitsNew;
         N200Previous = N200New;
     }
     // Save the last peak
-    if (N10Previous >= N10TH)
+    if (NHitsPrevious >= NHITSTH)
         SavePeakFromHit(iHitPrevious);
 }
 
@@ -558,16 +564,16 @@ void NTagEventInfo::SavePeakFromHit(int hitID)
     vCandidates.push_back(NTagCandidate(vCandidates.size(), this));
 
     // Containers for hit info
-    float tWidth = 10.;
+    float tWidth = TWIDTH;
     std::vector<float> resTVec = GetVectorFromStartIndex(vSortedT_ToF, hitID, tWidth);
-    int n10 = resTVec.size();
+    int nHits = resTVec.size();
 
-    std::vector<float> rawTVec = SliceVector(vTISKZ, hitID, n10, reverseIndex.data());
-    std::vector<float> pmtQVec = SliceVector(vSortedQ, hitID, n10);
-    std::vector<int>   cabIVec = SliceVector(vSortedPMTID, hitID, n10);
+    std::vector<float> rawTVec = SliceVector(vTISKZ, hitID, nHits, reverseIndex.data());
+    std::vector<float> pmtQVec = SliceVector(vSortedQ, hitID, nHits);
+    std::vector<int>   cabIVec = SliceVector(vSortedPMTID, hitID, nHits);
     std::vector<int>   sigFVec;
     
-    if (!vSortedSigFlag.empty()) sigFVec = SliceVector(vSortedSigFlag, hitID, n10);
+    if (!vSortedSigFlag.empty()) sigFVec = SliceVector(vSortedSigFlag, hitID, nHits);
 
     // Save hit info to candidate
     vCandidates.back().SetHitInfo(rawTVec, resTVec, pmtQVec, cabIVec, sigFVec);
@@ -598,11 +604,11 @@ void NTagEventInfo::InitializeCandidateVariableVectors()
 {
     msg.PrintBlock("Initializing feature variables...", pSUBEVENT, pDEBUG, false);
     for (auto const& pair: vCandidates[0].iVarMap) {
-        msg.Print(Form("Initializing variable %s...", pair.first), pDEBUG);
+        msg.Print(Form("Initializing variable %s...", pair.first.c_str()), pDEBUG);
         iCandidateVarMap[pair.first] = new std::vector<int>();
     }
     for (auto const& pair: vCandidates[0].fVarMap) {
-        msg.Print(Form("Initializing variable %s...", pair.first), pDEBUG);
+        msg.Print(Form("Initializing variable %s...", pair.first.c_str()), pDEBUG);
         fCandidateVarMap[pair.first] = new std::vector<float>();
     }
     candidateVariablesInitialized = true;

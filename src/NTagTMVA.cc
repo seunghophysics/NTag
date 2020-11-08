@@ -105,8 +105,8 @@ void NTagTMVA::MakeWeights(bool isMultiClass)
     auto varKeys = fVariables.Keys();
 
     std::cout << "\n" << std::endl;
-    for (const auto& key: varKeys) {
-        msg.Print(Form("Adding feature variable : %s", key));
+    for (auto& key: varKeys) {
+        msg.Print(Form("Adding feature variable : %s", key.c_str()));
         if (key[0] == 'N') fFactory->AddVariable(key, 'F');
         else fFactory->AddVariable(key, 'F');
     }
@@ -219,7 +219,7 @@ void NTagTMVA::MakeWeights(bool isMultiClass)
 
     // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
     if (fUse["MLP"]) {
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:V:NeuronType=sigmoid:NCycles=500:HiddenLayers=N+1,N-1:TestRate=10:UseRegulator:EstimatorType=CE:TrainingMethod=BFGS:VarTransform=N" );
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:V:NeuronType=sigmoid:NCycles=500:HiddenLayers=N+1,N-1:TestRate=10:UseRegulator:EstimatorType=CE:VarTransform=N" );
     }
     
     // Boosted Decision Trees

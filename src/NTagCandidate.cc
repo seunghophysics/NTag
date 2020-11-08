@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <numeric>
 
 #include <geotnkC.h>
 
@@ -13,6 +14,7 @@ NTagCandidate::NTagCandidate(int id, NTagEventInfo* eventInfo)
 {
     candidateID = id;
     msg = NTagMessage("Candidate", fVerbosity);
+    TWIDTH = currentEvent->TWIDTH;
 }
 
 NTagCandidate::~NTagCandidate() {}
@@ -32,26 +34,43 @@ void NTagCandidate::SetHitInfo(const std::vector<float>& rawT,
 
 void NTagCandidate::SetVariables()
 {
-    iVarMap["N10"] = vHitResTimes.size();
-    iVarMap["N200"] = GetNhitsFromCenterTime(currentEvent->vSortedT_ToF, vHitResTimes[0]+5., 200.);
-    fVarMap["TRMS10"] = GetTRMS(vHitResTimes);
-    fVarMap["QSum10"] = std::accumulate(vHitChargePE.begin(), vHitChargePE.end(), 0.);
+    iVarMap["NHits"] = vHitResTimes.size();
+    iVarMap["N200"] = GetNhitsFromCenterTime(currentEvent->vSortedT_ToF, vHitResTimes[0]+TWIDTH/2., 200.);
+    fVarMap["TRMS"] = GetTRMS(vHitResTimes);
+    fVarMap["QSum"] = std::accumulate(vHitChargePE.begin(), vHitChargePE.end(), 0.);
     fVarMap["ReconCT"] = (vHitResTimes.back() + vHitResTimes[0]) / 2.;
-    fVarMap["TSpread10"] = (vHitResTimes.back() - vHitResTimes[0]);
-
-    beta_10 = GetBetaArray(vHitCableIDs);
+    fVarMap["TSpread"] = (vHitResTimes.back() - vHitResTimes[0]);
+    
+    float pv[3] = {currentEvent->pvx, currentEvent->pvy, currentEvent->pvz};
+    auto beta_10 = GetBetaArray(vHitCableIDs, pv);
     fVarMap["Beta1"] = beta_10[1];
     fVarMap["Beta2"] = beta_10[2];
     fVarMap["Beta3"] = beta_10[3];
     fVarMap["Beta4"] = beta_10[4];
     fVarMap["Beta5"] = beta_10[5];
     
-    SetVariablesWithinTWindow(50);
-    SetVariablesWithinTWindow(1300);
-    fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
-                                  fVarMap["bsvy"] - fVarMap["nvy"],
-                                  fVarMap["bsvz"] - fVarMap["nvz"]);
+    fVarMap["DWall"] = wallsk_(pv);
+    fVarMap["DWallMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, pv);
 
+    const auto& openingAngleStats = GetOpeningAngleStats(vHitCableIDs, pv);
+    fVarMap["AngleMean"]   = openingAngleStats[0];
+    fVarMap["AngleMedian"] = openingAngleStats[1];
+    fVarMap["AngleStdev"]  = openingAngleStats[2];
+    fVarMap["AngleSkew"]   = openingAngleStats[3];
+
+    if (currentEvent->bUseNeutFit) {
+        if (currentEvent->bUseResidual)
+            SetVariablesWithinTWindow(50);
+        else
+            SetVariablesWithinTWindow(200);
+    }
+    
+    SetVariablesWithinTWindow(1300);
+    if (currentEvent->bUseNeutFit)
+        fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
+                                      fVarMap["bsvy"] - fVarMap["nvy"],
+                                      fVarMap["bsvz"] - fVarMap["nvz"]);
+                                      
     if (!currentEvent->bData)  SetTrueInfo();
     if (currentEvent->bUseTMVA) {
         SetNNVariables();
@@ -66,6 +85,9 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
 
     if (tWindow == 50) {
         leftEdge = -25; rightEdge = +25;
+    }
+    else if (tWindow == 200) {
+        leftEdge = -50; rightEdge = +150;
     }
     else if (tWindow == 1300) {
         leftEdge = -520.8; rightEdge = +779.2;
@@ -95,40 +117,91 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
     // 50 ns window
     if (tWindow == 50) {
         iVarMap["N50"] = tiskz.size();
-        beta_50 = GetBetaArray(cabiz);
 
         float nv[3];
-        fVarMap["TRMS50"] = MinimizeTRMS(tiskz, cabiz, nv);
+        fVarMap["MinTRMS50_n"] = MinimizeTRMS(tiskz, cabiz, nv);
         fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
+        
+        auto beta_n = GetBetaArray(vHitCableIDs, nv);
+        fVarMap["Beta1_n"] = beta_n[1];
+        fVarMap["Beta2_n"] = beta_n[2];
+        fVarMap["Beta3_n"] = beta_n[3];
+        fVarMap["Beta4_n"] = beta_n[4];
+        fVarMap["Beta5_n"] = beta_n[5];
 
-        fVarMap["DWalln"] = wallsk_(nv);
-        fVarMap["DWallnMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, nv);
+        fVarMap["DWall_n"] = wallsk_(nv);
+        fVarMap["DWallMeanDir_n"] = GetDWallInMeanDirection(vHitCableIDs, nv);
 
         const auto& openingAngleStats = GetOpeningAngleStats(vHitCableIDs, nv);
-        fVarMap["AngleMean"]   = openingAngleStats[0];
-        fVarMap["AngleMedian"] = openingAngleStats[1];
-        fVarMap["AngleStdev"]  = openingAngleStats[2];
-        fVarMap["AngleSkew"]   = openingAngleStats[3];
+        fVarMap["AngleMean_n"]   = openingAngleStats[0];
+        fVarMap["AngleMedian_n"] = openingAngleStats[1];
+        fVarMap["AngleStdev_n"]  = openingAngleStats[2];
+        fVarMap["AngleSkew_n"]   = openingAngleStats[3];
 
         auto tiskz50_ToF = currentEvent->GetToFSubtracted(tiskz, cabiz, nv, true);
 
-        int N10n_iHit, tmpBestN10n = 0;
+        int NHitsn_iHit, tmpBestNHitsn = 0;
 
-        // Search for a new best N10 (N10n) from these new ToF corrected hits
+        // Search for a new best NHits (NHitsn) from these new ToF corrected hits
         int bestIndex = 0;
         for (int iHit = 0; iHit < iVarMap["N50"]; iHit++) {
-            N10n_iHit = GetNhitsFromStartIndex(tiskz50_ToF, iHit, 10.);
-            if (N10n_iHit > tmpBestN10n) {
-                tmpBestN10n = N10n_iHit; bestIndex = iHit;
-                iVarMap["N10n"] = tmpBestN10n;
-                fVarMap["ReconCTn"] = (tiskz50_ToF[iHit] + tiskz50_ToF[iHit+tmpBestN10n-1]) / 2.;
+            NHitsn_iHit = GetNhitsFromStartIndex(tiskz50_ToF, iHit, TWIDTH);
+            if (NHitsn_iHit > tmpBestNHitsn) {
+                tmpBestNHitsn = NHitsn_iHit; bestIndex = iHit;
+                iVarMap["NHits_n"] = tmpBestNHitsn;
+                fVarMap["ReconCT_n"] = (tiskz50_ToF[iHit] + tiskz50_ToF[iHit+tmpBestNHitsn-1]) / 2.;
             }
         }
-        fVarMap["TRMS10n"] = GetTRMSFromStartIndex(tiskz50_ToF, bestIndex, 10.);
+        fVarMap["TRMS_n"] = GetTRMSFromStartIndex(tiskz50_ToF, bestIndex, TWIDTH);
 
         fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
                                       currentEvent->pvy - fVarMap["nvy"],
                                       currentEvent->pvz - fVarMap["nvz"]);
+    }
+    
+    // 500 ns window
+    else if (tWindow == 200) {
+        iVarMap["N200Raw"] = tiskz.size();
+        
+        float nv[3];
+        fVarMap["MinTRMS30_n"] = MinimizeTRMS(vHitRawTimes, vHitCableIDs, nv);
+        fVarMap["nvx"] = nv[0]; fVarMap["nvy"] = nv[1]; fVarMap["nvz"] = nv[2];
+
+        auto beta_100 = GetBetaArray(vHitCableIDs, nv);
+        fVarMap["Beta1_n"] = beta_100[1];
+        fVarMap["Beta2_n"] = beta_100[2];
+        fVarMap["Beta3_n"] = beta_100[3];
+        fVarMap["Beta4_n"] = beta_100[4];
+        fVarMap["Beta5_n"] = beta_100[5];
+        
+        fVarMap["DWall_n"] = wallsk_(nv);
+        fVarMap["DWallMeanDir_n"] = GetDWallInMeanDirection(vHitCableIDs, nv);
+
+        const auto& openingAngleStats = GetOpeningAngleStats(vHitCableIDs, nv);
+        fVarMap["AngleMean_n"]   = openingAngleStats[0];
+        fVarMap["AngleMedian_n"] = openingAngleStats[1];
+        fVarMap["AngleStdev_n"]  = openingAngleStats[2];
+        fVarMap["AngleSkew_n"]   = openingAngleStats[3];
+
+        auto tiskz200_ToF = currentEvent->GetToFSubtracted(tiskz, cabiz, nv, true);
+
+        int NHitsn_iHit, tmpBestNHitsn = 0;
+
+        // Search for a new best NHits (NHitsn) from these new ToF corrected hits
+        int bestIndex = 0;
+        for (int iHit = 0; iHit < iVarMap["N200Raw"]; iHit++) {
+            NHitsn_iHit = GetNhitsFromStartIndex(tiskz200_ToF, iHit, currentEvent->TWIDTH);
+            if (NHitsn_iHit > tmpBestNHitsn) {
+                tmpBestNHitsn = NHitsn_iHit; bestIndex = iHit;
+                iVarMap["NHits_n"] = tmpBestNHitsn;
+                fVarMap["ReconCT_n"] = (tiskz200_ToF[iHit] + tiskz200_ToF[iHit+tmpBestNHitsn-1]) / 2.;
+            }
+        }
+        fVarMap["TRMSXX_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, currentEvent->TWIDTH);
+
+        //fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
+        //                              currentEvent->pvy - fVarMap["nvy"],
+        //                              currentEvent->pvz - fVarMap["nvz"]);
     }
 
     // 1300 ns window
@@ -222,7 +295,7 @@ void NTagCandidate::DumpVariables()
     DumpHitInfo();
 
     msg.Print("----------------------------------");
-    msg.Print("Variable       : value            ");
+    msg.Print("Variable       : Value            ");
     msg.Print("----------------------------------");
 
     for (auto const& pair: iVarMap) {
@@ -237,7 +310,7 @@ void NTagCandidate::DumpVariables()
     std::cout << "\n" << std::endl;
 }
 
-std::array<float, 6> NTagCandidate::GetBetaArray(const std::vector<int>& PMTID)
+std::array<float, 6> NTagCandidate::GetBetaArray(const std::vector<int>& PMTID, float v[3])
 {
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
     int nHits = PMTID.size();
@@ -249,9 +322,8 @@ std::array<float, 6> NTagCandidate::GetBetaArray(const std::vector<int>& PMTID)
     for (int iHit = 0; iHit < nHits; iHit++) {
         float distFromVertexToPMT;
         float vecFromVertexToPMT[3];
-        vecFromVertexToPMT[0] = NTagConstant::PMTXYZ[PMTID[iHit]-1][0] - currentEvent->pvx;
-        vecFromVertexToPMT[1] = NTagConstant::PMTXYZ[PMTID[iHit]-1][1] - currentEvent->pvy;
-        vecFromVertexToPMT[2] = NTagConstant::PMTXYZ[PMTID[iHit]-1][2] - currentEvent->pvz;
+        for (int dim = 0; dim < 3; dim++)
+            vecFromVertexToPMT[dim] = NTagConstant::PMTXYZ[PMTID[iHit]-1][dim] - v[dim];
         distFromVertexToPMT = Norm(vecFromVertexToPMT);
         uvx[iHit] = vecFromVertexToPMT[0] / distFromVertexToPMT;
         uvy[iHit] = vecFromVertexToPMT[1] / distFromVertexToPMT;

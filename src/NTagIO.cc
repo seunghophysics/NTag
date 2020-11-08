@@ -349,11 +349,11 @@ void NTagIO::CreateBranchesToNtvarTree()
 void NTagIO::AddCandidateVariablesToNtvarTree()
 {
     for (auto& pair: iCandidateVarMap) {
-        ntvarTree->Branch(pair.first, &(pair.second));
+        ntvarTree->Branch(pair.first.c_str(), &(pair.second));
     }
     for (auto& pair: fCandidateVarMap) {
         if (!iCandidateVarMap.count(pair.first))
-            ntvarTree->Branch(pair.first, &(pair.second));
+            ntvarTree->Branch(pair.first.c_str(), &(pair.second));
     }
 
     candidateVariablesAdded = true;

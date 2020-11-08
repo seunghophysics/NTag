@@ -13,7 +13,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Oct 24, 2020";
+static std::string NTagDate    = "Nov 8, 2020";
 void PrintNTag();
 void PrintVersion();
 
@@ -168,17 +168,17 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
 
     nt->TMVATools.SetReader(methodName, weightName);
 
-    // Set N10 limits
-    const std::string &N10TH = parser.GetOption("-N10TH");
-    const std::string &N10MX = parser.GetOption("-N10MX");
-    if (!N10TH.empty()) {
-        if (!N10MX.empty())
-            nt->SetN10Limits(std::stoi(N10TH), std::stoi(N10MX));
+    // Set NHits limits
+    const std::string &NHITSTH = parser.GetOption("-NHITSTH");
+    const std::string &NHITSMX = parser.GetOption("-NHITSMX");
+    if (!NHITSTH.empty()) {
+        if (!NHITSMX.empty())
+            nt->SetNHitsLimits(std::stoi(NHITSTH), std::stoi(NHITSMX));
         else
-            nt->SetN10Limits(std::stoi(N10TH));
+            nt->SetNHitsLimits(std::stoi(NHITSTH));
     }
-    else if (!N10MX.empty()) {
-        nt->SetN10Limits(NTagDefault::N10TH, std::stoi(N10MX));
+    else if (!NHITSMX.empty()) {
+        nt->SetNHitsLimits(NTagDefault::NHITSTH, std::stoi(NHITSMX));
     }
 
     // Set T0 limits
@@ -199,10 +199,22 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (!TRBNWIDTH.empty()) {
         nt->SetTRBNWidth(std::stof(TRBNWIDTH));
     }
+    
+    // Set TWIDTH
+    const std::string &TWIDTH = parser.GetOption("-TWIDTH");
+    if (!TWIDTH.empty()) {
+        nt->SetNHitsWidth(std::stof(TWIDTH));
+    }
 
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
+    }
+    
+    // Turn Neut-fit on/off (default: on)
+    if (parser.OptionExists("-noFit")) {
+        nt->UseTMVA(false);
+        nt->UseNeutFit(false);
     }
 
     // Save residual TQ (default: off)
@@ -218,6 +230,8 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     // Use ToF-subtracted (residual) time (default: on)
     if (parser.OptionExists("-noTOF")) {
         nt->UseResidual(false);
+        nt->SetTMatchWindow(100.);
+        nt->SetTPeakSeparation(150.);
     }
 
     // Save signal flags from source file (MC-only)

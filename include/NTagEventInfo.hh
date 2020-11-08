@@ -72,8 +72,9 @@ namespace NTagConstant{
 * @brief Default parameters used in NTag.
 *******************************************/
 namespace NTagDefault{
-    constexpr int   N10TH        = 7;     ///< Default value for NTagEventInfo::N10TH.
-    constexpr int   N10MX        = 50;    ///< Default value for NTagEventInfo::N10MX.
+    constexpr float TWIDTH       = 10.;   ///< Default value for NTagEventInfo::TWIDTH.
+    constexpr int   NHITSTH      = 7;     ///< Default value for NTagEventInfo::NHITSTH.
+    constexpr int   NHITSMX      = 70;    ///< Default value for NTagEventInfo::NHITSMX.
     constexpr int   N200MX       = 200;   ///< Default value for NTagEventInfo::N200MX.
     constexpr float T0TH         = 5.;    ///< Default value for NTagEventInfo::T0TH. (us)
     constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX. (us)
@@ -81,7 +82,7 @@ namespace NTagDefault{
     constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
-    constexpr float TRBNWIDTH    = 6.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
+    constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
 }
 
 /**********************************************************
@@ -90,7 +91,7 @@ namespace NTagDefault{
  *
  * @details NTagEventInfo has two purposes:
  * - Containing event variables such as
- * #qismsk and candidate capture variables such as #vN10n
+ * #qismsk and candidate capture variables such as #vNHitsn
  * - Providing a set of manipulating functions that are
  * used in event handling
  *
@@ -105,7 +106,7 @@ namespace NTagDefault{
  * NTagEventInfo::SearchCaptureCandidates should be the
  * first place to have a look. When a peak in the residual
  * PMT hit times (or ToF-subtracted hit times) satisfying
- * primary selection cut (N10 &ge N10TH) is found, the
+ * primary selection cut (NHits &ge NHITSTH) is found, the
  * hit information within 10 ns are fed into a NTagCandidate
  * class via NTagEventInfo::SavePeakFromHit, and all feature
  * variables of that candidate is calcuated within the class
@@ -130,7 +131,7 @@ class NTagEventInfo
     public:
         /**
          * @brief Constructor of class NTagEventInfo.
-         * @details Default search settings for capture candidates, i.e., the range of N10 and T0,
+         * @details Default search settings for capture candidates, i.e., the range of NHits and T0,
          * are set in this constructor. You can always change the settings using the setter functions
          * provided with this class, but only if you use them before NTagIO::ReadFile is called.
          * Cuts in calculating TMVA classifier output can also be set using NTagTMVA::SetReaderCutRange method.
@@ -230,7 +231,7 @@ class NTagEventInfo
          * See the source code for the details.
          * Saved variables: #vFirstHitID, #vBeta14_10, #nCandidates
          * #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
-         * #vTRMS10n, #vN10n, #vReconCTn,
+         * #vTRMS_n, #vNHitsn, #vReconCTn,
          * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
          * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
          * @see: <a href="https://kmcvs.icrr.u-tokyo.ac.jp/svn/rep/skdoc/atmpd/publish/neutron2013/technote/
@@ -249,7 +250,7 @@ class NTagEventInfo
          * @brief Function for setting capture variables.
          * @details For MC input, NTagEventInfo::SetTrueCaptureInfo is invoked to separate true captures from false candidates.
          * See the source code for the details.
-         * Saved variables: #vTRMS10n, #vN10n, #vReconCTn, #vN1300, #vBeta14_50, #vNvx, #vNvy, #vNvz
+         * Saved variables: #vTRMS_n, #vNHitsn, #vReconCTn, #vN1300, #vBeta14_50, #vNvx, #vNvy, #vNvz
          * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
          * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
          */
@@ -337,13 +338,18 @@ class NTagEventInfo
         // Set tag conditions //
         ////////////////////////
 
-
         /**
-         * @brief Set limits #N10TH and #N10MX for N10.
-         * @param low Lower limit for N10.
-         * @param high Upper limit for N10.
+         * @brief Set width of NHits. 
+         * @param w Time width of TWIDTH. [ns]
          */
-        inline void SetN10Limits(int low, int high=NTagDefault::N10MX) { N10TH = low; N10MX = high; }
+        inline void SetNHitsWidth(float w) { TWIDTH = w; }
+        
+        /**
+         * @brief Set limits #NHITSTH and #NHITSMX for NHits.
+         * @param low Lower limit for NHits.
+         * @param high Upper limit for NHits.
+         */
+        inline void SetNHitsLimits(int low, int high=NTagDefault::NHITSMX) { NHITSTH = low; NHITSMX = high; }
 
         /**
          * @brief Set upper limit N200MX for N200.
@@ -428,6 +434,8 @@ class NTagEventInfo
         inline void ForceMCMode(bool b) { bForceMC = b; };
         
         inline void UseResidual(bool b) { bUseResidual = b; }
+        
+        inline void UseNeutFit(bool b) { bUseNeutFit = b; }
 
 
 
@@ -438,8 +446,10 @@ class NTagEventInfo
     private:
 
         // Tag conditions
-        int         N10TH,        ///< Lower limit for N10. @see NTagEventInfo::SetN10Limits
-                    N10MX,        ///< Upper limit for N10. @see NTagEventInfo::SetN10Limits
+        float       TWIDTH;     ///< Width of NHits. (By default it's 10 ns.) @see NTagEventInfo::SetNHitsWidth
+        
+        int         NHITSTH,        ///< Lower limit for NHits. @see NTagEventInfo::SetNHitsLimits
+                    NHITSMX,        ///< Upper limit for NHits. @see NTagEventInfo::SetNHitsLimits
                     N200MX;       ///< Upper limit for N200. @see NTagEventInfo::SetN200Max
         float       T0TH,         ///< Lower limit for T0. @see: NTagEventInfo::SetT0Limits
                     T0MX;         ///< Upper limit for T0. @see: NTagEventInfo::SetT0Limits
@@ -509,6 +519,7 @@ class NTagEventInfo
                                           Can be set to \c true from command line with option `-saveTQ`. */
         bool bForceMC;
         bool bUseResidual;
+        bool bUseNeutFit;
         bool candidateVariablesInitialized; /*!< A flag to check if #iCandidateVarMap and #fCandidateVarMap
                                                  are initialized. */
 

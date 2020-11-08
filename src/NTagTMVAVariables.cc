@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstring>
 
 #include <TTree.h>
 #include <TMVA/Reader.h>
@@ -15,7 +16,7 @@ NTagTMVAVariables::~NTagTMVAVariables() {}
 
 void NTagTMVAVariables::Clear()
 {
-    iVariableMap["N10"] = 0;
+    iVariableMap["NHits"] = 0;
     //iVariableMap["N50"] = 0;
     iVariableMap["N200"] = 0;
 
@@ -32,7 +33,7 @@ void NTagTMVAVariables::Clear()
     fVariableMap["AngleStdev"] = 0.;
     fVariableMap["AngleSkew"] = 0.;
     //fVariableMap["QSum10"] = 0.;
-    fVariableMap["TRMS10"] = 0.;
+    fVariableMap["TRMS"] = 0.;
     //fVariableMap["TRMS50"] = 0.;
     fVariableMap["Beta1"] = 0.;
     fVariableMap["Beta2"] = 0.;
@@ -40,7 +41,7 @@ void NTagTMVAVariables::Clear()
     fVariableMap["Beta4"] = 0.;
     fVariableMap["Beta5"] = 0.;
     fVariableMap["DWalln"] = 0.;
-    fVariableMap["DWallnMeanDir"] = 0.;
+    fVariableMap["DWallMeanDir"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
 
     for (const auto& pair: fVariableMap) {
@@ -51,9 +52,9 @@ void NTagTMVAVariables::Clear()
     }
 }
 
-std::vector<const char*> NTagTMVAVariables::Keys()
+std::vector<std::string> NTagTMVAVariables::Keys()
 {
-    std::vector<const char*> keys;
+    std::vector<std::string> keys;
 
     for (const auto& pair: fVariableMap) {
             keys.push_back(pair.first);
@@ -65,7 +66,7 @@ std::vector<const char*> NTagTMVAVariables::Keys()
 void NTagTMVAVariables::AddVariablesToReader(TMVA::Reader* reader)
 {
     for (auto& pair: fVariableMap) {
-        msg.Print(Form("Adding variable %s...", pair.first), pDEBUG);
+        msg.Print(Form("Adding variable %s...", pair.first.c_str()), pDEBUG);
         reader->AddVariable(pair.first, &pair.second);
     }
     std::cout << std::endl;
@@ -76,24 +77,24 @@ void NTagTMVAVariables::AddVariablesToReader(TMVA::Reader* reader)
 void NTagTMVAVariables::SetBranchAddressToTree(TTree* tree)
 {
     for (auto& pair: iEventVectorMap) {
-        tree->SetBranchAddress(pair.first, &(pair.second));
+        tree->SetBranchAddress(pair.first.c_str(), &(pair.second));
     }
 
     for (auto& pair: fEventVectorMap) {
         if (!iVariableMap.count(pair.first))
-            tree->SetBranchAddress(pair.first, &(pair.second));
+            tree->SetBranchAddress(pair.first.c_str(), &(pair.second));
     }
 }
 
 void NTagTMVAVariables::MakeBranchesToTree(TTree* tree)
 {
     for (auto& pair: iEventVectorMap) {
-        tree->Branch(pair.first, &(pair.second));
+        tree->Branch(pair.first.c_str(), &(pair.second));
     }
 
     for (auto& pair: fEventVectorMap) {
         if (!iVariableMap.count(pair.first))
-            tree->Branch(pair.first, &(pair.second));
+            tree->Branch(pair.first.c_str(), &(pair.second));
     }
 }
 
@@ -121,11 +122,11 @@ void NTagTMVAVariables::FillVectorMap()
 void NTagTMVAVariables::DumpCurrentVariables()
 {
     for (const auto& pair: fVariableMap) {
-        msg.Print(Form("%s: %f", pair.first, pair.second));
+        msg.Print(Form("%s: %f", pair.first.c_str(), pair.second));
     }
 }
 
 int NTagTMVAVariables::GetNumberOfCandidates()
 {
-    return static_cast<int>(iEventVectorMap["N10"]->size());
+    return static_cast<int>(fEventVectorMap.begin()->second->size());
 }

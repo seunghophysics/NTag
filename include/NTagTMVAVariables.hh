@@ -22,13 +22,13 @@ namespace TMVA
 class TTree;
 
 /** A type definition for a map from a character key to an integer variable. */
-typedef std::map<const char*, int>   IVarMap;
+typedef std::map<std::string, int>   IVarMap;
 /** A type definition for a map from a character key to an float variable. */
-typedef std::map<const char*, float> FVarMap;
+typedef std::map<std::string, float> FVarMap;
 /** A type definition for a map from a character key to a vector of integer variables. */
-typedef std::map<const char*, std::vector<int>*>   IVecMap;
+typedef std::map<std::string, std::vector<int>*>   IVecMap;
 /** A type definition for a map from a character key to a vector of float variables. */
-typedef std::map<const char*, std::vector<float>*> FVecMap;
+typedef std::map<std::string, std::vector<float>*> FVecMap;
 
 /********************************************************
  * @brief The class for handling capture candidate
@@ -79,7 +79,7 @@ class NTagTMVAVariables
         /**
          * @brief Returns a vector of all variable names (keys).
          */
-        std::vector<const char*> Keys();
+        std::vector<std::string> Keys();
 
         /**
          * @brief Adds all variables declared in #NTagTMVAVariables::Clear to a TMVA reader.
@@ -113,7 +113,7 @@ class NTagTMVAVariables
 
         /**
          * @brief Returns the number of candidates saved in this class.
-         * @return The size of a vector (key: "N10") held by #iEventVectorMap.
+         * @return The size of a vector (key: "NHits") held by #iEventVectorMap.
          */
         int  GetNumberOfCandidates();
 
@@ -126,7 +126,7 @@ class NTagTMVAVariables
          * @param value A value to push back.
          */
         template <typename T>
-        void                PushBack(const char* key, T value)
+        void                PushBack(std::string key, T value)
                             { if (std::is_integral<T>::value) iEventVectorMap[key]->push_back(value);
                               else fEventVectorMap[key]->push_back(value); }
 
@@ -137,7 +137,7 @@ class NTagTMVAVariables
          * determine whether \c key should be looked up in #iVariableMap or #fVariableMap.
          */
         template <typename T>
-        T                   Get(const char* key)
+        T                   Get(std::string key)
                             { if (std::is_integral<T>::value) return iVariableMap[key];
                               else return fVariableMap[key]; }
 
@@ -149,7 +149,7 @@ class NTagTMVAVariables
          * determine whether \c key should be taken from #iEventVectorMap or #fEventVectorMap.
          */
         template <typename T>
-        T                   Get(const char* key, int iCandidate)
+        T                   Get(std::string key, int iCandidate)
                             { if (std::is_integral<T>::value) return iEventVectorMap[key]->at(iCandidate);
                               else return fEventVectorMap[key]->at(iCandidate); }
 
@@ -158,7 +158,7 @@ class NTagTMVAVariables
          * @param key Name of a variable.
          * @return The float vector of \c key from #fEventVectorMap.
          */
-        std::vector<float>* GetVector(const char* key)
+        std::vector<float>* GetVector(std::string key)
                             { return fEventVectorMap[key]; }
 
         /**
@@ -167,7 +167,7 @@ class NTagTMVAVariables
          * @param var Feature variable value.
          */
         template <typename T>
-        void Set(const char* key, T var) { if (std::is_integral<T>::value) iVariableMap[key] = var;
+        void Set(std::string key, T var) { if (std::is_integral<T>::value) iVariableMap[key] = var;
                                            else fVariableMap[key] = var; }
 
         /**
@@ -179,7 +179,7 @@ class NTagTMVAVariables
          * @param key Feature variable name.
          * @return \c true if \p key is in #fVariableMap, otherwise \c false.
          */
-        bool IsTMVAVariable(const char* key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
+        bool IsTMVAVariable(std::string key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
         
         void SetCaptureType(int id) { captureType = id; }
         
