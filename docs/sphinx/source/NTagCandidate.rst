@@ -1,4 +1,4 @@
-NTagEventInfo
+NTagCandidate
 =============
 
 .. doxygenclass:: NTagCandidate
