@@ -10,11 +10,12 @@ Class Description
    :maxdepth: 1
    
    NTagEventInfo
+   NTagCandidate
    NTagIO
-   NTagROOT
-   NTagZBS
    NTagTMVA
    NTagTMVAVariables
+   NTagROOT
+   NTagZBS
    NTagMessage
 
 Indices and tables
