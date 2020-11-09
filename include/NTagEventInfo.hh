@@ -72,7 +72,7 @@ namespace NTagConstant{
 * @brief Default parameters used in NTag.
 *******************************************/
 namespace NTagDefault{
-    constexpr float TWIDTH       = 14.;   ///< Default value for NTagEventInfo::TWIDTH.
+    constexpr float TWIDTH       = 14.;   ///< Default value for NTagEventInfo::TWIDTH. (ns)
     constexpr int   NHITSTH      = 7;     ///< Default value for NTagEventInfo::NHITSTH.
     constexpr int   NHITSMX      = 70;    ///< Default value for NTagEventInfo::NHITSMX.
     constexpr int   N200MX       = 200;   ///< Default value for NTagEventInfo::N200MX.
