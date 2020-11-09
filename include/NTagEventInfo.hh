@@ -230,11 +230,6 @@ class NTagEventInfo
          * @details NTagEventInfo::SavePeakFromHit is called to save peaks that match
          * the primary selection conditions as neutron capture candidates.
          * See the source code for the details.
-         * Saved variables: #vFirstHitID, #vBeta14_10, #nCandidates
-         * #vFirstHitID, #vBeta14_10, #vN1300, #vBeta14_50,
-         * #vTRMS_n, #vNHitsn, #vReconCTn,
-         * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
-         * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
          * @see: <a href="https://kmcvs.icrr.u-tokyo.ac.jp/svn/rep/skdoc/atmpd/publish/neutron2013/technote/
          * tn_neutron2.pdf">Tristan's ntag technote</a> for the description of Neut-fit.
          */
@@ -248,12 +243,9 @@ class NTagEventInfo
         virtual void SavePeakFromHit(int hitID);
 
         /**
-         * @brief Function for setting capture variables.
-         * @details For MC input, NTagEventInfo::SetTrueCaptureInfo is invoked to separate true captures from false candidates.
-         * See the source code for the details.
-         * Saved variables: #vTRMS_n, #vNHitsn, #vReconCTn, #vN1300, #vBeta14_50, #vNvx, #vNvy, #vNvz
-         * #vIsCapture, #vIsGdCapture, #vDoubleCount, #vCTDiff,
-         * #vTrueCapVX, #vTrueCapVY, #vTrueCapVZ
+         * @brief Function for setting candidate variables.
+         * @details Extract candidate variables from the candidate vector #vCandidates. 
+         * @see NTagEventInfo::ExtractCandidateVariables
          */
         virtual void SetCandidateVariables();
 
@@ -377,7 +369,7 @@ class NTagEventInfo
         /**
          * @brief Set the width #TMATCHWINDOW of the time window used in true-to-reconstructed capture mapping.
          * @param t Width of the time window for capture mapping. [ns]
-         * @see NTagEventInfo::IsCapture, NTagEventInfo::IsGdCapture
+         * @see NTagCandidate::SetTrueInfo
          */
         inline void SetTMatchWindow(float t) { TMATCHWINDOW = t; }
 
