@@ -28,17 +28,18 @@ void NTagTMVAVariables::Clear()
     }
 
     fVariableMap["AngleMean"] = 0.;
-    fVariableMap["AngleStdev"] = 0.;
     fVariableMap["AngleSkew"] = 0.;
-    fVariableMap["TRMS"] = 0.;
+    fVariableMap["AngleStdev"] = 0.;
     fVariableMap["Beta1"] = 0.;
     fVariableMap["Beta2"] = 0.;
     fVariableMap["Beta3"] = 0.;
     fVariableMap["Beta4"] = 0.;
     fVariableMap["Beta5"] = 0.;
     fVariableMap["DWall"] = 0.;
+    fVariableMap["DWall_n"] = 0.;
     fVariableMap["DWallMeanDir"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
+    fVariableMap["TRMS"] = 0.;
 
     for (const auto& pair: fVariableMap) {
         if (fEventVectorMap.find(pair.first) == fEventVectorMap.end())

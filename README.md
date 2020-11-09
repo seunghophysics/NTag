@@ -77,7 +77,7 @@ NTag -in (input filename) -out (output filename)
 |-out     | (output filename)             | `NTag -in in.dat -out out.root`                 | optional  |
 |-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
 |-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
-|-method  | (MVA training method name)    | `NTag -in in.dat -method MLP,BDT,LD,SVM -train` | optional  |
+|-method  | (MVA training method name)    | `NTag -in in*.root -method MLP,BDT,LD -train`   | optional  |
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
 |-NHITSTH/MX| (NHits threshold / maximum) | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`        | optional  |
 |-TWIDTH  | (Sliding T window width) [ns] | `NTag -in in.dat -TWIDTH 13`                    | optional  |
@@ -91,7 +91,7 @@ NTag -in (input filename) -out (output filename)
 |Option|                      Example usage                                | Description |
 |:-----|-------------------------------------------------------------------|-------------|
 |-apply|`NTag -in NTagOut.root -apply -method MLP -weight weight.xml`|Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
-|-train|`NTag -in NTagOut.root -train` |Train with NTag output from MC (with ntvar & truth trees) to generate weight files.|
+|-train|`NTag -in NTagOut00\*.root -train` |Train with NTag output from MC (with ntvar & truth trees) to generate weight files. Wildcard `\*` usable. |
 |-multiclass|`NTag (...) -train -multiclass`  |Start multiclass (Gd/H/Noise) classification instead of binary.|
 |-debug|`NTag (...) -debug` |Show debug messages on output stream.|
 |-noMVA|`NTag (...) -noMVA` |Only search for candidates, without applying TMVA to get classifer output. The branch `TMVAOutput` is not generated. |

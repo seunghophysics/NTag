@@ -72,7 +72,7 @@ namespace NTagConstant{
 * @brief Default parameters used in NTag.
 *******************************************/
 namespace NTagDefault{
-    constexpr float TWIDTH       = 10.;   ///< Default value for NTagEventInfo::TWIDTH.
+    constexpr float TWIDTH       = 13.;   ///< Default value for NTagEventInfo::TWIDTH.
     constexpr int   NHITSTH      = 7;     ///< Default value for NTagEventInfo::NHITSTH.
     constexpr int   NHITSMX      = 70;    ///< Default value for NTagEventInfo::NHITSMX.
     constexpr int   N200MX       = 200;   ///< Default value for NTagEventInfo::N200MX.
@@ -82,8 +82,8 @@ namespace NTagDefault{
     constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
-    constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
-    constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
+    constexpr float TRBNWIDTH    = 3.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
+    constexpr float PVXRES       = 20.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
 }
 
 /**********************************************************
