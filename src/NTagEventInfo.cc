@@ -107,7 +107,7 @@ void NTagEventInfo::SetPromptVertex()
         case mTRUE: {
             skgetv_();
             float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
-            float maxd = 100.;
+            float maxd = 150.;
             while (Norm(dx, dy, dz) > maxd) {
                 dx = gRandom->BreitWigner(0, PVXRES);
                 dy = gRandom->BreitWigner(0, PVXRES);

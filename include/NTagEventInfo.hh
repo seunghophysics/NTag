@@ -83,7 +83,7 @@ namespace NTagDefault{
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
     constexpr float TRBNWIDTH    = 3.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
-    constexpr float PVXRES       = 20.;   ///< Default value for NTagEventInfo::PVXRES. (cm)
+    constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
 }
 
 /**********************************************************
