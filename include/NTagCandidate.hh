@@ -15,6 +15,17 @@
 #include "NTagMessage.hh"
 #include "NTagTMVAVariables.hh"
 
+/******************************************
+* @brief Feature extraction modes.
+* @see NTagEventInfo::SetVariablesForMode.
+*******************************************/
+enum ExtractionMode
+{
+    tNEUTFIT = 50,      ///< Extract Neut-fit variables from ToF-subtracted (residual) hit times.
+    tBONSAI = 1300,     ///< Extract BONSAI variables within 1.3 us window.
+    tNEUTFIT_RAW = 200  ///< Extract Neut-fit variables from raw hit times.
+};
+
 class NTagEventInfo;
 
 /********************************************************
@@ -91,7 +102,7 @@ class NTagCandidate
          * @brief Set feature variables in #iVarMap and #fVarMap.
          * @details Called inside NTagEventInfo::SavePeakFromHit which is called in
          * NTagEventInfo::SearchCaptureCandidates. Calls other setter functions,
-         * i.e., NTagCandidate::SetVariablesWithinTWindow, NTagCandidate::SetTrueInfo,
+         * i.e., NTagCandidate::SetVariablesForMode, NTagCandidate::SetTrueInfo,
          * NTagCandidate::SetNNVariables, NTagCandidate::SetTMVAOutput.
          */
         void SetVariables();
@@ -108,7 +119,7 @@ class NTagCandidate
          * @param tWindow Time window modes in ns. Only 50 and 1300 are supported at the moment.
          * @see NTagCandidate::MinimizeTRMS for the Neut-fit algorithm.
          */
-        void SetVariablesWithinTWindow(int tWindow);
+        void SetVariablesForMode(ExtractionMode tWindow);
 
         /**
          * @brief Searches for the relevant true capture in case the input file is MC.

@@ -60,12 +60,12 @@ void NTagCandidate::SetVariables()
 
     if (currentEvent->bUseNeutFit) {
         if (currentEvent->bUseResidual)
-            SetVariablesWithinTWindow(50);
+            SetVariablesForMode(tNEUTFIT);
         else
-            SetVariablesWithinTWindow(200);
+            SetVariablesForMode(tNEUTFIT_RAW);
     }
 
-    SetVariablesWithinTWindow(1300);
+    SetVariablesForMode(tBONSAI);
     if (currentEvent->bUseNeutFit)
         fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
                                       fVarMap["bsvy"] - fVarMap["nvy"],
@@ -78,22 +78,22 @@ void NTagCandidate::SetVariables()
     }
 }
 
-void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
+void NTagCandidate::SetVariablesForMode(ExtractionMode tWindow)
 {
     float leftEdge = 0;
     float rightEdge = 0;
 
-    if (tWindow == 50) {
-        leftEdge = -25; rightEdge = +25;
+    if (tWindow == tNEUTFIT) {
+        leftEdge = -tNEUTFIT*0.5; rightEdge = +tNEUTFIT*0.5;
     }
-    else if (tWindow == 200) {
-        leftEdge = -50; rightEdge = +150;
+    else if (tWindow == tNEUTFIT_RAW) {
+        leftEdge = -tNEUTFIT_RAW*0.25; rightEdge = +tNEUTFIT_RAW*0.75;
     }
-    else if (tWindow == 1300) {
-        leftEdge = -520.8; rightEdge = +779.2;
+    else if (tWindow == tBONSAI) {
+        leftEdge = -tBONSAI*0.4; rightEdge = +tBONSAI*0.6;
     }
     else {
-        msg.Print("In function NTagCandidate::SetVariablesWithinTWindow", pWARNING);
+        msg.Print("In function NTagCandidate::SetVariablesForMode", pWARNING);
         msg.Print(Form("Input time window %d is not compatible.", tWindow), pERROR);
     }
 
@@ -115,7 +115,7 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
     }
 
     // 50 ns window
-    if (tWindow == 50) {
+    if (tWindow == tNEUTFIT) {
         iVarMap["N50"] = tiskz.size();
 
         float nv[3];
@@ -159,8 +159,8 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
                                       currentEvent->pvz - fVarMap["nvz"]);
     }
 
-    // 500 ns window
-    else if (tWindow == 200) {
+    // 200 ns window
+    else if (tWindow == tNEUTFIT_RAW) {
         iVarMap["N200Raw"] = tiskz.size();
 
         float nv[3];
@@ -198,14 +198,10 @@ void NTagCandidate::SetVariablesWithinTWindow(int tWindow)
             }
         }
         fVarMap["TRMS_n"] = GetTRMSFromStartIndex(tiskz200_ToF, bestIndex, TWIDTH);
-
-        //fVarMap["prompt_nfit"] = Norm(currentEvent->pvx - fVarMap["nvx"],
-        //                              currentEvent->pvy - fVarMap["nvy"],
-        //                              currentEvent->pvz - fVarMap["nvz"]);
     }
 
     // 1300 ns window
-    else if (tWindow == 1300) {
+    else if (tWindow == tBONSAI) {
         if (currentEvent->nProcessedEvents == 0 && candidateID == 0)
             msg.PrintBlock("Initializing BONSAI lfallfit...", pSUBEVENT);
 
@@ -345,65 +341,75 @@ std::array<float, 6> NTagCandidate::GetBetaArray(const std::vector<int>& PMTID, 
 
 float NTagCandidate::MinimizeTRMS(const std::vector<float>& T, const std::vector<int>& PMTID, float rmsFitVertex[])
 {
-    float vertexSearchRange = currentEvent->VTXSRCRANGE;
-    float delta;
+    float maxSearchRange = currentEvent->VTXSRCRANGE;
+    float gridWidth;
     bool doSort = true;
     int nHits = static_cast<int>(T.size());
     assert(nHits == static_cast<int>(PMTID.size()));
 
-    (vertexSearchRange > 200) ? delta = 100 : delta = vertexSearchRange / 2.;
+    (maxSearchRange > 200) ? gridWidth = 100 : gridWidth = maxSearchRange / 2.;
     std::vector<float>  t_ToF;
-    // std::vector<float>* minTPointer;
 
-    int rMax, zMax;
-    zMax = (int)(2*ZPINTK / (float)delta);
-    rMax = (int)(2*RINTK / (float)delta);
+    int nGridsInR, nGridsInZ;
+    nGridsInZ = (int)(2*ZPINTK / (float)gridWidth);
+    nGridsInR = (int)(2*RINTK / (float)gridWidth);
 
-    // main search position starts from tank center
-    std::array<float, 3> vecR = {0., 0., 0.};
-    std::array<float, 3> tmpVertex = {0., 0., 0.}; // temp vertex to save minimizing vertex
-    std::array<float, 3> srcVertex;                // loop search vertex
+    // Grid search starts from tank center
+    std::array<float, 3> gridOrigin = {0., 0., 0.};       // grid origin in the grid search loop
+    std::array<float, 3> minGridPoint = {0., 0., 0.};     // temp array to save TRMS-minimizing grid point
+    std::array<float, 3> gridPoint;                       // point in grid to find TRMS
 
     float minTRMS = 9999.;
     float tRMS;
 
-    while (delta > 0.5) {
+    // Repeat until grid width gets small enough
+    while (gridWidth > 0.5) {
 
-        for (float x = 0; x < rMax; x++) {
-            srcVertex[0] = delta * (x - rMax/2.) + vecR[0];
-            for (float y = 0; y < rMax; y++) {
-                srcVertex[1] = delta * (y - rMax/2.) + vecR[1];
+        // Allocate coordinates to a grid point, X and Y
+        for (int iGridX = 0; iGridX < nGridsInR; iGridX++) {
+            gridPoint[0] = gridOrigin[0] + (iGridX - nGridsInR/2.) * gridWidth ;
 
-                if (sqrt(srcVertex[0]*srcVertex[0] + srcVertex[1]*srcVertex[1]) > RINTK) continue;
-                for (float z = 0; z < zMax; z++) {
-                    srcVertex[2] = delta * (z - zMax/2.) + vecR[2];
+            for (int iGridY = 0; iGridY < nGridsInR; iGridY++) {
+                gridPoint[1] = gridOrigin[1] + (iGridY - nGridsInR/2.) * gridWidth;
 
-                    if (srcVertex[2] > ZPINTK || srcVertex[2] < -ZPINTK) continue;
-                    if (Norm(srcVertex[0] - vecR[0], srcVertex[1] - vecR[1], srcVertex[2] - vecR[2])
-                        > vertexSearchRange) continue;
+                // Skip grid point with R outside of tank
+                if (sqrt(gridPoint[0]*gridPoint[0] + gridPoint[1]*gridPoint[1]) > RINTK) continue;
 
-                    t_ToF = currentEvent->GetToFSubtracted(T, PMTID, srcVertex.data(), doSort);
+                // Allocate coordinates to a grid point, Z
+                for (int iGridZ = 0; iGridZ < nGridsInZ; iGridZ++) {
+                    gridPoint[2] = gridOrigin[2] + (iGridZ - nGridsInZ/2.) * gridWidth;
 
+                    // Skip grid point with Z outside of tank
+                    if (gridPoint[2] > ZPINTK || gridPoint[2] < -ZPINTK) continue;
+
+                    // Skip grid point further away from the maximum search range
+                    if (GetDistance(gridOrigin.data(), gridPoint.data()) > maxSearchRange) continue;
+
+                    // Subtract ToF from the search vertex
+                    t_ToF = currentEvent->GetToFSubtracted(T, PMTID, gridPoint.data(), doSort);
+                    // Get TRMS from the residual hit times
                     tRMS = GetTRMS(t_ToF);
 
+                    // Save TRMS minimizing grid point
                     if (tRMS < minTRMS) {
                         minTRMS = tRMS;
-                        tmpVertex = srcVertex;
-                        //minTPointer = &t_ToF;
+                        minGridPoint = gridPoint;
                     }
                 }
             }
         }
-        vecR = tmpVertex;
-        delta = delta / 2.;
+
+        // Change grid origin to the TRMS-minimizing grid point,
+        // shorten the grid width,
+        // and repeat until grid width gets small enough!
+        gridOrigin = minGridPoint;
+        gridWidth = gridWidth / 2.;
     }
 
-    //int index[nHits];
-    //TMath::Sort(nHits, minTPointer->data(), index, false);
-
-    rmsFitVertex[0] = vecR[0];
-    rmsFitVertex[1] = vecR[1];
-    rmsFitVertex[2] = vecR[2];
+    // Output fit vertex = final grid origin
+    rmsFitVertex[0] = gridOrigin[0];
+    rmsFitVertex[1] = gridOrigin[1];
+    rmsFitVertex[2] = gridOrigin[2];
 
     return minTRMS;
 }

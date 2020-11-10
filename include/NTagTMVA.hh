@@ -192,9 +192,9 @@ class NTagTMVA
 
         // Making weights
         std::map<std::string, bool> fUse;
-        TMVA::Factory*             fFactory;
-        TCut                       fSigCut,  ///< Signal cut
-                                   fBkgCut;  ///< Background cut
+        TMVA::Factory*              fFactory;
+        TCut                        fSigCut,  ///< Signal cut
+                                    fBkgCut;  ///< Background cut
 
         // Applying weight
         /** TMVA reader. */

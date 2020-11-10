@@ -12,6 +12,7 @@
 #include <array>
 #include <vector>
 #include <ctime>
+#include <cmath>
 
 #include <TString.h>
 #include <TMVA/Reader.h>
@@ -78,7 +79,7 @@ namespace NTagDefault{
     constexpr int   N200MX       = 200;   ///< Default value for NTagEventInfo::N200MX.
     constexpr float T0TH         = 5.;    ///< Default value for NTagEventInfo::T0TH. (us)
     constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX. (us)
-    constexpr float VTXSRCRANGE  = 4000.; ///< Default value for NTagEventInfo::VTXSRCRANGE. (cm)
+    constexpr float VTXSRCRANGE  = 5000.; ///< Default value for NTagEventInfo::VTXSRCRANGE. (cm)
     constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
@@ -244,7 +245,7 @@ class NTagEventInfo
 
         /**
          * @brief Function for setting candidate variables.
-         * @details Extract candidate variables from the candidate vector #vCandidates. 
+         * @details Extract candidate variables from the candidate vector #vCandidates.
          * @see NTagEventInfo::ExtractCandidateVariables
          */
         virtual void SetCandidateVariables();
