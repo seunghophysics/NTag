@@ -176,7 +176,7 @@ All variables with suffix `_n` are variables calculated using the Neut-fit verte
 
 | Branch name   | Size          | Description                                                   |
 |---------------|---------------|---------------------------------------------------------------|
-| TrgType		| 1             | Trigger offset                                                |
+| TrgOffset		| 1             | Trigger offset                                                |
 | NTrueCaptures | 1             | # of true neutron captures                                    |
 | TrueCT        | NTrueCaptures | True capture time (ns)                                        |
 | capvx 	    | NTrueCaptures | True capture vertex (cm)                                      |
