@@ -555,10 +555,10 @@ void NTagEventInfo::SearchCaptureCandidates()
         // If NHits is not greater than previous, skip
         if ( NHitsNew <= NHitsPrevious ) continue;
 
-        iHitPrevious = iHit;
-        t0Previous   = t0New;
-        NHitsPrevious  = NHitsNew;
-        N200Previous = N200New;
+        iHitPrevious  = iHit;
+        t0Previous    = t0New;
+        NHitsPrevious = NHitsNew;
+        N200Previous  = N200New;
     }
     // Save the last peak
     if (NHitsPrevious >= NHITSTH)

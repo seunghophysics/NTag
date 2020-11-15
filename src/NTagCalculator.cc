@@ -165,7 +165,7 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
         return 0;
     else {
         r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
-        return (180./M_PI) * sinf(sqrt(r2));
+        return (180./M_PI) * asin(sqrt(r2));
     }
 }
 
