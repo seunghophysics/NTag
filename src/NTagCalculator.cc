@@ -165,7 +165,10 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
         return 0;
     else {
         r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
-        return (180./M_PI) * asin(sqrt(r2));
+        if (r2 >= 1)
+            return 90.;
+        else
+            return (180./M_PI) * asin(sqrt(r2));
     }
 }
 
@@ -204,10 +207,14 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
     float skewness = GetSkew(openingAngles);
 
     if (isnan(mean) || isnan(median) || isnan(stdev) || isnan(skewness)) {
+        if (isnan(mean)) std::cout << "mean nan" << std::endl;
+        if (isnan(median)) std::cout << "median nan" << std::endl;
+        if (isnan(stdev)) std::cout << "stdev nan" << std::endl;
+        if (isnan(skewness)) std::cout << "skewness nan" << std::endl;
         std::cout << "!!!! NaN detected !!!!" << std::endl;
         std::cout << "======================" << std::endl;
         for (auto const& angle: openingAngles) {
-            std::cout << angle;
+            std::cout << angle << std::endl;
         }
         abort();
     }
