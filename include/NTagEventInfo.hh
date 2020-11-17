@@ -367,7 +367,7 @@ class NTagEventInfo
          * @param cut Vertex search range to be used in NTagEventInfo::MinimizeTRMS
          */
         inline void SetDistanceCut(float cut) { VTXSRCRANGE = cut; }
-        
+
         /**
          * @brief Set vertex search range #MINGRIDWIDTH in NTagEventInfo::MinimizeTRMS.
          * @param w Vertex search grid width [cm] to be used in NTagCandidate::MinimizeTRMS.
@@ -480,7 +480,7 @@ class NTagEventInfo
         float       VTXSRCRANGE;  ///< Vertex search range in NTagCandidate::MinimizeTRMS. @see NTagCandidate::SetDistanceCut
         float       MINGRIDWIDTH;   ///< Vertex search grid width in NTagCandidate::MinimizeTRMS.
         float       PVXRES;       ///< Prompt vertex resolution. (&Gamma of Breit-Wigner distribution) [cm]
-        
+
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex
                     customvy,     ///< Y coordinate of a custom prompt vertex

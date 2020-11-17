@@ -73,7 +73,7 @@ void NTagCandidate::SetVariables()
     //                                  fVarMap["bsvz"] - fVarMap["nvz"]);
 
     if (!currentEvent->bData)  SetTrueInfo();
-    
+
     if (currentEvent->bUseTMVA) {
         SetNNVariables();
         SetTMVAOutput();

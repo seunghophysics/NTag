@@ -39,6 +39,7 @@ void NTagTMVAVariables::Clear()
     fVariableMap["DWall_n"] = 0.;
     fVariableMap["DWallMeanDir"] = 0.;
     fVariableMap["prompt_nfit"] = 0.;
+    fVariableMap["ThetaMeanDir"] = 0.;
     fVariableMap["TRMS"] = 0.;
 
     for (const auto& pair: fVariableMap) {

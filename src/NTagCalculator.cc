@@ -135,7 +135,7 @@ TVector3 GetMeanDirection(const std::vector<int>& PMTID, float v[3])
             u[dim] += vecFromVertexToPMT[dim] / distFromVertexToPMT;
         }
     }
-        
+
     return TVector3(u).Unit();
 }
 
@@ -169,7 +169,7 @@ float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float v[3])
                    NTagConstant::PMTXYZ[PMTID[iHit]-1][2] - v[2]);
         angles.push_back((180/M_PI)*meanDir.Angle(u.Unit()));
     }
-    
+
     return GetMean(angles);
 }
 
@@ -180,7 +180,7 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     double c = (uB-uC).Mag();
 
     double r = a*b*c / sqrt((a+b+c)*(-a+b+c)*(a-b+c)*(a+b-c));
-    
+
     if (r >= 1)
         return 90.;
     else
