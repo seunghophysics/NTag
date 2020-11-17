@@ -16,7 +16,7 @@ In detail, the data flow and the search process in one event progresses as follo
 
 2. The "ReadEvent" functions mentioned above also call `NTagEventInfo::AppendRawHitInfo` to append the raw TQ hit information from the common block `sktqz` to the private member vectors of `NTagEventInfo`: `vTISKZ`, `vQISKZ`, and `vCABIZ`. The neutron capture candidates will be searched for within these raw TQ vectors.
 
-3. If the raw TQ vectors are set, `NTagEventInfo::SearchNeutronCaptures` will search for neutron capture candidates, looking for NHits peaks within the ToF-subtracted `vTISKZ`. Each selected peak will be saved as an instance of the class `NTagCandidate`, and `NTagEventInfo::vCandidates` is a STL vector that stores all `NTagCandidate` instances from the event. 
+3. If the raw TQ vectors are set, `NTagEventInfo::SearchNeutronCaptures` will search for neutron capture candidates, looking for NHits peaks within the ToF-subtracted `vTISKZ`. Each selected peak will be saved as an instance of the class `NTagCandidate`, and `NTagEventInfo::vCandidates` is a STL vector that stores all `NTagCandidate` instances from the event.
 
 4. Via function `NTagCandidate::SetNNVariables` The properties of the found capture candidates will be passed on to the class `NTagTMVAVariables`, which holds the variables to be fed to the neural network.
 
@@ -54,9 +54,9 @@ cd NTag; make
 | bash       | `. path/bash set`     | `. path/bash unset`     |
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
-Executing NTag binary becomes path-independent after installing the binary path in $PATH. 
+Executing NTag binary becomes path-independent after installing the binary path in $PATH.
 
-To use NTag, just type in, for example, 
+To use NTag, just type in, for example,
 ```
 NTag -in (input file)
 ```
@@ -84,6 +84,8 @@ NTag -in (input filename) -out (output filename)
 |-T0TH/MX | (T0 threshold / maximum) [ns] | `NTag -in in.dat -T0TH 18 -NHITSMX 835`         | optional  |
 |-TRBNWIDTH | (PMT deadtime width) [&mus] | `NTag -in in.dat -TRBNWIDTH 6`                  | optional  |
 |-PVXRES | (Prompt vertex resolution) [cm] | `NTag -in in.dat -PVXRES 10`                   | optional  |
+|-VTXSRCRANGE | (Neut-fit search range) [cm] | `NTag -in in.dat -VTXSRCRANGE 1000`          | optional  |
+|-MINGRIDWIDTH | (Neut-fit minimum grid width) [cm] | `NTag -in in.dat -MINGRIDWIDTH 10`    | optional  |
 |-sigTQpath | (output from `-readTQ` option) | `NTag -in in.dat -sigTQpath sigtq.root`      | optional  |
 
 * Run options
@@ -96,7 +98,7 @@ NTag -in (input filename) -out (output filename)
 |-debug|`NTag (...) -debug` |Show debug messages on output stream.|
 |-noMVA|`NTag (...) -noMVA` |Only search for candidates, without applying TMVA to get classifer output. The branch `TMVAOutput` is not generated. |
 |-noFit|`NTag (...) -noFit` |Neut-fit is not used and no related variables are saved to save time. `-noMVA` is automatically called. |
-|-noTOF|`NTag (...) -noTOF` |Stop subtracting ToF from raw hit times. This option removes prompt vertex dependency. |
+|-noTOF|`NTag (...) -noTOF` |Disable subtracting ToF from raw hit times. This option removes prompt vertex dependency. |
 |-readTQ|`NTag (...) -readTQ`  |Extract raw TQ from input file and save to a flat ROOT tree `rawtq`. Applicable to ZBS only. |
 |-saveTQ|`NTag (...) -saveTQ`  |Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree `restq`.|
 |-forceMC|`NTag (...) -forceMC`  |Force MC mode for data files. Useful for dummy data without trigger information. |
