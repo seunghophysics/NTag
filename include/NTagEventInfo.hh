@@ -80,7 +80,8 @@ namespace NTagDefault{
     constexpr float T0TH         = 5.;    ///< Default value for NTagEventInfo::T0TH. (us)
     constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX. (us)
     constexpr float VTXSRCRANGE  = 5000.; ///< Default value for NTagEventInfo::VTXSRCRANGE. (cm)
-    constexpr float TMATCHWINDOW = 40.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
+    constexpr float MINGRIDWIDTH = 20;    ///< Default value for NTagEventInfo::MINGRIDWIDTH. (cm)
+    constexpr float TMATCHWINDOW = 100.;  ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
     constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
     constexpr float TRBNWIDTH    = 3.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
@@ -366,6 +367,12 @@ class NTagEventInfo
          * @param cut Vertex search range to be used in NTagEventInfo::MinimizeTRMS
          */
         inline void SetDistanceCut(float cut) { VTXSRCRANGE = cut; }
+        
+        /**
+         * @brief Set vertex search range #MINGRIDWIDTH in NTagEventInfo::MinimizeTRMS.
+         * @param w Vertex search grid width [cm] to be used in NTagCandidate::MinimizeTRMS.
+         */
+        inline void SetMinGridWidth(float w) { MINGRIDWIDTH = w; }
 
         /**
          * @brief Set the width #TMATCHWINDOW of the time window used in true-to-reconstructed capture mapping.
@@ -470,9 +477,10 @@ class NTagEventInfo
                                   ///< @see: NTagEventInfo::SetTMatchWindow
         float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see: NTagEventInfo::SetTPeakSeparation
         float       ODHITMX;      ///< Threshold on the number of OD hits. Not used at the moment.
-        float       VTXSRCRANGE;  ///< Vertex search range in NTagEventInfo::MinimizeTRMS. @see NTagEventInfo::SetDistanceCut
+        float       VTXSRCRANGE;  ///< Vertex search range in NTagCandidate::MinimizeTRMS. @see NTagCandidate::SetDistanceCut
+        float       MINGRIDWIDTH;   ///< Vertex search grid width in NTagCandidate::MinimizeTRMS.
         float       PVXRES;       ///< Prompt vertex resolution. (&Gamma of Breit-Wigner distribution) [cm]
-
+        
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex
                     customvy,     ///< Y coordinate of a custom prompt vertex
@@ -623,7 +631,7 @@ class NTagEventInfo
         // Variables from secondaries
         int                 nSavedSec,  ///< Number of saved secondaries.
                             nAllSec;    ///< Number of all secondaries in the input file.
-        std::vector<int> 	vSecPID,    ///< Vector of saved secondary PIDs. [Size: #nSavedSec]
+        std::vector<int>    vSecPID,    ///< Vector of saved secondary PIDs. [Size: #nSavedSec]
                             vSecIntID,  ///< Vector of saved secondary interaction IDs. [Size: #nSavedSec]
                             vParentPID, ///< Vector of saved parent PIDs. [Size: #nSavedSec]
                             vCapID;     /*!< Vector of true capture indices that generates the secondary.

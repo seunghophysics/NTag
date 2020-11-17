@@ -171,7 +171,8 @@ class NTagCandidate
          * <a href="https://arxiv.org/pdf/1602.02469.pdf">arXiv:1602.02469</a>.
          */
         std::array<float, 6> GetBetaArray(const std::vector<int>& PMTID, float v[3]);
-        /**
+
+	  /**
          * @brief Gets the minimum RMS value of hit-times by searching for the minizing vertex.
          * @param T A vector of PMT hit times. [ns]
          * @param PMTID A vector of PMT cable IDs corresponding to each hit in \p T.

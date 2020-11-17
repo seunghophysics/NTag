@@ -179,7 +179,8 @@ class NTagTMVAVariables
          * @param key Feature variable name.
          * @return \c true if \p key is in #fVariableMap, otherwise \c false.
          */
-        bool IsTMVAVariable(std::string key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; else return true; }
+        bool IsTMVAVariable(std::string key) { if (fVariableMap.find(key) == fVariableMap.end()) return false; 
+	                                         else return true; }
 
         /**
          * @brief Sets candidate capture type NTagTMVAVariables::captureType.

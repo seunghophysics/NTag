@@ -51,6 +51,7 @@ void NTagCandidate::SetVariables()
 
     fVarMap["DWall"] = wallsk_(pv);
     fVarMap["DWallMeanDir"] = GetDWallInMeanDirection(vHitCableIDs, pv);
+    fVarMap["ThetaMeanDir"] = GetMeanAngleInMeanDirection(vHitCableIDs, pv);
 
     const auto& openingAngleStats = GetOpeningAngleStats(vHitCableIDs, pv);
     fVarMap["AngleMean"]   = openingAngleStats[0];
@@ -65,13 +66,14 @@ void NTagCandidate::SetVariables()
             SetVariablesForMode(tNEUTFIT_RAW);
     }
 
-    SetVariablesForMode(tBONSAI);
-    if (currentEvent->bUseNeutFit)
-        fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
-                                      fVarMap["bsvy"] - fVarMap["nvy"],
-                                      fVarMap["bsvz"] - fVarMap["nvz"]);
+    //SetVariablesForMode(tBONSAI);
+    //if (currentEvent->bUseNeutFit)
+    //    fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
+    //                                  fVarMap["bsvy"] - fVarMap["nvy"],
+    //                                  fVarMap["bsvz"] - fVarMap["nvz"]);
 
     if (!currentEvent->bData)  SetTrueInfo();
+    
     if (currentEvent->bUseTMVA) {
         SetNNVariables();
         SetTMVAOutput();
@@ -347,12 +349,12 @@ float NTagCandidate::MinimizeTRMS(const std::vector<float>& T, const std::vector
     int nHits = static_cast<int>(T.size());
     assert(nHits == static_cast<int>(PMTID.size()));
 
-    (maxSearchRange > 200) ? gridWidth = 100 : gridWidth = maxSearchRange / 2.;
+    (maxSearchRange > 200) ? gridWidth = 500 : gridWidth = maxSearchRange / 2.;
     std::vector<float>  t_ToF;
 
     int nGridsInR, nGridsInZ;
-    nGridsInZ = (int)(2*ZPINTK / (float)gridWidth);
-    nGridsInR = (int)(2*RINTK / (float)gridWidth);
+    nGridsInZ = (int)(2*ZPINTK / gridWidth);
+    nGridsInR = (int)(2*RINTK / gridWidth);
 
     // Grid search starts from tank center
     std::array<float, 3> gridOrigin = {0., 0., 0.};       // grid origin in the grid search loop
@@ -363,7 +365,7 @@ float NTagCandidate::MinimizeTRMS(const std::vector<float>& T, const std::vector
     float tRMS;
 
     // Repeat until grid width gets small enough
-    while (gridWidth > 0.5) {
+    while (gridWidth > currentEvent->MINGRIDWIDTH) {
 
         // Allocate coordinates to a grid point, X and Y
         for (int iGridX = 0; iGridX < nGridsInR; iGridX++) {

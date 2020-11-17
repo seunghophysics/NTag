@@ -13,7 +13,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Nov 15, 2020";
+static std::string NTagDate    = "Nov 17, 2020";
 void PrintNTag();
 void PrintVersion();
 
@@ -206,6 +206,18 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     const std::string &TWIDTH = parser.GetOption("-TWIDTH");
     if (!TWIDTH.empty()) {
         nt->SetNHitsWidth(std::stof(TWIDTH));
+    }
+    
+    // Set VTXSRCRANGE
+    const std::string &VTXSRCRANGE = parser.GetOption("-VTXSRCRANGE");
+    if (!VTXSRCRANGE.empty()) {
+        nt->SetDistanceCut(std::stof(VTXSRCRANGE));
+    }
+    
+    // Set MINGRIDWIDTH
+    const std::string &MINGRIDWIDTH = parser.GetOption("-MINGRIDWIDTH");
+    if (!MINGRIDWIDTH.empty()) {
+        nt->SetMinGridWidth(std::stof(MINGRIDWIDTH));
     }
 
     // Set prompt vertex resolution

@@ -145,12 +145,28 @@ float GetTRMSFromStartIndex(const std::vector<float>& sortedT, int startIndex, f
 int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float tWidth);
 
 /**
+ * @brief Calculates the mean direction of the hits.
+ * @param vertex An array of vertex coordinates. [cm]
+ * @param PMTID A vector of PMT cable IDs.
+ * @return The \c TVector3 instance of the the averaged direction vector from \c vertex to each PMT.
+ */
+TVector3 GetMeanDirection(const std::vector<int>& PMTID, float vertex[3]);
+
+/**
  * @brief Calculates distance to the wall in the averaged direction from a vertex to hit PMTs.
  * @param vertex An array of vertex coordinates. [cm]
  * @param PMTID A vector of PMT cable IDs.
  * @return The distance to the wall in the averaged direction from \c vertex to each PMT.
  */
 float GetDWallInMeanDirection(const std::vector<int>& PMTID, float vertex[3]);
+
+/**
+ * @brief Calculates the mean angle in the averaged direction from a vertex to hit PMTs.
+ * @param vertex An array of vertex coordinates. [cm]
+ * @param PMTID A vector of PMT cable IDs.
+ * @return The mean angle in the averaged direction from a vertex to hit PMTs.
+ */
+float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float vertex[3]);
 
 /**
  * @brief Calculates an opening angle given three unit vectors.

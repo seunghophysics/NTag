@@ -120,9 +120,8 @@ int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float 
     return NXX;
 }
 
-float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
+TVector3 GetMeanDirection(const std::vector<int>& PMTID, float v[3])
 {
-    float dWall;
     int nHits = PMTID.size();
     float u[3] = {0., 0., 0.};
 
@@ -136,10 +135,15 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
             u[dim] += vecFromVertexToPMT[dim] / distFromVertexToPMT;
         }
     }
+        
+    return TVector3(u).Unit();
+}
 
-    float uNorm = Norm(u);
-    for (int dim = 0; dim < 3; dim++)
-        u[dim] /= uNorm;
+float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
+{
+    float dWall;
+    int nHits = PMTID.size();
+    TVector3 u = GetMeanDirection(PMTID, v);
 
     float dot = u[0]*v[0] + u[1]*v[1];
     float uSq = u[0]*u[0] + u[1]*u[1];
@@ -153,23 +157,34 @@ float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])
     return distR < distZ ? distR : distZ;
 }
 
+float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float v[3])
+{
+    int nHits = PMTID.size();
+    TVector3 meanDir = GetMeanDirection(PMTID, v);
+    std::vector<float> angles;
+
+    for (int iHit = 0; iHit < nHits; iHit++) {
+        TVector3 u(NTagConstant::PMTXYZ[PMTID[iHit]-1][0] - v[0],
+                   NTagConstant::PMTXYZ[PMTID[iHit]-1][1] - v[1],
+                   NTagConstant::PMTXYZ[PMTID[iHit]-1][2] - v[2]);
+        angles.push_back((180/M_PI)*meanDir.Angle(u.Unit()));
+    }
+    
+    return GetMean(angles);
+}
+
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
-    double dAB2 = (uA-uB).Mag2();
-    double dBC2 = (uB-uC).Mag2();
-    double dCA2 = (uC-uA).Mag2();
+    double a = (uA-uB).Mag();
+    double b = (uC-uA).Mag();
+    double c = (uB-uC).Mag();
 
-    double r2 = dAB2 * dBC2 * dCA2;
-
-    if (r2 == 0)
-        return 0;
-    else {
-        r2 /= (2*(dAB2*dBC2 + dBC2*dCA2 + dCA2*dAB2) - (dAB2*dAB2 + dBC2*dBC2 + dCA2*dCA2));
-        if (r2 >= 1)
-            return 90.;
-        else
-            return (180./M_PI) * asin(sqrt(r2));
-    }
+    double r = a*b*c / sqrt((a+b+c)*(-a+b+c)*(a-b+c)*(a+b-c));
+    
+    if (r >= 1)
+        return 90.;
+    else
+        return (180./M_PI) * asin(r);
 }
 
 std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v[3])
