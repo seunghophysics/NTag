@@ -66,11 +66,11 @@ void NTagCandidate::SetVariables()
             SetVariablesForMode(tNEUTFIT_RAW);
     }
 
-    //SetVariablesForMode(tBONSAI);
-    //if (currentEvent->bUseNeutFit)
-    //    fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
-    //                                  fVarMap["bsvy"] - fVarMap["nvy"],
-    //                                  fVarMap["bsvz"] - fVarMap["nvz"]);
+    SetVariablesForMode(tBONSAI);
+    if (currentEvent->bUseNeutFit)
+        fVarMap["bonsai_nfit"] = Norm(fVarMap["bsvx"] - fVarMap["nvx"],
+                                      fVarMap["bsvy"] - fVarMap["nvy"],
+                                      fVarMap["bsvz"] - fVarMap["nvz"]);
 
     if (!currentEvent->bData)  SetTrueInfo();
 

@@ -513,7 +513,7 @@ void NTagEventInfo::SearchCaptureCandidates()
     int   NHitsNew        = 0;
     int   NHitsPrevious   = 0;
     int   N200Previous    = 0;
-    float t0Previous      = -1.;
+    float t0Previous      = -1.e4;
 
     // Loop over the saved TQ hit array from current event
     for (int iHit = 0; iHit < nqiskz; iHit++) {

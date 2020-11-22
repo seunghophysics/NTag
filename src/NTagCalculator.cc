@@ -175,14 +175,16 @@ float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float v[3])
 
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
+    // sides of the triangle formed by the three unit vectors
     double a = (uA-uB).Mag();
     double b = (uC-uA).Mag();
     double c = (uB-uC).Mag();
 
+    // circumradius of the triangle
     double r = a*b*c / sqrt((a+b+c)*(-a+b+c)*(a-b+c)*(a+b-c));
 
     if (r >= 1)
-        return 90.;
+        return 90.; // prevents NaN
     else
         return (180./M_PI) * asin(r);
 }
@@ -221,18 +223,6 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
     float stdev    = GetTRMS(openingAngles);
     float skewness = GetSkew(openingAngles);
 
-    if (isnan(mean) || isnan(median) || isnan(stdev) || isnan(skewness)) {
-        if (isnan(mean)) std::cout << "mean nan" << std::endl;
-        if (isnan(median)) std::cout << "median nan" << std::endl;
-        if (isnan(stdev)) std::cout << "stdev nan" << std::endl;
-        if (isnan(skewness)) std::cout << "skewness nan" << std::endl;
-        std::cout << "!!!! NaN detected !!!!" << std::endl;
-        std::cout << "======================" << std::endl;
-        for (auto const& angle: openingAngles) {
-            std::cout << angle << std::endl;
-        }
-        abort();
-    }
 
     return std::array<float, 4>{mean, median, stdev, skewness};
 }
