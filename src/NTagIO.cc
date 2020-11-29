@@ -140,6 +140,8 @@ void NTagIO::ReadMCEvent()
     Clear();
 
     // Prompt-peak info
+    trgType = skhead_.idtgsk;
+    SetTDiff();
     SetEventHeader();
     SetPromptVertex();
     SetFitInfo();
@@ -192,16 +194,7 @@ void NTagIO::ReadDataEvent()
 
         msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
-
-        // Calculate time difference from previous event to current event [ms]
-        if (preRawTrigTime[0] < 0)
-             tDiff = 0;
-        else tDiff = (skhead_.nt48sk[0] - preRawTrigTime[0]) * std::pow(2, 32)
-                   + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
-                   + (skhead_.nt48sk[2] - preRawTrigTime[2]);
-        tDiff *= 20.; tDiff /= 1.e6; // [ms]
-
-        for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
+        SetTDiff();
     }
 }
 
@@ -348,15 +341,18 @@ void NTagIO::CreateBranchesToNtvarTree()
 
 void NTagIO::AddCandidateVariablesToNtvarTree()
 {
-    for (auto& pair: iCandidateVarMap) {
-        ntvarTree->Branch(pair.first.c_str(), &(pair.second));
-    }
-    for (auto& pair: fCandidateVarMap) {
-        if (!iCandidateVarMap.count(pair.first))
+    if (fCandidateVarMap.size()) {
+    
+        for (auto& pair: iCandidateVarMap) {
             ntvarTree->Branch(pair.first.c_str(), &(pair.second));
-    }
+        }
+        for (auto& pair: fCandidateVarMap) {
+            if (!iCandidateVarMap.count(pair.first))
+                ntvarTree->Branch(pair.first.c_str(), &(pair.second));
+        }
 
-    candidateVariablesAdded = true;
+        candidateVariablesAdded = true;
+    }
 }
 
 void NTagIO::CreateBranchesToRawTQTree()
@@ -384,6 +380,7 @@ void NTagIO::FillTrees()
     }
 
     ntvarTree->Fill();
+    
     if (!bData) truthTree->Fill();
     if (bSaveTQ) restqTree->Fill();
 

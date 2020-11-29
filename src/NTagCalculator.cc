@@ -123,7 +123,7 @@ int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float 
 TVector3 GetMeanDirection(const std::vector<int>& PMTID, float v[3])
 {
     int nHits = PMTID.size();
-    float u[3] = {0., 0., 0.};
+    TVector3 u(0, 0, 0);
 
     // Calculate mean direction
     for (int iHit = 0; iHit < nHits; iHit++) {
@@ -136,7 +136,7 @@ TVector3 GetMeanDirection(const std::vector<int>& PMTID, float v[3])
         }
     }
 
-    return TVector3(u).Unit();
+    return u.Unit();
 }
 
 float GetDWallInMeanDirection(const std::vector<int>& PMTID, float v[3])

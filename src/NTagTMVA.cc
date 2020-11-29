@@ -188,7 +188,7 @@ void NTagTMVA::MakeWeights(bool isMultiClass)
                            Form("H:V:nActiveCells=500:nBin=5:Nmin=10:Kernel=Gauss:Compress=T:%s", varTransOption.Data()) );
 
     if (fUse["MLP"]) {
-        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:V:NeuronType=sigmoid:NCycles=50:HiddenLayers=N+1,N-1:TestRate=10:UseRegulator:EstimatorType=CE:VarTransform=N" );
+        fFactory->BookMethod( TMVA::Types::kMLP, "MLP", "H:V:NeuronType=sigmoid:NCycles=50:HiddenLayers=N+1,N-1:TestRate=1:UseRegulator:EstimatorType=CE:VarTransform=N" );
     }
 
     if (fUse["GradBDT"])

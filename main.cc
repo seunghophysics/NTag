@@ -268,7 +268,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     vy = parser.GetOption("-vy");
     vz = parser.GetOption("-vz");
 
-    if (!vx.empty() && !vy.empty() && !vz.empty()) {
+    if (!vx.empty() || !vy.empty() || !vz.empty()) {
         msg.Print(Form("Setting custom prompt vertex as (%s, %s, %s)...",
                         vx.c_str(), vy.c_str(), vz.c_str()));
         nt->SetCustomVertex(std::stof(vx), std::stof(vy), std::stof(vz));

@@ -160,6 +160,19 @@ void NTagEventInfo::SetLowFitInfo()
     evis = LOWE->bsenergy;
 }
 
+void NTagEventInfo::SetTDiff()
+{
+    // Calculate time difference from previous event to current event [ms]
+    if (preRawTrigTime[0] < 0)
+         tDiff = 0;
+    else tDiff = (skhead_.nt48sk[0] - preRawTrigTime[0]) * std::pow(2, 32)
+               + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
+               + (skhead_.nt48sk[2] - preRawTrigTime[2]);
+    tDiff *= 20.; tDiff /= 1.e6; // [ms]
+    
+    for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
+}
+
 void NTagEventInfo::AppendRawHitInfo()
 {
     if (fSigTQTree) {
@@ -262,12 +275,12 @@ void NTagEventInfo::DumpEventVariables()
 
     // Trigger information
     msg.Print("\033[1;36m* Trigger\033[m");
-    msg.Print("\033[4mTrgType     TrgTime (ns)   TDiff (ns)   \033[0m");
+    msg.Print("\033[4mTrgType     TrgTime (ns)   TDiff (ms)   \033[0m");
     msg.Print("", pDEFAULT, false);
     std::cout << std::left << std::setw(12);
-    if (trgType == 0) std::cout << "MC";
-    else if (trgType == 1) std::cout << "SHE-only";
-    else if (trgType == 2) std::cout << "SHE+AFT";;
+    if      (trgType == 1) std::cout << "SHE-only";
+    else if (trgType == 2) std::cout << "SHE+AFT";
+    else                   std::cout << "MC";
     std::cout << std::left << std::setw(15) << trgOffset;
     std::cout << std::left << std::setw(13) << tDiff;
     std::cout << std::endl;

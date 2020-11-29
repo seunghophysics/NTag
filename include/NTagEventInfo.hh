@@ -81,10 +81,10 @@ namespace NTagDefault{
     constexpr float T0MX         = 535.;  ///< Default value for NTagEventInfo::T0MX. (us)
     constexpr float VTXSRCRANGE  = 5000.; ///< Default value for NTagEventInfo::VTXSRCRANGE. (cm)
     constexpr float MINGRIDWIDTH = 20;    ///< Default value for NTagEventInfo::MINGRIDWIDTH. (cm)
-    constexpr float TMATCHWINDOW = 100.;  ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
-    constexpr float TMINPEAKSEP  = 50.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
+    constexpr float TMATCHWINDOW = 50.;   ///< Default value for NTagEventInfo::TMATCHWINDOW. (ns)
+    constexpr float TMINPEAKSEP  = 60.;   ///< Default value for NTagEventInfo::TMINPEAKSEP. (ns)
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
-    constexpr float TRBNWIDTH    = 3.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
+    constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
     constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
 }
 
@@ -181,6 +181,11 @@ class NTagEventInfo
              * @details Saved variables: #evis
              */
             virtual void SetLowFitInfo();
+            
+            /**
+             * @brief Saves #tDiff, the time passed since the previous trigger.
+             */
+            virtual void SetTDiff();
 
             /**
              * @brief Extracts TQ hit arrays from input file and append it to the raw hit vectors.
