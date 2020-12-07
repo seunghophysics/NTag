@@ -13,7 +13,7 @@
 #include "NTagZBSTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Nov 22, 2020";
+static std::string NTagDate    = "Dec 7, 2020";
 void PrintNTag();
 void PrintVersion();
 
