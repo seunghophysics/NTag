@@ -11,6 +11,7 @@
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
 #include "NTagZBSTQReader.hh"
+#include "apmringC.h"
 
 static std::string NTagVersion = "0.0.1";
 static std::string NTagDate    = "Dec 7, 2020";

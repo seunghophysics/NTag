@@ -44,4 +44,14 @@ extern "C" {
     void bonsai_end_();
 }
 
+// stopmu fit
+extern "C" {
+	void stmfit_(float*, float*, float&, float&);
+	void sparisep_(int&, int&, int&, int&);
+	void pfdodirfit_(int&);
+	void sppang_(int&, float&, float&);
+	void spfinalsep_();
+//	float pttruewaterlen_(float&);
+}
+
 #endif

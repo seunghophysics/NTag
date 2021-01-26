@@ -150,6 +150,15 @@ class NTagIO : public NTagEventInfo
             virtual void ReadSHEEvent();
 
             /**
+             * @brief Instructions for HE(or NOT-SHE)-triggered events.
+             * @details Saves the prompt vertex information and the raw hit TQ vectors
+             * #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
+             * Also, neutron capture candidates are searched for 
+			 * and the member variables are filled to the tree #ntvarTree.
+             */
+            virtual void ReadnoSHEEvent();
+
+            /**
              * @brief Instructions for AFT-triggered events.
              * @details Appends raw TQ information from the common \c sktqz to
              * the raw TQ hit vectors #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
