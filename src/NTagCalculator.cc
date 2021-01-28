@@ -167,7 +167,8 @@ float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float v[3])
         TVector3 u(NTagConstant::PMTXYZ[PMTID[iHit]-1][0] - v[0],
                    NTagConstant::PMTXYZ[PMTID[iHit]-1][1] - v[1],
                    NTagConstant::PMTXYZ[PMTID[iHit]-1][2] - v[2]);
-        angles.push_back((180/M_PI)*meanDir.Angle(u.Unit()));
+        //angles.push_back((180/M_PI)*meanDir.Angle(u.Unit()));
+        angles.push_back((180/M_PI)*meanDir.Angle(u));
     }
 
     return GetMean(angles);

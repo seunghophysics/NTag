@@ -49,7 +49,7 @@ void NTagIO::Initialize()
 void NTagIO::SKInitialize()
 {
     // Set SK options and SK geometry
-    const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
+    const char* skoptn = "31,30,26,25,23"; skoptn_(skoptn, strlen(skoptn));
     msg.PrintBlock("Setting SK geometry...");
     skheadg_.sk_geometry = 5; geoset_();
 
@@ -116,7 +116,22 @@ void NTagIO::ReadFile()
                 msg.Print("FILE READ ERROR OCCURED!", pERROR);
                 break;
 
-            case 2: // end of input
+            case 2: // end of input 
+				// If the last event was SHE, fill output.
+ 		   		if (bData && !bForceMC && !IsRawHitVectorEmpty()) {
+					msg.Print("Saving SHE without AFT...", pDEBUG);
+					SetToFSubtractedTQ();
+
+    	    		// Tagging starts here!
+        			SearchCaptureCandidates();
+        			SetCandidateVariables();
+
+        			FillTrees();
+
+	        		// DONT'T FORGET TO CLEAR!
+    	    		Clear();
+    			}
+        		std::cout << "\n\n" << std::endl;
                 msg.Print(Form("Reached the end of input. Closing file..."), pDEFAULT);
                 CloseFile();
                 bEOF = true;
@@ -196,6 +211,17 @@ void NTagIO::ReadDataEvent()
         ReadSHEEvent();
         SetTDiff();
     }
+
+    // If current event is neither SHE nor AFT (e.g. HE etc.),
+    // save raw hit info and fill output.
+    if (!(skhead_.idtgsk & 1<<28) && !(skhead_.idtgsk & 1<<29)) {
+        std::cout << "\n\n" << std::endl;
+        msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
+                       pEVENT, pDEFAULT, false);
+
+        msg.Print("Reading No-SHE...", pDEBUG);
+        ReadnoSHEEvent();
+    }
 }
 
 void NTagIO::ReadSHEEvent()
@@ -211,6 +237,33 @@ void NTagIO::ReadSHEEvent()
 
     // Hit info (SHE: close-to-prompt hits only)
     AppendRawHitInfo();
+}
+
+void NTagIO::ReadnoSHEEvent()
+{
+    // DONT'T FORGET TO CLEAR!
+    Clear();
+    trgType = 3;
+
+    // Prompt-peak info
+    SetEventHeader();
+    SetPromptVertex();
+    SetFitInfo();
+
+    // Hit info (HE: close-to-prompt hits only)
+    AppendRawHitInfo();
+	SetToFSubtractedTQ();
+    SetTDiff();
+
+    // Tagging starts here!
+    SearchCaptureCandidates();
+    SetCandidateVariables();
+
+    // DONT'T FORGET TO FILL!
+    FillTrees();
+
+    // DONT'T FORGET TO CLEAR!
+    Clear();
 }
 
 void NTagIO::ReadAFTEvent()

@@ -38,14 +38,14 @@ src/NTagDict.cc: include/NTagLinkDef.hh obj
 	@rootcint -f $@ -c $<
 	@$(CXX) $(CXXFLAGS) -c $@ -o obj/NTagDict.o
 	
-bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out
+bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out obj/pfdodirfit.o
 	@echo "[NTag] Building NTag..."
-	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS)
+	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS) obj/pfdodirfit.o
 	@chmod +x path/bash path/csh
 	@if [ ! -d "weights/new" ]; then mkdir weights/new; fi
 	@echo "[NTag] Done!"
 
-lib/libNTag.so: obj/bonsai.o $(OBJS) lib
+lib/libNTag.so: obj/bonsai.o $(OBJS) lib obj/pfdodirfit.o
 	@echo "[NTag] Building shared library..."
 	@$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -shared
 
@@ -60,6 +60,9 @@ obj/main.o: main.cc obj
 obj/%.o: src/%.cc obj
 	@echo "[NTag] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+obj/pfdodirfit.o: src/pfdodirfit.F obj
+	@$(FC) $(FCFLAGS) -c $< -o $@
 
 bin obj out lib:
 	@mkdir $@

@@ -13,6 +13,7 @@
 #undef MAXHWSK
 #include <apmringC.h>
 #include <apmueC.h>
+#include <apmsfitC.h>
 #include <appatspC.h>
 #include <geotnkC.h>
 #include <skheadC.h>
@@ -118,7 +119,69 @@ void NTagEventInfo::SetPromptVertex()
             pvy = skvect_.pos[1] + dy;
             pvz = skvect_.pos[2] + dz; break; }
         case mSTMU: {
-            /* STMU */ break; }
+        	msg.Print("Calculating muon stoping point...", pDEFAULT);
+            float stmpos[3], stmdir[3], stmgood, qent, stpoint[3];
+			stmfit_(stmpos, stmdir, stmgood, qent);
+			apcommul_.apnring = 1; apcommul_.apip[0] = 13;
+			for(int i=0; i<3; i++){
+				apcommul_.appos[i] = stmpos[i];
+				apcommul_.apdir[0][i] = stmdir[i];
+				apcommul_.apangcer[0] = 42.;
+			}
+			int ta = 0, tb = 0, tc = 0, td = 1;
+			skheadg_.sk_geometry = 5; geoset_();
+			sparisep_(ta,tb,tc,td); //rtot -> amom
+			//MS fit
+			pffitres_.pffitflag = 1; ta = 3;
+			pfdodirfit_(ta);
+			for(int i=0; i<3; i++) 
+				apcommul_.apdir[0][i] = pffitres_.pfdir[2][0][i];
+			apcommul_.apnring = 1; apcommul_.apip[0] = 13;
+			ta = 0, tb = 0, tc = 0, td = 1;
+			sparisep_(ta,tb,tc,td); //rtot -> amom
+			sppang_(apcommul_.apip[0], apcommul_.apamom[0], apcommul_.apangcer[0]);
+			appatsp_.approb[0][1] = -100.;
+			appatsp_.approb[0][2] = 0.;
+			spfinalsep_();
+			for(int i=0; i<3; i++) 
+				stmdir[i] = apcommul_.apdir[0][i];
+
+        	msg.Print("Stop mu fit finished", pDEFAULT);
+        	msg.Print(Form("stmpos : (%lf, %lf, %lf)",stmpos[0],stmpos[1],stmpos[2]), pDEFAULT);
+        	msg.Print(Form("stmdir : (%lf, %lf, %lf)",stmdir[0],stmdir[1],stmdir[2]), pDEFAULT);
+        	msg.Print(Form("amom : %lf",appatsp2_.apmsamom[0][2]), pDEFAULT);
+			//muon range in function of momentum from PDG2020 
+			float momenta[] = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
+								10110., 12110., 14110., 17110., 20110.};
+			float ranges[] = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
+								4279., 5075., 5862., 7030., 8183.};
+			int mombin=0;
+			float range=0;
+			for(int k=1; k<15; k++){
+				if(momenta[k] > appatsp2_.apmsamom[0][2]){
+					mombin = k;
+					break;
+				}
+				if(k==14){
+					mombin = 999;
+					range = appatsp2_.apmsamom[0][2]/2.3;
+				}
+			}
+			if(mombin != 999)
+				range = ranges[mombin-1]+(appatsp2_.apmsamom[0][2]-momenta[mombin-1])*
+							(ranges[mombin]-ranges[mombin-1])/(momenta[mombin]-momenta[mombin-1]);
+
+			for(int k=0; k<200; k++){
+				//shorten range if stpoint is out of ID
+				for(int i=0;i<3; i++) stpoint[i] = stmpos[i]+stmdir[i]*range;
+				if(stpoint[0]*stpoint[0]+stpoint[1]*stpoint[1]<1690.*1690.
+									&& stpoint[2]<1810.&&stpoint[2]>-1810.)break;
+				range = range*0.93;
+			}
+        	msg.Print(Form("stpoint : (%lf, %lf, %lf)",stpoint[0],stpoint[1],stpoint[2]), pDEFAULT);
+			pvx = stpoint[0];
+			pvy = stpoint[1];
+			pvz = stpoint[2]; break; }
     }
 
     float tmp_v[3] = {pvx, pvy, pvz};
@@ -280,6 +343,7 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(12);
     if      (trgType == 1) std::cout << "SHE-only";
     else if (trgType == 2) std::cout << "SHE+AFT";
+    else if (trgType == 3) std::cout << "No-SHE";
     else                   std::cout << "MC";
     std::cout << std::left << std::setw(15) << trgOffset;
     std::cout << std::left << std::setw(13) << tDiff;
@@ -532,13 +596,13 @@ void NTagEventInfo::SearchCaptureCandidates()
     for (int iHit = 0; iHit < nqiskz; iHit++) {
 
         // the Hit timing w/o TOF is larger than limit, or less smaller than t0
-        if (vSortedT_ToF[iHit]*1.e-3 < T0TH) continue;
+        if (vSortedT_ToF[iHit]*1.e-3 < T0TH || vSortedT_ToF[iHit]*1.e-3 > T0MX) continue;
 
         // Save time of first hit
         if (firstHitTime_ToF == 0.) firstHitTime_ToF = vSortedT_ToF[iHit];
 
         // Calculate NHitsNew:
-        // number of hits in 10 ns window from the i-th hit
+        // number of hits in 10(or so) ns window from the i-th hit
         int NHits_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, TWIDTH);
 
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:

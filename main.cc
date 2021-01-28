@@ -12,6 +12,7 @@
 #include "NTagMessage.hh"
 #include "NTagZBSTQReader.hh"
 #include "NTagROOTTQReader.hh"
+#include "apmringC.h"
 
 static std::string NTagVersion = "0.0.1";
 static std::string NTagDate    = "Jan 28, 2021";
