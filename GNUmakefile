@@ -11,8 +11,8 @@ TMVASYS      = /disk02/usr6/han/Apps/TMVA
 TMVALIB      = $(TMVASYS)/lib
 
 LOCAL_INC    =  -I$(NTAG_GD_ROOT)/include -I$(ATMPD_ROOT)/src/recon/fitqun \
-			    -I$(OLD_ROOT) \
-			    -I$(TMVASYS)/inc $(ROOT_INC) \
+				-I$(OLD_ROOT) \
+				-I$(TMVASYS)/inc $(ROOT_INC) \
 				-I$(SKOFL_ROOT)/include -I$(SKOFL_ROOT)/inc/lowe
 
 FORTRANINCLUDES += -I$(SKOFL_FORTRAN_INCDIR)/lowe
@@ -27,9 +27,11 @@ APLIB =  -lapdrlib -laplib -lringlib -ltp -ltf -lringlib \
 	 -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k
 
 CXXFLAGS += -std=c++11
+FCFLAGS += -w
 
-SRCS = $(wildcard src/*.cc)
-OBJS = $(patsubst src/%.cc, obj/%.o, $(SRCS))
+OBJS = $(patsubst src/%.cc, obj/%.o, $(wildcard src/*.cc))
+OBJS += $(patsubst src/%.F, obj/%.o, $(wildcard src/*.F))
+OBJS += obj/main.o
 
 all: src/NTagDict.cc bin/NTag lib/libNTag.so
 
@@ -37,21 +39,17 @@ src/NTagDict.cc: include/NTagLinkDef.hh obj
 	@echo "[NTag] Building NTagLinkDef..."
 	@rootcint -f $@ -c $<
 	@$(CXX) $(CXXFLAGS) -c $@ -o obj/NTagDict.o
-	
-bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out obj/pfdodirfit.o
+
+bin/NTag: $(OBJS) bin out
 	@echo "[NTag] Building NTag..."
-	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS) obj/pfdodirfit.o
+	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/NTagDict.o $(LDLIBS)
 	@chmod +x path/bash path/csh
 	@if [ ! -d "weights/new" ]; then mkdir weights/new; fi
 	@echo "[NTag] Done!"
 
-lib/libNTag.so: obj/bonsai.o $(OBJS) lib obj/pfdodirfit.o
+lib/libNTag.so: $(OBJS) lib
 	@echo "[NTag] Building shared library..."
 	@$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -shared
-
-obj/bonsai.o: src/bonsai.F obj
-	@echo "[NTag] Building BONSAI..."
-	@$(FC) $(FCFLAGS) -c $< -o $@
 
 obj/main.o: main.cc obj
 	@echo "[NTag] Building main..."
@@ -61,8 +59,9 @@ obj/%.o: src/%.cc obj
 	@echo "[NTag] Building $*..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-obj/pfdodirfit.o: src/pfdodirfit.F obj
-	@$(FC) $(FCFLAGS) -c $< -o $@
+obj/%.o: src/%.F obj
+	@echo "[NTag] Building $*..."
+	@-$(FC) $(FCFLAGS) -c $< -o $@
 
 bin obj out lib:
 	@mkdir $@
@@ -70,4 +69,4 @@ bin obj out lib:
 .PHONY: clean
 
 clean:
-	@$(RM) -rf *.o *~ *.log obj bin src/NTagDict.*
+	@$(RM) -rf $(OBJS) obj bin src/NTagDict.*
