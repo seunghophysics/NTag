@@ -42,7 +42,7 @@ MINGRIDWIDTH(NTagDefault::MINGRIDWIDTH),
 PVXRES(NTagDefault::PVXRES),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose),
-bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true), bUseNeutFit(true)
+bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(true), bUseNeutFit(true)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
@@ -119,69 +119,69 @@ void NTagEventInfo::SetPromptVertex()
             pvy = skvect_.pos[1] + dy;
             pvz = skvect_.pos[2] + dz; break; }
         case mSTMU: {
-        	msg.Print("Calculating muon stoping point...", pDEFAULT);
+            msg.Print("Calculating muon stoping point...", pDEFAULT);
             float stmpos[3], stmdir[3], stmgood, qent, stpoint[3];
-			stmfit_(stmpos, stmdir, stmgood, qent);
-			apcommul_.apnring = 1; apcommul_.apip[0] = 13;
-			for(int i=0; i<3; i++){
-				apcommul_.appos[i] = stmpos[i];
-				apcommul_.apdir[0][i] = stmdir[i];
-				apcommul_.apangcer[0] = 42.;
-			}
-			int ta = 0, tb = 0, tc = 0, td = 1;
-			skheadg_.sk_geometry = 5; geoset_();
-			sparisep_(ta,tb,tc,td); //rtot -> amom
-			//MS fit
-			pffitres_.pffitflag = 1; ta = 3;
-			pfdodirfit_(ta);
-			for(int i=0; i<3; i++) 
-				apcommul_.apdir[0][i] = pffitres_.pfdir[2][0][i];
-			apcommul_.apnring = 1; apcommul_.apip[0] = 13;
-			ta = 0, tb = 0, tc = 0, td = 1;
-			sparisep_(ta,tb,tc,td); //rtot -> amom
-			sppang_(apcommul_.apip[0], apcommul_.apamom[0], apcommul_.apangcer[0]);
-			appatsp_.approb[0][1] = -100.;
-			appatsp_.approb[0][2] = 0.;
-			spfinalsep_();
-			for(int i=0; i<3; i++) 
-				stmdir[i] = apcommul_.apdir[0][i];
+            stmfit_(stmpos, stmdir, stmgood, qent);
+            apcommul_.apnring = 1; apcommul_.apip[0] = 13;
+            for(int i=0; i<3; i++){
+                apcommul_.appos[i] = stmpos[i];
+                apcommul_.apdir[0][i] = stmdir[i];
+                apcommul_.apangcer[0] = 42.;
+            }
+            int ta = 0, tb = 0, tc = 0, td = 1;
+            skheadg_.sk_geometry = 5; geoset_();
+            sparisep_(ta,tb,tc,td); //rtot -> amom
+            //MS fit
+            pffitres_.pffitflag = 1; ta = 3;
+            pfdodirfit_(ta);
+            for(int i=0; i<3; i++)
+                apcommul_.apdir[0][i] = pffitres_.pfdir[2][0][i];
+            apcommul_.apnring = 1; apcommul_.apip[0] = 13;
+            ta = 0, tb = 0, tc = 0, td = 1;
+            sparisep_(ta,tb,tc,td); //rtot -> amom
+            sppang_(apcommul_.apip[0], apcommul_.apamom[0], apcommul_.apangcer[0]);
+            appatsp_.approb[0][1] = -100.;
+            appatsp_.approb[0][2] = 0.;
+            spfinalsep_();
+            for(int i=0; i<3; i++)
+                stmdir[i] = apcommul_.apdir[0][i];
 
-        	msg.Print("Stop mu fit finished", pDEFAULT);
-        	msg.Print(Form("stmpos : (%lf, %lf, %lf)",stmpos[0],stmpos[1],stmpos[2]), pDEFAULT);
-        	msg.Print(Form("stmdir : (%lf, %lf, %lf)",stmdir[0],stmdir[1],stmdir[2]), pDEFAULT);
-        	msg.Print(Form("amom : %lf",appatsp2_.apmsamom[0][2]), pDEFAULT);
-			//muon range in function of momentum from PDG2020 
-			float momenta[] = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
-								10110., 12110., 14110., 17110., 20110.};
-			float ranges[] = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
-								4279., 5075., 5862., 7030., 8183.};
-			int mombin=0;
-			float range=0;
-			for(int k=1; k<15; k++){
-				if(momenta[k] > appatsp2_.apmsamom[0][2]){
-					mombin = k;
-					break;
-				}
-				if(k==14){
-					mombin = 999;
-					range = appatsp2_.apmsamom[0][2]/2.3;
-				}
-			}
-			if(mombin != 999)
-				range = ranges[mombin-1]+(appatsp2_.apmsamom[0][2]-momenta[mombin-1])*
-							(ranges[mombin]-ranges[mombin-1])/(momenta[mombin]-momenta[mombin-1]);
+            msg.Print("Stop mu fit finished", pDEFAULT);
+            msg.Print(Form("stmpos : (%lf, %lf, %lf)",stmpos[0],stmpos[1],stmpos[2]), pDEFAULT);
+            msg.Print(Form("stmdir : (%lf, %lf, %lf)",stmdir[0],stmdir[1],stmdir[2]), pDEFAULT);
+            msg.Print(Form("amom : %lf",appatsp2_.apmsamom[0][2]), pDEFAULT);
+            //muon range in function of momentum from PDG2020
+            float momenta[] = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
+                                10110., 12110., 14110., 17110., 20110.};
+            float ranges[] = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
+                                4279., 5075., 5862., 7030., 8183.};
+            int mombin=0;
+            float range=0;
+            for(int k=1; k<15; k++){
+                if(momenta[k] > appatsp2_.apmsamom[0][2]){
+                    mombin = k;
+                    break;
+                }
+                if(k==14){
+                    mombin = 999;
+                    range = appatsp2_.apmsamom[0][2]/2.3;
+                }
+            }
+            if(mombin != 999)
+                range = ranges[mombin-1]+(appatsp2_.apmsamom[0][2]-momenta[mombin-1])*
+                            (ranges[mombin]-ranges[mombin-1])/(momenta[mombin]-momenta[mombin-1]);
 
-			for(int k=0; k<200; k++){
-				//shorten range if stpoint is out of ID
-				for(int i=0;i<3; i++) stpoint[i] = stmpos[i]+stmdir[i]*range;
-				if(stpoint[0]*stpoint[0]+stpoint[1]*stpoint[1]<1690.*1690.
-									&& stpoint[2]<1810.&&stpoint[2]>-1810.)break;
-				range = range*0.93;
-			}
-        	msg.Print(Form("stpoint : (%lf, %lf, %lf)",stpoint[0],stpoint[1],stpoint[2]), pDEFAULT);
-			pvx = stpoint[0];
-			pvy = stpoint[1];
-			pvz = stpoint[2]; break; }
+            for(int k=0; k<200; k++){
+                //shorten range if stpoint is out of ID
+                for(int i=0;i<3; i++) stpoint[i] = stmpos[i]+stmdir[i]*range;
+                if(stpoint[0]*stpoint[0]+stpoint[1]*stpoint[1]<1690.*1690.
+                                    && stpoint[2]<1810.&&stpoint[2]>-1810.)break;
+                range = range*0.93;
+            }
+            msg.Print(Form("stpoint : (%lf, %lf, %lf)",stpoint[0],stpoint[1],stpoint[2]), pDEFAULT);
+            pvx = stpoint[0];
+            pvy = stpoint[1];
+            pvz = stpoint[2]; break; }
     }
 
     float tmp_v[3] = {pvx, pvy, pvz};
@@ -232,7 +232,7 @@ void NTagEventInfo::SetTDiff()
                + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
                + (skhead_.nt48sk[2] - preRawTrigTime[2]);
     tDiff *= 20.; tDiff /= 1.e6; // [ms]
-    
+
     for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
 }
 
@@ -343,7 +343,7 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(12);
     if      (trgType == 1) std::cout << "SHE-only";
     else if (trgType == 2) std::cout << "SHE+AFT";
-    else if (trgType == 3) std::cout << "No-SHE";
+    else if (trgType == 3) std::cout << "Non-SHE";
     else                   std::cout << "MC";
     std::cout << std::left << std::setw(15) << trgOffset;
     std::cout << std::left << std::setw(13) << tDiff;

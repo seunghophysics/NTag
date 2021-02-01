@@ -101,7 +101,7 @@ NTag -in (input filename) -out (output filename)
 |-noTOF|`NTag (...) -noTOF` |Disable subtracting ToF from raw hit times. This option removes prompt vertex dependency. |
 |-readTQ|`NTag (...) -readTQ`  |Extract raw TQ from input file and save to a flat ROOT tree `rawtq`. Applicable to ZBS only. |
 |-saveTQ|`NTag (...) -saveTQ`  |Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree `restq`.|
-|-forceMC|`NTag (...) -forceMC`  |Force MC mode for data files. Useful for dummy data without trigger information. |
+|-forceFlat|`NTag (...) -forceFlat`  |Force flat (MC-like flat event) mode for data files. |
 |-usetruevertex|`NTag (...) -usetruevertex` |Use true vector vertex from common `skvect` as a prompt vertex. |
 |-usestmuvertex|`NTag (...) -usestmuvertex`  |Use muon stopping position as a prompt vertex. |
 
@@ -125,7 +125,7 @@ NTag -in (input filename) -out (output filename)
 | pvy              | 1           | X  | Y coordinate of APFit neutrino vertex                   |
 | pvz              | 1           | X  | Z coordinate of APFit neutrino vertex                   |
 | EVis	           | 1           | X  | Visible energy (MeV/c)                                  |
-| TrgType	       | 1           | X  | Trigger type (0: MC, 1: SHE, 2: SHE+AFT)                |
+| TrgType	       | 1           | X  | Trigger type (0: MC, 1: SHE, 2: SHE+AFT, 3: Non-SHE)    |
 | NHITAC	       | 1           | X  | Number of OD hits                                       |
 | MaxN200		   | 1           | X  | Max N200 in event                                       |
 | MaxN200Time	   | 1           | X  | Time of MaxN200 peak                                    |

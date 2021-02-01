@@ -124,7 +124,7 @@ namespace NTagDefault{
  * Refer to NTagIO::ReadFile,
  * which uses the member functions provided by
  * NTagEventInfo in a specified order in
- * NTagIO::ReadMCEvent for MC events and
+ * NTagIO::ReadFlatEvent for MC events and
  * NTagIO::ReadDataEvent, NTagIO::ReadSHEEvent,
  * and NTagIO::ReadAFTEvent for data events, for the
  * event-wise instructions applied to the input file.
@@ -181,7 +181,7 @@ class NTagEventInfo
              * @details Saved variables: #evis
              */
             virtual void SetLowFitInfo();
-            
+
             /**
              * @brief Saves #tDiff, the time passed since the previous trigger.
              */
@@ -444,11 +444,11 @@ class NTagEventInfo
         inline void SetSaveTQFlagAs(bool b) { bSaveTQ = b; }
 
         /**
-         * @brief Set \c true to force MC mode for data files. Useful for dummy data files with no trigger separation.
-         * @param b If \c true, NTagIO::ReadMCEvent will be called instead of NTagIO::ReadDataEvent.
+         * @brief Set \c true to force flat (MC-like flat event structure) mode for data files.
+         * @param b If \c true, NTagIO::ReadFlatEvent will be called instead of NTagIO::ReadDataEvent.
          * @see NTagIO::ReadEvent()
          */
-        inline void ForceMCMode(bool b) { bForceMC = b; };
+        inline void ForceFlatMode(bool b) { bForceFlat = b; };
 
         /**
          * @brief Set \c false to not subtract ToF from each PMT hit times. Raw hit times will replace #vUnsortedT_ToF.
@@ -543,8 +543,8 @@ class NTagEventInfo
                                          Can be set to \c false from command line with option `-noMVA`. */
                     bSaveTQ,        /*!< Set \c true if saving the ToF-subtracted TQ vectors, otherwise \c false.
                                          Can be set to \c true from command line with option `-saveTQ`. */
-                    bForceMC,       /*!< Set \c true if forcing MC mode, otherwise \c false.
-                                         Can be set to \c true from command line with option `-forceMC`. */
+                    bForceFlat,       /*!< Set \c true if forcing MC mode, otherwise \c false.
+                                         Can be set to \c true from command line with option `-forceFlat`. */
                     bUseResidual,   /*!< Set \c false if not using ToF-subtracted hit times, otherwise \c false.
                                          Can be set to \c false from command line with option `-noTOF`. */
                     bUseNeutFit;    /*!< Set \c false if not using Neut-fit and MVA, otherwise \c false.
@@ -569,7 +569,7 @@ class NTagEventInfo
                eventNo,   ///< Event # of an event.
                nhitac,    ///< Number of OD hits within 1.3 us around the main trigger of an event.
                nqiskz,    ///< Number of all hits recorded in #vTISKZ.
-               trgType;   ///< Trigger type. MC: 0, SHE: 1, SHE+AFT: 2, No-SHE: 3
+               trgType;   ///< Trigger type. MC: 0, SHE: 1, SHE+AFT: 2, Non-SHE: 3
         float  trgOffset, ///< Trigger offset of an event. Default set to 1,000 [ns].
                tDiff,     ///< Time difference from the current event to the previous event. [ms]
                qismsk;    /*!< Total p.e. deposited in ID within 1.3 us around

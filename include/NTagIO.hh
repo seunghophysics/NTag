@@ -27,7 +27,7 @@
  * Refer to NTagIO::ReadFile,
  * which uses the member functions provided by
  * NTagEventInfo in a specified order in
- * NTagIO::ReadMCEvent for MC events and
+ * NTagIO::ReadFlatEvent for MC events and
  * NTagIO::ReadDataEvent, NTagIO::ReadSHEEvent,
  * and NTagIO::ReadAFTEvent for data events, for the
  * event-wise instructions applied to the input file.
@@ -116,15 +116,27 @@ class NTagIO : public NTagEventInfo
             virtual void ReadFile();
 
             /**
-             * @brief Calls NTagIO::ReadMCEvent for MC and NTagIO::ReadDataEvent for data events.
+             * @brief Calls NTagIO::ReadFlatEvent for MC and NTagIO::ReadDataEvent for data events.
              */
             virtual void ReadEvent();
+
+            /**
+             * @brief Set event information.
+             * @details See the source code for details.
+             */
+            virtual void SetEventInfo();
+
+            /**
+             * @brief Search for neutrons and fill the results.
+             * @details See the source code for details.
+             */
+            virtual void SearchAndFill();
 
             /**
              * @brief Instructions to each loop for an MC event.
              * @details See the source code for details.
              */
-            virtual void ReadMCEvent();
+            virtual void ReadFlatEvent();
 
             /**
              * @brief Instructions to each loop for a data event.
@@ -134,6 +146,8 @@ class NTagIO : public NTagEventInfo
              *     NTagIO::ReadSHEEvent
              * - If the trigger is AFT :
              *     NTagIO::ReadAFTEvent
+             * - If the trigger is neither SHE nor AFT :
+             *     NTagIO::ReadNonSHEEvent
              * - If the previous event was SHE but the current event is not AFT :
              *     Start searching for neutron capture candidates with the previous SHE event only
              *     and fill the member variables of NTagEventInfo to the tree #ntvarTree.
@@ -145,18 +159,18 @@ class NTagIO : public NTagEventInfo
              * @details Saves the prompt vertex information and the raw hit TQ vectors
              * #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
              * Does not fill #ntvarTree. #ntvarTree is filled at NTagIO::ReadAFTEvent
-             * if the next event is AFT, otherwise it's filled at NTagIO::ReadMCEvent.
+             * if the next event is AFT, otherwise it's filled at NTagIO::ReadFlatEvent.
              */
             virtual void ReadSHEEvent();
 
             /**
-             * @brief Instructions for HE(or NOT-SHE)-triggered events.
+             * @brief Instructions for data events other than SHE.
              * @details Saves the prompt vertex information and the raw hit TQ vectors
              * #vTISKZ, #vQISKZ, and #vCABIZ of NTagEventInfo.
-             * Also, neutron capture candidates are searched for 
-			 * and the member variables are filled to the tree #ntvarTree.
+             * Also, neutron capture candidates are searched for
+             * and the member variables are filled to the tree #ntvarTree.
              */
-            virtual void ReadnoSHEEvent();
+            virtual void ReadNonSHEEvent();
 
             /**
              * @brief Instructions for AFT-triggered events.
