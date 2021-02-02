@@ -87,6 +87,7 @@ void NTagEventInfo::SetEventHeader()
 void NTagEventInfo::SetPromptVertex()
 {
     switch (fVertexMode) {
+
         case mAPFIT: {
             // Get apcommul bank
             int bank = 0;
@@ -94,6 +95,7 @@ void NTagEventInfo::SetPromptVertex()
             pvx = apcommul_.appos[0];
             pvy = apcommul_.appos[1];
             pvz = apcommul_.appos[2]; break; }
+
         case mBONSAI: {
             int lun = 10;
             TreeManager* mgr  = skroot_get_mgr(&lun);
@@ -102,10 +104,12 @@ void NTagEventInfo::SetPromptVertex()
             pvx = LOWE->bsvertex[0];
             pvy = LOWE->bsvertex[1];
             pvz = LOWE->bsvertex[2]; break; }
+
         case mCUSTOM: {
             pvx = customvx;
             pvy = customvy;
             pvz = customvz; break; }
+
         case mTRUE: {
             skgetv_();
             float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
@@ -118,70 +122,101 @@ void NTagEventInfo::SetPromptVertex()
             pvx = skvect_.pos[0] + dx;
             pvy = skvect_.pos[1] + dy;
             pvz = skvect_.pos[2] + dz; break; }
+
         case mSTMU: {
-            msg.Print("Calculating muon stoping point...", pDEFAULT);
-            float stmpos[3], stmdir[3], stmgood, qent, stpoint[3];
-            stmfit_(stmpos, stmdir, stmgood, qent);
-            apcommul_.apnring = 1; apcommul_.apip[0] = 13;
-            for(int i=0; i<3; i++){
-                apcommul_.appos[i] = stmpos[i];
-                apcommul_.apdir[0][i] = stmdir[i];
-                apcommul_.apangcer[0] = 42.;
+            msg.PrintBlock("Estimating muon stopping point...", pSUBEVENT, pDEFAULT, false);
+
+            float initPoint[3], momDir[3];
+            float muonMom;
+            float goodness, entryQ; // probably dummy
+            int iRing = 0; // first ring
+            enum {iGamma, iElectron, iMuon};
+
+            stmfit_(initPoint, momDir, goodness, entryQ);
+            
+            if (goodness < 0)
+                msg.Print("STMUFIT error occurred.", pWARNING);
+
+            // 1-ring muon
+            apcommul_.apnring = 1; apcommul_.apip[iRing] = 13;
+
+            for (int dim = 0; dim < 3; dim++) {
+                apcommul_.appos[dim] = initPoint[dim];
+                apcommul_.apdir[iRing][dim] = momDir[dim];
             }
-            int ta = 0, tb = 0, tc = 0, td = 1;
-            skheadg_.sk_geometry = 5; geoset_();
-            sparisep_(ta,tb,tc,td); //rtot -> amom
-            //MS fit
-            pffitres_.pffitflag = 1; ta = 3;
-            pfdodirfit_(ta);
-            for(int i=0; i<3; i++)
-                apcommul_.apdir[0][i] = pffitres_.pfdir[2][0][i];
-            apcommul_.apnring = 1; apcommul_.apip[0] = 13;
-            ta = 0, tb = 0, tc = 0, td = 1;
-            sparisep_(ta,tb,tc,td); //rtot -> amom
-            sppang_(apcommul_.apip[0], apcommul_.apamom[0], apcommul_.apangcer[0]);
-            appatsp_.approb[0][1] = -100.;
-            appatsp_.approb[0][2] = 0.;
+
+            // Fix Cherenkov angle to 42 deg
+            apcommul_.apangcer[iRing] = 42.;
+
+            int iCall = 0, iTrCor = 0, iPAng = 0; // probably dummy
+            int nRing = 1;
+            sparisep_(iCall, iTrCor, iPAng, nRing); // momentum
+
+            // MS-fit
+            pffitres_.pffitflag = 1; // 0: normal fit, 1: fast fit
+            int iPID = iMuon + 1; // muon (+1 for fortran)
+            pfdodirfit_(iPID); // direction fit
+
+            // Replace APFit direction with MS-fit direction
+            for (int dim = 0; dim < 3; dim++)
+                apcommul_.apdir[iRing][dim] = pffitres_.pfdir[2][iRing][dim];
+
+            sparisep_(iCall, iTrCor, iPAng, nRing); // momentum
+            sppang_(apcommul_.apip[iRing], apcommul_.apamom[iRing], apcommul_.apangcer[iRing]); // Cherenkov angle
+
+            // Calculate momentum
+            appatsp_.approb[iRing][iElectron] = -100.; // e-like probability
+            appatsp_.approb[iRing][iMuon]     = 0.;    // mu-like probability (set this higher than e-like!)
             spfinalsep_();
-            for(int i=0; i<3; i++)
-                stmdir[i] = apcommul_.apdir[0][i];
 
-            msg.Print("Stop mu fit finished", pDEFAULT);
-            msg.Print(Form("stmpos : (%lf, %lf, %lf)",stmpos[0],stmpos[1],stmpos[2]), pDEFAULT);
-            msg.Print(Form("stmdir : (%lf, %lf, %lf)",stmdir[0],stmdir[1],stmdir[2]), pDEFAULT);
-            msg.Print(Form("amom : %lf",appatsp2_.apmsamom[0][2]), pDEFAULT);
-            //muon range in function of momentum from PDG2020
-            float momenta[] = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
+            for (int dim = 0; dim < 3; dim++)
+                momDir[dim] = apcommul_.apdir[iRing][dim];
+
+            // final mu-like momentum
+            muonMom = appatsp2_.apmsamom[iRing][iMuon];
+
+            // Muon range as a function of momentum (almost linear, PDG2020)
+            const int binSize = 15;
+            std::array<float, binSize> momenta = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
                                 10110., 12110., 14110., 17110., 20110.};
-            float ranges[] = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
+            std::array<float, binSize> ranges = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
                                 4279., 5075., 5862., 7030., 8183.};
-            int mombin=0;
-            float range=0;
-            for(int k=1; k<15; k++){
-                if(momenta[k] > appatsp2_.apmsamom[0][2]){
-                    mombin = k;
-                    break;
-                }
-                if(k==14){
-                    mombin = 999;
-                    range = appatsp2_.apmsamom[0][2]/2.3;
-                }
-            }
-            if(mombin != 999)
-                range = ranges[mombin-1]+(appatsp2_.apmsamom[0][2]-momenta[mombin-1])*
-                            (ranges[mombin]-ranges[mombin-1])/(momenta[mombin]-momenta[mombin-1]);
 
-            for(int k=0; k<200; k++){
-                //shorten range if stpoint is out of ID
-                for(int i=0;i<3; i++) stpoint[i] = stmpos[i]+stmdir[i]*range;
-                if(stpoint[0]*stpoint[0]+stpoint[1]*stpoint[1]<1690.*1690.
-                                    && stpoint[2]<1810.&&stpoint[2]>-1810.)break;
-                range = range*0.93;
-            }
-            msg.Print(Form("stpoint : (%lf, %lf, %lf)",stpoint[0],stpoint[1],stpoint[2]), pDEFAULT);
-            pvx = stpoint[0];
-            pvy = stpoint[1];
-            pvz = stpoint[2]; break; }
+            int iBin = 0;
+            float range = 0;
+
+            for (iBin = 0; momenta[iBin] < muonMom && iBin < binSize; iBin++);
+
+            if (iBin < binSize)
+                // linear interpolation for muon momentum within data
+                range = ranges[iBin-1]
+                        + (ranges[iBin]-ranges[iBin-1]) * (muonMom-momenta[iBin-1])/(momenta[iBin]-momenta[iBin-1]);
+            else
+                // for muon momentum larger than 20 GeV/c,
+                // assume constant stopping power 2.3 MeV/cm
+                range = muonMom / 2.3;
+
+            TVector3 stopPoint;
+            stopPoint = TVector3(initPoint) + range * TVector3(momDir);
+
+            float r = stopPoint.Perp();
+            float z = abs(stopPoint.z());
+
+            // for estimated stop point outside tank, force it to be within tank
+            if (r > RINTK)
+                stopPoint *= RINTK/r;
+            if (z > ZPINTK)
+                stopPoint *= ZPINTK/z;
+
+            std::cout << std::endl;
+            msg.Print(Form("Initial position : (%3.0f, %3.0f, %3.0f) cm", initPoint[0], initPoint[1], initPoint[2]), pDEFAULT);
+            msg.Print(Form("Momentum direction : (%3.3f, %3.3f, %3.3f)", momDir[0], momDir[1], momDir[2]), pDEFAULT);
+            msg.Print(Form("Momentum : %3.0f MeV/c", muonMom), pDEFAULT);
+            msg.Print(Form("Stopping point : (%3.0f, %3.0f, %3.0f) cm", stopPoint.x(), stopPoint.y(), stopPoint.z()), pDEFAULT);
+
+            pvx = stopPoint.x();
+            pvy = stopPoint.y();
+            pvz = stopPoint.z(); break; }
     }
 
     float tmp_v[3] = {pvx, pvy, pvz};

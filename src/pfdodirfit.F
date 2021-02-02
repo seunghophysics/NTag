@@ -23,7 +23,7 @@
       real    angtmp(APNMAXRG),posold(3),dirold(3),hpos(3),dist,t0
       parameter ( TOLANG = 0.5 ,  ! degree
      $            TOLPOS = 5.  ,  ! cm
-     $            MAXITEL = 7 )   
+     $            MAXITEL = 7 )
 
 #ifdef _MSFIT_VERSION_
       pffitver = _MSFIT_VERSION_
@@ -42,7 +42,7 @@
       else if ( ip.eq.3 .or. ip.eq.13 ) then     ! fit as mu-like
          ipstat = 3
          ipend  = 3
-      else                                       ! fit as both e and mu 
+      else                                       ! fit as both e and mu
          ipstat = 2
          ipend  = 3
       endif
@@ -68,7 +68,7 @@ C         call sparisep(1,0,1,3)
             call crstnksk(appos,apdir(1,1),ZPINTK,RINTK,1,IC,IN,HPOS)
             dist=sqrt((hpos(1)-appos(1))**2+(hpos(2)-appos(2))**2+
      &           (hpos(3)-appos(3))**2)
-            dcor = 0.02207*dist - 33.1     
+            dcor = 0.02207*dist - 33.1
             angcor = (dist-dcor)/
      &       sqrt((dist-dcor)**2+(dist*tan(ang*3.141592/180.))**2)
             angcor = acos(angcor)*180./3.141592
@@ -76,15 +76,15 @@ C         call sparisep(1,0,1,3)
 C            ang = ang+(angcor-ang)*0.589
             ang = angcor
          endif
-         
 
 
 
-*     calc scatter light      
+
+*     calc scatter light
          call spthini
          call pfperini
 
-C         do while (  dang.gt.TOLANG 
+C         do while (  dang.gt.TOLANG
 C     $              .and. itel.le.MAXITEL )
 C         do istep = 1,4
 
@@ -101,7 +101,7 @@ C            apangcer(ir) = ang
 C            maxstep = 2
 CC            dmove0 = dist*dang*3.141592/180.
 C            dmove0 = dmove0 + dist*dang*3.141592/180./5.
-C            if (dmove0.gt.100.) then 
+C            if (dmove0.gt.100.) then
 C               dmove0=100.
 C            else if (dmove0.lt.TOLPOS*2.) then
 C               dmove0=TOLPOS*2.
@@ -133,7 +133,7 @@ C            call pfpermstfit(dmove0,maxstep)
                   else IF ( APSIGMA(ISQ) .GT. 0.1  .AND.
      &                 (APRESID(ISQ)-T0) .GT.
      $                 (AMAX1(APSIGMA(ISQ),3.)*2.+5.)) THEN
-                     pfmask(isq) = 2    
+                     pfmask(isq) = 2
                      npmt(2) = npmt(2) + 1
                   else
                      pfmask(isq) = 1
@@ -189,9 +189,3 @@ C         enddo
 
       return
       end
-
-
-
-
-
-
