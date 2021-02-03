@@ -199,12 +199,11 @@ void NTagEventInfo::SetPromptVertex()
             TVector3 stopPoint;
             stopPoint = TVector3(initPoint) + range * TVector3(momDir);
 
-            float r = stopPoint.Perp();
-            float z = abs(stopPoint.z());
-
             // for estimated stop point outside tank, force it to be within tank
+            float r = stopPoint.Perp();
             if (r > RINTK)
                 stopPoint *= RINTK/r;
+            float z = abs(stopPoint.z());
             if (z > ZPINTK)
                 stopPoint *= ZPINTK/z;
 
