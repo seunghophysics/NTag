@@ -51,7 +51,6 @@ void NTagIO::SKInitialize()
     // Set SK options and SK geometry
     const char* skoptn = "31,30,26,25,23"; skoptn_(skoptn, strlen(skoptn));
     msg.PrintBlock("Setting SK geometry...");
-    skheadg_.sk_geometry = 5; geoset_();
 
     // Initialize BONSAI
     msg.PrintBlock("Initializing ZBS...");
@@ -84,6 +83,7 @@ void NTagIO::ReadFile()
     while (!bEOF) {
 
         readStatus = skread_(&lun);
+        skheadg_.sk_geometry = 5; geoset_();
         CheckMC();
 
         switch (readStatus) {
