@@ -49,9 +49,8 @@ void NTagIO::Initialize()
 void NTagIO::SKInitialize()
 {
     // Set SK options and SK geometry
-    const char* skoptn = "31,30,26,25"; skoptn_(skoptn, strlen(skoptn));
+    const char* skoptn = "31,30,26,25,23"; skoptn_(skoptn, strlen(skoptn));
     msg.PrintBlock("Setting SK geometry...");
-    skheadg_.sk_geometry = 5; geoset_();
 
     // Initialize BONSAI
     msg.PrintBlock("Initializing ZBS...");
@@ -84,6 +83,7 @@ void NTagIO::ReadFile()
     while (!bEOF) {
 
         readStatus = skread_(&lun);
+        skheadg_.sk_geometry = 5; geoset_();
         CheckMC();
 
         switch (readStatus) {
@@ -91,10 +91,6 @@ void NTagIO::ReadFile()
 
                 // If MC
                 if (!bData) {
-                    std::cout << "\n\n" << std::endl;
-                    msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
-                               pEVENT, pDEFAULT, false);
-
                     int inPMT;
                     skgetv_();
                     inpmt_(skvect_.pos, inPMT);
@@ -113,10 +109,16 @@ void NTagIO::ReadFile()
                 break;
 
             case 1: // read-error
-                msg.Print("FILE READ ERROR OCCURED!", pERROR);
+                msg.Print("READ ERROR OCCURED!", pERROR);
                 break;
 
             case 2: // end of input
+                // If the last event was SHE without AFT, fill output.
+                    if (!IsRawHitVectorEmpty()) {
+                    msg.Print("Saving SHE without AFT...", pDEBUG);
+                    SearchAndFill();
+                }
+                std::cout << "\n\n" << std::endl;
                 msg.Print(Form("Reached the end of input. Closing file..."), pDEFAULT);
                 CloseFile();
                 bEOF = true;
@@ -130,27 +132,31 @@ void NTagIO::ReadFile()
 
 void NTagIO::ReadEvent()
 {
-    if (bData & !bForceMC) ReadDataEvent(); // Data
-    else                   ReadMCEvent();   // MC
+    if (bData & !bForceFlat) ReadDataEvent(); // Data
+    else                     ReadFlatEvent(); // MC-like flat events
 }
 
-void NTagIO::ReadMCEvent()
+void NTagIO::SetEventInfo()
 {
+    std::cout << "\n\n" << std::endl;
+    msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
+                   pEVENT, pDEFAULT, false);
+
     // DONT'T FORGET TO CLEAR!
     Clear();
 
     // Prompt-peak info
-    trgType = skhead_.idtgsk;
     SetTDiff();
     SetEventHeader();
     SetPromptVertex();
     SetFitInfo();
 
-    // MC-only truth info
-    SetMCInfo();
-
     // Hit info (all hits)
     AppendRawHitInfo();
+}
+
+void NTagIO::SearchAndFill()
+{
     SetToFSubtractedTQ();
 
     // Tagging starts here!
@@ -159,77 +165,68 @@ void NTagIO::ReadMCEvent()
 
     // DONT'T FORGET TO FILL!
     FillTrees();
+
+    // DONT'T FORGET TO CLEAR!
+    Clear();
+}
+
+void NTagIO::ReadFlatEvent()
+{
+    SetEventInfo();
+
+    // MC-only truth info
+    if (!bData){
+        trgType = 0;
+        SetMCInfo();
+    }
+    else
+        trgType = 3;
+
+    SearchAndFill();
 }
 
 void NTagIO::ReadDataEvent()
 {
     // If current event is AFT, append TQ and fill output.
     if (skhead_.idtgsk & 1<<29) {
-        msg.Print("Saving SHE+AFT...", pDEBUG);
         ReadAFTEvent();
     }
 
     // If previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
     else if (!IsRawHitVectorEmpty()) {
-        msg.Print("Saving SHE without AFT...", pDEBUG);
-        SetToFSubtractedTQ();
-
-        // Tagging starts here!
-        SearchCaptureCandidates();
-        SetCandidateVariables();
-
-        FillTrees();
-
-        // DONT'T FORGET TO CLEAR!
-        Clear();
+        SearchAndFill();
     }
 
-    // If current event is SHE,
+    // If the current event is SHE,
     // save raw hit info and don't fill output.
     if (skhead_.idtgsk & 1<<28) {
-        std::cout << "\n\n" << std::endl;
-        msg.PrintBlock(Form("Processing event #%d...", nProcessedEvents),
-                       pEVENT, pDEFAULT, false);
-
-        msg.Print("Reading SHE...", pDEBUG);
         ReadSHEEvent();
-        SetTDiff();
+    }
+
+    // If the current event is neither SHE nor AFT (e.g. HE etc.),
+    // save raw hit info and fill output.
+    if (!(skhead_.idtgsk & 1<<28) && !(skhead_.idtgsk & 1<<29)) {
+        ReadNonSHEEvent();
     }
 }
 
 void NTagIO::ReadSHEEvent()
 {
-    // DONT'T FORGET TO CLEAR!
-    Clear();
+    SetEventInfo();
     trgType = 1;
-
-    // Prompt-peak info
-    SetEventHeader();
-    SetPromptVertex();
-    SetFitInfo();
-
-    // Hit info (SHE: close-to-prompt hits only)
-    AppendRawHitInfo();
 }
 
 void NTagIO::ReadAFTEvent()
 {
     trgType = 2;
-
-    // Append hit info (AFT: delayed hits after prompt)
     AppendRawHitInfo();
-    SetToFSubtractedTQ();
+    SearchAndFill();
+}
 
-    // Tagging starts here!
-    SearchCaptureCandidates();
-    SetCandidateVariables();
-
-    // DONT'T FORGET TO FILL!
-    FillTrees();
-
-    // DONT'T FORGET TO CLEAR!
-    Clear();
+void NTagIO::ReadNonSHEEvent()
+{
+    ReadFlatEvent();
 }
 
 void NTagIO::WriteOutput()
@@ -342,7 +339,7 @@ void NTagIO::CreateBranchesToNtvarTree()
 void NTagIO::AddCandidateVariablesToNtvarTree()
 {
     if (fCandidateVarMap.size()) {
-    
+
         for (auto& pair: iCandidateVarMap) {
             ntvarTree->Branch(pair.first.c_str(), &(pair.second));
         }
@@ -380,7 +377,7 @@ void NTagIO::FillTrees()
     }
 
     ntvarTree->Fill();
-    
+
     if (!bData) truthTree->Fill();
     if (bSaveTQ) restqTree->Fill();
 

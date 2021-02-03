@@ -13,6 +13,7 @@
 #undef MAXHWSK
 #include <apmringC.h>
 #include <apmueC.h>
+#include <apmsfitC.h>
 #include <appatspC.h>
 #include <geotnkC.h>
 #include <skheadC.h>
@@ -41,7 +42,7 @@ MINGRIDWIDTH(NTagDefault::MINGRIDWIDTH),
 PVXRES(NTagDefault::PVXRES),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose),
-bData(false), bUseTMVA(true), bSaveTQ(false), bForceMC(false), bUseResidual(true), bUseNeutFit(true)
+bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(true), bUseNeutFit(true)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
@@ -86,6 +87,7 @@ void NTagEventInfo::SetEventHeader()
 void NTagEventInfo::SetPromptVertex()
 {
     switch (fVertexMode) {
+
         case mAPFIT: {
             // Get apcommul bank
             int bank = 0;
@@ -93,6 +95,7 @@ void NTagEventInfo::SetPromptVertex()
             pvx = apcommul_.appos[0];
             pvy = apcommul_.appos[1];
             pvz = apcommul_.appos[2]; break; }
+
         case mBONSAI: {
             int lun = 10;
             TreeManager* mgr  = skroot_get_mgr(&lun);
@@ -101,10 +104,12 @@ void NTagEventInfo::SetPromptVertex()
             pvx = LOWE->bsvertex[0];
             pvy = LOWE->bsvertex[1];
             pvz = LOWE->bsvertex[2]; break; }
+
         case mCUSTOM: {
             pvx = customvx;
             pvy = customvy;
             pvz = customvz; break; }
+
         case mTRUE: {
             skgetv_();
             float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
@@ -117,8 +122,100 @@ void NTagEventInfo::SetPromptVertex()
             pvx = skvect_.pos[0] + dx;
             pvy = skvect_.pos[1] + dy;
             pvz = skvect_.pos[2] + dz; break; }
+
         case mSTMU: {
-            /* STMU */ break; }
+            msg.PrintBlock("Estimating muon stopping point...", pSUBEVENT, pDEFAULT, false);
+
+            float initPoint[3], momDir[3];
+            float muonMom;
+            float goodness, entryQ; // probably dummy
+            int iRing = 0; // first ring
+            enum {iGamma, iElectron, iMuon};
+
+            stmfit_(initPoint, momDir, goodness, entryQ);
+            
+            if (goodness < 0)
+                msg.Print("STMUFIT error occurred.", pWARNING);
+
+            // 1-ring muon
+            apcommul_.apnring = 1; apcommul_.apip[iRing] = 13;
+
+            for (int dim = 0; dim < 3; dim++) {
+                apcommul_.appos[dim] = initPoint[dim];
+                apcommul_.apdir[iRing][dim] = momDir[dim];
+            }
+
+            // Fix Cherenkov angle to 42 deg
+            apcommul_.apangcer[iRing] = 42.;
+
+            int iCall = 0, iTrCor = 0, iPAng = 0; // probably dummy
+            int nRing = 1;
+            sparisep_(iCall, iTrCor, iPAng, nRing); // momentum
+
+            // MS-fit
+            pffitres_.pffitflag = 1; // 0: normal fit, 1: fast fit
+            int iPID = iMuon + 1; // muon (+1 for fortran)
+            pfdodirfit_(iPID); // direction fit
+
+            // Replace APFit direction with MS-fit direction
+            for (int dim = 0; dim < 3; dim++)
+                apcommul_.apdir[iRing][dim] = pffitres_.pfdir[2][iRing][dim];
+
+            sparisep_(iCall, iTrCor, iPAng, nRing); // momentum
+            sppang_(apcommul_.apip[iRing], apcommul_.apamom[iRing], apcommul_.apangcer[iRing]); // Cherenkov angle
+
+            // Calculate momentum
+            appatsp_.approb[iRing][iElectron] = -100.; // e-like probability
+            appatsp_.approb[iRing][iMuon]     = 0.;    // mu-like probability (set this higher than e-like!)
+            spfinalsep_();
+
+            for (int dim = 0; dim < 3; dim++)
+                momDir[dim] = apcommul_.apdir[iRing][dim];
+
+            // final mu-like momentum
+            muonMom = appatsp2_.apmsamom[iRing][iMuon];
+
+            // Muon range as a function of momentum (almost linear, PDG2020)
+            const int binSize = 15;
+            std::array<float, binSize> momenta = {0., 339.6, 1301., 2103., 3604., 4604., 5605., 7105., 8105., 9105.,
+                                10110., 12110., 14110., 17110., 20110.};
+            std::array<float, binSize> ranges = {0., 103.9, 567.8, 935.3, 1595., 2023., 2443., 3064., 3472., 3877.,
+                                4279., 5075., 5862., 7030., 8183.};
+
+            int iBin = 0;
+            float range = 0;
+
+            for (iBin = 0; momenta[iBin] < muonMom && iBin < binSize; iBin++);
+
+            if (iBin < binSize)
+                // linear interpolation for muon momentum within data
+                range = ranges[iBin-1]
+                        + (ranges[iBin]-ranges[iBin-1]) * (muonMom-momenta[iBin-1])/(momenta[iBin]-momenta[iBin-1]);
+            else
+                // for muon momentum larger than 20 GeV/c,
+                // assume constant stopping power 2.3 MeV/cm
+                range = muonMom / 2.3;
+
+            TVector3 stopPoint;
+            stopPoint = TVector3(initPoint) + range * TVector3(momDir);
+
+            // for estimated stop point outside tank, force it to be within tank
+            float r = stopPoint.Perp();
+            if (r > RINTK)
+                stopPoint *= RINTK/r;
+            float z = abs(stopPoint.z());
+            if (z > ZPINTK)
+                stopPoint *= ZPINTK/z;
+
+            std::cout << std::endl;
+            msg.Print(Form("Initial position : (%3.0f, %3.0f, %3.0f) cm", initPoint[0], initPoint[1], initPoint[2]), pDEFAULT);
+            msg.Print(Form("Momentum direction : (%3.3f, %3.3f, %3.3f)", momDir[0], momDir[1], momDir[2]), pDEFAULT);
+            msg.Print(Form("Momentum : %3.0f MeV/c", muonMom), pDEFAULT);
+            msg.Print(Form("Stopping point : (%3.0f, %3.0f, %3.0f) cm", stopPoint.x(), stopPoint.y(), stopPoint.z()), pDEFAULT);
+
+            pvx = stopPoint.x();
+            pvy = stopPoint.y();
+            pvz = stopPoint.z(); break; }
     }
 
     float tmp_v[3] = {pvx, pvy, pvz};
@@ -169,7 +266,7 @@ void NTagEventInfo::SetTDiff()
                + (skhead_.nt48sk[1] - preRawTrigTime[1]) * std::pow(2, 16)
                + (skhead_.nt48sk[2] - preRawTrigTime[2]);
     tDiff *= 20.; tDiff /= 1.e6; // [ms]
-    
+
     for (int i = 0; i < 3; i++) preRawTrigTime[i] = skhead_.nt48sk[i];
 }
 
@@ -280,6 +377,7 @@ void NTagEventInfo::DumpEventVariables()
     std::cout << std::left << std::setw(12);
     if      (trgType == 1) std::cout << "SHE-only";
     else if (trgType == 2) std::cout << "SHE+AFT";
+    else if (trgType == 3) std::cout << "Non-SHE";
     else                   std::cout << "MC";
     std::cout << std::left << std::setw(15) << trgOffset;
     std::cout << std::left << std::setw(13) << tDiff;
@@ -532,13 +630,13 @@ void NTagEventInfo::SearchCaptureCandidates()
     for (int iHit = 0; iHit < nqiskz; iHit++) {
 
         // the Hit timing w/o TOF is larger than limit, or less smaller than t0
-        if (vSortedT_ToF[iHit]*1.e-3 < T0TH) continue;
+        if (vSortedT_ToF[iHit]*1.e-3 < T0TH || vSortedT_ToF[iHit]*1.e-3 > T0MX) continue;
 
         // Save time of first hit
         if (firstHitTime_ToF == 0.) firstHitTime_ToF = vSortedT_ToF[iHit];
 
         // Calculate NHitsNew:
-        // number of hits in 10 ns window from the i-th hit
+        // number of hits in 10(or so) ns window from the i-th hit
         int NHits_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, TWIDTH);
 
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:

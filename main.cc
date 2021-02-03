@@ -11,9 +11,10 @@
 #include "NTagArgParser.hh"
 #include "NTagMessage.hh"
 #include "NTagZBSTQReader.hh"
+#include "NTagROOTTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Dec 7, 2020";
+static std::string NTagDate    = "Feb 2, 2021";
 void PrintNTag();
 void PrintVersion();
 
@@ -108,7 +109,7 @@ int main(int argc, char** argv)
     }
 
     // ZBS TQ Reader: Read TQ information only from ZBS input and dump to output
-    else if (parser.OptionExists("-readTQ") && !TString(inputName).EndsWith(".root")) {
+    else if (parser.OptionExists("-readTQ")) {
 
         if (outputName.empty())
             outputName = TString(inputName).ReplaceAll(".", "_TQ.");
@@ -117,7 +118,13 @@ int main(int argc, char** argv)
         msg.Print("Input file  : " + inputName);
         msg.Print("Output file : " + outputName + "\n\n");
 
-        NTagZBSTQReader* nt = new NTagZBSTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
+        NTagIO* nt;
+
+        if (TString(inputName).EndsWith(".root"))
+            nt = new NTagROOTTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
+        else
+            nt = new NTagZBSTQReader(inputName.c_str(), outputName.c_str(), pVERBOSE);
+
         nt->SetVertexMode(mTRUE);
         nt->ReadFile();
         nt->WriteOutput();
@@ -207,13 +214,13 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     if (!TWIDTH.empty()) {
         nt->SetNHitsWidth(std::stof(TWIDTH));
     }
-    
+
     // Set VTXSRCRANGE
     const std::string &VTXSRCRANGE = parser.GetOption("-VTXSRCRANGE");
     if (!VTXSRCRANGE.empty()) {
         nt->SetDistanceCut(std::stof(VTXSRCRANGE));
     }
-    
+
     // Set MINGRIDWIDTH
     const std::string &MINGRIDWIDTH = parser.GetOption("-MINGRIDWIDTH");
     if (!MINGRIDWIDTH.empty()) {
@@ -243,8 +250,8 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     }
 
     // Force MC mode (default: off)
-    if (parser.OptionExists("-forceMC")) {
-        nt->ForceMCMode(true);
+    if (parser.OptionExists("-forceFlat")) {
+        nt->ForceFlatMode(true);
     }
 
     // Use ToF-subtracted (residual) time (default: on)
