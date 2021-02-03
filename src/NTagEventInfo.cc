@@ -121,7 +121,7 @@ void NTagEventInfo::SetPromptVertex()
         case mSTMU: {
         	msg.Print("Calculating muon stoping point...", pDEFAULT);
             float stmpos[3], stmdir[3], stmgood, qent, stpoint[3];
-			stmfit_(stmpos, stmdir, stmgood, qent);
+			stmfit_local_(stmpos, stmdir, stmgood, qent);
 			apcommul_.apnring = 1; apcommul_.apip[0] = 13;
 			for(int i=0; i<3; i++){
 				apcommul_.appos[i] = stmpos[i];
@@ -131,6 +131,10 @@ void NTagEventInfo::SetPromptVertex()
 			int ta = 0, tb = 0, tc = 0, td = 1;
 			skheadg_.sk_geometry = 5; geoset_();
 			sparisep_(ta,tb,tc,td); //rtot -> amom
+        	msg.Print("stmfit finished", pDEBUG);
+        	msg.Print(Form("stmpos: (%lf,%lf,%lf) , stmdir: (%lf,%lf,%lf) , stmgood: %lf , qent: %lf", 
+								stmpos[0], stmpos[1], stmpos[2], stmdir[0], stmdir[1], stmdir[2], 
+								stmgood, qent), pDEBUG);
 			//MS fit
 			pffitres_.pffitflag = 1; ta = 3;
 			pfdodirfit_(ta);

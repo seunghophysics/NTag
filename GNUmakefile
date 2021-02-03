@@ -1,4 +1,5 @@
-SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
+SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl_20a_debug/
+ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd_20a_debug/
 include $(SKOFL_ROOT)/config.gmk
 
 NTAG_GD_ROOT = $(shell pwd)
@@ -38,14 +39,14 @@ src/NTagDict.cc: include/NTagLinkDef.hh obj
 	@rootcint -f $@ -c $<
 	@$(CXX) $(CXXFLAGS) -c $@ -o obj/NTagDict.o
 	
-bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out obj/pfdodirfit.o
+bin/NTag: obj/bonsai.o $(OBJS) obj/main.o bin out obj/pfdodirfit.o obj/stgetent_local.o obj/stmfit_local.o
 	@echo "[NTag] Building NTag..."
-	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS) obj/pfdodirfit.o
+	@LD_RUN_PATH=$(TMVALIB):$(SKOFL_LIBDIR):$(ROOTSYS)/lib:$(LIBDIR):$(A_LIBDIR) $(CXX) $(CXXFLAGS) -o $@ $(OBJS) obj/bonsai.o obj/main.o obj/NTagDict.o $(LDLIBS) obj/pfdodirfit.o obj/stgetent_local.o obj/stmfit_local.o
 	@chmod +x path/bash path/csh
 	@if [ ! -d "weights/new" ]; then mkdir weights/new; fi
 	@echo "[NTag] Done!"
 
-lib/libNTag.so: obj/bonsai.o $(OBJS) lib obj/pfdodirfit.o
+lib/libNTag.so: obj/bonsai.o $(OBJS) lib obj/pfdodirfit.o obj/stgetent_local.o obj/stmfit_local.o
 	@echo "[NTag] Building shared library..."
 	@$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -shared
 
