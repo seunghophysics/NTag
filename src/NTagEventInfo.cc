@@ -52,6 +52,9 @@ bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(tr
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
+    
+    // Initialize null pointers
+    vSIGT = 0; vSIGI = 0;
 }
 
 NTagEventInfo::~NTagEventInfo()
@@ -629,14 +632,14 @@ void NTagEventInfo::SearchCaptureCandidates()
     // Loop over the saved TQ hit array from current event
     for (int iHit = 0; iHit < nqiskz; iHit++) {
 
-        // the Hit timing w/o TOF is larger than limit, or less smaller than t0
+        // If (ToF-subtracted) hit comes earlier than T0TH or later than T0MX, skip:
         if (vSortedT_ToF[iHit]*1.e-3 < T0TH || vSortedT_ToF[iHit]*1.e-3 > T0MX) continue;
 
         // Save time of first hit
         if (firstHitTime_ToF == 0.) firstHitTime_ToF = vSortedT_ToF[iHit];
 
         // Calculate NHitsNew:
-        // number of hits in 10(or so) ns window from the i-th hit
+        // number of hits within TWIDTH (ns) from the i-th hit
         int NHits_iHit = GetNhitsFromStartIndex(vSortedT_ToF, iHit, TWIDTH);
 
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
