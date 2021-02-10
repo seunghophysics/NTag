@@ -86,6 +86,7 @@ namespace NTagDefault{
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
     constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
     constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
+    constexpr float SIGRATIOTHR  = 0.8;   ///< Default value for NTagEventInfo::SIGRATIOTHR.
 }
 
 /**********************************************************
@@ -464,6 +465,13 @@ class NTagEventInfo
          */
         inline void UseNeutFit(bool b) { bUseNeutFit = b; }
 
+        /**
+         * @brief Sets the signal ratio threshold to determine the candidate's CaptureType.
+         * (0: Noise, 1: H, 2: Gd)
+         @ @see NTagCandidate::SetTrueInfo
+         */
+        inline void SetSignalRatioThreshold(float thr) { SIGRATIOTHR = thr;}
+
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
         NTagTMVA    TMVATools;
@@ -475,16 +483,17 @@ class NTagEventInfo
         int         NHITSTH,      ///< Lower limit for NHits. @see NTagEventInfo::SetNHitsLimits
                     NHITSMX,      ///< Upper limit for NHits. @see NTagEventInfo::SetNHitsLimits
                     N200MX;       ///< Upper limit for N200. @see NTagEventInfo::SetN200Max
-        float       T0TH,         ///< Lower limit for T0. @see: NTagEventInfo::SetT0Limits
-                    T0MX;         ///< Upper limit for T0. @see: NTagEventInfo::SetT0Limits
+        float       T0TH,         ///< Lower limit for T0. @see NTagEventInfo::SetT0Limits
+                    T0MX;         ///< Upper limit for T0. @see NTagEventInfo::SetT0Limits
         float       TRBNWIDTH;    ///< The width of the dead time to apply to all PMTs to reduce RBN.
         float       TMATCHWINDOW; ///< Width of the true-reconstructed capture time matching window. [ns]
                                   ///< @see: NTagEventInfo::SetTMatchWindow
-        float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see: NTagEventInfo::SetTPeakSeparation
+        float       TMINPEAKSEP;  ///< Minimum candidate peak separation. [ns] @see NTagEventInfo::SetTPeakSeparation
         float       ODHITMX;      ///< Threshold on the number of OD hits. Not used at the moment.
         float       VTXSRCRANGE;  ///< Vertex search range in NTagCandidate::MinimizeTRMS. @see NTagCandidate::SetDistanceCut
-        float       MINGRIDWIDTH;   ///< Vertex search grid width in NTagCandidate::MinimizeTRMS.
+        float       MINGRIDWIDTH; ///< Vertex search grid width in NTagCandidate::MinimizeTRMS.
         float       PVXRES;       ///< Prompt vertex resolution. (&Gamma of Breit-Wigner distribution) [cm]
+        float       SIGRATIOTHR;  ///< Signal ratio threshold @see NTagCandidate::SetTrueInfo
 
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex

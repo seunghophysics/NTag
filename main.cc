@@ -14,7 +14,7 @@
 #include "NTagROOTTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Feb 2, 2021";
+static std::string NTagDate    = "Feb 10, 2021";
 void PrintNTag();
 void PrintVersion();
 
@@ -231,6 +231,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     const std::string &PVXRES = parser.GetOption("-PVXRES");
     if (!PVXRES.empty()) {
         nt->SetVertexResolution(std::stof(PVXRES));
+    }
+
+    // Set signal ratio threshold to be used in candidate labeling (CaptureType)
+    const std::string &SIGRATIOTHR = parser.GetOption("-SIGRATIOTHR");
+    if (!SIGRATIOTHR.empty()) {
+        nt->SetSignalRatioThreshold(std::stof(SIGRATIOTHR));
     }
 
     // Turn TMVA on/off (default: on)

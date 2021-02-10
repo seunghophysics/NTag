@@ -40,6 +40,7 @@ ODHITMX(NTagDefault::ODHITMX),
 VTXSRCRANGE(NTagDefault::VTXSRCRANGE),
 MINGRIDWIDTH(NTagDefault::MINGRIDWIDTH),
 PVXRES(NTagDefault::PVXRES),
+SIGRATIOTHR(NTagDefault::SIGRATIOTHR),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose),
 bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(true), bUseNeutFit(true)
@@ -52,7 +53,7 @@ bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(tr
 
     TMVATools = NTagTMVA(verbose);
     TMVATools.SetReader("MLP", (GetENV("NTAGPATH")+"weights/MLP_Gd0.02p.xml").c_str());
-    
+
     // Initialize null pointers
     vSIGT = 0; vSIGI = 0;
 }
@@ -136,7 +137,7 @@ void NTagEventInfo::SetPromptVertex()
             enum {iGamma, iElectron, iMuon};
 
             stmfit_(initPoint, momDir, goodness, entryQ);
-            
+
             if (goodness < 0)
                 msg.Print("STMUFIT error occurred.", pWARNING);
 
