@@ -123,17 +123,13 @@ int GetNhitsFromCenterTime(const std::vector<float>& T, float centerTime, float 
 TVector3 GetMeanDirection(const std::vector<int>& PMTID, float v[3])
 {
     int nHits = PMTID.size();
-    TVector3 u(0, 0, 0);
+    TVector3 u(0, 0, 0); // output mean direction
 
     // Calculate mean direction
-    for (int iHit = 0; iHit < nHits; iHit++) {
-        float distFromVertexToPMT;
-        float vecFromVertexToPMT[3];
-        for (int dim = 0; dim < 3; dim++) {
-            vecFromVertexToPMT[dim] = NTagConstant::PMTXYZ[PMTID[iHit]-1][dim] - v[dim];
-            distFromVertexToPMT = Norm(vecFromVertexToPMT);
-            u[dim] += vecFromVertexToPMT[dim] / distFromVertexToPMT;
-        }
+    for (auto const& iPMT : PMTID) {
+        TVector3 vecFromVertexToPMT(0, 0, 0);
+        vecFromVertexToPMT = TVector3(NTagConstant::PMTXYZ[iPMT-1]) - TVector3(v);
+        u += vecFromVertexToPMT.Unit();
     }
 
     return u.Unit();
@@ -163,12 +159,9 @@ float GetMeanAngleInMeanDirection(const std::vector<int>& PMTID, float v[3])
     TVector3 meanDir = GetMeanDirection(PMTID, v);
     std::vector<float> angles;
 
-    for (int iHit = 0; iHit < nHits; iHit++) {
-        TVector3 u(NTagConstant::PMTXYZ[PMTID[iHit]-1][0] - v[0],
-                   NTagConstant::PMTXYZ[PMTID[iHit]-1][1] - v[1],
-                   NTagConstant::PMTXYZ[PMTID[iHit]-1][2] - v[2]);
+    for (auto const& iPMT : PMTID) {
+        TVector3 u = TVector3(NTagConstant::PMTXYZ[iPMT-1]) - TVector3(v);
         angles.push_back((180/M_PI)*meanDir.Angle(u));
-        //angles.push_back((180/M_PI)*meanDir.Angle(u));
     }
 
     return GetMean(angles);
