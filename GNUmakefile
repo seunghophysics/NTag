@@ -33,7 +33,7 @@ OBJS = $(patsubst src/%.cc, obj/%.o, $(wildcard src/*.cc))
 OBJS += $(patsubst src/%.F, obj/%.o, $(wildcard src/*.F))
 OBJS += obj/main.o
 
-all: src/NTagDict.cc bin/NTag lib/libNTag.so
+all: src/NTagDict.cc lib/libNTag.so bin/NTag
 
 src/NTagDict.cc: include/NTagLinkDef.hh obj
 	@echo "[NTag] Building NTagLinkDef..."
