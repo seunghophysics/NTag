@@ -229,46 +229,18 @@ void NTagCandidate::SetTrueInfo()
     iVarMap["CaptureType"] = 0;
     iVarMap["TrueCaptureID"] = -1;
 
-    // If signal flag vector is not provided by the user,
     // label candidates as signal if a true capture with matching capture time exists
-    if (vHitSigFlags.empty()) {
-        for (int iCapture = 0; iCapture < currentEvent->nTrueCaptures; iCapture++) {
-            if (fabs(currentEvent->vTrueCT[iCapture] + currentEvent->trgOffset - fVarMap["ReconCT"])
-                < currentEvent->TMATCHWINDOW) {
-                iVarMap["TrueCaptureID"] = iCapture;
-                if (currentEvent->vTotGammaE[iCapture] > 6.) iVarMap["CaptureType"] = 2; // Gd
-                else                                         iVarMap["CaptureType"] = 1; // H
-            }
+    for (int iCapture = 0; iCapture < currentEvent->nTrueCaptures; iCapture++) {
+        if (fabs(currentEvent->vTrueCT[iCapture] + currentEvent->trgOffset - fVarMap["ReconCT"])
+            < currentEvent->TMATCHWINDOW) {
+            iVarMap["TrueCaptureID"] = iCapture;
+            if (currentEvent->vTotGammaE[iCapture] > 6.) iVarMap["CaptureType"] = 2; // Gd
+            else                                         iVarMap["CaptureType"] = 1; // H
         }
     }
 
-    // If signal flag vector is given, use it to label candidates
-    else {
+    if (!vHitSigFlags.empty())
         fVarMap["SignalRatio"] = GetMean(vHitSigFlags);
-
-        // label as noise if signal ratio is lower than threshold
-        if (fVarMap["SignalRatio"] < currentEvent->SIGRATIOTHR)
-            iVarMap["CaptureType"] = 0;
-
-        // label as signal if signal ratio is higher than threshold
-        else {
-            float minCTDiff = 1e38;
-            int iMatchingCapture = 0;
-
-            // look for closest true capture and label 1: H or 2: Gd,
-            // according to the emitted total gamma energy of the closest true capture
-            for (int iCapture = 0; iCapture < currentEvent->nTrueCaptures; iCapture++) {
-                float ctDiff = fabs(currentEvent->vTrueCT[iCapture] + currentEvent->trgOffset - fVarMap["ReconCT"]);
-                if (ctDiff < minCTDiff) {
-                    minCTDiff = ctDiff;
-                    iMatchingCapture = iCapture;
-                }
-            }
-            iVarMap["TrueCaptureID"] = iMatchingCapture;
-            if (currentEvent->vTotGammaE[iMatchingCapture] > 6.) iVarMap["CaptureType"] = 2; // Gd
-            else                                                 iVarMap["CaptureType"] = 1; // H
-        }
-    }
 }
 
 void NTagCandidate::SetNNVariables()

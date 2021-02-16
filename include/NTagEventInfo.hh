@@ -86,7 +86,6 @@ namespace NTagDefault{
     constexpr int   ODHITMX      = 16;    ///< Default value for NTagEventInfo::ODHITMX.
     constexpr float TRBNWIDTH    = 0.;    ///< Default value for NTagEventInfo::TRBNWIDTH. (us)
     constexpr float PVXRES       = 7.;    ///< Default value for NTagEventInfo::PVXRES. (cm)
-    constexpr float SIGRATIOTHR  = 0.8;   ///< Default value for NTagEventInfo::SIGRATIOTHR.
 }
 
 /**********************************************************
@@ -465,13 +464,6 @@ class NTagEventInfo
          */
         inline void UseNeutFit(bool b) { bUseNeutFit = b; }
 
-        /**
-         * @brief Sets the signal ratio threshold to determine the candidate's CaptureType.
-         * (0: Noise, 1: H, 2: Gd)
-         @ @see NTagCandidate::SetTrueInfo
-         */
-        inline void SetSignalRatioThreshold(float thr) { SIGRATIOTHR = thr;}
-
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
         NTagTMVA    TMVATools;
@@ -493,7 +485,6 @@ class NTagEventInfo
         float       VTXSRCRANGE;  ///< Vertex search range in NTagCandidate::MinimizeTRMS. @see NTagCandidate::SetDistanceCut
         float       MINGRIDWIDTH; ///< Vertex search grid width in NTagCandidate::MinimizeTRMS.
         float       PVXRES;       ///< Prompt vertex resolution. (&Gamma of Breit-Wigner distribution) [cm]
-        float       SIGRATIOTHR;  ///< Signal ratio threshold @see NTagCandidate::SetTrueInfo
 
         // Prompt-vertex-related
         float       customvx,     ///< X coordinate of a custom prompt vertex
