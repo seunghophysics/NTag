@@ -13,7 +13,9 @@
 NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10)
+: NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10),
+// default SK options: 31 (read HEADER) 30 (read TQREAL) 26,25 (mask bad channels)
+fSKOPTION("31,30,26,25")
 {
     instance = this;
 
@@ -48,9 +50,10 @@ void NTagIO::Initialize()
 
 void NTagIO::SKInitialize()
 {
-    // Set SK options and SK geometry
-    const char* skoptn = "31,30,26,25,23"; skoptn_(skoptn, strlen(skoptn));
+    // Set default SK options and SK geometry
+    skoptn_(fSKOPTION.Data(), fSKOPTION.Length());
     msg.PrintBlock("Setting SK geometry...");
+    skheadg_.sk_geometry = 6; geoset_();
 
     // Initialize BONSAI
     msg.PrintBlock("Initializing ZBS...");
@@ -83,7 +86,6 @@ void NTagIO::ReadFile()
     while (!bEOF) {
 
         readStatus = skread_(&lun);
-        skheadg_.sk_geometry = 5; geoset_();
         CheckMC();
 
         switch (readStatus) {
@@ -402,4 +404,33 @@ void NTagIO::CheckMC()
     else {
         bData = false;
     }
+}
+
+void NTagIO::AddSKOption(TString optn)
+{
+    fSKOPTION = fSKOPTION + "," + optn;
+    SetSKOption(fSKOPTION);
+}
+
+void NTagIO::RemoveSKOption(TString optn)
+{
+    TObjArray* methodArray = optn.Tokenize(",");
+    for (int i = 0; i < methodArray->GetEntries(); i++)
+        fSKOPTION = fSKOPTION.ReplaceAll(((TObjString *)(methodArray->At(i)))->String(), "");
+
+    fSKOPTION = fSKOPTION.ReplaceAll(",,", ",");
+    fSKOPTION = fSKOPTION.Strip(TString::kTrailing, ',');
+    SetSKOption(fSKOPTION);
+}
+
+void NTagIO::SetSKOption(TString optn)
+{
+    if (!optn.Contains("30"))
+        optn += ",30";
+    if (!optn.Contains("31"))
+        optn += ",31";
+
+    fSKOPTION = optn;
+    msg.Print("Setting SKOPTN: " + fSKOPTION, pDEBUG);
+    skoptn_(fSKOPTION.Data(), fSKOPTION.Length());
 }

@@ -87,6 +87,9 @@ NTag -in (input filename) -out (output filename)
 |-VTXSRCRANGE | (Neut-fit search range) [cm] | `NTag -in in.dat -VTXSRCRANGE 1000`          | optional  |
 |-MINGRIDWIDTH | (Neut-fit minimum grid width) [cm] | `NTag -in in.dat -MINGRIDWIDTH 10`    | optional  |
 |-sigTQpath | (output from `-readTQ` option) | `NTag -in in.dat -sigTQpath sigtq.root`      | optional  |
+|-addSKOPTN | (SK option to add)          | `NTag -in in.dat -addSKOPTN 23,24`              | optional  |
+|-removeSKOPTN | (SK option to remove)    | `NTag -in in.dat -removeSKOPTN 25,26`           | optional  |
+|-SKOPTN  | (SK option to set)            | `NTag -in in.dat -SKOPTN 25,26,16`              | optional  |
 
 * Run options
 

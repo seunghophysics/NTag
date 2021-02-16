@@ -248,6 +248,21 @@ class NTagIO : public NTagEventInfo
          */
         virtual void CheckMC();
 
+        /**
+         * @brief Add SK option. Refer to $SKOFL_ROOT/src/skrd/skoptn.F for available SK options.
+         */
+        virtual void AddSKOption(TString optn);
+
+        /**
+         * @brief Remove SK option. Refer to $SKOFL_ROOT/src/skrd/skoptn.F for available SK options.
+         */
+        virtual void RemoveSKOption(TString optn);
+
+        /**
+         * @brief Set SK option. Refer to $SKOFL_ROOT/src/skrd/skoptn.F for available SK options.
+         */
+        virtual void SetSKOption(TString optn);
+
     protected:
         const char* fInFileName;
         const char* fOutFileName;
@@ -266,6 +281,7 @@ class NTagIO : public NTagEventInfo
 
     private:
         static NTagIO* instance;
+        TString fSKOPTION;
 };
 
 #endif

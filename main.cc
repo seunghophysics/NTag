@@ -14,7 +14,7 @@
 #include "NTagROOTTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Feb 10, 2021";
+static std::string NTagDate    = "Feb 16, 2021";
 void PrintNTag();
 void PrintVersion();
 
@@ -233,6 +233,24 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->SetVertexResolution(std::stof(PVXRES));
     }
 
+    // Add custom SK options
+    const std::string &addOption = parser.GetOption("-addSKOPTN");
+    if (!addOption.empty()) {
+        nt->AddSKOption(addOption);
+    }
+
+    // Remove one of default SK options
+    const std::string &removeOption = parser.GetOption("-removeSKOPTN");
+    if (!removeOption.empty()) {
+        nt->RemoveSKOption(removeOption);
+    }
+
+    // Set custom SK options
+    const std::string &SKOPTN = parser.GetOption("-SKOPTN");
+    if (!SKOPTN.empty()) {
+        nt->SetSKOption(SKOPTN);
+    }
+
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
@@ -284,6 +302,7 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->SetVertexMode(mTRUE);
     }
     else if (parser.OptionExists("-usestmuvertex")) {
+        nt->AddSKOption("23"); // ATMPD charge correction
         nt->SetVertexMode(mSTMU);
     }
 
