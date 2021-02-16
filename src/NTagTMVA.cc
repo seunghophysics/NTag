@@ -31,8 +31,8 @@ void NTagTMVA::Constructor()
     fVariables = NTagTMVAVariables(fVerbosity);
     SetMethods(true);
 
-    SetSigCut("CaptureType > 0");
-    SetBkgCut("CaptureType == 0");
+    SetSigCut("CaptureType > 0 & SignalRatio > 0.2");
+    SetBkgCut("CaptureType == 0 & SignalRatio == 0");
 }
 
 void NTagTMVA::SetMethods(bool turnOn)
@@ -117,8 +117,17 @@ void NTagTMVA::MakeWeights(bool isMultiClass)
     TChain* chain = new TChain("ntvar");
     chain->Add(fInFileName);
 
-    TString trainingOption = TString("nTrain_Signal=0:")
-                           + TString("nTrain_Background=0:")
+    //long nAllSig   = chain->Draw("CaptureType", "CaptureType > 0", "goff");
+    //long nAllBkg   = chain->Draw("CaptureType", fBkgCut, "goff");
+    //long nInputSig = chain->Draw("CaptureType", fSigCut, "goff");
+    //long nInputBkg = (long) (nAllBkg * nInputSig / nAllSig); // to preserve the imbalance ratio!
+
+    //msg.Print(TString("Number of input signal (") + fSigCut.GetTitle() + TString(Form(") candidates: %ld", nInputSig)));
+    //msg.Print(TString("Number of input background (") + fBkgCut.GetTitle() + TString(Form(") candidates: %ld", nInputBkg)));
+    //std::cout << std::endl;
+
+    TString trainingOption = TString(Form("nTrain_Signal=%d:", 0))
+                           + TString(Form("nTrain_Background=%d:", 0))
                            + TString("nTest_Signal=0:")
                            + TString("nTest_Background=0:")
                            + TString("SplitMode=Random:")
@@ -140,8 +149,8 @@ void NTagTMVA::MakeWeights(bool isMultiClass)
         fFactory->PrepareTrainingAndTestTree( "", trainingOption );
     }
     else {
-        fFactory->SetInputTrees( chain, fSigCut, fBkgCut );
-        fFactory->PrepareTrainingAndTestTree( fSigCut, fBkgCut, trainingOption );
+        fFactory->SetInputTrees(chain, fSigCut, fBkgCut);
+        fFactory->PrepareTrainingAndTestTree(fSigCut, fBkgCut, trainingOption);
 
         if (fUse["Cuts"])
             fFactory->BookMethod( TMVA::Types::kCuts, "Cuts",
