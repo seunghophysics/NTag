@@ -54,7 +54,7 @@ int main(int argc, char** argv)
         msg.Print(Form("Using NTag in $NTAGPATH: ") + installPath);
 
     if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...", pERROR);
-    if (weightName.empty()) weightName = installPath + "weights/MLP_Gd0.02p.xml";
+    if (weightName.empty()) weightName = installPath + "weights/MLP_Gd0.011p_calibration.xml";
     if (methodName.empty()) methodName = "MLP";
 
     /********************/
@@ -231,12 +231,6 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     const std::string &PVXRES = parser.GetOption("-PVXRES");
     if (!PVXRES.empty()) {
         nt->SetVertexResolution(std::stof(PVXRES));
-    }
-
-    // Set signal ratio threshold to be used in candidate labeling (CaptureType)
-    const std::string &SIGRATIOTHR = parser.GetOption("-SIGRATIOTHR");
-    if (!SIGRATIOTHR.empty()) {
-        nt->SetSignalRatioThreshold(std::stof(SIGRATIOTHR));
     }
 
     // Turn TMVA on/off (default: on)
