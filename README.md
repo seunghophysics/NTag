@@ -78,6 +78,7 @@ NTag -in (input filename) -out (output filename)
 |-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
 |-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
 |-method  | (MVA training method name)    | `NTag -in in*.root -method MLP,BDT,LD -train`   | optional  |
+|-macro   | (macro filename)              | `NTag -macro macro.xyz`                         | optional  |
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
 |-NHITSTH/MX| (NHits threshold / maximum) | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`        | optional  |
 |-TWIDTH  | (Sliding T window width) [ns] | `NTag -in in.dat -TWIDTH 13`                    | optional  |
@@ -92,6 +93,24 @@ NTag -in (input filename) -out (output filename)
 |-SKOPTN  | (SK option to set)            | `NTag -in in.dat -SKOPTN 25,26,16`              | optional  |
 |-SKBADOPT | (SK BAD-Choption to set)     | `NTag -in in.dat  -SKBADOPT 55`                 | optional  |
 |-REFRUNNO | (Reference run for dark-noise and so on) | `NTag -in in.dat -REFRUNNO 85619    | optional  |
+
+* Macro rules:
+
+Use # as the first character in a line to make the entire line a comment.
+Arguments must be space-delimited, for example: `-(option) (argument)`
+A macro can be used with command line arguments, for example: `NTag -in input.zbs -macro macro.txt`
+
+Example:
+```
+# input file
+-in somepath/input.zbs
+
+# ouptut file
+-out otherpath/output.root
+
+# options
+-usetruevertex
+```
 
 * Run options
 

@@ -34,6 +34,13 @@ int main(int argc, char** argv)
 
     NTagArgParser parser(argc, argv);
 
+    // Read macro
+    if (parser.OptionExists("-macro")) {
+        std::ifstream macro(parser.GetOption("-macro"));
+        NTagArgParser fparser(macro);
+        parser += fparser;
+    }
+
     // Names
     inputName     = parser.GetOption("-in");
     outputName    = parser.GetOption("-out");
@@ -53,7 +60,7 @@ int main(int argc, char** argv)
     if (GetCWD() != installPath)
         msg.Print(Form("Using NTag in $NTAGPATH: ") + installPath);
 
-    if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...", pERROR);
+    if (inputName.empty())  msg.Print("Please specify input file name: NTag -in [input file] ...\n", pERROR);
     if (weightName.empty()) weightName = installPath + "weights/MLP_Gd0.011p_calibration.xml";
     if (methodName.empty()) methodName = "MLP";
 
