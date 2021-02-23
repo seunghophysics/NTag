@@ -14,7 +14,7 @@
 #include "NTagROOTTQReader.hh"
 
 static std::string NTagVersion = "0.0.1";
-static std::string NTagDate    = "Feb 16, 2021";
+static std::string NTagDate    = "Feb 23, 2021";
 void PrintNTag();
 void PrintVersion();
 
@@ -266,6 +266,11 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
+    }
+
+    // Turn BONSAI on/off (default: on)
+    if (parser.OptionExists("-noBONSAI")) {
+        nt->UseBONSAI(false);
     }
 
     // Turn Neut-fit on/off (default: on)

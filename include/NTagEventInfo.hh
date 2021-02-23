@@ -457,6 +457,13 @@ class NTagEventInfo
         inline void UseResidual(bool b) { bUseResidual = b; }
 
         /**
+         * @brief Set \c false to not extract BONSAI-related variables. (by default `true`)
+         * @param b If \c false, NTag will not use BONSAI to extract relevant variables.
+         * @see NTagCandidate::SetVariables
+         */
+        inline void UseBONSAI(bool b) { bUseBONSAI = b; }
+
+        /**
          * @brief Set \c false to not go through Neut-fit for all candidates, which sometimes takes ages to complete.
          * @param b If \c false, NTag will not use Neut-fit and therefore no related variables will be saved.
          * @details Especially useful when finding primary selection efficiency.
@@ -552,7 +559,9 @@ class NTagEventInfo
                                          Can be set to \c true from command line with option `-forceFlat`. */
                     bUseResidual,   /*!< Set \c false if not using ToF-subtracted hit times, otherwise \c false.
                                          Can be set to \c false from command line with option `-noTOF`. */
-                    bUseNeutFit;    /*!< Set \c false if not using Neut-fit and MVA, otherwise \c false.
+                    bUseBONSAI,     /*!< Set \c false if not extracting BONSAI-related variables, otherwise \c true.
+                                         Can be set to \c false from command line with option `-noBONSAI`. */
+                    bUseNeutFit;    /*!< Set \c false if not using Neut-fit and MVA, otherwise \c true.
                                          Can be set to \c false from command line with option `-noFit`. */
         bool candidateVariablesInitialized; /*!< A flag to check if #iCandidateVarMap and #fCandidateVarMap
                                                  are initialized. */

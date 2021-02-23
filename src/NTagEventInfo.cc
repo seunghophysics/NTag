@@ -42,7 +42,9 @@ MINGRIDWIDTH(NTagDefault::MINGRIDWIDTH),
 PVXRES(NTagDefault::PVXRES),
 customvx(0.), customvy(0.), customvz(0.),
 fVerbosity(verbose),
-bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false), bUseResidual(true), bUseNeutFit(true), refRunNo(62428)
+bData(false), bUseTMVA(true), bSaveTQ(false), bForceFlat(false),
+bUseResidual(true), bUseBONSAI(true), bUseNeutFit(true),
+refRunNo(62428)
 {
     nProcessedEvents = 0;
     preRawTrigTime[0] = -1;
