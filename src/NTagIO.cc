@@ -55,12 +55,18 @@ void NTagIO::SKInitialize()
     msg.PrintBlock("Setting SK geometry...");
     skheadg_.sk_geometry = 6; geoset_();
 
+    // run is not Normal run (!26) , but Mask Bad CH(25)
+    int ipt = 0;
+    int nsub = 0;
+    if ( !fSKOPTION.Contains("26") && !fSKOPTION.Contains("25") )
+      skbadch_(&refRunNo, &nsub, &ipt);
+
     // Initialize BONSAI
     msg.PrintBlock("Initializing ZBS...");
     kzinit_();
     std::cout << std::endl;
     msg.PrintBlock("Initializing BONSAI...");
-    bonsai_ini_();
+    bonsai_ini_(&refRunNo);
 }
 
 void NTagIO::ReadFile()
@@ -433,4 +439,11 @@ void NTagIO::SetSKOption(TString optn)
     fSKOPTION = optn;
     msg.Print("Setting SKOPTN: " + fSKOPTION, pDEBUG);
     skoptn_(fSKOPTION.Data(), fSKOPTION.Length());
+}
+
+void NTagIO::SetSKBadChOption(int badopt)
+{
+    fSKBADCHOPTION = badopt;
+    msg.Print("Setting SKOPTN: " + fSKOPTION, pDEBUG);
+    skbadopt_(&fSKBADCHOPTION);
 }

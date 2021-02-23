@@ -19,6 +19,8 @@ extern "C" {
                      int, int, int, int, int, int, int, int, int);
     void skopenf_(int*, int*, const char*, int*);
     void skoptn_(const char*, int);
+    void skbadopt_(int*);
+    void skbadch_(int*, int*, int*);
     int  skread_(int*);
     void skclosef_(int*);
     void skroot_init_(int*);
@@ -38,7 +40,7 @@ extern "C" {
 
 // BONSAI
 extern "C" {
-    void bonsai_ini_();
+    void bonsai_ini_(int*);
     void bonsai_fit_(int*, float*, float*, float*, int*, int*, float*, float*, float*,
                      float*, float*, float*, float*, float*, float*);
     void bonsai_end_();

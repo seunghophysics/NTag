@@ -251,6 +251,18 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->SetSKOption(SKOPTN);
     }
 
+    // Set custom SK options
+    const std::string &SKBADOPT = parser.GetOption("-SKBADOPT");
+    if (!SKBADOPT.empty()) {
+        nt->SetSKBadChOption(stoi(SKBADOPT));
+    }
+
+    // Set reference runNo
+    const std::string &REFRUN = parser.GetOption("-REFRUNNO");
+    if (!REFRUN.empty()) {
+        nt->SetRefRunNo(std::stoi(REFRUN));
+    }
+
     // Turn TMVA on/off (default: on)
     if (parser.OptionExists("-noMVA")) {
         nt->UseTMVA(false);
