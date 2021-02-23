@@ -92,7 +92,7 @@ NTag -in (input filename) -out (output filename)
 |-removeSKOPTN | (SK option to remove)    | `NTag -in in.dat -removeSKOPTN 25,26`           | optional  |
 |-SKOPTN  | (SK option to set)            | `NTag -in in.dat -SKOPTN 25,26,16`              | optional  |
 |-SKBADOPT | (SK BAD-Choption to set)     | `NTag -in in.dat  -SKBADOPT 55`                 | optional  |
-|-REFRUNNO | (Reference run for dark-noise and so on) | `NTag -in in.dat -REFRUNNO 85619    | optional  |
+|-REFRUNNO | (Reference run for dark-noise and so on) | `NTag -in in.dat -REFRUNNO 85619`   | optional  |
 
 * Macro rules:
 
