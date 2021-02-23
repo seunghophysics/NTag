@@ -263,6 +263,11 @@ class NTagIO : public NTagEventInfo
          */
         virtual void SetSKOption(TString optn);
 
+        /**
+         * @brief Set SK Bad-Ch option. Refer to $SKOFL_ROOT/src/skrd/skbadopt.F for available bad-ch options.
+         */
+        virtual void SetSKBadChOption(int badopt);
+
     protected:
         const char* fInFileName;
         const char* fOutFileName;
@@ -282,6 +287,7 @@ class NTagIO : public NTagEventInfo
     private:
         static NTagIO* instance;
         TString fSKOPTION;
+        int fSKBADCHOPTION;
 };
 
 #endif
