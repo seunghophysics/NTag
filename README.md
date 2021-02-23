@@ -96,8 +96,10 @@ NTag -in (input filename) -out (output filename)
 
 * Macro rules:
 
-Use # as the first character in a line to make the entire line a comment.
+Use `#` as the first character in a line to make the entire line a comment.
+
 Arguments must be space-delimited, for example: `-(option) (argument)`
+
 A macro can be used with command line arguments, for example: `NTag -in input.zbs -macro macro.txt`
 
 Example:
