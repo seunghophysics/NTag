@@ -464,6 +464,11 @@ class NTagEventInfo
          */
         inline void UseNeutFit(bool b) { bUseNeutFit = b; }
 
+        /**
+         * @brief Set reference run for dark noise, waterT, and Bad ch. it is needed for calibration and lowe data.
+         */
+        virtual void SetRefRunNo( int d) { refRunNo = d; }
+
         // TMVA tools
         /// All input variables to TMVA are controlled by this class!
         NTagTMVA    TMVATools;
@@ -569,7 +574,8 @@ class NTagEventInfo
                eventNo,   ///< Event # of an event.
                nhitac,    ///< Number of OD hits within 1.3 us around the main trigger of an event.
                nqiskz,    ///< Number of all hits recorded in #vTISKZ.
-               trgType;   ///< Trigger type. MC: 0, SHE: 1, SHE+AFT: 2, Non-SHE: 3
+               trgType,   ///< Trigger type. MC: 0, SHE: 1, SHE+AFT: 2, Non-SHE: 3
+               refRunNo;  ///< Reference run #, it is needed for calibration and LOWE analysis
         float  trgOffset, ///< Trigger offset of an event. Default set to 1,000 [ns].
                tDiff,     ///< Time difference from the current event to the previous event. [ms]
                qismsk;    /*!< Total p.e. deposited in ID within 1.3 us around

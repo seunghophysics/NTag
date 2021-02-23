@@ -1,4 +1,4 @@
-      subroutine bonsai_ini()
+      subroutine bonsai_ini(refrun)
 
       implicit none
 
@@ -12,6 +12,7 @@
 #include "skwt.h"
 
       integer lun
+      integer refrun
       parameter (lun=20)
 
       real watert
@@ -22,12 +23,11 @@ c***  initialize water transparency table
       call skwt
       
 c***  in case of MC, assign dark counts based on run 62428
-      if (nrunsk.lt.61700) nrunsk = 62428
-      dark = darklf(nrunsk)
+      dark = darklf(refrun)
       
 c***  initialize bonsai
       CALL cfbsinit(MAXPM,xyzpm)
-      call lfwater(relapse(nrunsk), watert)
+      call lfwater(relapse(refrun), watert)
 
       return
       end
