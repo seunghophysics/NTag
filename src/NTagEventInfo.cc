@@ -85,7 +85,17 @@ void NTagEventInfo::SetEventHeader()
     // Read trigger offset
     if (!bData) {
         msg.PrintBlock("Reading trigger information...", pSUBEVENT, pDEFAULT, false);
-        trginfo_(&trgOffset);
+        switch (fVertexMode) {
+          case mBONSAI: {
+              int lun = 10;
+              TreeManager* mgr  = skroot_get_mgr(&lun);
+              MCInfo*    MC = mgr->GetMC();
+              mgr->GetEntry();
+              trgOffset = MC->prim_pret0[0] ; break; }
+          default : {
+              trginfo_(&trgOffset);
+          }
+       }
     }
 }
 
