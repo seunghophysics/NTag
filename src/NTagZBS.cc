@@ -9,7 +9,7 @@
 #include "NTagZBS.hh"
 
 NTagZBS::NTagZBS(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mAPFIT); }
+: NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mAPFIT); SetFilType(mZBS); }
 
 NTagZBS::~NTagZBS() { bonsai_end_(); }
 

@@ -3,8 +3,11 @@
 
 #include <TFile.h>
 
+#undef MAXPM
+#undef MAXPMA
 #include <skheadC.h>
 #include <skvectC.h>
+#undef MAXHWSK
 
 #include "NTagPath.hh"
 #include "NTagIO.hh"
@@ -14,6 +17,7 @@ NTagIO* NTagIO::instance;
 
 NTagIO::NTagIO(const char* inFileName, const char* outFileName, Verbosity verbose)
 : NTagEventInfo(verbose), fInFileName(inFileName), fOutFileName(outFileName), lun(10),
+bSaveSameTree(0),
 // default SK options: 31 (read HEADER) 30 (read TQREAL) 26,25 (mask bad channels)
 fSKOPTION("31,30,26,25")
 {
@@ -26,7 +30,6 @@ fSKOPTION("31,30,26,25")
     fSigTQFile = NULL; fSigTQTree = NULL;
 
     outFile = new TFile(fOutFileName, "recreate");
-
     ntvarTree = new TTree("ntvar", "NTag variables");
     CreateBranchesToNtvarTree();
 
@@ -38,6 +41,7 @@ fSKOPTION("31,30,26,25")
 
     restqTree = new TTree("restq", "Residual TQ");
     CreateBranchesToResTQTree();
+
 }
 
 NTagIO::~NTagIO() {}
@@ -74,6 +78,10 @@ void NTagIO::ReadFile()
     if (bUseTMVA) {
         TMVATools.InstantiateReader();
         TMVATools.DumpReaderCutRange();
+    }
+
+    if ( bSaveSameTree ) {
+      CreateBranchesToDataTree();
     }
 
     // SIGINT handler
@@ -158,6 +166,14 @@ void NTagIO::SetEventInfo()
     SetEventHeader();
     SetPromptVertex();
     SetFitInfo();
+    //if ( 1 ) {
+    if ( bSaveSameTree ) {
+      TreeManager* mgr  = skroot_get_mgr(&lun);
+      *outHEAD = *mgr->GetHEAD(); 
+      *outTQI  = *mgr->GetTQREALINFO(); 
+      *outTQA  = *mgr->GetTQAREALINFO(); 
+      *outLOWE = *mgr->GetLOWE(); 
+    }
 
     // Hit info (all hits)
     AppendRawHitInfo();
@@ -186,6 +202,7 @@ void NTagIO::ReadFlatEvent()
     if (!bData){
         trgType = 0;
         SetMCInfo();
+        if (skhead_.idtgsk & 1<<28) trgType = 1;
     }
     else
         trgType = 3;
@@ -244,6 +261,7 @@ void NTagIO::WriteOutput()
     ntvarTree->Write();
     if (!bData) truthTree->Write();
     if (bSaveTQ) restqTree->AutoSave();
+    if ( bSaveSameTree ) dataTree->Write();
     outFile->Close();
 
     //bonsai_end_();
@@ -344,6 +362,24 @@ void NTagIO::CreateBranchesToNtvarTree()
     }
 }
 
+void NTagIO::CreateBranchesToDataTree()
+{
+  msg.PrintBlock("Setting SKROOT output...");
+  outHEAD = new Header; 
+  outTQI = new TQReal;
+  outTQA = new TQReal;
+  outLOWE = new LoweInfo;
+
+  TreeManager* mgr  = skroot_get_mgr(&lun);
+  TTree *tr = (TTree*) mgr->GetTree();
+  dataTree = (TTree*) tr->CloneTree(0);
+  dataTree->SetDirectory(outFile);
+  dataTree->SetBranchAddress("HEADER",  &outHEAD);
+  dataTree->SetBranchAddress("TQREAL",  &outTQI);
+  dataTree->SetBranchAddress("TQAREAL", &outTQA);
+  dataTree->SetBranchAddress("LOWE",    &outLOWE);
+}
+
 void NTagIO::AddCandidateVariablesToNtvarTree()
 {
     if (fCandidateVarMap.size()) {
@@ -388,6 +424,7 @@ void NTagIO::FillTrees()
 
     if (!bData) truthTree->Fill();
     if (bSaveTQ) restqTree->Fill();
+    if ( bSaveSameTree ) dataTree->Fill();
 
     nProcessedEvents++;
 }

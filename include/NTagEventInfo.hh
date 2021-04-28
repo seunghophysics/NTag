@@ -60,6 +60,12 @@ enum VertexMode
     mSTMU    ///< Use the vertex where a stopping muon has stopped inside the tank. Not supported yet.
 };
 
+enum FileType
+{
+    mROOT, ///< Use Root file as an input file.
+    mZBS   ///< Use zbs file as an input file.
+};
+
 /******************************************
 * @brief Constants used in NTag.
 *******************************************/
@@ -416,6 +422,13 @@ class NTagEventInfo
         inline void SetVertexMode(VertexMode m) { fVertexMode = m; }
 
         /**
+         * @brief Sets #Filetype #fFileType.
+         * @param f File type to use in NTagEventInfo.
+         * @see #FileType
+         */
+        inline void SetFileType(FileType f) { fFileType = f; }
+
+        /**
          * @brief Sets NTagEventInfo::PVXRES.
          * @param s Prompt vertex resolution. [cm]
          */
@@ -503,6 +516,7 @@ class NTagEventInfo
                     customvy,     ///< Y coordinate of a custom prompt vertex
                     customvz;     ///< Z coordinate of a custom prompt vertex
         VertexMode  fVertexMode;  ///< #VertexMode of class NTagInfo and all inheriting classes.
+        FileType    fFileType;    ///< #FileType of class NTagInfo and all inheriting classes.
 
 
     protected:

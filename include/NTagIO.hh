@@ -10,6 +10,10 @@
 #define NTAGIO_HH 1
 
 #include "NTagEventInfo.hh"
+#undef MAXPM
+#undef MAXPMA
+
+#include "skroot.h"
 
 /********************************************************
  * @brief The class in charge of SK data I/O.
@@ -212,6 +216,12 @@ class NTagIO : public NTagEventInfo
         virtual void CreateBranchesToNtvarTree();
 
         /**
+         * @brief Creates branches to #ntvarTree with input skroot classes.
+         * See the source code for the branch names and filled variables.
+         */
+        virtual void CreateBranchesToDataTree();
+
+        /**
          * @brief Creates additional branches out of feature variables
          * declared in NTagCandidate::SetVariables to #ntvarTree.
          */
@@ -268,6 +278,12 @@ class NTagIO : public NTagEventInfo
          */
         virtual void SetSKBadChOption(int badopt);
 
+        /**
+         * @brief Choose whether to save output to same tree as input, or not. Set bSameTree.
+         * @param b If \c true, ntvar tree will be changed the name to "data" and include input sktree and output.
+         */
+        void SetSaveTreeAs(int b) { bSaveSameTree = b; }
+
     protected:
         const char* fInFileName;
         const char* fOutFileName;
@@ -279,11 +295,23 @@ class NTagIO : public NTagEventInfo
                                     @see: NTagIO::CreateBranchesToTruthTree */
         TTree*      ntvarTree; /*!< A tree of member variables.
                                     @see: NTagIO::CreateBranchesToNtvarTree */
+        TTree*      dataTree; /*!< A tree of input skroot variables.
+                                    @see: NTagIO::CreateBranchesToDataTree */
         TTree*      rawtqTree; /*!< A tree of Raw TQ hit vectors. (#vTISKZ, #vQISKZ, and #vCABIZ)
                                     @see: NTagIO::CreateBranchesToRawTQTree */
         TTree*      restqTree; /*!< A tree of Residual TQ hit vectors. (#vSortedT, #vSortedQ, and #vSortedPMTID)
                                     @see: NTagIO::CreateBranchesToResTQTree */
-
+        /*
+         * Input-Output chain mode
+         */
+        
+        bool        bSaveSameTree; /*!< Set \c true if saving the output to same tree as input, otherwise \c false.
+                                        Can be set to \c true from command line with option `-saveSameTree`. */
+        Header*     outHEAD;   /*!< SKROOT header info. container (for the input-output chain mode) */
+        TQReal*     outTQI;    /*!< SKROOT ID TQReal info. container (for the input-output chain mode) */
+        TQReal*     outTQA;    /*!< SKROOT OD TQReal info. container (for the input-output chain mode) */
+        LoweInfo*   outLOWE;   /*!< SKROOT LoweInfo. container (for the input-output chain mode) */
+ 
     private:
         static NTagIO* instance;
         TString fSKOPTION;

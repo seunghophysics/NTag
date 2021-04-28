@@ -5,7 +5,6 @@
 #include <iterator>
 
 #include <TFile.h>
-
 #include <skroot.h>
 #undef MAXHWSK
 #include <skheadC.h>
@@ -17,7 +16,7 @@
 #include "NTagROOT.hh"
 
 NTagROOT::NTagROOT(const char* inFileName, const char* outFileName, Verbosity verbose)
-: NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mBONSAI); }
+: NTagIO(inFileName, outFileName, verbose) { Initialize(); SetVertexMode(mBONSAI); SetFileType(mROOT);}
 
 NTagROOT::~NTagROOT() {}
 

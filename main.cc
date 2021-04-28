@@ -222,6 +222,12 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->SetNHitsWidth(std::stof(TWIDTH));
     }
 
+    // Set minimum separation width among candidates
+    const std::string &TSEPWIDTH = parser.GetOption("-TSEPWIDTH");
+    if (!TSEPWIDTH.empty()) {
+        nt->SetTPeakSeparation(std::stof(TSEPWIDTH));
+    }
+
     // Set VTXSRCRANGE
     const std::string &VTXSRCRANGE = parser.GetOption("-VTXSRCRANGE");
     if (!VTXSRCRANGE.empty()) {
@@ -299,8 +305,13 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
     // Use ToF-subtracted (residual) time (default: on)
     if (parser.OptionExists("-noTOF")) {
         nt->UseResidual(false);
-        nt->SetTMatchWindow(100.);
-        nt->SetTPeakSeparation(150.);
+        nt->SetTMatchWindow(200.);
+        nt->SetTPeakSeparation(1300.);
+    }
+
+    // Save Output variables to same directory as input (default: off)
+    if (parser.OptionExists("-saveSameTree")) {
+        nt->SetSaveTreeAs(true);
     }
 
     // Save signal flags from source file (MC-only)
@@ -329,7 +340,6 @@ void ProcessSKFile(NTagIO* nt, NTagArgParser& parser)
         nt->AddSKOption("23"); // ATMPD charge correction
         nt->SetVertexMode(mSTMU);
     }
-
     nt->ReadFile();
     nt->WriteOutput();
 }
