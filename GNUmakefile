@@ -70,3 +70,31 @@ bin obj out lib:
 
 clean:
 	@$(RM) -rf $(OBJS) obj bin src/NTagDict.*
+
+
+## TOOL TEST ##
+
+TOOLCXX = g++
+TOOLCXXFLAGS = -std=c++11 -lgfortran
+TOOLINCLUDE = -I src/ToolFramework/Tool -I src/ToolFramework/ToolChain -I src/EventData -I src/Tools/SKRead
+SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I src/SKLibrary
+SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -llibrary -lsklib -liolib -lrfa \
+								-lskroot -lDataDefinition -ltqrealroot -lloweroot -latmpdroot -lmcinfo -lsofttrgroot -lidod_xtlk_root
+ROOTINCLUDE = -I $(ROOTSYS)/include
+ROOTLIB = $(shell root-config --libs)
+CERNLIB = -L$(CERN_ROOT)/lib -lpacklib -lmathlib
+
+tool: tooltest.o src/ToolFramework/ToolChain/ToolChain.o src/Tools/SKRead/SKRead.o
+	$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ $^ $(TOOLINCLUDE) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
+
+tooltest.o: tooltest.cc
+	$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ -c $< $(TOOLINCLUDE)
+
+src/ToolFramework/ToolChain/ToolChain.o: src/ToolFramework/ToolChain/ToolChain.cc
+	$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ -c $< $(TOOLINCLUDE)
+
+src/Tools/SKRead/SKRead.o: src/Tools/SKRead/SKRead.cc
+	$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ -c $< $(TOOLINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+
+toolclean:
+	rm -f tooltest.o src/ToolFramework/ToolChain/ToolChain.o src/Tools/SKRead/SKRead.o
