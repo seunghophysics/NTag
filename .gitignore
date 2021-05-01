@@ -1,8 +1,10 @@
 # objects
 obj/
+*.o
 
 # binaries
 bin/
+tool
 
 # trained weights
 weights/new/
