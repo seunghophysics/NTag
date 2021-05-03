@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "EventData.hh"
+#include "DataModel.hh"
 #include "Logger.hh"
 
 class Tool;
@@ -21,7 +21,7 @@ class ToolChain
         bool Execute(int nEvents=1);
         bool Finalize();
         
-        EventData eventData;
+        DataModel eventData;
         Logger logger;
         
     private:

@@ -7,7 +7,7 @@
 #include "Logger.hh"
 
 class ToolChain;
-class EventData;
+class DataModel;
 
 class Tool
 {
@@ -34,7 +34,7 @@ class Tool
     protected:
         std::string name;
         
-        EventData* eventData;
+        DataModel* eventData;
         Logger* logger;
 };
 

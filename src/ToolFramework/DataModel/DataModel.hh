@@ -3,7 +3,7 @@
 
 #include "EventVariables.hh"
 
-class EventData
+class DataModel
 {
     private:
         // Hits
