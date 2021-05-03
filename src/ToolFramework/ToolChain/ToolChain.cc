@@ -4,13 +4,18 @@
 #include "ToolChain.hh"
 
 ToolChain::ToolChain() 
-: initialized(false) {}
+: initialized(false), logger() {}
 ToolChain::~ToolChain() {}
 
 void ToolChain::AddTool(Tool* tool) 
 {
-    tool->ConnectEventData(eventData);
+    tool->ConnectToToolChain(this);
     tools.push_back(tool);
+}
+
+void ToolChain::SetLogOutputPath(std::string logOutPath)
+{
+    logger.SetOutputPath(logOutPath);
 }
 
 bool ToolChain::Initialize()

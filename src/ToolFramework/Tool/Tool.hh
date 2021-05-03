@@ -2,7 +2,11 @@
 #define TOOL_HH
 
 #include <string>
+#include <sstream>
 
+#include "Logger.hh"
+
+class ToolChain;
 class EventData;
 
 class Tool
@@ -11,16 +15,27 @@ class Tool
         Tool() {}
         virtual ~Tool() {}
 
-        void ConnectEventData(EventData& data) { eventData = &data; }
+        void ConnectToToolChain(ToolChain* toolChain);
+        
         virtual bool Initialize() = 0;
         virtual bool Execute() = 0;
         virtual bool Finalize() = 0;
+        
+        template <typename T>
+        void Log(T msg, Verbosity msgType=pDEFAULT)
+        {
+            std::stringstream toolOneLineMsg;
+            toolOneLineMsg << "[" << name << "] "  << msg << "\n"; 
+            logger->Log(toolOneLineMsg.str(), msgType);
+        }
         
         std::string GetName() { return name; }
 
     protected:
         std::string name;
+        
         EventData* eventData;
+        Logger* logger;
 };
 
 #endif
