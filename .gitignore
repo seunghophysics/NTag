@@ -4,13 +4,13 @@ obj/
 
 # binaries
 bin/
-tool
 
 # trained weights
 weights/new/
 
 # library
 lib/
+include/
 
 # build
 docs/doxygen/build/
@@ -23,5 +23,3 @@ docs/sphinx/build
 # output
 *.log
 *.out
-src/NTagDict.cc
-src/NTagDict.h

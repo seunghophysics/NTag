@@ -3,62 +3,115 @@
 #include <skheadC.h>
 #undef MAXHWSK
 #include <fortran_interface.h>
+#undef MAXPM
+#undef MAXPMA
 
 #include "SKLibs.hh"
-
 #include "SKRead.hh"
 
 bool SKRead::Initialize()
 {
-    // input file name
-    TString inFilePath = "/disk02/usr6/han/gd/mc/out/annri/cmb/annri_000.cmb";
+    // Read options from config file
+    TString inFilePath, skOptions;
+    int skGeometry, refRunNo;
+    sharedData->ntagInfo.Get("input_file_path", inFilePath);
+    sharedData->ntagInfo.Get("sk_options", skOptions);
+    sharedData->ntagInfo.Get("sk_geometry", skGeometry);
+    sharedData->ntagInfo.Get("reference_run", refRunNo);
 
-    skoptn_("31,30,26,25", 11);
-    skheadg_.sk_geometry = 6; geoset_();
+    if (!fileExists(inFilePath.Data())) {
+        Log("Input file does not exist. Aborting NTag!", pERROR);
+        return false;
+    }
+
+    inputIsSKROOT = inFilePath.EndsWith(".root");
+    eventCounter = 0; readStatus = 0;
+
+    //////////////////////////////////////////
+    // Set read options before opening file //
+    //////////////////////////////////////////
+
+    skoptn_(skOptions.Data(), skOptions.Length());
+    skheadg_.sk_geometry = skGeometry; geoset_();
     
+    // Custom bad-channel masking (M. Harada)
+    // 25: mask bad channel
+    // 26: read bad channel from input file
+    if ( !skOptions.Contains("25") && !skOptions.Contains("26") ) {
+        Log(Form("Masking bad channels with reference run %d", refRunNo));
+        int refSubRunNo = 0;
+        int outputErrorStatus = 0;
+        skbadch_(&refRunNo, &refSubRunNo, &outputErrorStatus);
+    }
+
+    ///////////////
+    // Open file //
+    ///////////////
+
     int lun = 10;
-    if (false) {
+    // SKROOT
+    if (inputIsSKROOT) {
         skroot_open_read_(&lun);
         skroot_set_input_file_(&lun, inFilePath.Data(), inFilePath.Length());
         skroot_init_(&lun);
     }
     // ZEBRA
     else {
-        // Initialize ZEBRA
-        kzinit_();
-        
+        kzinit_(); // Initialize ZEBRA
+
         // Set rflist and open file
         int fileIndex = 1; // 1st file in rflist
         int openError;
-    
-        set_rflist_(&lun, inFilePath.Data(), 
+
+        set_rflist_(&lun, inFilePath.Data(),
                     "LOCAL", "", "RED", "", "", "recl=5670 status=old", "", "",
                     inFilePath.Length(), 5, 0, 3, 0, 0, 20, 0, 0);
         skopenf_(&lun, &fileIndex, "Z", &openError);
-    
+
         if (openError) {
-            //Log("Error occurred while opening the input ZEBRA file: " + inFilePath);
-            return false;    
+            Log("Error occurred while opening the input ZEBRA file: " + inFilePath, pERROR);
+            return false;
         }
     }
 
     return true;
 }
 
+bool SKRead::CheckSafety()
+{
+    safeToExecute = true;
+    return safeToExecute;
+}
+
 bool SKRead::Execute()
 {
-    int readStatus;
     int lun = 10;
     readStatus = skread_(&lun);
-    std::cout << "readStatus: " << readStatus << std::endl;
+
+    switch (readStatus) {
+        case readOK: {
+            Log(Form("Read event #%d successfully.", eventCounter));
+            eventCounter++;
+            return true;
+        }
+        case readError: {
+            Log("Read-error occured!", pWARNING);
+            return false;
+        }
+        case readEOF: {
+            Log("Reached end-of-file.");
+            return true;
+        }
+    }
+
     return true;
 }
 
 bool SKRead::Finalize()
 {
     int lun = 10;
-    
-    if (false) {
+
+    if (inputIsSKROOT) {
         skroot_close_(&lun);
         skroot_end_();
     }
