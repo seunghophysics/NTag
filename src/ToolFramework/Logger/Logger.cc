@@ -12,18 +12,18 @@ Logger::Logger(Verbosity verbose)
 : fVerbosity(verbose), useCerr(false) {}
 Logger::Logger(std::string filePath, Verbosity verbose)
 : fVerbosity(verbose), useCerr(false)
-{   
+{
     if (fileExists(filePath))
         SetOutputPath(filePath);
     else
-	    std::cerr << "Could not open file.";
+        std::cerr << "Could not open file.";
 }
 
 Logger::~Logger() {}
 
-Logger& operator<<(Logger& logger, std::ostream& (*pfun)(std::ostream&))
+Logger& operator<<(Logger& logger, std::ostream& (*func)(std::ostream&))
 {
-    pfun(logger.GetOutputFileStream());
-    pfun(std::cout);
+    func(logger.GetOutputFileStream());
+    func(std::cout);
     return logger;
 }

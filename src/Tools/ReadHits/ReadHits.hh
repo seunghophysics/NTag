@@ -7,10 +7,12 @@ class ReadHits : public Tool
 {
     public:
         ReadHits() { name = "ReadHits"; }
-        
+
         bool Initialize();
         bool Execute();
         bool Finalize();
+
+        bool CheckSafety();
 };
 
 #endif

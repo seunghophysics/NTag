@@ -1,13 +1,19 @@
+#include <csignal>
 #include <iostream>
 
 #include "Tool.hh"
 #include "ToolChain.hh"
 
-ToolChain::ToolChain() 
+ToolChain::ToolChain()
 : initialized(false), logger() {}
-ToolChain::~ToolChain() {}
+ToolChain::~ToolChain()
+{
+    for (auto& tool: tools) {
+        delete tool;
+    }
+}
 
-void ToolChain::AddTool(Tool* tool) 
+void ToolChain::AddTool(Tool* tool)
 {
     tool->ConnectToToolChain(this);
     tools.push_back(tool);
@@ -22,17 +28,17 @@ bool ToolChain::Initialize()
 {
     if (!initialized) {
         initialized = true;
-        
+
         for (auto& tool: tools) {
             bool initSuccess = tool->Initialize();
             if (!initSuccess) {
-                std::cerr << "Tool " << tool->GetName() 
+                std::cerr << "Tool " << tool->GetName()
                           << " could not initialize." << std::endl;
                 initialized = false;
                 break;
             }
         }
-        
+
     }
     if (initialized)
         std::cout << "ToolChain successfully initialized." << std::endl;
@@ -41,14 +47,16 @@ bool ToolChain::Initialize()
     return initialized;
 }
 
-bool ToolChain::Execute(int nEvents)
+bool ToolChain::Execute(unsigned long nEvents)
 {
     if (initialized) {
-        for (int iEvent=0; iEvent<nEvents; iEvent++) {
+        for (unsigned long iEvent=0; iEvent<nEvents; iEvent++) {
             for (auto& tool: tools) {
-                tool->Execute();
+                tool->CheckSafetyAndExecute();
+                std::cout << "\n";
             }
         }
+        std::cout << "\n" << std::endl;
         return true;
     }
     else {
@@ -59,6 +67,7 @@ bool ToolChain::Execute(int nEvents)
 
 bool ToolChain::Finalize()
 {
+    std::cout << "finalizing" << std::endl;
     for (auto& tool: tools) {
         tool->Finalize();
     }
