@@ -73,7 +73,6 @@ bool ToolChain::Execute(unsigned long nEvents)
 
 bool ToolChain::Finalize()
 {
-    std::cout << "finalizing" << std::endl;
     for (auto& tool: tools) {
         tool->Finalize();
     }
