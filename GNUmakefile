@@ -5,7 +5,7 @@ ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/
 
 NTAG_GD_ROOT = $(shell pwd)
 
-OLD_NTAG_GD_ROOT     = $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd
+OLD_NTAG_GD_ROOT = $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd
 TMVASYS      = /disk02/usr6/han/Apps/TMVA
 
 SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I src/SKLibrary
@@ -27,6 +27,7 @@ all: NTag lib/libNTagTools.so
 
 TOOLCXX = g++
 TOOLCXXFLAGS = -std=c++11 -fPIC -g
+FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
 
 TOOLFRAMEWORKSRCS = $(wildcard src/ToolFramework/*/*.cc) $(wildcard src/ToolFramework/*/*/*.cc) $(wildcard src/ToolFramework/*/*/*/*.cc)
@@ -64,7 +65,7 @@ $(NTAGTOOLOBJS): src/Tools/%.o: src/Tools/%.cc src/Tools/%.hh
 
 src/SKLibrary/%.o: src/SKLibrary/%.F
 	@echo "[NTag] Building SKLibrary: $*..."
-	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc
+	$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe
 
 # NTagTools shared library
 lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
