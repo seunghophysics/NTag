@@ -65,7 +65,7 @@ $(NTAGTOOLOBJS): src/Tools/%.o: src/Tools/%.cc src/Tools/%.hh
 
 src/SKLibrary/%.o: src/SKLibrary/%.F
 	@echo "[NTag] Building SKLibrary: $*..."
-	$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe
+	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe
 
 # NTagTools shared library
 lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
