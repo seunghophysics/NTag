@@ -27,6 +27,7 @@ all: NTag lib/libNTagTools.so
 
 TOOLCXX = g++
 TOOLCXXFLAGS = -std=c++11 -fPIC -g
+FCFLAGS += -w -fPIC -lstdc++
 
 TOOLFRAMEWORKSRCS = $(wildcard src/ToolFramework/*/*.cc) $(wildcard src/ToolFramework/*/*/*.cc) $(wildcard src/ToolFramework/*/*/*/*.cc)
 TOOLFRAMEWORKOBJS = $(patsubst src/ToolFramework/%.cc, src/ToolFramework/%.o, $(TOOLFRAMEWORKSRCS))
@@ -63,7 +64,7 @@ $(NTAGTOOLOBJS): src/Tools/%.o: src/Tools/%.cc src/Tools/%.hh
 
 src/SKLibrary/%.o: src/SKLibrary/%.F
 	@echo "[NTag] Building SKLibrary: $*..."
-	$(FC) $(FCFLAGS) -c $< -o $@
+	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc
 
 # NTagTools shared library
 lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
@@ -81,4 +82,4 @@ NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/NTag.o l
 	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag src/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
