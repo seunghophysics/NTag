@@ -13,7 +13,7 @@ class DataModel;
 class Tool
 {
     public:
-        Tool():safeToExecute(false) {}
+        Tool():safeToExecute(false), exeCounter(0) {}
         virtual ~Tool() {}
 
         void ConnectToToolChain(ToolChain* toolChain);
@@ -27,6 +27,9 @@ class Tool
 
         virtual bool CheckSafety() { safeToExecute = true; return safeToExecute; }
         bool CheckSafetyAndExecute();
+        
+        inline void IncrementCounter() { exeCounter++; }
+        inline unsigned int GetCounter() { return exeCounter; }
 
         template <typename T>
         void Log(T msg, Verbosity msgType=pDEFAULT)
@@ -42,6 +45,7 @@ class Tool
     protected:
         std::string name;
         bool safeToExecute;
+        unsigned int exeCounter;
 
         DataModel* sharedData;
         Logger* logger;

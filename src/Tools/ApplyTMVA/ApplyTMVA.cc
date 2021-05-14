@@ -49,7 +49,7 @@ bool ApplyTMVA::Execute()
 
     // candidate loop
     for (unsigned int i = 0; i < nCandidates; i++) {
-        Candidate* candidate = eventCans->At(i);
+        Candidate* candidate = &(eventCans->At(i));
         float tmvaOutput = GetClassifierOutput(candidate);
         candidate->Set("TMVAOutput", tmvaOutput);
     }

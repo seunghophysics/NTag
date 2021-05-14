@@ -5,17 +5,8 @@
 
 EventCandidates::~EventCandidates()
 {
-    for (auto& can: vElements)
-        delete can;
-
-    for (auto & pair: featureVectorMap)
+    for (auto& pair: featureVectorMap)
         delete pair.second;
-}
-
-void EventCandidates::AppendCandidate(const unsigned int iHit)
-{
-    Candidate* candidate = new Candidate(iHit);
-    Append(candidate);
 }
 
 void EventCandidates::Print()
@@ -26,7 +17,7 @@ void EventCandidates::Print()
     else {
         int xWidth = 10;
         std::cout << "\033[4m\n No. ";
-        auto baseFeatureMap = vElements[0]->GetFeatureMap();
+        auto baseFeatureMap = vElements[0].GetFeatureMap();
         for (auto const& pair: baseFeatureMap) {
             int textWidth = pair.first.size()>6 ? pair.first.size() : 6;
             std::cout << std::right << std::setw(textWidth) << pair.first << " ";
@@ -35,7 +26,7 @@ void EventCandidates::Print()
 
         for (int iCandidate = 0; iCandidate < nElements; iCandidate++) {
             std::cout << std::right << std::setw(4) << iCandidate+1 << " ";
-            auto candidateFeatureMap = vElements[iCandidate]->GetFeatureMap();
+            auto candidateFeatureMap = vElements[iCandidate].GetFeatureMap();
             for (auto const& pair: candidateFeatureMap) {
                 int textWidth = pair.first.size()>6 ? pair.first.size() : 6;
                 float value = pair.second;
@@ -62,10 +53,10 @@ void EventCandidates::FillVectorMap()
         std::cerr << "No elements in EventCandidates... skipping EventCandidates::FillVectorMap." << std::endl;
 
     else {
-        auto baseFeatureMap = vElements[0]->GetFeatureMap();
+        auto baseFeatureMap = vElements[0].GetFeatureMap();
         bool areFeaturesIdentical = true;
         for (int iCandidate = 0; iCandidate < nElements; iCandidate++) {
-            auto comparedFeatureMap = vElements[iCandidate]->GetFeatureMap();
+            auto comparedFeatureMap = vElements[iCandidate].GetFeatureMap();
 
             for (auto const& basePair: baseFeatureMap) {
 
@@ -74,7 +65,7 @@ void EventCandidates::FillVectorMap()
                 }
                 else {
                     if (!featureVectorMap.count(basePair.first)) {
-                        featureVectorMap[basePair.first] = new std::vector<float>();
+                        featureVectorMap[basePair.first] = new std::vector<float>;
                     }
 
                     featureVectorMap[basePair.first]->resize(iCandidate);

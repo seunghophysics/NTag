@@ -1,6 +1,8 @@
 #ifndef APPLYTMVA_HH
 #define APPLYTMVA_HH
 
+#include <memory>
+
 #include "Tool.hh"
 
 namespace TMVA

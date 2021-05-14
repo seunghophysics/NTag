@@ -59,7 +59,7 @@ float GetDistance(const float vec1[3], const float vec2[3]);
 template <typename T>
 T GetSum(const std::vector<T>& vec)
 {
-    T t;
+    T t{};
     for (auto& element: vec){
         t += element;
     }

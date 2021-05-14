@@ -111,7 +111,7 @@ bool ReadMCInfo::Execute()
                     // Check saved capture stack
                     auto nCaptures = sharedData->eventTrueCaptures.GetSize();
                     for (int iCapture = 0; iCapture < nCaptures; iCapture++) {
-                        TrueCapture* capture = sharedData->eventTrueCaptures.At(iCapture);
+                        TrueCapture* capture = &(sharedData->eventTrueCaptures.At(iCapture));
                         if (fabs((double)(secondary.Time()-capture->Time()))<1.e-7) {
                             isNewCapture = false;
                             if (secondary.PID() == 22) {
@@ -121,8 +121,9 @@ bool ReadMCInfo::Execute()
                     }
 
                     if (isNewCapture) {
-                        TrueCapture* capture = new TrueCapture;
-                        capture->Append(secondary);
+                        TrueCapture capture;
+                        if (secondary.PID() == 22 && secondary.Momentum().Mag()>0) 
+                            capture.Append(secondary);
                         sharedData->eventTrueCaptures.Append(capture);
                     }
                 }
@@ -130,6 +131,7 @@ bool ReadMCInfo::Execute()
         }
     }
     Log("True capture information:");
+    sharedData->eventTrueCaptures.Sort();
     sharedData->eventTrueCaptures.DumpAllElements();
 
     return true;

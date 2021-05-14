@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <TVector3.h>
-
 #include "ToolChain.hh"
 
 #include "SKRead.hh"
@@ -21,35 +19,34 @@ int main()
 
     std::string logFilePath;
     if (toolChain.sharedData.ntagInfo.Get("log_file_path", logFilePath))
-        toolChain.SetLogOutputPath(logFilePath);
+        toolChain.SetLogFilePath(logFilePath);
 
     toolChain.sharedData.ntagInfo.Print();
 
-    SKRead* skRead = new SKRead;
-    ReadHits* readHits = new ReadHits;
-    ReadMCInfo* readMCInfo = new ReadMCInfo;
-    SetPromptVertex* setPromptVertex = new SetPromptVertex;
-    SubtractToF* subtractToF = new SubtractToF;
-    SearchCandidates* searchCandidates = new SearchCandidates;
-    ExtractFeatures* extractFeatures = new ExtractFeatures;
-    ApplyTMVA* applyTMVA = new ApplyTMVA;
-    OutputWriter* outputWriter = new OutputWriter;
+    SKRead skRead;
+    ReadHits readHits;
+    ReadMCInfo readMCInfo;
+    SetPromptVertex setPromptVertex;
+    SubtractToF subtractToF;
+    SearchCandidates searchCandidates;
+    ExtractFeatures extractFeatures;
+    ApplyTMVA applyTMVA;
+    OutputWriter outputWriter;
 
     // FIFO
-    toolChain.AddTool(skRead);
-    toolChain.AddTool(readHits);
-    toolChain.AddTool(readMCInfo);
-    toolChain.AddTool(setPromptVertex);
-    toolChain.AddTool(subtractToF);
-    toolChain.AddTool(searchCandidates);
-    toolChain.AddTool(extractFeatures);
-    toolChain.AddTool(applyTMVA);
-    toolChain.AddTool(outputWriter);
+    toolChain.AddTool(&skRead);
+    toolChain.AddTool(&readHits);
+    toolChain.AddTool(&readMCInfo);
+    toolChain.AddTool(&setPromptVertex);
+    toolChain.AddTool(&subtractToF);
+    toolChain.AddTool(&searchCandidates);
+    toolChain.AddTool(&extractFeatures);
+    toolChain.AddTool(&applyTMVA);
+    toolChain.AddTool(&outputWriter);
 
     toolChain.Initialize();
-    while (skRead->GetReadStatus() == readOK) {
+    while (skRead.GetReadStatus() == readOK)
         toolChain.Execute();
-    }
     toolChain.Finalize();
 
     exit(0);

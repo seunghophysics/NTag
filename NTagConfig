@@ -2,7 +2,7 @@
 #log_file_path /disk02/usr6/han/NTag/testout.log
 
 ###### SKRead ######
-input_file_path /disk02/usr6/han/gd/mc/out/annri/cmb/annri_000.cmb
+input_file_path /disk02/usr6/han/gd/mc/out/atmnu/zbs/atmnu_2500_00.zbs
 sk_options 31,30,26,25
 sk_geometry 6
 reference_run 62428
@@ -15,7 +15,7 @@ vertex_mode TRUE
 smearing_resolution 7
 
 ##### SearchCandidates #####
-T0TH 1000
+T0TH 5000
 T0MX 535000
 TWIDTH 14
 TMINPEAKSEP 60

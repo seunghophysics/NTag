@@ -3,7 +3,7 @@
 
 #include "Tool.hh"
 
-enum
+enum ReadStatus
 {
     readOK,
     readError,
@@ -25,9 +25,8 @@ class SKRead : public Tool
 
     private:
         bool inputIsSKROOT;
+        bool inputIsMC;
         int readStatus;
-
-        unsigned int eventCounter;
 };
 
 #endif

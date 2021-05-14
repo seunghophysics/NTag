@@ -28,8 +28,7 @@ bool ExtractFeatures::Initialize()
 bool ExtractFeatures::CheckSafety()
 {
     // check MC
-    if (skhead_.nrunsk == 999999)
-        inputIsMC = true;
+    sharedData->ntagInfo.Get("is_mc", inputIsMC);
 
     // EventPMTHits must be filled
     if (sharedData->eventPMTHits.IsEmpty()) {
@@ -47,8 +46,8 @@ bool ExtractFeatures::CheckSafety()
 
 bool ExtractFeatures::Execute()
 {
-    TVector3 promptVertex;
-    float dWall;
+    TVector3 promptVertex(0,0,0);
+    float dWall = 0.0;
     sharedData->eventVariables.Get("prompt_vertex", promptVertex);
     sharedData->eventVariables.Get("d_wall", dWall);
 
@@ -63,17 +62,18 @@ bool ExtractFeatures::Execute()
 
     // loop over candidates
     for (unsigned int i = 0; i < nCandidates; i++) {
-        Candidate* candidate = eventCans->At(i);
+        Candidate* candidate = &(eventCans->At(i));
+        int firstHitID = candidate->HitID();
 
-        PMTHitCluster hitsInTWIDTH = eventHits->Slice(candidate->HitID(), tWidth);
-        PMTHitCluster hitsIn50ns   = eventHits->Slice(candidate->HitID(), tWidth/2.- 50, tWidth/2.+ 50);
-        PMTHitCluster hitsIn200ns  = eventHits->Slice(candidate->HitID(), tWidth/2.-100, tWidth/2.+100);
-        PMTHitCluster hitsIn1300ns = eventHits->Slice(candidate->HitID(), tWidth/2.-480, tWidth/2.+520);
+        PMTHitCluster hitsInTWIDTH = eventHits->Slice(firstHitID, tWidth);
+        PMTHitCluster hitsIn50ns   = eventHits->Slice(firstHitID, tWidth/2.- 50, tWidth/2.+ 50);
+        PMTHitCluster hitsIn200ns  = eventHits->Slice(firstHitID, tWidth/2.-100, tWidth/2.+100);
+        PMTHitCluster hitsIn1300ns = eventHits->Slice(firstHitID, tWidth/2.-480, tWidth/2.+520);
 
         // Number of hits
         candidate->Set("NHits", hitsInTWIDTH.GetSize());
-        candidate->Set("N50", hitsIn50ns.GetSize());
-        candidate->Set("N200", hitsIn200ns.GetSize());
+        candidate->Set("N50",   hitsIn50ns.GetSize());
+        candidate->Set("N200",  hitsIn200ns.GetSize());
         candidate->Set("N1300", hitsIn1300ns.GetSize());
 
         // Time
@@ -98,7 +98,6 @@ bool ExtractFeatures::Execute()
         candidate->Set("DWall", dWall);
         candidate->Set("DWallMeanDir", GetDWallInDirection(promptVertex, meanDir));
 
-
         // Mean angle formed by all hits and the mean hit direction
         std::vector<float> angles;
         for (auto const& dir: dirVec) {
@@ -109,9 +108,9 @@ bool ExtractFeatures::Execute()
 
         // Opening angle stats
         auto openingAngleStats = hitsInTWIDTH.GetOpeningAngleStats();
-        candidate->Set("AngleMean", openingAngleStats.mean);
+        candidate->Set("AngleMean",  openingAngleStats.mean);
         candidate->Set("AngleStdev", openingAngleStats.stdev);
-        candidate->Set("AngleSkew", openingAngleStats.skewness);
+        candidate->Set("AngleSkew",  openingAngleStats.skewness);
 
         // TRMS-fit
         auto trmsFitVertex = FindTRMSMinimizingVertex(hitsInTWIDTH,
@@ -130,9 +129,9 @@ bool ExtractFeatures::Execute()
 
             // label candidates as signal if a true capture with matching capture time exists
             for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
-                TrueCapture* capture = eventCaps->At(iCapture);
-                if (fabs(capture->Time() - reconCT*1e3) < tMatchWindow) {
-                    if (capture->Energy() > 6.) captureType = 2; // Gd
+                auto& capture = eventCaps->At(iCapture);
+                if (fabs(capture.Time() - reconCT*1e3) < tMatchWindow) {
+                    if (capture.Energy() > 6.) captureType = 2; // Gd
                     else                        captureType = 1; // H
                 }
             }

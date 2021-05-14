@@ -36,7 +36,7 @@ TOOLFRAMEWORKINCLUDE := $(addprefix -I , $(sort $(dir $(shell find src/ToolFrame
 UTILINCLUDE := $(addprefix -I , $(sort $(dir $(wildcard src/Utilities/*/*.hh))))
 
 # ToolFramework
-$(TOOLFRAMEWORKOBJS): src/ToolFramework/%.o: src/ToolFramework/%.cc
+$(TOOLFRAMEWORKOBJS): src/ToolFramework/%.o: src/ToolFramework/%.cc src/ToolFramework/%.hh
 	@echo "[NTag] Building ToolFramework: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 
@@ -81,4 +81,4 @@ NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/NTag.o l
 	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag tooltest.o src/Utilities/*/*.o src/Tools/*/*.o lib/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 

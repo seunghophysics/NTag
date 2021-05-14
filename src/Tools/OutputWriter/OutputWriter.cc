@@ -22,10 +22,8 @@ bool OutputWriter::CheckSafety()
 {
     sharedData->eventCandidates.FillVectorMap();
 
-    for (auto& pair: sharedData->eventCandidates.featureVectorMap) {
-        std::cout << pair.first << " " << pair.second << std::endl;
+    for (auto& pair: sharedData->eventCandidates.featureVectorMap)
         candidateTree->Branch(pair.first.c_str(), &(pair.second));
-    }
 
     safeToExecute = true;
     return safeToExecute;

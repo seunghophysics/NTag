@@ -13,6 +13,7 @@ class Cluster
         Cluster() { nElements = 0; }
 
         virtual inline void Append(const T& element) { vElements.push_back(element); nElements++; }
+        virtual inline void MoveAppend(T& element) { vElements.push_back(std::move(element)); nElements++; }
         virtual void Clear() { vElements.clear(); nElements = 0; }
         virtual bool IsEmpty() { return vElements.empty(); }
 

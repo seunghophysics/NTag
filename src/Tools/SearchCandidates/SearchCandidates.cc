@@ -72,7 +72,8 @@ bool SearchCandidates::Execute()
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
             if (N200Previous < N200MX && t0Previous > T0TH) {
-                sharedData->eventCandidates.AppendCandidate(iHitPrevious);
+                Candidate candidate(iHitPrevious);
+                sharedData->eventCandidates.Append(candidate);
             }
             // Reset NHitsPrevious,
             // if peaks are separated enough
@@ -88,8 +89,10 @@ bool SearchCandidates::Execute()
         N200Previous  = N200New;
     }
     // Save the last peak
-    if (NHitsPrevious >= NHITSTH)
-        sharedData->eventCandidates.AppendCandidate(iHitPrevious);
+    if (NHitsPrevious >= NHITSTH) {
+        Candidate candidate(iHitPrevious);
+        sharedData->eventCandidates.Append(candidate);
+    }
 
     return true;
 }

@@ -6,12 +6,7 @@
 
 ToolChain::ToolChain()
 : initialized(false), logger() {}
-ToolChain::~ToolChain()
-{
-    for (auto& tool: tools) {
-        delete tool;
-    }
-}
+ToolChain::~ToolChain() {}
 
 void ToolChain::AddTool(Tool* tool)
 {
@@ -19,7 +14,7 @@ void ToolChain::AddTool(Tool* tool)
     tools.push_back(tool);
 }
 
-void ToolChain::SetLogOutputPath(std::string logOutPath)
+void ToolChain::SetLogFilePath(std::string logOutPath)
 {
     logger.SetOutputPath(logOutPath);
 }
@@ -52,10 +47,16 @@ bool ToolChain::Execute(unsigned long nEvents)
     if (initialized) {
         for (unsigned long iEvent=0; iEvent<nEvents; iEvent++) {
             for (auto& tool: tools) {
-                tool->CheckSafetyAndExecute();
+                try {
+                    tool->CheckSafetyAndExecute();
+                } catch (...) {
+                    logger.Log("Stopping execution and finalizing...\n");
+                    goto endExecution;
+                }
                 std::cout << "\n";
             }
         }
+    endExecution:
         std::cout << "\n" << std::endl;
         return true;
     }
@@ -67,7 +68,6 @@ bool ToolChain::Execute(unsigned long nEvents)
 
 bool ToolChain::Finalize()
 {
-    std::cout << "finalizing" << std::endl;
     for (auto& tool: tools) {
         tool->Finalize();
     }

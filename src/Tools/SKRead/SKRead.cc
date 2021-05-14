@@ -25,7 +25,7 @@ bool SKRead::Initialize()
     }
 
     inputIsSKROOT = inFilePath.EndsWith(".root");
-    eventCounter = 0; readStatus = 0;
+    readStatus = 0;
 
     //////////////////////////////////////////
     // Set read options before opening file //
@@ -88,22 +88,30 @@ bool SKRead::Execute()
     int lun = 10;
     readStatus = skread_(&lun);
 
+    if (!exeCounter) {
+        if (skhead_.nrunsk == 999999)
+            sharedData->ntagInfo.Set("is_mc", true);
+        else
+            sharedData->ntagInfo.Set("is_mc", false);
+    }
+
     switch (readStatus) {
         case readOK: {
-            Log(Form("Read event #%d successfully.", eventCounter));
-            eventCounter++;
+            Log(Form("Read event #%d successfully.", exeCounter+1));
             return true;
         }
         case readError: {
             Log("Read-error occured!", pWARNING);
+            throw readError;
             return false;
         }
         case readEOF: {
             Log("Reached end-of-file.");
+            throw readEOF;
             return true;
         }
     }
-
+        
     return true;
 }
 

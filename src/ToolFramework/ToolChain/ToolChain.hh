@@ -15,7 +15,7 @@ class ToolChain
         ~ToolChain();
 
         void AddTool(Tool* tool);
-        void SetLogOutputPath(std::string logOutPath);
+        void SetLogFilePath(std::string logOutPath);
 
         bool Initialize();
         bool Execute(unsigned long nEvents=1);
