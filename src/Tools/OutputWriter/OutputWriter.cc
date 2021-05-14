@@ -41,6 +41,5 @@ bool OutputWriter::Finalize()
     candidateTree->Print();
     candidateTree->Write();
     outFile->Close();
-
     return true;
 }

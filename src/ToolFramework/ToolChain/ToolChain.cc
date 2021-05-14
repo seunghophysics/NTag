@@ -6,7 +6,12 @@
 
 ToolChain::ToolChain()
 : initialized(false), logger() {}
-ToolChain::~ToolChain() {}
+ToolChain::~ToolChain()
+{
+    for (auto& tool: tools) {
+        delete tool;
+    }
+}
 
 void ToolChain::AddTool(Tool* tool)
 {
@@ -68,6 +73,7 @@ bool ToolChain::Execute(unsigned long nEvents)
 
 bool ToolChain::Finalize()
 {
+    std::cout << "finalizing" << std::endl;
     for (auto& tool: tools) {
         tool->Finalize();
     }
