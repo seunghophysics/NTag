@@ -40,5 +40,5 @@ VTXSRCRANGE    5000
 mva_method_name MLP
 weight_file_path /disk02/usr6/han/gd/ntgd/ntgd/weights/MLP_Gd0.011p_calibration.xml
 
-##### OutputWriter #####
+##### WriteOutput #####
 output_file_path testout.root

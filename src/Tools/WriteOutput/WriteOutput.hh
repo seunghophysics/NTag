@@ -1,5 +1,5 @@
-#ifndef OUTPUTWRITER_HH
-#define OUTPUTWRITER_HH
+#ifndef WRITEOUTPUT_HH
+#define WRITEOUTPUT_HH
 
 class TFile;
 class TTree;
@@ -11,24 +11,24 @@ class TInterruptHandler : public TSignalHandler
 {
    public:
         TInterruptHandler(Tool* tool):TSignalHandler(kSigInterrupt, kFALSE)
-        { outputWriter = tool; }
+        { WriteOutput = tool; }
 
         virtual Bool_t Notify()
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
-            outputWriter->Finalize();
+            WriteOutput->Finalize();
             _exit(2);
             return kTRUE;
         }
 
     private:
-        Tool* outputWriter;
+        Tool* WriteOutput;
 };
 
-class OutputWriter : public Tool
+class WriteOutput : public Tool
 {
     public:
-        OutputWriter() { name = "OutputWriter"; }
+        WriteOutput() { name = "WriteOutput"; }
 
         bool Initialize();
         bool Execute();

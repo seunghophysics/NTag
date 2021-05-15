@@ -2,9 +2,9 @@
 #include "TTree.h"
 #include "TSysEvtHandler.h"
 
-#include "OutputWriter.hh"
+#include "WriteOutput.hh"
 
-bool OutputWriter::Initialize()
+bool WriteOutput::Initialize()
 {
     TString outFilePath;
     sharedData->ntagInfo.Get("output_file_path", outFilePath);
@@ -18,7 +18,7 @@ bool OutputWriter::Initialize()
     return true;
 }
 
-bool OutputWriter::CheckSafety()
+bool WriteOutput::CheckSafety()
 {
     sharedData->eventCandidates.FillVectorMap();
 
@@ -29,14 +29,14 @@ bool OutputWriter::CheckSafety()
     return safeToExecute;
 }
 
-bool OutputWriter::Execute()
+bool WriteOutput::Execute()
 {
     sharedData->eventCandidates.FillVectorMap();
     candidateTree->Fill();
     return true;
 }
 
-bool OutputWriter::Finalize()
+bool WriteOutput::Finalize()
 {
     candidateTree->Print();
     candidateTree->Write();

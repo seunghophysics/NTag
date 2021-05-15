@@ -11,12 +11,12 @@
 #include "SearchCandidates.hh"
 #include "ExtractFeatures.hh"
 #include "ApplyTMVA.hh"
-#include "OutputWriter.hh"
+#include "WriteOutput.hh"
 
 int main(int argc, char** argv)
 {
     ToolChain toolChain;
-    toolChain.sharedData.ReadConfig("NTagConfig");
+    toolChain.sharedData.ReadConfig("/disk02/usr6/han/NTag/NTagConfig");
     
     ArgParser parser(argc, argv);
     parser.OverrideStore(&(toolChain.sharedData.ntagInfo));
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     SearchCandidates searchCandidates;
     ExtractFeatures extractFeatures;
     ApplyTMVA applyTMVA;
-    OutputWriter outputWriter;
+    WriteOutput writeOutput;
 
     // FIFO
     toolChain.AddTool(&skRead);
@@ -50,13 +50,14 @@ int main(int argc, char** argv)
     //toolChain.AddTool(&searchCandidates);
     //toolChain.AddTool(&extractFeatures);
     //toolChain.AddTool(&applyTMVA);
-    //toolChain.AddTool(&outputWriter);
+    //toolChain.AddTool(&WriteOutput);
 
     toolChain.Initialize();
     while (skRead.GetReadStatus() == readOK)
         toolChain.Execute();
     toolChain.Finalize();
 
-    std::cout << "skread execounter: " << skRead.GetCounter() << std::endl;
+    std::cerr << skRead.GetCounter() << std::endl;
+    
     exit(0);
 }
