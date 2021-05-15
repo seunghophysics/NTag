@@ -21,7 +21,7 @@ CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CE
 TMVAINCLUDE = -I $(TMVASYS)/include
 TMVALIB = -L $(TMVASYS)/lib -lTMVA.1
 
-all: NTag lib/libNTagTools.so
+all: NTag lib/libToolFramework.so lib/libNTagTools.so
 
 ## TOOL TEST ##
 
@@ -53,7 +53,7 @@ $(UTILOBJS): src/Utilities/%.o: src/Utilities/%.cc src/Utilities/%.hh
 	@echo "[NTag] Building Utility: $(word 1, $(subst /, , $*))..."
 	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 	
-NTAGTOOLINCLUDE = -I src/Tools/SKRead -I src/Tools/ReadHits -I src/Tools/ReadMCInfo -I src/Tools/SetPromptVertex -I src/Tools/SubtractToF -I src/Tools/SearchCandidates -I src/Tools/ExtractFeatures -I src/Tools/ApplyTMVA -I src/Tools/OutputWriter -I src/Utilities/Calculator
+NTAGTOOLINCLUDE = -I src/Tools/SKRead -I src/Tools/ReadHits -I src/Tools/ReadMCInfo -I src/Tools/SetPromptVertex -I src/Tools/SubtractToF -I src/Tools/SearchCandidates -I src/Tools/ExtractFeatures -I src/Tools/ApplyTMVA -I src/Tools/WriteOutput -I src/Utilities/Calculator
 NTAGCXXFLAGS = -std=c++11 -fPIC -lgfortran
 NTAGTOOLOBJS = $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
 SKLIBOBJS = $(patsubst src/SKLibrary/%.F, src/SKLibrary/%.o, $(wildcard src/SKLibrary/*.F))
@@ -78,7 +78,7 @@ src/%.o: src/%.cc
 	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 	
 # executable
-NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/NTag.o lib/libToolFramework.so
+NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/NTag.o
 	@echo "[NTag] Building $@..."
 	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
