@@ -19,7 +19,7 @@ Logger::Logger(std::string filePath, Verbosity verbose)
         std::cerr << "Could not open file.";
 }
 
-Logger::~Logger() {}
+Logger::~Logger() { Flush(); ofstr.close(); }
 
 Logger& operator<<(Logger& logger, std::ostream& (*func)(std::ostream&))
 {
