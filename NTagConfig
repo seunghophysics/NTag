@@ -1,35 +1,40 @@
 ##### ToolChain #####
 #log_file_path /disk02/usr6/han/NTag/testout.log
+#verbose 4
 
 ###### SKRead ######
-input_file_path /disk02/usr6/han/gd/mc/out/atmnu/zbs/atmnu_2500_00.zbs
-sk_options 31,30,26,25
-sk_geometry 6
-reference_run 62428
+input_file_path         /disk01/atmpd5/sk4_dst/apr18/vector/zbs/apr18.sk4.vector.2624.dat
+sk_options              31,30,26,25
+sk_bad_channel_option   0
+sk_geometry             6
+reference_run           62428
 
 ##### ReadHits #####
 rbn_deadtime 0
 
 ##### SetPromptVertex ####
-vertex_mode TRUE
+vertex_mode         TRUE
 smearing_resolution 7
 
 ##### SearchCandidates #####
-T0TH 5000
-T0MX 535000
-TWIDTH 14
+T0TH        5000
+T0MX        535000
+TWIDTH      14
 TMINPEAKSEP 60
-NHITSTH 7
-NHITSMX 70
-N200TH 0
-N200MX 200
+NHITSTH     7
+NHITSMX     70
+N200TH      0
+N200MX      200
 
 ##### ExtractFeatures #####
-TMATCHWINDOW 50
-INITGRIDWIDTH 800
-MINGRIDWIDTH 50
+# MC CaptureType
+TMATCHWINDOW   50
+
+# TRMS-fit
+INITGRIDWIDTH  800
+MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
-VTXSRCRANGE 5000
+VTXSRCRANGE    5000
 
 ##### ApplyTMVA #####
 mva_method_name MLP

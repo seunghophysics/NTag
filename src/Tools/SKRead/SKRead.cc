@@ -13,9 +13,10 @@ bool SKRead::Initialize()
 {
     // Read options from config file
     TString inFilePath, skOptions;
-    int skGeometry, refRunNo;
+    int skBadChOption, skGeometry, refRunNo;
     sharedData->ntagInfo.Get("input_file_path", inFilePath);
     sharedData->ntagInfo.Get("sk_options", skOptions);
+    sharedData->ntagInfo.Get("sk_bad_channel_option", skBadChOption);
     sharedData->ntagInfo.Get("sk_geometry", skGeometry);
     sharedData->ntagInfo.Get("reference_run", refRunNo);
 
@@ -42,6 +43,7 @@ bool SKRead::Initialize()
         int refSubRunNo = 0;
         int outputErrorStatus = 0;
         skbadch_(&refRunNo, &refSubRunNo, &outputErrorStatus);
+        skbadopt_(&skBadChOption);
     }
 
     ///////////////
