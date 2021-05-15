@@ -40,11 +40,15 @@ class Store{
         {
             std::stringstream stream;
             stream << in;
+            if (!storeMap.count(name)) keyOrder.push_back(name);
             storeMap[name] = stream.str();
         }
 
     protected:
         std::map<std::string, std::string> storeMap;
+        
+    private:    
+        std::vector<std::string> keyOrder;
 };
 
 #endif

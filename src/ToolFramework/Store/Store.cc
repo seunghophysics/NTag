@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "Store.hh"
 
 void Store::Initialize(std::string configFilePath)
@@ -12,7 +14,7 @@ void Store::Initialize(std::string configFilePath)
                 std::string key, value;
                 std::stringstream stream(line);
                 if (stream >> key >> value)
-                    storeMap[key] = value;
+                    Set(key, value);
             }
         }
     }
@@ -24,8 +26,10 @@ void Store::Initialize(std::string configFilePath)
 
 void Store::Print()
 {
-    for (auto const& pair: storeMap)
-        std::cout << pair.first << ": " << pair.second << std::endl;
+    std::cout << std::endl;
+    for (auto const& key: keyOrder)
+        std::cout << std::left << std::setw(25) << key << ": " << storeMap[key] << "\n";
+    std::cout << std::endl;
 }
 
 std::istream& operator>>(std::istream& istr, TVector3& vec)
