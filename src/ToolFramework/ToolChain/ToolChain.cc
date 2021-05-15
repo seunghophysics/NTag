@@ -24,6 +24,17 @@ void ToolChain::SetLogFilePath(std::string logOutPath)
     logger.SetOutputPath(logOutPath);
 }
 
+void ToolChain::SetVerbosity(int verbose)
+{
+    if (pNONE <= verbose && verbose <= pDEBUG)
+        logger.SetVerbosity(static_cast<Verbosity>(verbose));
+    else {
+        std::cerr << "Input verbosity " << verbose << "is out of verbosity range." << std::endl;
+        std::cerr << "Supported verbosity range: " << pNONE <<  " - " << pDEBUG << std::endl; 
+        std::cerr << "Setting verbosity to default." << std::endl;
+    }
+}
+
 bool ToolChain::Initialize()
 {
     if (!initialized) {
@@ -62,7 +73,7 @@ bool ToolChain::Execute(unsigned long nEvents)
             }
         }
     endExecution:
-        std::cout << "\n" << std::endl;
+        std::cout << std::endl;
         return true;
     }
     else {

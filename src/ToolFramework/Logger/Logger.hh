@@ -71,6 +71,7 @@ class Logger
         }
 
         void SetOutputPath(std::string outPath) { ofstr.open(outPath, std::ios_base::app); }
+        void SetVerbosity(Verbosity verbose) { fVerbosity = verbose; }
 
         void Flush() { std::cout << std::flush; }
         std::ofstream& GetOutputFileStream() { return ofstr; }

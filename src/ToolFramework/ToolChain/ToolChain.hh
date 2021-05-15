@@ -16,6 +16,7 @@ class ToolChain
 
         void AddTool(Tool* tool);
         void SetLogFilePath(std::string logOutPath);
+        void SetVerbosity(int verbose);
 
         bool Initialize();
         bool Execute(unsigned long nEvents=1);
