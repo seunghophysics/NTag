@@ -104,12 +104,12 @@ bool SKRead::Execute()
         }
         case readError: {
             Log("Read-error occured!", pWARNING);
-            throw readError;
+            throw eSKIPEVENT;
             return false;
         }
         case readEOF: {
             Log("Reached end-of-file.");
-            throw readEOF;
+            throw eENDRUN;
             return true;
         }
     }

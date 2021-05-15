@@ -53,8 +53,10 @@ int main(int argc, char** argv)
     //toolChain.AddTool(&WriteOutput);
 
     toolChain.Initialize();
-    while (skRead.GetReadStatus() == readOK)
-        toolChain.Execute();
+    while (skRead.GetReadStatus() == readOK) {
+        try { toolChain.Execute(); } 
+        catch (...) { break; }
+    }
     toolChain.Finalize();
 
     std::cerr << skRead.GetCounter() << std::endl;

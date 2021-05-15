@@ -65,14 +65,20 @@ bool ToolChain::Execute(unsigned long nEvents)
             for (auto& tool: tools) {
                 try {
                     tool->CheckSafetyAndExecute();
-                } catch (...) {
-                    logger.Log("Stopping execution and finalizing...\n");
-                    goto endExecution;
+                } catch (ExceptionBehavior& e) {
+                    if (e == eSKIPEVENT) {
+                        logger.Log("Skipping this event...\n");
+                        goto skipEvent;
+                    }
+                    else if (e == eENDRUN) {
+                        logger.Log("Ending the run and finalizing the toolchain...\n");
+                        throw e;
+                    }
                 }
                 std::cout << "\n";
             }
         }
-    endExecution:
+    skipEvent:
         std::cout << std::endl;
         return true;
     }

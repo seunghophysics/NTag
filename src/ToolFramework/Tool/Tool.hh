@@ -10,6 +10,12 @@
 class ToolChain;
 class DataModel;
 
+enum ExceptionBehavior
+{
+    eSKIPEVENT,
+    eENDRUN
+};
+
 class Tool
 {
     public:
