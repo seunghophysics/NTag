@@ -24,7 +24,7 @@ bool ApplyTMVA::Initialize()
     sharedData->ntagInfo.Get("mva_method_name", mvaMethodName);
     sharedData->ntagInfo.Get("weight_file_path", weightFilePath);
 
-    tmvaReader = new TMVA::Reader( "!Color:!Silent" );
+    tmvaReader = new TMVA::Reader("!Color:Silent");
 
     for (auto& pair: featureContainer)
         tmvaReader->AddVariable(pair.first, &(pair.second));
