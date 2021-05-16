@@ -22,6 +22,7 @@ TMVAINCLUDE = -I $(TMVASYS)/include
 TMVALIB = -L $(TMVASYS)/lib -lTMVA.1
 
 all: NTag lib/libToolFramework.so lib/libNTagTools.so
+	@echo "[NTag] Done!"
 
 ## TOOL TEST ##
 
@@ -76,11 +77,19 @@ lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJ
 src/%.o: src/%.cc
 	@echo "[NTag] Building $*.o..."
 	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+
+src/git_info.c: .git/HEAD .git/index
+	@echo "const char* gitcommit = \"$(shell git rev-parse HEAD)\";" > $@
+	@echo "const char* gitcommitdate = \"`git log -1 --format="%cd"`\";" >> $@
 	
+src/git_info.o: src/git_info.c
+	@echo "[NTag] Building git_info..."
+	@gcc -c -o $@ $^
+
 # executable
-NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/NTag.o
+NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/git_info.o src/NTag.o
 	@echo "[NTag] Building $@..."
 	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag src/*.o src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 

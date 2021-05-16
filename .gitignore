@@ -24,3 +24,6 @@ docs/sphinx/build
 # output
 *.log
 *.out
+
+# git_info
+src/git_info.c
