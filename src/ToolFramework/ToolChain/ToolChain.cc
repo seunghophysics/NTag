@@ -68,9 +68,9 @@ bool ToolChain::Initialize()
 
     }
     if (initialized)
-        std::cout << "ToolChain successfully initialized." << std::endl;
+        PrintBlock("ToolChain initialized.");
     else
-        std::cerr << "ToolChain initialization failed." << std::endl;
+        PrintBlock("ToolChain initialization failed.");
     return initialized;
 }
 

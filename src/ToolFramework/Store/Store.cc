@@ -33,7 +33,7 @@ void Store::Initialize(std::string configFilePath)
 
 void Store::Print()
 {
-    PrintBlock(name + ": keys and values");
+    PrintBlock(name + ": Keys and values");
     for (auto const& key: keyOrder)
         std::cout << std::left << std::setw(25) << key << ": " << storeMap[key] << "\n";
     std::cout << std::endl;

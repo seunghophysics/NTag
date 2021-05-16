@@ -34,6 +34,7 @@ bool NTupleMatcher::Initialize()
         prevEventNo = eventNo;
     }
     Log(Form("NTuple iEntry: %d, nEntries: %d", iEntry, nEntries), pDEBUG);
+    std::cout << "\n";
     
     return true;
 }

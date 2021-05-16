@@ -30,32 +30,38 @@ int main(int argc, char** argv)
     if (toolChain.sharedData.ntagInfo.Get("log_file_path", logFilePath))
         toolChain.SetLogFilePath(logFilePath);
         
-    int verbose;
+    int verbose = pDEFAULT;
     if (toolChain.sharedData.ntagInfo.Get("verbose", verbose))
         toolChain.SetVerbosity(verbose);
 
-    SKRead skRead;
-    NTupleMatcher nTupleMatcher;
-    ReadHits readHits;
-    ReadMCInfo readMCInfo;
-    SetPromptVertex setPromptVertex;
-    SubtractToF subtractToF;
-    SearchCandidates searchCandidates;
-    ExtractFeatures extractFeatures;
-    ApplyTMVA applyTMVA;
-    WriteOutput writeOutput;
-
-    // FIFO
-    toolChain.AddTool(&skRead);
-    toolChain.AddTool(&nTupleMatcher);
-    toolChain.AddTool(&readHits);
-    toolChain.AddTool(&readMCInfo);
-    toolChain.AddTool(&setPromptVertex);
-    toolChain.AddTool(&subtractToF);
-    toolChain.AddTool(&searchCandidates);
-    toolChain.AddTool(&extractFeatures);
-    toolChain.AddTool(&applyTMVA);
-    toolChain.AddTool(&writeOutput);
+    std::map<std::string, Tool*> toolMap;
+    
+    SKRead skRead;                     toolMap[skRead.GetName()] = &skRead;
+    NTupleMatcher nTupleMatcher;       toolMap[nTupleMatcher.GetName()] = &nTupleMatcher;
+    ReadHits readHits;                 toolMap[readHits.GetName()] = &readHits;
+    ReadMCInfo readMCInfo;             toolMap[readMCInfo.GetName()] = &readMCInfo;
+    SetPromptVertex setPromptVertex;   toolMap[setPromptVertex.GetName()] = &setPromptVertex;
+    SubtractToF subtractToF;           toolMap[subtractToF.GetName()] = &subtractToF;
+    SearchCandidates searchCandidates; toolMap[searchCandidates.GetName()] = &searchCandidates;
+    ExtractFeatures extractFeatures;   toolMap[extractFeatures.GetName()] = &extractFeatures;
+    ApplyTMVA applyTMVA;               toolMap[applyTMVA.GetName()] = &applyTMVA;
+    WriteOutput writeOutput;           toolMap[writeOutput.GetName()] = &writeOutput;
+    
+    Store toolList;
+    std::string toolsListFilePath = "/disk02/usr6/han/NTag/NTagToolsList";
+    toolChain.sharedData.ntagInfo.Get("tools_list_path", toolsListFilePath);
+    toolList.Initialize(toolsListFilePath);
+    
+    for (auto& pair: toolList.GetMap()) {
+        if (toolMap.count(pair.second)) {
+            toolChain.AddTool(toolMap[pair.second]);
+        }
+        else {
+            PrintBlock("Error: " + toolsListFilePath);
+            std::cerr << "Tool " << pair.second << " not found! Skipping this tool..." << std::endl;
+            std::cerr << "Please specify the correct name for the tool!" << std::endl;   
+        }
+    }
     
     if (verbose >= pDEFAULT) {
         toolChain.sharedData.ntagInfo.Print();

@@ -2,6 +2,8 @@
 
 bool AddNoise::Initialize()
 {
+    // read in dummy files
+
     return true;
 }
 
@@ -12,6 +14,8 @@ bool AddNoise::CheckSafety()
 
 bool AddNoise::Execute()
 {
+    // append tq
+
     return true;
 }
 

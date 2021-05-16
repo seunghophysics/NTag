@@ -5,13 +5,14 @@ ArgParser::ArgParser()
 :commandMap({{"in", "input_file_path"}, 
              {"out", "output_file_path"},
              {"log", "log_file_path"},
+             {"tools", "tools_list_path"},
              {"weight", "weight_file_path"},
              {"method", "mva_method_name"},
              {"vertex", "prompt_vertex"},
              {"PVXRES", "smearing_resolution"},
              {"SKOPTN", "sk_options"},
-             {"SKBADOPT", "sk_options"},
-             {"REFRUNNO", "sk_options"}})
+             {"SKBADOPT", "sk_bad_channel_option"},
+             {"REFRUNNO", "reference_run"}})
 {}
 
 ArgParser::ArgParser(int &argc, char **argv)

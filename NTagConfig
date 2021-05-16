@@ -1,5 +1,6 @@
 ##### ToolChain #####
-#log_file_path /disk02/usr6/han/NTag/testout.log
+#tools_list_path  /disk02/usr6/han/NTag/NTagToolsList
+#log_file_path    /disk02/usr6/han/NTag/testout.log
 #verbose 4
 
 ###### SKRead ######
