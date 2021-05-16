@@ -10,8 +10,20 @@
 
 #include <TVector3.h>
 
+class TTree;
+
 std::istream& operator>>(std::istream& istr, TVector3& vec);
 std::ostream& operator<<(std::ostream& ostr, TVector3 vec);
+
+template<typename T>
+bool CheckType(const std::string& str)
+{
+    T t{};
+    std::stringstream ss;
+    ss << str;
+    ss >> t;
+    return !ss.fail();
+}
 
 class Store{
 
@@ -29,7 +41,7 @@ class Store{
 
                 std::stringstream stream(storeMap[name]);
                 stream >> out;
-                return true;
+                return !stream.fail();
             }
 
             else return false;
@@ -43,6 +55,8 @@ class Store{
             if (!storeMap.count(name)) keyOrder.push_back(name);
             storeMap[name] = stream.str();
         }
+        
+        const std::map<std::string, std::string>& GetMap() { return storeMap; }
 
     protected:
         std::map<std::string, std::string> storeMap;
@@ -50,5 +64,8 @@ class Store{
     private:    
         std::vector<std::string> keyOrder;
 };
+
+template bool CheckType<float>(const std::string& str);
+template bool CheckType<TVector3>(const std::string& str);
 
 #endif

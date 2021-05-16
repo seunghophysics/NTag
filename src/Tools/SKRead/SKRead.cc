@@ -32,6 +32,8 @@ bool SKRead::Initialize()
     // Set read options before opening file //
     //////////////////////////////////////////
 
+    skOptions.ReplaceAll(';', ',');
+    skOptions.Remove(TString::kBoth, '"');
     skoptn_(skOptions.Data(), skOptions.Length());
     skheadg_.sk_geometry = skGeometry; geoset_();
     

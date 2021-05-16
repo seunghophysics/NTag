@@ -1,6 +1,12 @@
 #include <iomanip>
+#include <ios>
+#include <algorithm>
+
+#include "TTree.h"
 
 #include "Store.hh"
+
+static const char vecDelimiter = ',';
 
 void Store::Initialize(std::string configFilePath)
 {
@@ -35,15 +41,18 @@ void Store::Print()
 std::istream& operator>>(std::istream& istr, TVector3& vec)
 {
     std::string coordinate;
-    for (int i = 0; i < 3; i++) {
-        std::getline(istr, coordinate, ',');
-        vec[i] = ::atof(coordinate.c_str());
+    unsigned int iDim = 0;
+    
+    while (iDim < 3 && std::getline(istr, coordinate, vecDelimiter)) {
+        vec[iDim] = ::atof(coordinate.c_str());
+        iDim++;
     }
+
     return istr;
 }
 
 std::ostream& operator<<(std::ostream& ostr, TVector3 vec)
 {
-    ostr << vec.x() << "," << vec.y() << "," << vec.z();
+    ostr << vec.x() << vecDelimiter << vec.y() << vecDelimiter << vec.z();
     return ostr;
 }

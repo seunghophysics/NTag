@@ -3,11 +3,15 @@
 #verbose 4
 
 ###### SKRead ######
-input_file_path         /disk01/atmpd5/sk4_dst/apr18/vector/zbs/apr18.sk4.vector.2624.dat
-sk_options              31,30,26,25
+input_file_path         /disk01/atmpd5/sk4_dst/apr18/photon/zbs/apr18.sk4.photon.2500.0004.dat
+sk_options              "31;30;26;25"
 sk_bad_channel_option   0
 sk_geometry             6
 reference_run           62428
+
+###### NTupleMatcher ######
+ntuple_file_path /disk02/atmpd6/sk4_dst/may19/fc_mc/ntuple/2500.photon.fcred.ntag.root
+mc_file_id       4
 
 ##### ReadHits #####
 rbn_deadtime 0

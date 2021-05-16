@@ -4,6 +4,7 @@
 #include "ToolChain.hh"
 
 #include "SKRead.hh"
+#include "NTupleMatcher.hh"
 #include "ReadHits.hh"
 #include "ReadMCInfo.hh"
 #include "SetPromptVertex.hh"
@@ -32,6 +33,7 @@ int main(int argc, char** argv)
     toolChain.sharedData.ntagInfo.Print();
 
     SKRead skRead;
+    NTupleMatcher nTupleMatcher;
     ReadHits readHits;
     ReadMCInfo readMCInfo;
     SetPromptVertex setPromptVertex;
@@ -43,14 +45,15 @@ int main(int argc, char** argv)
 
     // FIFO
     toolChain.AddTool(&skRead);
-    //toolChain.AddTool(&readHits);
-    //toolChain.AddTool(&readMCInfo);
-    //toolChain.AddTool(&setPromptVertex);
-    //toolChain.AddTool(&subtractToF);
-    //toolChain.AddTool(&searchCandidates);
-    //toolChain.AddTool(&extractFeatures);
+    toolChain.AddTool(&nTupleMatcher);
+    toolChain.AddTool(&readHits);
+    toolChain.AddTool(&readMCInfo);
+    toolChain.AddTool(&setPromptVertex);
+    toolChain.AddTool(&subtractToF);
+    toolChain.AddTool(&searchCandidates);
+    toolChain.AddTool(&extractFeatures);
     //toolChain.AddTool(&applyTMVA);
-    //toolChain.AddTool(&WriteOutput);
+    toolChain.AddTool(&writeOutput);
 
     toolChain.Initialize();
     while (skRead.GetReadStatus() == readOK) {

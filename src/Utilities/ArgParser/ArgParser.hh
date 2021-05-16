@@ -84,16 +84,6 @@ class ArgParser{
     private:
         std::vector<std::string> tokens;
         std::map<std::string, std::string> commandMap;
-        
-        template<typename T>
-        bool CheckType(const std::string& str)
-        {
-            T t{};
-            std::stringstream ss;
-            ss << str;
-            ss >> t;
-            return !ss.fail();
-        }
 };
 
 #endif

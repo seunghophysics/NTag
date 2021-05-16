@@ -41,6 +41,7 @@ bool ReadMCInfo::Execute()
     float trgOffset;
     trginfo_(&trgOffset);
     sharedData->eventVariables.Set("TrgOffset", trgOffset);
+    Log(Form("Trigger offset: %3.2f ns", trgOffset));
 
     // Primaries
     skgetv_();
@@ -120,10 +121,9 @@ bool ReadMCInfo::Execute()
                         }
                     }
 
-                    if (isNewCapture) {
+                    if (isNewCapture && secondary.PID() == 22) {
                         TrueCapture capture;
-                        if (secondary.PID() == 22 && secondary.Momentum().Mag()>0) 
-                            capture.Append(secondary);
+                        capture.Append(secondary);
                         sharedData->eventTrueCaptures.Append(capture);
                     }
                 }

@@ -19,7 +19,7 @@
 
 bool SetPromptVertex::Initialize()
 {
-    std::string vertexModeCmd;
+    std::string vertexModeCmd(""); 
     sharedData->ntagInfo.Get("vertex_mode", vertexModeCmd);
     sharedData->ntagInfo.Get("smearing_resolution", smearingResolution);
 

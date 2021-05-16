@@ -53,7 +53,7 @@ $(UTILOBJS): src/Utilities/%.o: src/Utilities/%.cc src/Utilities/%.hh
 	@echo "[NTag] Building Utility: $(word 1, $(subst /, , $*))..."
 	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 	
-NTAGTOOLINCLUDE = -I src/Tools/SKRead -I src/Tools/ReadHits -I src/Tools/ReadMCInfo -I src/Tools/SetPromptVertex -I src/Tools/SubtractToF -I src/Tools/SearchCandidates -I src/Tools/ExtractFeatures -I src/Tools/ApplyTMVA -I src/Tools/WriteOutput -I src/Utilities/Calculator
+NTAGTOOLINCLUDE :=  $(addprefix -I , $(sort $(dir $(wildcard src/Tools/*/*.hh))))
 NTAGCXXFLAGS = -std=c++11 -fPIC -lgfortran
 NTAGTOOLOBJS = $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
 SKLIBOBJS = $(patsubst src/SKLibrary/%.F, src/SKLibrary/%.o, $(wildcard src/SKLibrary/*.F))

@@ -3,7 +3,7 @@
 #include "TrueCapture.hh"
 
 TrueCapture::TrueCapture()
-: gammaEnergy(0) {}
+: captureTime(0), gammaEnergy(0) {}
 
 void TrueCapture::Append(const Particle& gamma)
 {

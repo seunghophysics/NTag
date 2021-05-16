@@ -17,7 +17,9 @@ enum VertexMode
 class SetPromptVertex : public Tool
 {
     public:
-        SetPromptVertex() { name = "SetPromptVertex"; }
+        SetPromptVertex()
+        :vertexMode(mCUSTOM), customPromptVertex(0, 0, 0), smearingResolution(7.)
+        { name = "SetPromptVertex"; }
 
         bool Initialize();
         bool Execute();

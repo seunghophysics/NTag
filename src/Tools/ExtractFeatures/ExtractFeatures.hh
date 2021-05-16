@@ -6,7 +6,10 @@
 class ExtractFeatures : public Tool
 {
     public:
-        ExtractFeatures() { name = "ExtractFeatures"; }
+        ExtractFeatures():
+        inputIsMC(false), tWidth(14), tMatchWindow(50),
+        initGridWidth(800), minGridWidth(50), gridShrinkRate(0.5), vertexSearchRange(5000)
+        { name = "ExtractFeatures"; }
 
         bool Initialize();
         bool Execute();

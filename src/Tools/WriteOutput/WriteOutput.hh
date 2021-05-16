@@ -3,6 +3,7 @@
 
 class TFile;
 class TTree;
+class TBranch;
 
 #include "TSysEvtHandler.h"
 #include "Tool.hh"
@@ -28,7 +29,8 @@ class TInterruptHandler : public TSignalHandler
 class WriteOutput : public Tool
 {
     public:
-        WriteOutput() { name = "WriteOutput"; }
+        WriteOutput():tmpVec(), tmpNum(0), tmpStr(""), fillCounter(0) 
+        { name = "WriteOutput"; }
 
         bool Initialize();
         bool Execute();
@@ -37,8 +39,28 @@ class WriteOutput : public Tool
         bool CheckSafety();
 
     private:
+        void MakeBranches(TTree* tree, Store* store);
+        void FillBranches(TTree* tree, Store* store);
+        void FillTempValuesFromStore(Store* store);
+    
         TFile* outFile;
+        TTree* variableTree;
         TTree* candidateTree;
+        
+        // MC
+        TTree* primaryTree;
+        TTree* secondaryTree;
+        TTree* trueCaptureTree;
+        
+        // NTag
+        TTree* ntagInfoTree;
+        
+        // temporary variables for branching
+        TVector3 tmpVec;
+        float tmpNum;
+        std::string tmpStr;
+        
+        unsigned long fillCounter;
 
         TInterruptHandler* handler;
 };
