@@ -55,7 +55,7 @@ $(UTILOBJS): src/Utilities/%.o: src/Utilities/%.cc src/Utilities/%.hh
 	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 	
 NTAGTOOLINCLUDE :=  $(addprefix -I , $(sort $(dir $(wildcard src/Tools/*/*.hh))))
-NTAGCXXFLAGS = -std=c++11 -fPIC -lgfortran
+NTAGCXXFLAGS = -std=c++11 -fPIC -lgfortran -g
 NTAGTOOLOBJS = $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
 SKLIBOBJS = $(patsubst src/SKLibrary/%.F, src/SKLibrary/%.o, $(wildcard src/SKLibrary/*.F))
 
