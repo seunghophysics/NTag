@@ -3,6 +3,10 @@
 
 #include "Store.hh"
 
-class NTagInfo : public Store {};
+class NTagInfo : public Store
+{
+    public:
+        NTagInfo() { name = "NTagInfo"; }
+};
 
 #endif

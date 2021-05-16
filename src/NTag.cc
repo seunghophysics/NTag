@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ArgParser.hh"
+#include "Printer.hh"
 #include "ToolChain.hh"
 
 #include "SKRead.hh"
@@ -14,21 +15,13 @@
 #include "ApplyTMVA.hh"
 #include "WriteOutput.hh"
 
-extern const char* gitcommit;
-extern const char* gitcommitdate;
-static std::string NTagVersion = std::string("\"") + std::string(gitcommit) + std::string("\"");
-static std::string NTagDate    = gitcommitdate;
-
-void PrintNTag();
-void PrintVersion();
-
 int main(int argc, char** argv)
 {
     PrintNTag();
 
     ToolChain toolChain;
     toolChain.sharedData.ReadConfig("/disk02/usr6/han/NTag/NTagConfig");
-    toolChain.sharedData.ntagInfo.Set("CommitID", NTagVersion);
+    toolChain.sharedData.ntagInfo.Set("ntag_commit_id", NTagVersion);
     
     ArgParser parser(argc, argv);
     parser.OverrideStore(&(toolChain.sharedData.ntagInfo));
@@ -40,8 +33,6 @@ int main(int argc, char** argv)
     int verbose;
     if (toolChain.sharedData.ntagInfo.Get("verbose", verbose))
         toolChain.SetVerbosity(verbose);
-
-    toolChain.sharedData.ntagInfo.Print();
 
     SKRead skRead;
     NTupleMatcher nTupleMatcher;
@@ -63,8 +54,13 @@ int main(int argc, char** argv)
     toolChain.AddTool(&subtractToF);
     toolChain.AddTool(&searchCandidates);
     toolChain.AddTool(&extractFeatures);
-    //toolChain.AddTool(&applyTMVA);
+    toolChain.AddTool(&applyTMVA);
     toolChain.AddTool(&writeOutput);
+    
+    if (verbose >= pDEFAULT) {
+        toolChain.sharedData.ntagInfo.Print();
+        toolChain.PrintAllTools();
+    }
 
     toolChain.Initialize();
     while (skRead.GetReadStatus() == readOK) {
@@ -76,27 +72,4 @@ int main(int argc, char** argv)
     std::cerr << skRead.GetCounter() << std::endl;
     
     exit(0);
-}
-
-void PrintNTag()
-{
-    std::cout << "\n\n";
-    std::cout << "              _____________________________________\n"       ;
-    std::cout << "                _   _     _____      _       ____  \n"       ;
-    std::cout << "               | \\ |\"|   |_ \" _| U  /\"\\  uU /\"___|u\n" ;
-    std::cout << "              <|  \\| |>    | |    \\/ _ \\/ \\| |  _ /\n"   ;
-    std::cout << "              U| |\\  |u   /| |\\   / ___ \\  | |_| | \n"    ;
-    std::cout << "               |_| \\_|   u |_|U  /_/   \\_\\  \\____| \n"   ;
-    std::cout << "               ||   \\\\,-._// \\\\_  \\\\    >>  _)(|_  \n" ;
-    std::cout << "               (_\")  (_/(__) (__)(__)  (__)(__)__) \n"      ;
-    std::cout << "              _____________________________________\n"       ;
-
-    PrintVersion();
-}
-
-void PrintVersion()
-{
-    std::cout << "                Commit ID: " << NTagVersion.substr(1, 11)
-              // "              _____________________________________\n"
-              << "\n                (" << NTagDate << ")\n\n" << std::endl;
 }

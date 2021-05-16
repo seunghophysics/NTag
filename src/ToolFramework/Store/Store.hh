@@ -59,6 +59,7 @@ class Store{
         const std::map<std::string, std::string>& GetMap() { return storeMap; }
 
     protected:
+        std::string name;
         std::map<std::string, std::string> storeMap;
         
     private:    

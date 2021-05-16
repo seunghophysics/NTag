@@ -99,10 +99,5 @@ void WriteOutput::FillBranches(TTree* tree, Store* store)
     }
     
     fillCounter++;
-    tree->SetEntries(fillCounter);
-}
-
-void WriteOutput::FillTempValuesFromStore(Store* store)
-{
-    
+    tree->SetEntries(fillCounter-1);
 }

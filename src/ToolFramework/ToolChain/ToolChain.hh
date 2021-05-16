@@ -15,6 +15,7 @@ class ToolChain
         ~ToolChain();
 
         void AddTool(Tool* tool);
+        void PrintAllTools();
         void SetLogFilePath(std::string logOutPath);
         void SetVerbosity(int verbose);
 

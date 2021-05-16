@@ -3,6 +3,10 @@
 
 #include "Store.hh"
 
-class EventVariables : public Store {};
+class EventVariables : public Store 
+{
+    public:
+        EventVariables() { name = "EventVariables"; }
+};
 
 #endif

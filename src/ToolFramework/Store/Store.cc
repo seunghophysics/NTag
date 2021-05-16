@@ -4,6 +4,7 @@
 
 #include "TTree.h"
 
+#include "Printer.hh"
 #include "Store.hh"
 
 static const char vecDelimiter = ',';
@@ -32,7 +33,7 @@ void Store::Initialize(std::string configFilePath)
 
 void Store::Print()
 {
-    std::cout << std::endl;
+    PrintBlock(name + ": keys and values");
     for (auto const& key: keyOrder)
         std::cout << std::left << std::setw(25) << key << ": " << storeMap[key] << "\n";
     std::cout << std::endl;

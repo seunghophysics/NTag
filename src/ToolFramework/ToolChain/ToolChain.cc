@@ -1,5 +1,8 @@
 #include <csignal>
 #include <iostream>
+#include <iomanip>
+
+#include "Printer.hh"
 
 #include "Tool.hh"
 #include "ToolChain.hh"
@@ -17,6 +20,18 @@ void ToolChain::AddTool(Tool* tool)
 {
     tool->ConnectToToolChain(this);
     tools.push_back(tool);
+}
+
+void ToolChain::PrintAllTools()
+{
+    PrintBlock("Connected tools");
+
+    int i = 0;
+    for (auto& tool: tools) {
+        i++;
+        std::cout << std::left << std::setw(6) << Form("[%d] ", i) << ": " << tool->GetName() << "\n";
+    }
+    std::cout << std::endl;
 }
 
 void ToolChain::SetLogFilePath(std::string logOutPath)
@@ -39,6 +54,7 @@ bool ToolChain::Initialize()
 {
     if (!initialized) {
         initialized = true;
+        PrintBlock("Initializing toolchain...");
 
         for (auto& tool: tools) {
             bool initSuccess = tool->Initialize();
@@ -61,6 +77,7 @@ bool ToolChain::Initialize()
 bool ToolChain::Execute(unsigned long nEvents)
 {
     if (initialized) {
+        PrintBlock("Executing toolchain...");
         for (unsigned long iEvent=0; iEvent<nEvents; iEvent++) {
             for (auto& tool: tools) {
                 try {
@@ -90,6 +107,7 @@ bool ToolChain::Execute(unsigned long nEvents)
 
 bool ToolChain::Finalize()
 {
+    PrintBlock("Finalizing toolchain...");
     for (auto& tool: tools) {
         tool->Finalize();
     }

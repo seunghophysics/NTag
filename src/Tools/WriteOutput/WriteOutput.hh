@@ -41,7 +41,6 @@ class WriteOutput : public Tool
     private:
         void MakeBranches(TTree* tree, Store* store);
         void FillBranches(TTree* tree, Store* store);
-        void FillTempValuesFromStore(Store* store);
     
         TFile* outFile;
         TTree* variableTree;
