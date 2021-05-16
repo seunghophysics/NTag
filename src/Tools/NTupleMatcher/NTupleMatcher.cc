@@ -13,8 +13,6 @@ bool NTupleMatcher::Initialize()
     TString ntupleFilePath; int fileID;
     sharedData->ntagInfo.Get("ntuple_file_path", ntupleFilePath);
     sharedData->ntagInfo.Get("mc_file_id", fileID);
-    Log("NTuple file path: " + ntupleFilePath);
-    Log(Form("MC file ID: %d", fileID));
     
     // get ntuple and set branch address of event number
     TFile* f = TFile::Open(ntupleFilePath);

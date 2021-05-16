@@ -74,8 +74,6 @@ int main(int argc, char** argv)
         catch (...) { break; }
     }
     toolChain.Finalize();
-
-    std::cerr << skRead.GetCounter() << std::endl;
     
     exit(0);
 }

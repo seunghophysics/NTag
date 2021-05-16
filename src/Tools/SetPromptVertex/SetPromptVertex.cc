@@ -30,7 +30,6 @@ bool SetPromptVertex::Initialize()
     cmdToModeMap["STMU"] = mSTMU;
 
     if (cmdToModeMap.count(vertexModeCmd) > 0) {
-        Log("Using prompt vertex mode: " + vertexModeCmd); std::cout << "\n";
         vertexMode = cmdToModeMap[vertexModeCmd];
 
         if (vertexMode == mCUSTOM &&
