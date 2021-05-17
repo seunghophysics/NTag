@@ -1,5 +1,7 @@
 #include "TMVA/Reader.h"
 
+#include "PathGetter.hh"
+
 #include "ApplyTMVA.hh"
 
 bool ApplyTMVA::Initialize()
@@ -21,6 +23,7 @@ bool ApplyTMVA::Initialize()
     featureContainer["ThetaMeanDir"] = 0.;
     featureContainer["TRMS"] = 0.;
 
+    weightFilePath = GetENV("NTAGPATH") + std::string("weights/MLP_Gd0.011p_calibration.xml");
     sharedData->ntagInfo.Get("mva_method_name", mvaMethodName);
     sharedData->ntagInfo.Get("weight_file_path", weightFilePath);
 
@@ -54,6 +57,7 @@ bool ApplyTMVA::Execute()
         candidate->Set("TMVAOutput", tmvaOutput);
     }
 
+    Log("Candidates information:");
     eventCans->Print();
 
     return true;

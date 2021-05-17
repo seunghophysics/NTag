@@ -75,7 +75,7 @@ src/SKLibrary/%.o: src/SKLibrary/%.F
 lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
 	@echo "[NTag] Building NTagTools shared library..."
 	@cp `find src/Utilities src/Tools -name '*.hh'` include
-	@ $(RUNPATHOPTION) $(TOOLCXX) $(TOOLCXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
+	@$(RUNPATHOPTION) $(TOOLCXX) $(TOOLCXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
 
 src/%.o: src/%.cc
 	@echo "[NTag] Building $*.o..."

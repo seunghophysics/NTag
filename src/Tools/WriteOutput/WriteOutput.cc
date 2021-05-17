@@ -53,14 +53,17 @@ bool WriteOutput::Execute()
 
 bool WriteOutput::Finalize()
 {
-    variableTree->Print();
-    variableTree->Write();
+    int verbose = pDEFAULT;
+    sharedData->ntagInfo.Get("verbose", verbose);
+    if (verbose > pDEFAULT) {
+        ntagInfoTree->Print();
+        variableTree->Print();
+        candidateTree->Print();
+    }
     
-    candidateTree->Print();
-    candidateTree->Write();
-    
-    ntagInfoTree->Print();
     ntagInfoTree->Write();
+    variableTree->Write();
+    candidateTree->Write();
     
     outFile->Close();
     return true;
@@ -99,5 +102,5 @@ void WriteOutput::FillBranches(TTree* tree, Store* store)
     }
     
     fillCounter++;
-    tree->SetEntries(fillCounter-1);
+    tree->SetEntries(fillCounter==1 ? 1 : fillCounter-1);
 }

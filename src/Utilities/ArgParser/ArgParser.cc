@@ -48,13 +48,22 @@ void ArgParser::OverrideStore(Store* store)
         if (tokens[i].at(0) != '-') continue;
 
         auto token = tokens[i].substr(1, tokens[i].size()-1);
+        auto option = GetOption(tokens[i]);
         
         // if token is non-numeric
         if (!CheckType<float>(token)) {
-            if (commandMap.count(token))
-                store->Set(commandMap[token], tokens[i+1]);
-            else
-                store->Set(token, tokens[i+1]);
+            if (commandMap.count(token)) {
+                if (!option.empty())
+                    store->Set(commandMap[token], option);
+                else
+                    store->Set(commandMap[token], 1);
+            }
+            else {
+                if (!option.empty())
+                    store->Set(token, option);
+                else
+                    store->Set(token, 1);
+            }
         }    
     }
 }
