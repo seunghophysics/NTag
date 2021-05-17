@@ -1,4 +1,3 @@
-#include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
 #include "ApplyTMVA.hh"
@@ -25,15 +24,14 @@ bool ApplyTMVA::Initialize()
     sharedData->ntagInfo.Get("mva_method_name", mvaMethodName);
     sharedData->ntagInfo.Get("weight_file_path", weightFilePath);
 
-    TMVA::Tools::Instance();
-    tmvaReader = new TMVA::Reader("!Color:Silent");
+    tmvaReader = new TMVA::Reader();
 
     for (auto& pair: featureContainer)
-        tmvaReader->AddVariable(pair.first.c_str(), &(pair.second));
+        tmvaReader->AddVariable(pair.first, &(pair.second));
 
     tmvaReader->AddSpectator("CaptureType", &(captureType));
 
-    tmvaReader->BookMVA(mvaMethodName.c_str(), weightFilePath.c_str());
+    tmvaReader->BookMVA(mvaMethodName, weightFilePath);
 
     return true;
 }
