@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bin=$(pwd)/bin
+bin=$(pwd)
 pathline="export PATH=$bin:\$PATH # Install NTag"
 ntagline="export NTAGPATH=$(pwd)  # Install NTag"
 

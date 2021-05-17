@@ -21,8 +21,11 @@ CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CE
 TMVAINCLUDE = -I $(TMVASYS)/include
 TMVALIB = -L $(TMVASYS)/lib -lTMVA.1
 
-all: NTag lib/libToolFramework.so lib/libNTagTools.so
+all: dirs NTag lib/libToolFramework.so lib/libNTagTools.so
 	@echo "[NTag] Done!"
+	
+dirs:
+	@mkdir -p lib include
 
 ## TOOL TEST ##
 
@@ -92,4 +95,4 @@ NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/git_info
 	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib/* include/* src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib include src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 

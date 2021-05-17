@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ArgParser.hh"
+#include "PathGetter.hh"
 #include "Printer.hh"
 #include "ToolChain.hh"
 
@@ -15,12 +16,19 @@
 #include "ApplyTMVA.hh"
 #include "WriteOutput.hh"
 
+static std::string installPath = GetENV("NTAGPATH");
+
 int main(int argc, char** argv)
 {
     PrintNTag();
+    
+    if (GetCWD() != installPath) {
+        PrintBlock("NTag location");
+        std::cout << installPath << std::endl;
+    }
 
     ToolChain toolChain;
-    toolChain.sharedData.ReadConfig("/disk02/usr6/han/NTag/NTagConfig");
+    toolChain.sharedData.ReadConfig(installPath + "NTagConfig");
     toolChain.sharedData.ntagInfo.Set("ntag_commit_id", NTagVersion);
     
     ArgParser parser(argc, argv);
@@ -48,7 +56,7 @@ int main(int argc, char** argv)
     WriteOutput writeOutput;           toolMap[writeOutput.GetName()] = &writeOutput;
     
     Store toolList;
-    std::string toolsListFilePath = "/disk02/usr6/han/NTag/NTagToolsList";
+    std::string toolsListFilePath = installPath + "NTagToolsList";
     toolChain.sharedData.ntagInfo.Get("tools_list_path", toolsListFilePath);
     toolList.Initialize(toolsListFilePath);
     
