@@ -73,13 +73,12 @@ float ApplyTMVA::GetClassifierOutput(Candidate* candidate)
 {
     // get features from candidate and fill feature container
     for (auto const& pair: featureContainer) {
-        float value;
-        candidate->Get(pair.first, value);
+        float value = candidate->Get(pair.first);
         featureContainer[pair.first] = value;
     }
 
     // get spectator
-    candidate->Get("CaptureType", captureType);
+    captureType = candidate->Get("CaptureType");
 
     return tmvaReader->EvaluateMVA(mvaMethodName);
 }

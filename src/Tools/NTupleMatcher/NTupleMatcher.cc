@@ -15,8 +15,8 @@ bool NTupleMatcher::Initialize()
     sharedData->ntagInfo.Get("mc_file_id", fileID);
     
     // get ntuple and set branch address of event number
-    TFile* f = TFile::Open(ntupleFilePath);
-    ntuple = (TTree*)f->Get("h1");
+    ntupleFile = TFile::Open(ntupleFilePath, "READONLY");
+    ntuple = (TTree*)ntupleFile->Get("h1");
     ntuple->SetBranchAddress("nev", &eventNo);
     nEntries = ntuple->GetEntries();
     
@@ -62,6 +62,7 @@ bool NTupleMatcher::Execute()
 
 bool NTupleMatcher::Finalize()
 {
+    delete ntupleFile;
     return true;
 }
 

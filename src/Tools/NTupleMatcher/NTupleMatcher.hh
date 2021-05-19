@@ -3,6 +3,7 @@
 
 #include "Tool.hh"
 
+class TFile;
 class TTree;
 
 class NTupleMatcher : public Tool
@@ -19,11 +20,11 @@ class NTupleMatcher : public Tool
     private:
         void GetNewEntry();
         
+        TFile* ntupleFile;
         TTree* ntuple;
         
         int iEntry, nEntries;
         int eventNo;
-        
 };
 
 #endif
