@@ -1,7 +1,13 @@
 #include "PMTHit.hh"
 
 PMTHit::PMTHit(float t, float q, int i)
-: T(t), Q(q), I(i), ToF(0), pmtPosition(NTagConstant::PMTXYZ[i-1]) {}
+: T(t), Q(q), I(i), ToF(0) 
+{
+    if (1 <= I && I <= MAXPM)
+        pmtPosition = TVector3(NTagConstant::PMTXYZ[I-1]);
+    else
+        pmtPosition = TVector3();
+}
 
 PMTHit::PMTHit(PMTHit const& hit)
 : T(hit.t()), Q(hit.q()), I(hit.i()), ToF(hit.GetToF()), pmtPosition(hit.GetPosition()), hitDirection(hit.GetDirection()) {}

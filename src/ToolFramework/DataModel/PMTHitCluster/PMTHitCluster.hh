@@ -15,6 +15,8 @@ class PMTHitCluster : public Cluster<PMTHit>
 {
     public:
         PMTHitCluster();
+        
+        void Append(const PMTHit& hit);
 
         void SetVertex(const TVector3& inVertex);
         inline const TVector3& GetVertex() const { return vertex; }

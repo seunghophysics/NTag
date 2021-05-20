@@ -50,8 +50,8 @@ bool ReadHits::Execute()
                     /*I*/ sktqz_.icabiz[iHit]
                   };
 
-        // Use hits that are in-gate and within MAXPM only
-        if (sktqz_.ihtiflz[iHit] & (1<<1) && hit.i() <= MAXPM) {
+        // Use in-gate hits only
+        if (sktqz_.ihtiflz[iHit] & (1<<1)) {
             eventHits->Append(hit);
         }
     }

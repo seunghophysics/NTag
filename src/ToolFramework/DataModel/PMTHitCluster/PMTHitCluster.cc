@@ -7,6 +7,13 @@
 PMTHitCluster::PMTHitCluster()
 :bSorted(false), bHasVertex(false) { nElements = 0; }
 
+void PMTHitCluster::Append(const PMTHit& hit)
+{ 
+    int i = hit.i(); 
+    if (1 <= i && i <= MAXPM) // append only hits with meaningful PMT ID
+        Cluster::Append(hit);
+}
+
 void PMTHitCluster::SetVertex(const TVector3& inVertex)
 {
     if (bHasVertex)
