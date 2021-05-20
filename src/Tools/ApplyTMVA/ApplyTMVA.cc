@@ -65,7 +65,6 @@ bool ApplyTMVA::Execute()
 
 bool ApplyTMVA::Finalize()
 {
-    delete tmvaReader;
     return true;
 }
 
