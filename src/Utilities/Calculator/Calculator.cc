@@ -2,11 +2,13 @@
 #include <iostream>
 #include <numeric>
 #include <string>
+#include <limits>
 
 #include <geotnkC.h>
 
 #include "SKLibs.hh"
 
+#include "Store.hh"
 #include "PMTHit.hh"
 #include "PMTHitCluster.hh"
 #include "Calculator.hh"
@@ -72,18 +74,29 @@ float GetLegendreP(int i, float& x)
 
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
+    // make sure the inputs are unit vectors
+    // uA = uA.Unit(); uB = uB.Unit(); uC = uC.Unit();
+    
     // sides of the triangle formed by the three unit vectors
     double a = (uA-uB).Mag();
     double b = (uC-uA).Mag();
     double c = (uB-uC).Mag();
-
-    // circumradius of the triangle
-    double r = a*b*c / sqrt((a+b+c)*(-a+b+c)*(a-b+c)*(a+b-c));
-
-    if (r >= 1)
-        return 90.; // prevents NaN
-    else
-        return (180./M_PI) * asin(r);
+    
+    if (a*b*c == 0) {
+        double angleAB = (180./M_PI) * uA.Angle(uB)/2.;
+        double angleAC = (180./M_PI) * uA.Angle(uC)/2.;
+        return uA.Angle(uB) == 0 ? (uA.Angle(uC) == 0 ? 0 : uA.Angle(uC)) : uA.Angle(uB); 
+    }
+    
+    else {
+        // circumradius of the triangle
+        double r = a*b*c / sqrt((a+b+c)*(-a+b+c)*(a-b+c)*(a+b-c));
+    
+        if (r>=1)
+            return 90.; // prevents NaN
+        else
+            return (180./M_PI) * asin(r);
+    }
 }
 
 std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v[3])
@@ -111,6 +124,7 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
                     u[i] = TVector3(i_th_vec).Unit();
                 }
                 openingAngles.push_back(GetOpeningAngle(u[0], u[1], u[2]));
+
             }
         }
     }
@@ -119,7 +133,6 @@ std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v
     float median   = GetMedian(openingAngles);
     float stdev    = GetRMS(openingAngles);
     float skewness = GetSkew(openingAngles);
-
 
     return std::array<float, 4>{mean, median, stdev, skewness};
 }
