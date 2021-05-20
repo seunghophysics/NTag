@@ -15,9 +15,8 @@ bool ReadHits::CheckSafety()
         safeToExecute = true;
     }
     else {
-        Log("The SK common block sktqz is either empty or without any hit.", pWARNING);
-        Log("Make sure sktqz is properly filled with skread.", pWARNING);
-        Log("Aborting the program...", pERROR);
+        Log("The SK common block sktqz is empty.", pWARNING);
+        //Log("Aborting the program...", pERROR);
         safeToExecute = false;
     }
     return safeToExecute;
