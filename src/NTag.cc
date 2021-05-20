@@ -8,6 +8,7 @@
 #include "SKRead.hh"
 #include "NTupleMatcher.hh"
 #include "ReadHits.hh"
+#include "AddNoise.hh"
 #include "ReadMCInfo.hh"
 #include "SetPromptVertex.hh"
 #include "SubtractToF.hh"
@@ -23,7 +24,7 @@ int main(int argc, char** argv)
     PrintNTag();
     
     if (GetCWD() != installPath) {
-        PrintBlock("NTag location");
+        PrintBlock("NTAGPATH");
         std::cout << installPath << std::endl;
     }
 
@@ -47,6 +48,7 @@ int main(int argc, char** argv)
     SKRead skRead;                     toolMap[skRead.GetName()] = &skRead;
     NTupleMatcher nTupleMatcher;       toolMap[nTupleMatcher.GetName()] = &nTupleMatcher;
     ReadHits readHits;                 toolMap[readHits.GetName()] = &readHits;
+    AddNoise addNoise;                 toolMap[addNoise.GetName()] = &addNoise;
     ReadMCInfo readMCInfo;             toolMap[readMCInfo.GetName()] = &readMCInfo;
     SetPromptVertex setPromptVertex;   toolMap[setPromptVertex.GetName()] = &setPromptVertex;
     SubtractToF subtractToF;           toolMap[subtractToF.GetName()] = &subtractToF;
