@@ -7,7 +7,7 @@
 
 bool NTupleMatcher::Initialize()
 {
-    eventNo = 0; iEntry = 0; nEntries = 0;
+    eventNo = 1; iEntry = 0; nEntries = 0;
 
     // get ntuple file name and file id
     TString ntupleFilePath; int fileID;
@@ -31,7 +31,7 @@ bool NTupleMatcher::Initialize()
         }
         prevEventNo = eventNo;
     }
-    Log(Form("NTuple iEntry: %d, nEntries: %d", iEntry, nEntries), pDEBUG);
+    Log(Form("NTuple iEntry: %d, nEntries: %d", iEntry, nEntries));
     std::cout << "\n";
     
     return true;
@@ -45,6 +45,7 @@ bool NTupleMatcher::CheckSafety()
 bool NTupleMatcher::Execute()
 {
     // get event number from skread
+    Log(Form("skhead_.nevsk: %d, eventNo: %d", skhead_.nevsk, eventNo));
     if (skhead_.nevsk < eventNo) {
         Log(Form("No matching event in the ntuple. Skipping...", skhead_.nevsk, eventNo));
         throw eSKIPEVENT;
@@ -55,6 +56,9 @@ bool NTupleMatcher::Execute()
         try { GetNewEntry(); }
         catch (ExceptionBehavior& e) { throw e; }
         return true;
+    }
+    else {
+        Log(Form("skhead_.nevsk %d is larger than eventNo %d!", skhead_.nevsk, eventNo), pERROR);
     }
 
     return true;
