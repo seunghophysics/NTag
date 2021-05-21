@@ -6,6 +6,8 @@
 class TFile;
 class TTree;
 
+class NTupleReader;
+
 class NTupleMatcher : public Tool
 {
     public:
@@ -19,9 +21,12 @@ class NTupleMatcher : public Tool
         
     private:
         void GetNewEntry();
+        void SetNTupleVariables();
         
         TFile* ntupleFile;
         TTree* ntuple;
+        
+        NTupleReader* ntupleReader;
         
         int iEntry, nEntries;
         int eventNo;

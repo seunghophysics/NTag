@@ -3,11 +3,12 @@
 
 #include "skheadC.h"
 
+#include "NTupleReader.hh"
 #include "NTupleMatcher.hh"
 
 bool NTupleMatcher::Initialize()
 {
-    eventNo = 1; iEntry = 0; nEntries = 0;
+    iEntry = 0; nEntries = 0; eventNo = 1;
 
     // get ntuple file name and file id
     TString ntupleFilePath; int fileID;
@@ -17,8 +18,10 @@ bool NTupleMatcher::Initialize()
     // get ntuple and set branch address of event number
     ntupleFile = TFile::Open(ntupleFilePath);
     ntuple = (TTree*)ntupleFile->Get("h1");
-    ntuple->SetBranchAddress("nev", &eventNo);
+    //ntuple->SetBranchAddress("nev", &eventNo);
     nEntries = ntuple->GetEntries();
+    ntupleReader = new NTupleReader(ntuple);
+    ntupleReader->nev = 1;
     
     // fill the first event number
     int prevEventNo = -1;
@@ -51,7 +54,7 @@ bool NTupleMatcher::Execute()
         throw eSKIPEVENT;
     }
     else if (skhead_.nevsk == eventNo) {
-        sharedData->eventVariables.Set("EventNo", eventNo);
+        SetNTupleVariables();
         Log(Form("A matching event exists in the ntuple! Continuing toolchain execution...", eventNo));
         try { GetNewEntry(); }
         catch (ExceptionBehavior& e) { throw e; }
@@ -68,6 +71,7 @@ bool NTupleMatcher::Execute()
 bool NTupleMatcher::Finalize()
 {
     ntupleFile->Close();
+    delete ntupleReader;
     return true;
 }
 
@@ -75,10 +79,26 @@ void NTupleMatcher::GetNewEntry()
 {
     iEntry++;
     if (iEntry < nEntries) {
-        ntuple->GetEntry(iEntry);
+        ntupleReader->GetEntry(iEntry);
+        eventNo = ntupleReader->nev;
     }
     else {
         Log("Reached the end of ntuple!");
         throw eENDRUN;
     }
+}
+
+void NTupleMatcher::SetNTupleVariables()
+{
+    sharedData->eventVariables.Set("nev", eventNo);
+    sharedData->eventVariables.Set("nring", ntupleReader->nring);
+    sharedData->eventVariables.Set("nhitac", ntupleReader->nhitac);
+    sharedData->eventVariables.Set("evis", ntupleReader->evis);
+    sharedData->eventVariables.Set("wall", ntupleReader->wall);
+    sharedData->eventVariables.Set("ip", ntupleReader->ip[0]);
+    sharedData->eventVariables.Set("amome", ntupleReader->amome[0]);
+    sharedData->eventVariables.Set("amomm", ntupleReader->amomm[0]);
+    sharedData->eventVariables.Set("potot", ntupleReader->potot);
+    sharedData->eventVariables.Set("nn", ntupleReader->ntag_nn);
+    sharedData->eventVariables.Set("mctruth_nn", ntupleReader->ntag_mctruth_nn);
 }
