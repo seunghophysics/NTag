@@ -15,14 +15,11 @@ class Particle
         inline TVector3 Momentum() const { return momentum; }
         inline unsigned int IntID() const { return creationIntID; }
 
-        void AppendSecondary(Particle sec);
-
     private:
         float creationTime, decayTime;
         int pdgCode;
         unsigned int creationIntID, decayIntID;
         TVector3 vertex, momentum;
-        std::vector<Particle> secondaries;
 };
 
 #endif
