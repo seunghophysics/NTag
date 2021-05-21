@@ -70,6 +70,8 @@ bool WriteOutput::Execute()
     candidateTree->Fill();
     
     FillBranches(variableTree, &(sharedData->eventVariables));
+    
+    sharedData->eventVariables.Print();
     return true;
 }
 

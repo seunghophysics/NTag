@@ -133,6 +133,8 @@ bool ReadMCInfo::Execute()
     Log("True capture information:");
     sharedData->eventTrueCaptures.Sort();
     sharedData->eventTrueCaptures.DumpAllElements();
+    
+    sharedData->eventVariables.Set("true_neutron_count", sharedData->eventTrueCaptures.GetSize());
 
     return true;
 }
