@@ -96,6 +96,7 @@ void NTupleMatcher::SetNTupleVariables()
     sharedData->eventVariables.Set("evis", ntupleReader->evis);
     sharedData->eventVariables.Set("wall", ntupleReader->wall);
     sharedData->eventVariables.Set("ip", ntupleReader->ip[0]);
+    sharedData->eventVariables.Set("ipnu", ntupleReader->ipnu[0]);
     sharedData->eventVariables.Set("amome", ntupleReader->amome[0]);
     sharedData->eventVariables.Set("amomm", ntupleReader->amomm[0]);
     sharedData->eventVariables.Set("potot", ntupleReader->potot);
