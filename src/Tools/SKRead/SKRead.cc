@@ -7,6 +7,8 @@
 #undef MAXPMA
 
 #include "SKLibs.hh"
+#include "PathGetter.hh"
+
 #include "SKRead.hh"
 
 bool SKRead::Initialize()
