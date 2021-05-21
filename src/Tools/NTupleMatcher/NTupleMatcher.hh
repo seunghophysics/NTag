@@ -11,11 +11,11 @@ class NTupleMatcher : public Tool
     public:
         NTupleMatcher() { name = "NTupleMatcher"; }
         
-        bool Initialize();
-        bool Execute();
-        bool Finalize();
+        virtual bool Initialize();
+        virtual bool Execute();
+        virtual bool Finalize();
         
-        bool CheckSafety();
+        virtual bool CheckSafety();
         
     private:
         void GetNewEntry();

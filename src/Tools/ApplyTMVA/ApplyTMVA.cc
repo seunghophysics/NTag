@@ -29,14 +29,14 @@ bool ApplyTMVA::Initialize()
     sharedData->ntagInfo.Get("mva_method_name", mvaMethodName);
     sharedData->ntagInfo.Get("weight_file_path", weightFilePath);
 
-    tmvaReader = new TMVA::Reader();
+    //tmvaReader = new TMVA::Reader();
 
     for (auto& pair: featureContainer)
-        tmvaReader->AddVariable(pair.first, &(pair.second));
+        tmvaReader.AddVariable(pair.first, &(pair.second));
 
-    tmvaReader->AddSpectator("CaptureType", &(captureType));
+    tmvaReader.AddSpectator("CaptureType", &(captureType));
 
-    tmvaReader->BookMVA(mvaMethodName, weightFilePath);
+    tmvaReader.BookMVA(mvaMethodName, weightFilePath);
 
     return true;
 }
@@ -88,5 +88,5 @@ float ApplyTMVA::GetClassifierOutput(Candidate* candidate)
     // get spectator
     captureType = candidate->Get("CaptureType");
 
-    return tmvaReader->EvaluateMVA(mvaMethodName);
+    return tmvaReader.EvaluateMVA(mvaMethodName);
 }

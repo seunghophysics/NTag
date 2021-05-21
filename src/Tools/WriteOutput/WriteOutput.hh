@@ -29,18 +29,28 @@ class TInterruptHandler : public TSignalHandler
 class WriteOutput : public Tool
 {
     public:
-        WriteOutput():tmpVec(), tmpNum(0), tmpStr(""), fillCounter(0) 
+        WriteOutput():tmpVec(), tmpNum(0), tmpStr(""), fillCounter(0), inputIsMC(false)
         { name = "WriteOutput"; }
 
-        bool Initialize();
-        bool Execute();
-        bool Finalize();
+        virtual bool Initialize();
+        virtual bool Execute();
+        virtual bool Finalize();
 
-        bool CheckSafety();
+        virtual bool CheckSafety();
 
     private:
+        void CreateTrees();
+        bool CheckTreesExist();
+        void GetTrees();
+        void PrintTrees();
+        void WriteTrees(int option);
+    
         void MakeBranches(TTree* tree, Store* store);
+        void SetBranches(TTree* tree, Store* store);
         void FillBranches(TTree* tree, Store* store);
+        
+        void MakeParticleTrees(TTree* particleTree, EventParticles* eventParticles);
+        void MakeTrueCaptureTrees(TTree* particleTree, EventTrueCaptures* eventTrueCaptures);
     
         TFile* outFile;
         TTree* variableTree;
@@ -55,10 +65,12 @@ class WriteOutput : public Tool
         TTree* ntagInfoTree;
         
         // temporary variables for branching
-        TVector3 tmpVec;
+        TVector3 tmpVec; TVector3* tmpVecPtr;
         float tmpNum;
-        std::string tmpStr;
+        std::string tmpStr; std::string* tmpStrPtr;
         
+        bool inputIsMC;
+        TString outputMode;
         unsigned long fillCounter;
 
         TInterruptHandler* handler;

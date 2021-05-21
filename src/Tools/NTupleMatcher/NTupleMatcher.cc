@@ -15,7 +15,7 @@ bool NTupleMatcher::Initialize()
     sharedData->ntagInfo.Get("mc_file_id", fileID);
     
     // get ntuple and set branch address of event number
-    ntupleFile = TFile::Open(ntupleFilePath, "READONLY");
+    ntupleFile = TFile::Open(ntupleFilePath);
     ntuple = (TTree*)ntupleFile->Get("h1");
     ntuple->SetBranchAddress("nev", &eventNo);
     nEntries = ntuple->GetEntries();
@@ -58,7 +58,8 @@ bool NTupleMatcher::Execute()
         return true;
     }
     else {
-        Log(Form("skhead_.nevsk %d is larger than eventNo %d!", skhead_.nevsk, eventNo), pERROR);
+        Log(Form("skhead_.nevsk %d is larger than eventNo %d! Ending toolchain execution...", skhead_.nevsk, eventNo));
+        throw eENDRUN;
     }
 
     return true;
@@ -66,7 +67,7 @@ bool NTupleMatcher::Execute()
 
 bool NTupleMatcher::Finalize()
 {
-    delete ntupleFile;
+    ntupleFile->Close();
     return true;
 }
 

@@ -3,17 +3,14 @@
 
 #include <memory>
 
-#include "Tool.hh"
+#include "TMVA/Reader.h"
 
-namespace TMVA
-{
-    class Reader;
-}
+#include "Tool.hh"
 
 class ApplyTMVA : public Tool
 {
     public:
-        ApplyTMVA():likelihoodThreshold(0.7) { name = "ApplyTMVA"; }
+        ApplyTMVA():likelihoodThreshold(0.7), tmvaReader("") { name = "ApplyTMVA"; }
 
         bool Initialize();
         bool Execute();
@@ -29,7 +26,7 @@ class ApplyTMVA : public Tool
         float likelihoodThreshold;
 
         std::string mvaMethodName, weightFilePath;
-        TMVA::Reader* tmvaReader;
+        TMVA::Reader tmvaReader;
 };
 
 #endif
