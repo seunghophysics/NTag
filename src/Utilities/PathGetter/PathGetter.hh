@@ -11,8 +11,11 @@
 #define PATHGETTER_HH
 
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <string>
+
+bool fileExists(const std::string& filename);
 
 /** Gets current working directory. */
 static std::string GetCWD()

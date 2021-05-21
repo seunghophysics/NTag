@@ -35,7 +35,6 @@ enum Verbosity
 
 class Logger;
 
-bool fileExists(const std::string& filename);
 template <class T>
 Logger& operator<<(Logger& logger, T in);
 
