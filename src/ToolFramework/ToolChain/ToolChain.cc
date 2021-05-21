@@ -9,12 +9,7 @@
 
 ToolChain::ToolChain()
 : initialized(false), logger() {}
-ToolChain::~ToolChain()
-{
-    for (auto& tool: tools) {
-        delete tool;
-    }
-}
+ToolChain::~ToolChain() {}
 
 void ToolChain::AddTool(Tool* tool)
 {
