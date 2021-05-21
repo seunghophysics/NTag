@@ -6,6 +6,8 @@
 
 bool ApplyTMVA::Initialize()
 {
+    sharedData->ntagInfo.Get("likelihood_threshold", likelihoodThreshold);
+
     featureContainer["NHits"] = 0;
     featureContainer["N200"] = 0;
     featureContainer["AngleMean"] = 0.;
@@ -47,6 +49,8 @@ bool ApplyTMVA::CheckSafety()
 
 bool ApplyTMVA::Execute()
 {
+    int taggedNeutronCount = 0;
+
     EventCandidates* eventCans = &(sharedData->eventCandidates);
     unsigned int nCandidates = eventCans->GetSize();
 
@@ -54,11 +58,16 @@ bool ApplyTMVA::Execute()
     for (unsigned int i = 0; i < nCandidates; i++) {
         Candidate* candidate = &(eventCans->At(i));
         float tmvaOutput = GetClassifierOutput(candidate);
+        if (tmvaOutput > likelihoodThreshold) taggedNeutronCount++;
         candidate->Set("TMVAOutput", tmvaOutput);
     }
 
     Log("Candidates information:");
     eventCans->Print();
+    
+    sharedData->eventVariables.Set("tagged_neutron_count", taggedNeutronCount);
+    std::cout << std::endl;
+    Log(Form("%d neutron-like signals tagged in this event.", taggedNeutronCount));
 
     return true;
 }

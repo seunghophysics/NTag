@@ -13,7 +13,7 @@ namespace TMVA
 class ApplyTMVA : public Tool
 {
     public:
-        ApplyTMVA() { name = "ApplyTMVA"; }
+        ApplyTMVA():likelihoodThreshold(0.7) { name = "ApplyTMVA"; }
 
         bool Initialize();
         bool Execute();
@@ -26,6 +26,7 @@ class ApplyTMVA : public Tool
     private:
         std::map<std::string, float> featureContainer;
         int captureType;
+        float likelihoodThreshold;
 
         std::string mvaMethodName, weightFilePath;
         TMVA::Reader* tmvaReader;
