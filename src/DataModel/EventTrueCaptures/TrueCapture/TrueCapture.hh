@@ -1,25 +1,27 @@
 #ifndef TRUECAPTURE_HH
 #define TRUECAPTURE_HH
 
-#include "Cluster.hh"
 #include "Particle.hh"
 
-class TrueCapture : public Cluster<Particle>
+class TrueCapture
 {
     public:
         TrueCapture();
         void Append(const Particle& particle);
 
-        inline float Time() const { return captureTime; }
-        inline float Energy() const { return gammaEnergy; }
-        inline TVector3 Vertex() const { return vertex; }
+        inline float Time() const { return t; }
+        inline float Energy() const { return E; }
+        inline TVector3 Vertex() const { return v; }
 
         void Dump();
 
     private:
-        TVector3 vertex;
-        float captureTime;
-        float gammaEnergy;
+        TVector3 v;
+        float t;
+        float E;
+        int nGamma;
+        
+    ClassDef(TrueCapture, 1)
 };
 
 #endif

@@ -27,9 +27,6 @@ bool ExtractFeatures::Initialize()
 
 bool ExtractFeatures::CheckSafety()
 {
-    // check MC
-    sharedData->ntagInfo.Get("is_mc", inputIsMC);
-
     // EventPMTHits must be filled
     if (sharedData->eventPMTHits.IsEmpty()) {
         Log("EventPMTHits class is empty. Skipping...", pWARNING);

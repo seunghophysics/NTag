@@ -6,20 +6,22 @@
 class Particle
 {
     public:
-        Particle(int pid, float time, TVector3 vtx, TVector3 mom, unsigned int intID=0);
+        Particle(): pid(0), t(0), intID(0), v(), p() {}
+        Particle(int id, float time, TVector3 vtx, TVector3 mom, unsigned int interactionID=0);
 
-        inline int PID() const { return pdgCode; }
-        inline float Time() const { return creationTime; }
-        inline float DecayTime() const { return decayTime; }
-        inline TVector3 Vertex() const { return vertex; }
-        inline TVector3 Momentum() const { return momentum; }
-        inline unsigned int IntID() const { return creationIntID; }
+        inline int PID() const { return pid; }
+        inline float Time() const { return t; }
+        inline TVector3 Vertex() const { return v; }
+        inline TVector3 Momentum() const { return p; }
+        inline unsigned int IntID() const { return intID; }
 
     private:
-        float creationTime, decayTime;
-        int pdgCode;
-        unsigned int creationIntID, decayIntID;
-        TVector3 vertex, momentum;
+        float t;
+        int pid;
+        unsigned int intID;
+        TVector3 v, p;
+        
+    ClassDef(Particle, 1)
 };
 
 #endif

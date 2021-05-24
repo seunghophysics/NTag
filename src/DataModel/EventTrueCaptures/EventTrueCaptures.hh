@@ -11,6 +11,8 @@ class EventTrueCaptures : public Cluster<TrueCapture>
     public:
         void Sort();
         void DumpAllElements();
+        
+    ClassDef(EventTrueCaptures, 1)
 };
 
 #endif

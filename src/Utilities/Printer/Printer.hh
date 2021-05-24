@@ -4,13 +4,8 @@
 #include <string>
 #include <TString.h>
 
-extern const char* gitcommit;
-extern const char* gitcommitdate;
-static std::string NTagVersion = std::string("\"") + std::string(gitcommit) + std::string("\"");
-static std::string NTagDate    = gitcommitdate;
-
-void PrintNTag();
-void PrintVersion();
+void PrintNTag(const char* version, const char* date);
+void PrintVersion(const char* version, const char* date);
 void PrintBlock(TString line);
 
 #endif

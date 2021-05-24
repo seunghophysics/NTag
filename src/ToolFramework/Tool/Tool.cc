@@ -2,6 +2,8 @@
 
 #include "Tool.hh"
 
+bool Tool::inputIsMC = false;
+
 void Tool::ConnectToToolChain(ToolChain* toolChain)
 {
     sharedData = &(toolChain->sharedData);

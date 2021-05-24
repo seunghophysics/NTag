@@ -12,14 +12,15 @@
 class PMTHitCluster;
 
 namespace NTagConstant{
-    constexpr float (*PMTXYZ)[3] = geopmt_.xyzpm; /*!< An array of PMT coordinates.
-                                                       Index 0 for x, 1 for y, 2 for z-coordinates. [cm] */
-    constexpr float C_WATER = 21.5833; ///< The speed of light in pure water. [cm/ns]
+    static const float (*PMTXYZ)[3] = geopmt_.xyzpm; /*!< An array of PMT coordinates.
+                                                          Index 0 for x, 1 for y, 2 for z-coordinates. [cm] */
+    static const float C_WATER = 21.5833; ///< The speed of light in pure water. [cm/ns]
 }
 
 class PMTHit
 {
     public:
+        PMTHit(): T(0), Q(0), I(0), S(0), ToF(0), pmtPosition(), hitDirection() {}
         PMTHit(float t, float q, int i);
         PMTHit(PMTHit const& hit);
 
@@ -58,6 +59,8 @@ class PMTHit
         float T, Q, ToF;
         unsigned int I;
         bool S;
+        
+    ClassDef(PMTHit, 1)
 };
 
 PMTHit operator+(const PMTHit& hit1, const PMTHit& hit2);

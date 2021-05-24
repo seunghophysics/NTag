@@ -25,7 +25,6 @@ class SKRead : public Tool
 
     private:
         bool inputIsSKROOT;
-        bool inputIsMC;
         int readStatus;
 };
 

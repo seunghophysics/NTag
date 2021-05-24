@@ -24,38 +24,54 @@ CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CE
 TMVAINCLUDE = -I $(TMVASYS)/include
 TMVALIB = -L $(TMVASYS)/lib -lTMVA.1
 
-all: dirs NTag lib/libNTagDataModel.so lib/libToolFramework.so lib/libNTagTools.so
+all: dirs inc lib/libNTagDataModel.so lib/libToolFramework.so lib/libNTagTools.so NTag 
 	@echo "[NTag] Done!"
 	
 dirs:
 	@mkdir -p lib include
 
+inc:
+	@cp `find src/ -name '*.hh'` include
+
+include/%.hh:
+	@:
 
 
 
 
-NTAGDATAMODELSRCS = $(wildcard src/DataModel/*.cc) $(wildcard src/DataModel/*/*.cc) $(wildcard src/DataModel/*/*/*.cc)
+NTAGDATAMODELSRCS = $(filter-out %Dict.cc, $(wildcard src/DataModel/*.cc) $(wildcard src/DataModel/*/*.cc) $(wildcard src/DataModel/*/*/*.cc))
 NTAGDATAMODELOBJS = $(patsubst src/DataModel/%.cc, src/DataModel/%.o, $(NTAGDATAMODELSRCS))
 NTAGDATAMODELINCLUDE := $(addprefix -I , $(sort $(dir $(shell find src/DataModel -name '*.hh'))))
+NTAGDATAMODELLIB = -L$(NTAG_GD_ROOT)/lib -lNTagDataModel
 
 UTILOBJS = $(patsubst src/Utilities/%.cc, src/Utilities/%.o, $(wildcard src/Utilities/*/*.cc))
 UTILINCLUDE := $(addprefix -I , $(sort $(dir $(wildcard src/Utilities/*/*.hh))))
+
+NTAGDATAMODELDICT = src/DataModel/NTagDataModelDict.cc
 
 # Utilities
 $(UTILOBJS): src/Utilities/%.o: src/Utilities/%.cc src/Utilities/%.hh
 	@echo "[NTag] Building Utility: $(word 1, $(subst /, , $*))..."
 	@$(CXX) $(NTAGCXXFLAGS) -o $@ -c $< $(NTAGDATAMODELINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 
+src/DataModel/NTagDataModelDict.hh: $(NTAGDATAMODELDICT)
+
+src/DataModel/NTagDataModelDict.o: $(NTAGDATAMODELDICT)
+	@echo "[NTag] Building DataModel: NTagDataModelDict..."
+	@$(CXX) $(CXXFLAGS) $(ROOTINCLUDE) -I$(NTAG_GD_ROOT)/include $(SKOFLINCLUDE) -o $@ -c $<
+
 # NTagDataModel
-$(NTAGDATAMODELOBJS): src/DataModel/%.o: src/DataModel/%.cc src/DataModel/%.hh
+$(filter-out NTagDataModelDict, $(NTAGDATAMODELOBJS)): src/DataModel/%.o: src/DataModel/%.cc src/DataModel/%.hh
 	@echo "[NTag] Building DataModel: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGDATAMODELINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+	
+$(NTAGDATAMODELDICT): $(addprefix include/, $(filter-out NTagLinkDef.hh, $(notdir $(shell find src/DataModel -name '*.hh'))))
+	@cd include && rootcint -f ../$@ -c -I$(SKOFL_ROOT)/include $(notdir $^) NTagLinkDef.hh && cd ..
 
 # ToolFramework shared library
-lib/libNTagDataModel.so: $(UTILOBJS) $(NTAGDATAMODELOBJS)
+lib/libNTagDataModel.so: $(UTILOBJS) $(NTAGDATAMODELOBJS) src/DataModel/NTagDataModelDict.o
 	@echo "[NTag] Building DataModel shared library..."
-	@cp `find src/Utilities src/DataModel -name '*.hh'` include
-	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^ $(ROOTLIB)
+	@$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(ROOTLIB) $(SKOFLLIB)
 
 
 
@@ -78,8 +94,7 @@ $(TOOLFRAMEWORKOBJS): src/ToolFramework/%.o: src/ToolFramework/%.cc src/ToolFram
 # ToolFramework shared library
 lib/libToolFramework.so: $(TOOLFRAMEWORKOBJS)
 	@echo "[NTag] Building ToolFramework shared library..."
-	@cp `find src/ToolFramework -name '*.hh'` include
-	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^
+	@$(CXX) $(CXXFLAGS) -shared -o $@ $^
 
 
 
@@ -106,8 +121,7 @@ src/SKLibrary/%.o: src/SKLibrary/%.F
 # NTagTools shared library
 lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(NTAGDATAMODELOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
 	@echo "[NTag] Building NTagTools shared library..."
-	@cp `find src/Utilities src/Tools -name '*.hh'` include
-	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
+	@$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
 
 src/%.o: src/%.cc
 	@echo "[NTag] Building $*.o..."
@@ -122,9 +136,9 @@ src/git_info.o: src/git_info.c
 	@gcc -c -o $@ $^
 
 # executable
-NTag: $(NTAGDATAMODELOBJS) $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS) $(NTAGTOOLOBJS) src/git_info.o src/NTag.o
+NTag: $(NTAGDATAMODELOBJS) $(UTILOBJS) $(TOOLFRAMEWORKOBJS) src/DataModel/NTagDataModelDict.o $(SKLIBOBJS) $(NTAGTOOLOBJS) src/git_info.o src/NTag.o
 	@echo "[NTag] Building $@..."
 	@LD_RUN_PATH=$(TMVASYS)/lib $(CXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib include src/ToolFramework/*/*.o src/DataModel/*.o src/DataModel/*/*.o src/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/git_info.c src/DataModel/NTagDataModelDict.* src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib include src/ToolFramework/*/*.o src/DataModel/*.o src/DataModel/*/*.o src/DataModel/*/*/*.o 

@@ -7,7 +7,7 @@
 
 bool WriteOutput::Initialize()
 {
-    sharedData->ntagInfo.Get("is_mc", inputIsMC);
+    TClass::GetClass("TVector3")->IgnoreTObjectStreamer();
 
     TString outFilePath;
     sharedData->ntagInfo.Get("output_file_path", outFilePath);
@@ -21,6 +21,14 @@ bool WriteOutput::Initialize()
     outFile = new TFile(outFilePath, outputMode);
     outFile->cd();
 
+    tmpVecPtr = &tmpVec;
+    tmpStrPtr = &tmpStr;
+
+    return true;
+}
+
+bool WriteOutput::CheckSafety()
+{
     if (outputMode == "update") {
         if (CheckTreesExist()) {
             Log("Trees exist!");
@@ -35,14 +43,15 @@ bool WriteOutput::Initialize()
     else
         CreateTrees();
 
-    tmpVecPtr = &tmpVec;
-    tmpStrPtr = &tmpStr;
+    if (inputIsMC) {
+        Log("MC!");
+        primaries = 0;
+        secondaries = 0;
+        trueCaptures = 0;
+    }
+    else
+        Log("Data!");
 
-    return true;
-}
-
-bool WriteOutput::CheckSafety()
-{
     sharedData->eventCandidates.FillVectorMap();
     
     if (outputMode == "update") {
@@ -52,10 +61,20 @@ bool WriteOutput::CheckSafety()
             candidateTree->SetBranchAddress(pair.first.c_str(), &(pair.second));
     }
     else {
-        MakeBranches(variableTree, &(sharedData->eventVariables));
         MakeBranches(ntagInfoTree, &(sharedData->ntagInfo));
+        MakeBranches(variableTree, &(sharedData->eventVariables));
         for (auto& pair: sharedData->eventCandidates.featureVectorMap)
             candidateTree->Branch(pair.first.c_str(), &(pair.second));
+            
+        if (inputIsMC) {
+            mcTree->Branch("primaries", &primaries);
+            mcTree->Branch("secondaries", &secondaries);
+            mcTree->Branch("captures", &trueCaptures);
+            
+            primaries = &(sharedData->eventPrimaries);
+            secondaries = &(sharedData->eventSecondaries);
+            trueCaptures = &(sharedData->eventTrueCaptures);
+        }
     }
     FillBranches(ntagInfoTree, &(sharedData->ntagInfo));
     
@@ -70,8 +89,20 @@ bool WriteOutput::Execute()
     candidateTree->Fill();
     
     FillBranches(variableTree, &(sharedData->eventVariables));
-    
     sharedData->eventVariables.Print();
+    
+    if (inputIsMC) {
+        //primaries->Copy(&(sharedData->eventPrimaries));
+        //secondaries->Copy(&(sharedData->eventSecondaries));
+        //trueCaptures->Copy(&(sharedData->eventTrueCaptures));
+        
+        primaries->DumpAllElements();
+        secondaries->DumpAllElements();
+        trueCaptures->DumpAllElements();
+        
+        mcTree->Fill();
+    }
+    
     return true;
 }
 
@@ -88,6 +119,12 @@ bool WriteOutput::Finalize()
     
     outFile->Close();
     
+    //if (inputIsMC) {
+    //    delete primaries;
+    //    delete secondaries;
+    //    delete trueCaptures;
+    //}
+
     return true;
 }
 
@@ -100,11 +137,8 @@ void WriteOutput::CreateTrees()
     ntagInfoTree = new TTree("ntaginfo", "NTag options and information");
     
     // MC
-    if (inputIsMC) {
-        primaryTree = new TTree("primaries", "Event primaries");
-        secondaryTree = new TTree("secondaries", "Event secondaries");
-        trueCaptureTree = new TTree("truecaptures", "Event true captures");
-    }
+    if (inputIsMC)
+        mcTree = new TTree("mc", "MC truth information");
 }
 
 bool WriteOutput::CheckTreesExist()
@@ -112,17 +146,15 @@ bool WriteOutput::CheckTreesExist()
     bool variableTreeExists = (outFile->Get("variables") != nullptr);
     bool candidateTreeExists = (outFile->Get("candidates") != nullptr);
     bool ntagInfoTreeExists = (outFile->Get("ntaginfo") != nullptr);
-    bool primaryTreeExists = (outFile->Get("primaries") != nullptr);
-    bool secondaryTreeExists = (outFile->Get("secondaries") != nullptr);
-    bool trueCaptureTreeExists = (outFile->Get("truecaptures") != nullptr);
+    bool mcTreeExists = (outFile->Get("mc") != nullptr);
+
     
     bool dataTreesExist = variableTreeExists && candidateTreeExists && ntagInfoTreeExists;
-    bool mcTreesExist = primaryTreeExists && secondaryTreeExists && trueCaptureTreeExists;
     
     if (!inputIsMC)
         return dataTreesExist;
     else
-        return dataTreesExist && mcTreesExist;
+        return dataTreesExist && mcTreeExists;
 }
 
 void WriteOutput::GetTrees()
@@ -134,11 +166,8 @@ void WriteOutput::GetTrees()
     ntagInfoTree = (TTree*)outFile->Get("ntaginfo");
     
     // MC
-    if (inputIsMC) {
-        primaryTree = (TTree*)outFile->Get("primaries");
-        secondaryTree = (TTree*)outFile->Get("secondaries");
-        trueCaptureTree = (TTree*)outFile->Get("truecaptures");
-    }
+    if (inputIsMC)
+        mcTree = (TTree*)outFile->Get("mc");
     
     fillCounter = variableTree->GetEntries();
 }
@@ -149,11 +178,8 @@ void WriteOutput::PrintTrees()
     variableTree->Print();
     candidateTree->Print();
     
-    if (inputIsMC) {
-        primaryTree->Print();
-        secondaryTree->Print();
-        trueCaptureTree->Print();
-    }
+    if (inputIsMC)
+        mcTree->Print();
 }
 
 void WriteOutput::WriteTrees(int option)
@@ -162,11 +188,8 @@ void WriteOutput::WriteTrees(int option)
     variableTree->Write(0, option, 0);
     candidateTree->Write(0, option, 0);
     
-    if (inputIsMC) {
-        primaryTree->Write(0, option, 0);
-        secondaryTree->Write(0, option, 0);
-        trueCaptureTree->Write(0, option, 0);
-    }
+    if (inputIsMC)
+        mcTree->Write(0, option, 0);
 }
 
 void WriteOutput::MakeBranches(TTree* tree, Store* store)

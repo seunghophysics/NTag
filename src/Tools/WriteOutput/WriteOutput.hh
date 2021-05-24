@@ -29,7 +29,7 @@ class TInterruptHandler : public TSignalHandler
 class WriteOutput : public Tool
 {
     public:
-        WriteOutput():tmpVec(), tmpNum(0), tmpStr(""), fillCounter(0), inputIsMC(false)
+        WriteOutput():tmpVec(), tmpNum(0), tmpStr(""), fillCounter(0)
         { name = "WriteOutput"; }
 
         virtual bool Initialize();
@@ -55,11 +55,9 @@ class WriteOutput : public Tool
         TFile* outFile;
         TTree* variableTree;
         TTree* candidateTree;
-        
+
         // MC
-        TTree* primaryTree;
-        TTree* secondaryTree;
-        TTree* trueCaptureTree;
+        TTree* mcTree;
         
         // NTag
         TTree* ntagInfoTree;
@@ -68,11 +66,14 @@ class WriteOutput : public Tool
         TVector3 tmpVec; TVector3* tmpVecPtr;
         float tmpNum;
         std::string tmpStr; std::string* tmpStrPtr;
-        
-        bool inputIsMC;
+
         TString outputMode;
         unsigned long fillCounter;
-
+        
+        EventParticles* primaries;
+        EventParticles* secondaries;
+        EventTrueCaptures* trueCaptures;
+        
         TInterruptHandler* handler;
 };
 

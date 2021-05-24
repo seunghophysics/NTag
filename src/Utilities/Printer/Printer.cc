@@ -3,7 +3,7 @@
 #include "Printer.hh"
 
 
-void PrintNTag()
+void PrintNTag(const char* version, const char* date)
 {
     std::cout << "\n\n";
     std::cout << "              _____________________________________\n"       ;
@@ -16,11 +16,14 @@ void PrintNTag()
     std::cout << "               (_\")  (_/(__) (__)(__)  (__)(__)__) \n"      ;
     std::cout << "              _____________________________________\n"       ;
 
-    PrintVersion();
+    PrintVersion(version, date);
 }
 
-void PrintVersion()
+void PrintVersion(const char* version, const char* date)
 {
+    std::string NTagVersion = std::string("\"") + std::string(version) + std::string("\"");
+    std::string NTagDate    = date;
+
     std::cout << "                Commit ID: " << NTagVersion.substr(1, 11)
               // "              _____________________________________\n"
               << "\n                (" << NTagDate << ")\n\n" << std::endl;

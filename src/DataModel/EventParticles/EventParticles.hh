@@ -4,6 +4,14 @@
 #include "Particle.hh"
 #include "Cluster.hh"
 
-class EventParticles : public Cluster<Particle> {};
+class EventParticles : public Cluster<Particle> 
+{
+    public:
+        EventParticles() {}
+        
+        void DumpAllElements();
+    
+    ClassDef(EventParticles, 1)
+};
 
 #endif

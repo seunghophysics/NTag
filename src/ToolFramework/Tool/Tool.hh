@@ -55,6 +55,8 @@ class Tool
 
         DataModel* sharedData;
         Logger* logger;
+        
+        static bool inputIsMC;
 };
 
 #endif

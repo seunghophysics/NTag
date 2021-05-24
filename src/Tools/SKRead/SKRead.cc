@@ -95,10 +95,13 @@ bool SKRead::Execute()
     readStatus = skread_(&lun);
 
     if (!exeCounter) {
-        if (skhead_.nrunsk == 999999)
-            sharedData->ntagInfo.Set("is_mc", true);
-        else
-            sharedData->ntagInfo.Set("is_mc", false);
+        if (skhead_.nrunsk == 999999) {
+            Tool::inputIsMC = true;
+            sharedData->ntagInfo.Set("is_mc", 1);
+        }
+        else {
+            sharedData->ntagInfo.Set("is_mc", 0);
+        }
     }
 
     switch (readStatus) {

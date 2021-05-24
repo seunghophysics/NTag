@@ -25,9 +25,9 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         void Sort();
 
-        void DumpAllElements() { for (auto& hit: vElements) hit.Dump(); }
+        void DumpAllElements() { for (auto& hit: element) hit.Dump(); }
 
-        PMTHit operator[] (int iHit) const { return vElements[iHit]; }
+        PMTHit operator[] (int iHit) const { return element[iHit]; }
 
         PMTHitCluster Slice(int startIndex, float tWidth);
         PMTHitCluster Slice(int startIndex, float minusT, float plusT);
@@ -43,7 +43,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         std::vector<T> GetProjection(std::function<T(const PMTHit&)> lambda)
         {
             std::vector<T> output;
-            for_each(vElements.begin(), vElements.end(), [&](PMTHit hit){ output.push_back(lambda(hit)); });
+            for_each(element.begin(), element.end(), [&](PMTHit hit){ output.push_back(lambda(hit)); });
 
             return output;
         }
@@ -53,7 +53,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         template<typename T>
         std::vector<T> operator[](std::function<T(const PMTHit&)> lambda) { return GetProjection(lambda); }
 
-        PMTHit GetLastHit() { return vElements.back(); }
+        PMTHit GetLastHit() { return element.back(); }
 
         std::array<float, 6> GetBetaArray();
         OpeningAngleStats GetOpeningAngleStats();

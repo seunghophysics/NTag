@@ -40,7 +40,7 @@ void PMTHitCluster::SetToF(bool unset)
         std::cerr << "WARNING: Vertex is not set for PMTHitCluster in " << this
                   << ", skipping ToF-subtraction..."<< std::endl;
     else {
-        for (auto& hit: vElements) {
+        for (auto& hit: element) {
             if (unset)
                 hit.UnsetToFAndDirection();
             else
@@ -51,7 +51,7 @@ void PMTHitCluster::SetToF(bool unset)
 
 void PMTHitCluster::Sort()
 {
-    std::sort(vElements.begin(), vElements.end());
+    std::sort(element.begin(), element.end());
     bSorted = true;
 }
 
@@ -66,8 +66,8 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
 
     unsigned int searchIndex = (unsigned int)startIndex;
 
-    while (searchIndex < nElements && vElements[searchIndex].t() - vElements[startIndex].t() < tWidth) {
-        selectedHits.Append(vElements[searchIndex]);
+    while (searchIndex < nElements && element[searchIndex].t() - element[startIndex].t() < tWidth) {
+        selectedHits.Append(element[searchIndex]);
         searchIndex++;
     }
 
@@ -82,15 +82,15 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
     if (lowT > upT)
         std::cerr << "PMTHitCluster::Slice : lower bound is larger than upper bound." << std::endl;
 
-    int low = std::lower_bound(vElements.begin(), vElements.end(), vElements[startIndex] + PMTHit(lowT, 0, 0)) - vElements.begin();
-    int up = std::upper_bound(vElements.begin(), vElements.end(), vElements[startIndex] + PMTHit(upT, 0, 0)) - vElements.begin();
+    int low = std::lower_bound(element.begin(), element.end(), element[startIndex] + PMTHit(lowT, 0, 0)) - element.begin();
+    int up = std::upper_bound(element.begin(), element.end(), element[startIndex] + PMTHit(upT, 0, 0)) - element.begin();
 
     PMTHitCluster selectedHits;
     if (bHasVertex)
         selectedHits.SetVertex(vertex);
 
     for (int iHit = low; iHit <= up; iHit++)
-        selectedHits.Append(vElements[iHit]);
+        selectedHits.Append(element[iHit]);
 
     return selectedHits;
 }
@@ -98,7 +98,7 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
 std::vector<float> PMTHitCluster::T()
 {
     std::vector<float> output;
-    for (auto const& hit: vElements) {
+    for (auto const& hit: element) {
         output.push_back(hit.t());
     }
     return output;
@@ -113,7 +113,7 @@ std::array<float, 6> PMTHitCluster::GetBetaArray()
     for (int i = 0; i < nHits-1; i++) {
         for (int j = i+1; j < nHits; j++) {
             // cosine angle between two consecutive uv vectors
-            float cosTheta = vElements[i].GetDirection().Dot(vElements[j].GetDirection());
+            float cosTheta = element[i].GetDirection().Dot(element[j].GetDirection());
             for (int k = 1; k <= 5; k++)
                 beta[k] += GetLegendreP(k, cosTheta);
         }
@@ -136,9 +136,9 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
     for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
         for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
             for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
-                openingAngles.push_back(GetOpeningAngle(vElements[hit[0]].GetDirection(),
-                                                        vElements[hit[1]].GetDirection(),
-                                                        vElements[hit[2]].GetDirection()));
+                openingAngles.push_back(GetOpeningAngle(element[hit[0]].GetDirection(),
+                                                        element[hit[1]].GetDirection(),
+                                                        element[hit[2]].GetDirection()));
             }
         }
     }

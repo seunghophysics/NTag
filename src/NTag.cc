@@ -17,11 +17,14 @@
 #include "ApplyTMVA.hh"
 #include "WriteOutput.hh"
 
+extern const char* gitcommit;
+extern const char* gitcommitdate;
+
 static std::string installPath = GetENV("NTAGPATH");
 
 int main(int argc, char** argv)
 {
-    PrintNTag();
+    PrintNTag(gitcommit, gitcommitdate);
     
     if (GetCWD() != installPath) {
         PrintBlock("NTAGPATH");
@@ -30,7 +33,7 @@ int main(int argc, char** argv)
 
     ToolChain toolChain;
     toolChain.sharedData.ReadConfig(installPath + "NTagConfig");
-    toolChain.sharedData.ntagInfo.Set("ntag_commit_id", NTagVersion);
+    toolChain.sharedData.ntagInfo.Set("ntag_commit_id", std::string("\"") + std::string(gitcommit) + std::string("\""));
     
     ArgParser parser(argc, argv);
     parser.OverrideStore(&(toolChain.sharedData.ntagInfo));

@@ -1,23 +1,23 @@
 #include <iomanip>
+#include <iostream>
 
 #include "TrueCapture.hh"
 
 TrueCapture::TrueCapture()
-: captureTime(0), gammaEnergy(0) {}
+: t(0), E(0), nGamma(0), v() {}
 
 void TrueCapture::Append(const Particle& gamma)
 {
     // 22: gamma-ray
     if (gamma.PID() == 22) {
 
-        if (!nElements) {
-            captureTime = gamma.Time();
-            vertex = gamma.Vertex();
+        if (!nGamma) {
+            t = gamma.Time();
+            v = gamma.Vertex();
         }
 
-        vElements.push_back(gamma);
-        gammaEnergy += gamma.Momentum().Mag();
-        nElements++;
+        E += gamma.Momentum().Mag();
+        nGamma++;
     }
     else
         std::cerr << "TrueCapture::Append: the input particle is not a gamma-ray... skipping this particle!" << std::endl;
@@ -25,6 +25,6 @@ void TrueCapture::Append(const Particle& gamma)
 
 void TrueCapture::Dump()
 {
-    std::cout << "Capture vertex: " << std::setprecision(2) << vertex.x() << " ," << vertex.y() << " ," << vertex.z()
-              << " Time: " << captureTime << " ns" << " Energy: "  << gammaEnergy << " MeV" << std::endl;
+    std::cout << "Capture vertex: " << std::setprecision(2) << v.x() << " ," << v.y() << " ," << v.z()
+              << " Time: " << t << " ns" << " Energy: "  << E << " MeV" << std::endl;
 }
