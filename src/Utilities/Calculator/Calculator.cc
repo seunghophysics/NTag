@@ -8,9 +8,6 @@
 
 #include "SKLibs.hh"
 
-#include "Store.hh"
-#include "PMTHit.hh"
-#include "PMTHitCluster.hh"
 #include "Calculator.hh"
 
 float Dot(const float a[3], const float b[3])
@@ -99,44 +96,6 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     }
 }
 
-std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float v[3])
-{
-    std::vector<float> openingAngles;
-    int nHits = PMTID.size();
-    int hit[3];
-
-    // Pick 3 hits without repetition
-    for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
-        for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
-            for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
-
-                // Define an array of three unit vectors
-                TVector3 u[3];
-                for (int i = 0; i < 3; i++) {
-
-                    // Fill i-th vector from vertex to the hit PMT
-                    float i_th_vec[3];
-                    for (int dim = 0; dim < 3; dim++) {
-                        i_th_vec[dim] = NTagConstant::PMTXYZ[PMTID[hit[i]-1]][dim] - v[dim];
-                    }
-
-                    // Get i-th unit vector
-                    u[i] = TVector3(i_th_vec).Unit();
-                }
-                openingAngles.push_back(GetOpeningAngle(u[0], u[1], u[2]));
-
-            }
-        }
-    }
-
-    float mean     = GetMean(openingAngles);
-    float median   = GetMedian(openingAngles);
-    float stdev    = GetRMS(openingAngles);
-    float skewness = GetSkew(openingAngles);
-
-    return std::array<float, 4>{mean, median, stdev, skewness};
-}
-
 float GetDWall(TVector3 vtx)
 {
     float vertex[3] = {(float)vtx.x(), (float)vtx.y(), (float)vtx.z()};
@@ -157,66 +116,6 @@ float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 
     // Return the smaller
     return distR < distZ ? distR : distZ;
-}
-
-TVector3 FindTRMSMinimizingVertex(PMTHitCluster& pmtHitCluster, float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXSRCRANGE)
-{
-    TVector3 originalVertex = pmtHitCluster.GetVertex();
-
-    float gridWidth = INITGRIDWIDTH;
-
-    // Grid search starts from tank center
-    TVector3 gridOrigin(0, 0, 0); // grid origin in the grid search loop (starts at tank center)
-    TVector3 minGridPoint;        // temp point to save TRMS-minimizing grid point
-    TVector3 gridPoint;           // point in grid to find TRMS
-
-    float minTRMS = 9999.;
-    float tRMS;
-
-    float gridRLimit = (int)(2*RINTK/gridWidth)*gridWidth/2.;
-    float gridZLimit = (int)(2*ZPINTK/gridWidth)*gridWidth/2.;
-
-    // Repeat until grid width gets small enough
-    while (gridWidth > MINGRIDWIDTH-0.1) {
-
-        // Allocate coordinates to a grid point
-        for (float dx=-gridRLimit; dx<gridRLimit+0.1; dx+=gridWidth) {
-            for (float dy=-gridRLimit; dy<gridRLimit+0.1; dy+=gridWidth) {
-                for (float dz=-gridZLimit; dz<gridZLimit+0.1; dz+=gridWidth) {
-                    TVector3 displacement(dx, dy, dz);
-                    gridPoint = gridOrigin + displacement;
-
-                    // Skip grid point out of tank
-                    if (displacement.Perp() > RINTK || abs(displacement.z()) > ZPINTK) continue;
-
-                    // Skip grid point further away from the maximum search range
-                    if (displacement.Mag() > VTXSRCRANGE) continue;
-
-                    // Subtract ToF from the search vertex
-                    pmtHitCluster.SetVertex(gridPoint);
-                    tRMS = pmtHitCluster.Find(HitFunc::T, Calc::RMS);
-
-                    // Save TRMS minimizing grid point
-                    if (tRMS < minTRMS) {
-                        minTRMS = tRMS;
-                        minGridPoint = gridPoint;
-                    }
-                }
-            }
-        }
-
-        // Change grid origin to the TRMS-minimizing grid point,
-        // shorten the grid width,
-        // and repeat until grid width gets small enough!
-        gridOrigin = minGridPoint;
-        gridWidth *= GRIDSHRINKRATE;
-        gridRLimit *= GRIDSHRINKRATE;
-        gridZLimit *= GRIDSHRINKRATE;
-    }
-
-    pmtHitCluster.SetVertex(originalVertex);
-
-    return minGridPoint;
 }
 
 TString GetParticleName(int pid)

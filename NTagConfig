@@ -18,7 +18,7 @@ mc_file_id       4
 rbn_deadtime 0
 
 ##### AddNoise #####
-noise_file_path /disk01/calib/usr/han/dummy/sk6/085710/t2k*.root
+noise_file_path /disk02/calib3/usr/han/dummy/sk6/085710/t2k*.root
 noise_start_time 2
 noise_end_time 505
 
@@ -52,3 +52,4 @@ mva_method_name MLP
 
 ##### WriteOutput #####
 output_file_path testout.root
+output_mode recreate

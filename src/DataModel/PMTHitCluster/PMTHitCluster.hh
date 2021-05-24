@@ -57,6 +57,7 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         std::array<float, 6> GetBetaArray();
         OpeningAngleStats GetOpeningAngleStats();
+        TVector3 FindTRMSMinimizingVertex(float INITGRIDWIDTH=800, float MINGRIDWIDTH=50, float GRIDSHRINKRATE=0.5, float VTXSRCRANGE=5000);
 
     private:
         bool bSorted;

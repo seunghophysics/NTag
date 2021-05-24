@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include <geotnkC.h>
+
 #include "Calculator.hh"
 #include "PMTHitCluster.hh"
 
@@ -149,4 +151,64 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
     stats.skewness = GetSkew(openingAngles);
 
     return stats;
+}
+
+TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXSRCRANGE)
+{
+    TVector3 originalVertex = vertex;
+
+    float gridWidth = INITGRIDWIDTH;
+
+    // Grid search starts from tank center
+    TVector3 gridOrigin(0, 0, 0); // grid origin in the grid search loop (starts at tank center)
+    TVector3 minGridPoint;        // temp point to save TRMS-minimizing grid point
+    TVector3 gridPoint;           // point in grid to find TRMS
+
+    float minTRMS = 9999.;
+    float tRMS;
+
+    float gridRLimit = (int)(2*RINTK/gridWidth)*gridWidth/2.;
+    float gridZLimit = (int)(2*ZPINTK/gridWidth)*gridWidth/2.;
+
+    // Repeat until grid width gets small enough
+    while (gridWidth > MINGRIDWIDTH-0.1) {
+
+        // Allocate coordinates to a grid point
+        for (float dx=-gridRLimit; dx<gridRLimit+0.1; dx+=gridWidth) {
+            for (float dy=-gridRLimit; dy<gridRLimit+0.1; dy+=gridWidth) {
+                for (float dz=-gridZLimit; dz<gridZLimit+0.1; dz+=gridWidth) {
+                    TVector3 displacement(dx, dy, dz);
+                    gridPoint = gridOrigin + displacement;
+
+                    // Skip grid point out of tank
+                    if (displacement.Perp() > RINTK || abs(displacement.z()) > ZPINTK) continue;
+
+                    // Skip grid point further away from the maximum search range
+                    if (displacement.Mag() > VTXSRCRANGE) continue;
+
+                    // Subtract ToF from the search vertex
+                    SetVertex(gridPoint);
+                    tRMS = Find(HitFunc::T, Calc::RMS);
+
+                    // Save TRMS minimizing grid point
+                    if (tRMS < minTRMS) {
+                        minTRMS = tRMS;
+                        minGridPoint = gridPoint;
+                    }
+                }
+            }
+        }
+
+        // Change grid origin to the TRMS-minimizing grid point,
+        // shorten the grid width,
+        // and repeat until grid width gets small enough!
+        gridOrigin = minGridPoint;
+        gridWidth *= GRIDSHRINKRATE;
+        gridRLimit *= GRIDSHRINKRATE;
+        gridZLimit *= GRIDSHRINKRATE;
+    }
+
+    SetVertex(originalVertex);
+
+    return minGridPoint;
 }

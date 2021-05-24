@@ -1,5 +1,8 @@
 ##### VARIABLES #####
 
+CXX = g++
+CXXFLAGS = -std=c++11 -fPIC -g -O3
+
 SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
 ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/
 
@@ -21,65 +24,94 @@ CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CE
 TMVAINCLUDE = -I $(TMVASYS)/include
 TMVALIB = -L $(TMVASYS)/lib -lTMVA.1
 
-all: dirs NTag lib/libToolFramework.so lib/libNTagTools.so
+all: dirs NTag lib/libNTagDataModel.so lib/libToolFramework.so lib/libNTagTools.so
 	@echo "[NTag] Done!"
 	
 dirs:
 	@mkdir -p lib include
 
-## TOOL TEST ##
 
-TOOLCXX = g++
-TOOLCXXFLAGS = -std=c++11 -fPIC -g
-FC = gfortran
-FCFLAGS += -w -fPIC -lstdc++
 
-TOOLFRAMEWORKSRCS = $(wildcard src/ToolFramework/*/*.cc) $(wildcard src/ToolFramework/*/*/*.cc) $(wildcard src/ToolFramework/*/*/*/*.cc)
-TOOLFRAMEWORKOBJS = $(patsubst src/ToolFramework/%.cc, src/ToolFramework/%.o, $(TOOLFRAMEWORKSRCS))
+
+
+NTAGDATAMODELSRCS = $(wildcard src/DataModel/*.cc) $(wildcard src/DataModel/*/*.cc) $(wildcard src/DataModel/*/*/*.cc)
+NTAGDATAMODELOBJS = $(patsubst src/DataModel/%.cc, src/DataModel/%.o, $(NTAGDATAMODELSRCS))
+NTAGDATAMODELINCLUDE := $(addprefix -I , $(sort $(dir $(shell find src/DataModel -name '*.hh'))))
+
 UTILOBJS = $(patsubst src/Utilities/%.cc, src/Utilities/%.o, $(wildcard src/Utilities/*/*.cc))
-
-TOOLFRAMEWORKINCLUDE := $(addprefix -I , $(sort $(dir $(shell find src/ToolFramework -name '*.hh')))) 
 UTILINCLUDE := $(addprefix -I , $(sort $(dir $(wildcard src/Utilities/*/*.hh))))
-
-# ToolFramework
-$(TOOLFRAMEWORKOBJS): src/ToolFramework/%.o: src/ToolFramework/%.cc src/ToolFramework/%.hh
-	@echo "[NTag] Building ToolFramework: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
-	@$(TOOLCXX) $(TOOLCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
-
-# ToolFramework shared library
-lib/libToolFramework.so: $(UTILOBJS) $(TOOLFRAMEWORKOBJS)
-	@echo "[NTag] Building ToolFramework shared library..."
-	@cp `find src/Utilities src/ToolFramework -name '*.hh'` include
-	@$(RUNPATHOPTION) $(TOOLCXX) $(TOOLCXXFLAGS) -shared -o $@ $^ $(ROOTLIB)
 
 # Utilities
 $(UTILOBJS): src/Utilities/%.o: src/Utilities/%.cc src/Utilities/%.hh
 	@echo "[NTag] Building Utility: $(word 1, $(subst /, , $*))..."
-	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+	@$(CXX) $(NTAGCXXFLAGS) -o $@ -c $< $(NTAGDATAMODELINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+
+# NTagDataModel
+$(NTAGDATAMODELOBJS): src/DataModel/%.o: src/DataModel/%.cc src/DataModel/%.hh
+	@echo "[NTag] Building DataModel: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
+	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGDATAMODELINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+
+# ToolFramework shared library
+lib/libNTagDataModel.so: $(UTILOBJS) $(NTAGDATAMODELOBJS)
+	@echo "[NTag] Building DataModel shared library..."
+	@cp `find src/Utilities src/DataModel -name '*.hh'` include
+	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^ $(ROOTLIB)
+
+
+
+
+
+
+
+
+##### TOOLFRAMEWORK #####
+
+TOOLFRAMEWORKSRCS = $(wildcard src/ToolFramework/*/*.cc) 
+TOOLFRAMEWORKOBJS = $(patsubst src/ToolFramework/%.cc, src/ToolFramework/%.o, $(TOOLFRAMEWORKSRCS))
+TOOLFRAMEWORKINCLUDE := $(addprefix -I , $(sort $(dir $(wildcard src/ToolFramework/*/*.hh))))
+
+# ToolFramework
+$(TOOLFRAMEWORKOBJS): src/ToolFramework/%.o: src/ToolFramework/%.cc src/ToolFramework/%.hh
+	@echo "[NTag] Building ToolFramework: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
+	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGDATAMODELINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+
+# ToolFramework shared library
+lib/libToolFramework.so: $(TOOLFRAMEWORKOBJS)
+	@echo "[NTag] Building ToolFramework shared library..."
+	@cp `find src/ToolFramework -name '*.hh'` include
+	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^
+
+
+
+
+
+##### NTAGTOOLS #####
 	
 NTAGTOOLINCLUDE :=  $(addprefix -I , $(sort $(dir $(wildcard src/Tools/*/*.hh))))
-NTAGCXXFLAGS = -std=c++11 -fPIC -lgfortran -g
+NTAGCXXFLAGS = $(CXXFLAGS) -lgfortran
 NTAGTOOLOBJS = $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
 SKLIBOBJS = $(patsubst src/SKLibrary/%.F, src/SKLibrary/%.o, $(wildcard src/SKLibrary/*.F))
+FC = gfortran
+FCFLAGS += -w -fPIC -lstdc++
 
 # NTagTools
 $(NTAGTOOLOBJS): src/Tools/%.o: src/Tools/%.cc src/Tools/%.hh
 	@echo "[NTag] Building Tool: $(word 1, $(subst /, , $*))..."
-	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(TMVAINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
+	@$(CXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(NTAGDATAMODELINCLUDE) $(TMVAINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 
 src/SKLibrary/%.o: src/SKLibrary/%.F
 	@echo "[NTag] Building SKLibrary: $*..."
 	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe
 
 # NTagTools shared library
-lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
+lib/libNTagTools.so: $(UTILOBJS) $(NTAGTOOLOBJS) $(NTAGDATAMODELOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS)
 	@echo "[NTag] Building NTagTools shared library..."
 	@cp `find src/Utilities src/Tools -name '*.hh'` include
-	@$(RUNPATHOPTION) $(TOOLCXX) $(TOOLCXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
+	@$(RUNPATHOPTION) $(CXX) $(CXXFLAGS) -shared -o $@ $^ $(TMVALIB) $(ROOTLIB) $(ATMPDLIB)
 
 src/%.o: src/%.cc
 	@echo "[NTag] Building $*.o..."
-	@$(TOOLCXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
+	@$(CXX) $(NTAGCXXFLAGS) -o $@ -c $< $(UTILINCLUDE) $(NTAGTOOLINCLUDE) $(NTAGDATAMODELINCLUDE) $(TOOLFRAMEWORKINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE)
 
 src/git_info.c: .git/HEAD .git/index
 	@echo "const char* gitcommit = \"$(shell git rev-parse HEAD)\";" > $@
@@ -90,9 +122,9 @@ src/git_info.o: src/git_info.c
 	@gcc -c -o $@ $^
 
 # executable
-NTag: $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(NTAGTOOLOBJS) $(SKLIBOBJS) src/git_info.o src/NTag.o
+NTag: $(NTAGDATAMODELOBJS) $(UTILOBJS) $(TOOLFRAMEWORKOBJS) $(SKLIBOBJS) $(NTAGTOOLOBJS) src/git_info.o src/NTag.o
 	@echo "[NTag] Building $@..."
-	@LD_RUN_PATH=$(TMVASYS)/lib $(TOOLCXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
+	@LD_RUN_PATH=$(TMVASYS)/lib $(CXX) $(NTAGCXXFLAGS) -o $@ $^ $(TMVALIB) $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB)
 
 clean:
-	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib include src/ToolFramework/*/*.o src/ToolFramework/DataModel/*.o src/ToolFramework/DataModel/*/*.o src/ToolFramework/DataModel/*/*/*.o 
+	@rm -rf NTag src/*.o src/git_info.c src/SKLibrary/*.o src/Utilities/*/*.o src/Tools/*/*.o lib include src/ToolFramework/*/*.o src/DataModel/*.o src/DataModel/*/*.o src/DataModel/*/*/*.o 

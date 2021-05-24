@@ -139,19 +139,9 @@ float GetLegendreP(int i, float& x);
  */
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC);
 
-/**
- * @brief Calculates the mean, stdev, and skewness of opening angles from input vertex to given PMT positions.
- * @param PMTID A vector of hit PMT cable IDs.
- * @param vertex Input vertex.
- * @return A size-2 array of mean (element 0) and standard deviation (element 1).
- */
-std::array<float, 4> GetOpeningAngleStats(const std::vector<int>& PMTID, float vertex[3]);
-
 float GetDWallInDirection(TVector3 vtx, TVector3 dir);
 
 float GetDWall(TVector3 vtx);
-
-TVector3 FindTRMSMinimizingVertex(PMTHitCluster& pmtHitCluster, float INITGRIDWIDTH=800, float MINGRIDWIDTH=50, float GRIDSHRINKRATE=0.5, float VTXSRCRANGE=5000);
 
 /**
  * @brief Returns particle name given a PDG encoding.

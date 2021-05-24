@@ -113,9 +113,8 @@ bool ExtractFeatures::Execute()
         candidate->Set("AngleSkew",  openingAngleStats.skewness);
 
         // TRMS-fit
-        auto trmsFitVertex = FindTRMSMinimizingVertex(hitsInTWIDTH,
-                                                      /* TRMS-fit options */
-                                                      initGridWidth, minGridWidth, gridShrinkRate, vertexSearchRange);
+        auto trmsFitVertex = hitsInTWIDTH.FindTRMSMinimizingVertex(/* TRMS-fit options */
+                                                                   initGridWidth, minGridWidth, gridShrinkRate, vertexSearchRange);
         candidate->Set("DWall_n", GetDWall(trmsFitVertex));
         candidate->Set("prompt_nfit", (promptVertex-trmsFitVertex).Mag());
 
