@@ -1,7 +1,7 @@
 a SKRead
 a' NTupleMatcher 
-b ReadHits
-#b' AddNoise
+#b AddNoise
+b' ReadHits
 c ReadMCInfo
 e SetPromptVertex
 f SubtractToF

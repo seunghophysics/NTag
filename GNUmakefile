@@ -104,7 +104,7 @@ lib/libToolFramework.so: $(TOOLFRAMEWORKOBJS)
 	
 NTAGTOOLINCLUDE :=  $(addprefix -I , $(sort $(dir $(wildcard src/Tools/*/*.hh))))
 NTAGCXXFLAGS = $(CXXFLAGS) -lgfortran
-NTAGTOOLOBJS = $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
+NTAGTOOLOBJS =  $(patsubst src/Tools/%.cc, src/Tools/%.o, $(wildcard src/Tools/*/*.cc))
 SKLIBOBJS = $(patsubst src/SKLibrary/%.F, src/SKLibrary/%.o, $(wildcard src/SKLibrary/*.F))
 FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++

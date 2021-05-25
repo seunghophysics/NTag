@@ -51,6 +51,7 @@ bool ExtractFeatures::Execute()
     EventPMTHits* eventHits = &(sharedData->eventPMTHits);
     EventCandidates* eventCans = &(sharedData->eventCandidates);
     EventTrueCaptures* eventCaps = &(sharedData->eventTrueCaptures);
+    EventParticles* eventSecs = &(sharedData->eventSecondaries);
 
     unsigned int nCandidates = eventCans->GetSize();
 
@@ -115,6 +116,12 @@ bool ExtractFeatures::Execute()
         candidate->Set("DWall_n", GetDWall(trmsFitVertex));
         candidate->Set("prompt_nfit", (promptVertex-trmsFitVertex).Mag());
 
+        int passDecayECut = 0;
+        if ((candidate->Get("N50") > 50) && reconCT < 20) {
+            passDecayECut = 1;
+        }
+        candidate->Set("decay_e_like", passDecayECut);
+
         // BONSAI
 
         // MC info
@@ -122,6 +129,7 @@ bool ExtractFeatures::Execute()
             // default: not a capture
             int captureType = 0;
             int nTrueCaptures = eventCaps->GetSize();
+            int nSecondaries = eventSecs->GetSize();
 
             // label candidates as signal if a true capture with matching capture time exists
             for (int iCapture = 0; iCapture < nTrueCaptures; iCapture++) {
@@ -129,6 +137,21 @@ bool ExtractFeatures::Execute()
                 if (fabs(capture.Time() - reconCT*1e3) < tMatchWindow) {
                     if (capture.Energy() > 6.) captureType = 2; // Gd
                     else                        captureType = 1; // H
+                }
+            }
+            
+            // search for a matching decay electron and overwrite label
+            for (int iSec = 0; iSec < nSecondaries; iSec++) {
+                auto& secondary = eventSecs->At(iSec);
+
+                // decay electron from a parent muon
+                if (fabs(secondary.PID()) == 11 &&
+                    fabs(secondary.ParentPID()) == 13 &&
+                    secondary.IntID() == 5) {
+                    // check if ReconCT matches the decay within TMATCHWINDOW
+                    if (fabs(secondary.Time() - reconCT*1e3) < tMatchWindow) {
+                        captureType = 3; // decay electron
+                    }
                 }
             }
             candidate->Set("CaptureType", captureType);

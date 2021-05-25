@@ -28,6 +28,9 @@ bool ReadHits::Execute()
     PMTHit lastHit{0, 0, 0};
 
     bool coincidenceFound = true;
+    Log(sharedData);
+    Log(&(sharedData->eventPMTHits));
+    
     PMTHitCluster* eventHits = &(sharedData->eventPMTHits);
     eventHits->Clear();
 

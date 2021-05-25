@@ -84,6 +84,7 @@ bool ReadMCInfo::Execute()
                            secndprt_.tscnd[iSec] + trgOffset,
                            TVector3(secndprt_.vtxscnd[iSec]),
                            TVector3(secndprt_.pscnd[iSec]),
+                           secndprt_.iprntprt[iSec],
                            secndprt_.lmecscnd[iSec]);
 
         // neutrons

@@ -12,8 +12,11 @@ PMTHitCluster::PMTHitCluster()
 void PMTHitCluster::Append(const PMTHit& hit)
 { 
     int i = hit.i(); 
-    if (1 <= i && i <= MAXPM) // append only hits with meaningful PMT ID
-        Cluster::Append(hit);
+    //hit.Dump();
+    // append only hits with meaningful PMT ID
+    if (1 <= i && i <= MAXPM) {
+        element.push_back(hit); nElements++;
+    } 
 }
 
 void PMTHitCluster::SetVertex(const TVector3& inVertex)

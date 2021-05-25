@@ -11,8 +11,13 @@
 class DataModel
 {
     public:
+        DataModel() {
+        std::cout << "datamodel: " << this << " eventPMTHits: " << &eventPMTHits << std::endl; }
+        ~DataModel() {}
+    
         void ReadConfig(std::string configFilePath) { ntagInfo.Initialize(configFilePath); }
 
+        int x;
         // Hits
         PMTHitCluster eventPMTHits;
         // Candidates

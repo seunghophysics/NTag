@@ -19,7 +19,6 @@ bool WriteOutput::Initialize()
     handler->Add();
 
     outFile = new TFile(outFilePath, outputMode);
-    outFile->cd();
 
     tmpVecPtr = &tmpVec;
     tmpStrPtr = &tmpStr;
@@ -85,6 +84,9 @@ bool WriteOutput::CheckSafety()
 
 bool WriteOutput::Execute()
 {
+    outFile->cd();
+    gDirectory->pwd();
+    
     sharedData->eventCandidates.FillVectorMap();
     candidateTree->Fill();
     

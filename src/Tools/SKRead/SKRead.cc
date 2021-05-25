@@ -107,6 +107,12 @@ bool SKRead::Execute()
     switch (readStatus) {
         case readOK: {
             Log(Form("Read event #%d successfully.", exeCounter+1));
+            // SHE
+            if (skhead_.idtgsk & 1<<28);
+            // AFT
+            else if (skhead_.idtgsk & 1<<29);
+            // Else
+            else;
             return true;
         }
         case readError: {
