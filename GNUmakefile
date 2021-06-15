@@ -1,7 +1,7 @@
 ##### VARIABLES #####
 
 CXX = g++
-CXXFLAGS = -std=c++11 -fPIC -g -O3
+CXXFLAGS = -std=c++11 -fPIC -g -O0
 
 SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
 ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/

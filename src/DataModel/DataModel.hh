@@ -11,8 +11,7 @@
 class DataModel
 {
     public:
-        DataModel() {
-        std::cout << "datamodel: " << this << " eventPMTHits: " << &eventPMTHits << std::endl; }
+        DataModel() {}
         ~DataModel() {}
     
         void ReadConfig(std::string configFilePath) { ntagInfo.Initialize(configFilePath); }

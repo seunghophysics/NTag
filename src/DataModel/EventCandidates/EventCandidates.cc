@@ -53,35 +53,33 @@ void EventCandidates::FillVectorMap()
         std::cerr << "No elements in EventCandidates... skipping EventCandidates::FillVectorMap." << std::endl;
 
     else {
-        auto baseFeatureMap = element[0].GetFeatureMap();
+        //auto baseFeatureMap = element[0].GetFeatureMap();
         bool areFeaturesIdentical = true;
         for (int iCandidate = 0; iCandidate < nElements; iCandidate++) {
             auto comparedFeatureMap = element[iCandidate].GetFeatureMap();
 
-            for (auto const& basePair: baseFeatureMap) {
+            for (auto const& basePair: featureVectorMap) {
 
                 if (!comparedFeatureMap.count(basePair.first)) {
+                    std::cerr << "Registered key " << basePair.first << " not found in candidate!" << std::endl;
                     areFeaturesIdentical = false;
                 }
                 else {
-                    if (!featureVectorMap.count(basePair.first)) {
-                        featureVectorMap[basePair.first] = new std::vector<float>;
-                    }
-
                     featureVectorMap[basePair.first]->resize(iCandidate);
                     featureVectorMap[basePair.first]->push_back(comparedFeatureMap[basePair.first]);
                 }
             }
 
             for (auto const& comparedPair: comparedFeatureMap) {
-                if (!baseFeatureMap.count(comparedPair.first)) {
+                if (!featureVectorMap.count(comparedPair.first)) {
+                    std::cerr << "Candidate key " << comparedPair.first << " not found in registered keys!" << std::endl;
                     areFeaturesIdentical = false;
                 }
             }
         }
 
         if (!areFeaturesIdentical) {
-            std::cerr << "Please make sure that all candidates same the same set of features!" << std::endl;
+            std::cerr << "Make sure all candidates share the same set of features specified by EventCandidates::RegisterFeatureNames!" << std::endl;
         }
         
         assert(featureVectorMap.begin()->second->size() == nElements);

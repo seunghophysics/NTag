@@ -12,8 +12,9 @@ class DataModel;
 
 enum ExceptionBehavior
 {
+    eENDRUN,
     eSKIPEVENT,
-    eENDRUN
+    ePROCESSANDRETURN
 };
 
 class Tool

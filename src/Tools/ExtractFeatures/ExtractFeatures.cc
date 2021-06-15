@@ -19,8 +19,18 @@ bool ExtractFeatures::Initialize()
     if (!sharedData->ntagInfo.Get("VTXSRCRANGE", vertexSearchRange)) vertexSearchRange = 5000;
 
     // read MC true capture match options
-    inputIsMC = false;
-    if (!sharedData->ntagInfo.Get("TMATCHWINDOW", tMatchWindow)) tMatchWindow = 50;
+    if (Tool::inputIsMC) {
+        if (!sharedData->ntagInfo.Get("TMATCHWINDOW", tMatchWindow)) tMatchWindow = 50;
+    }
+    
+    // define key list to branch
+    std::vector<std::string>keyList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum", 
+                                       "Beta1", "Beta2", "Beta3", "Beta4", "Beta5", 
+                                       "AngleMean", "AngleSkew", "AngleStdev", "CaptureType",
+                                       "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit", "decay_e_like"};
+    
+    // register keys to the feature map
+    sharedData->eventCandidates.RegisterFeatureNames(keyList);
 
     return true;
 }
@@ -30,15 +40,14 @@ bool ExtractFeatures::CheckSafety()
     // EventPMTHits must be filled
     if (sharedData->eventPMTHits.IsEmpty()) {
         Log("EventPMTHits class is empty. Skipping...", pWARNING);
-        safeToExecute = false;
+        return false;
     }
     else if (sharedData->eventCandidates.IsEmpty()) {
         Log("No candidates found in the event! Skipping...", pWARNING);
-        safeToExecute = false;
+        return false;
     }
     else
-        safeToExecute = true;
-    return safeToExecute;
+        return true;
 }
 
 bool ExtractFeatures::Execute()
@@ -66,7 +75,7 @@ bool ExtractFeatures::Execute()
         PMTHitCluster hitsInTWIDTH = eventHits->Slice(firstHitID, tWidth);
         PMTHitCluster hitsIn50ns   = eventHits->Slice(firstHitID, tWidth/2.- 50, tWidth/2.+ 50);
         PMTHitCluster hitsIn200ns  = eventHits->Slice(firstHitID, tWidth/2.-100, tWidth/2.+100);
-        PMTHitCluster hitsIn1300ns = eventHits->Slice(firstHitID, tWidth/2.-480, tWidth/2.+520);
+        PMTHitCluster hitsIn1300ns = eventHits->Slice(firstHitID, tWidth/2.-520, tWidth/2.+780);
 
         // Number of hits
         candidate->Set("NHits", hitsInTWIDTH.GetSize());
@@ -125,7 +134,8 @@ bool ExtractFeatures::Execute()
         // BONSAI
 
         // MC info
-        if (inputIsMC) {
+        if (Tool::inputIsMC) {
+            Log("MC!");
             // default: not a capture
             int captureType = 0;
             int nTrueCaptures = eventCaps->GetSize();

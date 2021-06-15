@@ -34,6 +34,9 @@ bool SearchCandidates::CheckSafety()
 bool SearchCandidates::Execute()
 {
     sharedData->eventCandidates.Clear();
+    
+    //Log("Dumping hits");
+    //sharedData->eventPMTHits.DumpAllElements();
 
     int   iHitPrevious    = 0;
     int   NHitsNew        = 0;

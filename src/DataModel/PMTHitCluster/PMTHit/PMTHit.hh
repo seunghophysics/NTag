@@ -30,7 +30,7 @@ class PMTHit
         inline const bool& s() const {return S; }
 
         inline void SetSignalFlag(bool b) { S=b; }
-        inline void Dump() const { std::cout << "T: " << T << " Q: " << Q << std::endl; }
+        inline void Dump() const { std::cout << "T: " << T << " Q: " << Q << " I: " << I << "\n"; }
 
         inline void SetToFAndDirection(const TVector3& vertex)
         {

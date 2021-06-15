@@ -20,7 +20,7 @@ class ToolChain
         void SetVerbosity(int verbose);
 
         bool Initialize();
-        bool Execute(unsigned long nEvents=1);
+        bool Execute(unsigned long nEvents=1, unsigned int iStartTool=0);
         bool Finalize();
 
         DataModel sharedData;

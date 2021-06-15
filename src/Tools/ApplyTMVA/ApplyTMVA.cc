@@ -37,6 +37,8 @@ bool ApplyTMVA::Initialize()
     tmvaReader.AddSpectator("CaptureType", &(captureType));
 
     tmvaReader.BookMVA(mvaMethodName, weightFilePath);
+    
+    sharedData->eventCandidates.RegisterFeatureName("TMVAOutput");
 
     return true;
 }

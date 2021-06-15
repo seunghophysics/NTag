@@ -102,4 +102,6 @@ void NTupleMatcher::SetNTupleVariables()
     sharedData->eventVariables.Set("potot", ntupleReader->potot);
     sharedData->eventVariables.Set("nn", ntupleReader->ntag_nn);
     sharedData->eventVariables.Set("mctruth_nn", ntupleReader->ntag_mctruth_nn);
+    sharedData->eventVariables.Set("ndcy", ntupleReader->ndcy);
+    sharedData->eventVariables.Set("nmue", ntupleReader->nmue);
 }

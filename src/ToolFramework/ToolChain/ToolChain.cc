@@ -69,22 +69,31 @@ bool ToolChain::Initialize()
     return initialized;
 }
 
-bool ToolChain::Execute(unsigned long nEvents)
+bool ToolChain::Execute(unsigned long nEvents, unsigned int iStartTool)
 {
     if (initialized) {
-        PrintBlock("Executing toolchain...");
+    
+        PrintBlock("Executing toolchain from " + tools[iStartTool]->GetName());
+        unsigned int nTools = tools.size();
         for (unsigned long iEvent=0; iEvent<nEvents; iEvent++) {
-            for (auto& tool: tools) {
+            for (unsigned int iTool=iStartTool; iTool<nTools; iTool++) {
+                auto& tool = tools[iTool];
                 try {
                     tool->CheckSafetyAndExecute();
                 } catch (ExceptionBehavior& e) {
-                    if (e == eSKIPEVENT) {
+                    if (e == eENDRUN) {
+                        logger.Log("Ending the run and finalizing the toolchain...\n");
+                        throw e;
+                    }
+                    else if (e == eSKIPEVENT) {
                         logger.Log("Skipping this event...\n");
                         goto skipEvent;
                     }
-                    else if (e == eENDRUN) {
-                        logger.Log("Ending the run and finalizing the toolchain...\n");
-                        throw e;
+                    else if (e == ePROCESSANDRETURN) {
+                        logger.Log(Form("Processing further and will return to ") + tool->GetName() + "...\n");
+                        Execute(1, iTool+1); // execute the remaining tools
+                        iTool -= iTool; // and redo the current tool
+                        PrintBlock("Returning to " + tool->GetName());
                     }
                 }
                 std::cout << "\n";

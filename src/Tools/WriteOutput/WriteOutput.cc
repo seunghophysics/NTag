@@ -77,7 +77,6 @@ bool WriteOutput::CheckSafety()
     }
     FillBranches(ntagInfoTree, &(sharedData->ntagInfo));
     
-
     safeToExecute = true;
     return safeToExecute;
 }
@@ -85,7 +84,6 @@ bool WriteOutput::CheckSafety()
 bool WriteOutput::Execute()
 {
     outFile->cd();
-    gDirectory->pwd();
     
     sharedData->eventCandidates.FillVectorMap();
     candidateTree->Fill();

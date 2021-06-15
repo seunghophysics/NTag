@@ -38,16 +38,16 @@ bool ReadMCInfo::Execute()
     sharedData->eventSecondaries.Clear();
     sharedData->eventTrueCaptures.Clear();
 
-    float trgOffset;
-    trginfo_(&trgOffset);
-    sharedData->eventVariables.Set("TrgOffset", trgOffset);
-    Log(Form("Trigger offset: %3.2f ns", trgOffset));
+    float geantT0;
+    trginfo_(&geantT0);
+    sharedData->eventVariables.Set("geant_t0", geantT0);
+    Log(Form("Simulation T0: %3.2f ns", geantT0));
 
     // Primaries
     skgetv_();
 
     for (int iVec = 0; iVec < skvect_.nvect; iVec++) {
-        Particle primary(skvect_.ip[iVec], trgOffset, TVector3(skvect_.pos), TVector3(skvect_.pin[iVec]));
+        Particle primary(skvect_.ip[iVec], geantT0, TVector3(skvect_.pos), TVector3(skvect_.pin[iVec]));
         sharedData->eventPrimaries.Append(primary);
     }
 
@@ -81,7 +81,7 @@ bool ReadMCInfo::Execute()
     for (int iSec = 0; iSec < nAllSec; iSec++) {
 
         Particle secondary(secndprt_.iprtscnd[iSec],
-                           secndprt_.tscnd[iSec] + trgOffset,
+                           secndprt_.tscnd[iSec] + geantT0,
                            TVector3(secndprt_.vtxscnd[iSec]),
                            TVector3(secndprt_.pscnd[iSec]),
                            secndprt_.iprntprt[iSec],

@@ -100,6 +100,7 @@ bool SKRead::Execute()
             sharedData->ntagInfo.Set("is_mc", 1);
         }
         else {
+            Tool::inputIsMC = false;
             sharedData->ntagInfo.Set("is_mc", 0);
         }
     }

@@ -14,6 +14,13 @@ class Cluster
         Cluster():element(), nElements(0) {}
 
         virtual inline void Append(const T& elm) { element.push_back(elm); nElements++; }
+        virtual inline void Append(Cluster<T>& cluster)
+        { 
+            auto addedVector = cluster.GetVector();
+            element.insert(element.end(), addedVector.begin(), addedVector.end()); 
+            nElements += cluster.GetSize(); 
+        }
+        
         //virtual inline void Append(T elm) { element.push_back(elm); nElements++; }
         virtual inline void MoveAppend(T& elm) { element.push_back(std::move(elm)); nElements++; }
         virtual void Clear() { element.clear(); nElements = 0; }
@@ -33,6 +40,8 @@ class Cluster
             assert(nElements == static_cast<unsigned int>(element.size()));
             return nElements;
         }
+        
+        const std::vector<T>& GetVector() { return element; } 
 
         T& operator[] (int index) { return element[index]; }
         T& At(int index) { return element[index]; }

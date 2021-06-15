@@ -3,16 +3,31 @@
 
 #include "Tool.hh"
 
+enum TriggerType
+{
+    tELSE,
+    tSHE,
+    tAFT
+};
+
 class ReadHits : public Tool
 {
     public:
-        ReadHits() { name = "ReadHits"; }
+        ReadHits(): prevEvTrigType(tELSE), currentEvTrigType(tELSE), isPrevEvProcessed(true)
+        { name = "ReadHits"; }
 
         bool Initialize();
         bool Execute();
         bool Finalize();
 
         bool CheckSafety();
+        
+    private:
+        void SetTriggerType();
+        TriggerType prevEvTrigType;
+        TriggerType currentEvTrigType;
+        bool isPrevEvProcessed;
+
 };
 
 #endif

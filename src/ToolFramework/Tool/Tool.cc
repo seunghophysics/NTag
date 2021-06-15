@@ -12,9 +12,19 @@ void Tool::ConnectToToolChain(ToolChain* toolChain)
 
 bool Tool::CheckSafetyAndExecute()
 {
-    if (safeToExecute || CheckSafety()) {
+    if (safeToExecute) {
         Execute(); IncrementCounter();
         return true;
     }
-    else return false;
+    else {
+        try {
+            safeToExecute = CheckSafety();
+        } catch (...) {
+            
+        }
+        if (safeToExecute)
+            CheckSafetyAndExecute();
+        else
+            throw eSKIPEVENT;
+    }
 }
