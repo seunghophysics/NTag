@@ -4,9 +4,17 @@
 #include <string>
 #include <limits>
 
+#include <TRandom3.h>
+#include <TCollection.h>
+#include <TList.h>
+#include <TSystemDirectory.h>
+#include <TSystemFile.h>
+
 #include <geotnkC.h>
 
 #include "Calculator.hh"
+
+TRandom3 ranGen;
 
 float Dot(const float a[3], const float b[3])
 {
@@ -114,4 +122,72 @@ float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 
     // Return the smaller
     return distR < distZ ? distR : distZ;
+}
+
+void SetSeed(int seed)
+{
+    ranGen.SetSeed(seed);
+}
+
+TString PickFile(TString dirPath, const char* extension)
+{
+    std::vector<TString> list = GetListOfFiles(dirPath, extension);
+    return PickRandom(list);
+}
+
+TString PickSubdirectory(TString dirPath)
+{
+    std::vector<TString> list = GetListOfSubdirectories(dirPath);
+    return PickRandom(list);
+}
+
+std::vector<TString> GetListOfFiles(TString dirPath, const char* extension, bool recursive) 
+{
+    std::vector<TString> list;
+
+    TSystemDirectory dir(dirPath, dirPath);
+    TList *files = dir.GetListOfFiles();
+    
+    if (files) { 
+        TSystemFile *file; 
+        TString fileName, filePath; 
+        TIter next(files); 
+        while ((file = (TSystemFile*)next())) { 
+            fileName = file->GetName();
+            filePath = file->GetTitle();
+            if (recursive && file->IsDirectory() && fileName != "." && fileName != "..") {
+                std::cout << "Checking files in directory: " << filePath << std::endl;
+                std::vector<TString> subdirList = GetListOfFiles(filePath, extension);
+                list.insert(list.end(), subdirList.begin(), subdirList.end());
+            }
+            if (!file->IsDirectory() && fileName.EndsWith(extension)) {
+                list.push_back(filePath + "/" + fileName);
+            }
+        } 
+    }
+    
+    return list;
+}
+
+std::vector<TString> GetListOfSubdirectories(TString dirPath)
+{
+    std::vector<TString> list;
+
+    TSystemDirectory dir(dirPath, dirPath);
+    TList *files = dir.GetListOfFiles();
+    
+    if (files) { 
+        TSystemFile *file; 
+        TString fileName, filePath; 
+        TIter next(files); 
+        while ((file = (TSystemFile*)next())) { 
+            fileName = file->GetName();
+            filePath = file->GetTitle();
+            if (file->IsDirectory() && fileName != "." && fileName != "..") {
+                list.push_back(filePath);
+            }
+        } 
+    }
+    
+    return list;
 }

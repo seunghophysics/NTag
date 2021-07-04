@@ -104,6 +104,5 @@ class SKIO
 void FillCommon(PMTHitCluster& hitCluster);
 void FillTQREALBank(PMTHitCluster& hitCluster);
 void FillTQREALBranch(PMTHitCluster& hitCluster);
-std::vector<TString> GetListOfFiles(TString dirPath, const char* extension="");
 
 #endif

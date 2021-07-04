@@ -7,8 +7,12 @@
 #include <map>
 #include <vector>
 
+#include <TRandom3.h>
 #include <TString.h>
 #include <TVector3.h>
+
+extern TRandom3 ranGen;
+TRandom3 rangen;
 
 extern "C"
 {
@@ -146,6 +150,24 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC);
 float GetDWallInDirection(TVector3 vtx, TVector3 dir);
 
 float GetDWall(TVector3 vtx);
+
+void SetSeed(int seed);
+
+template <typename T>
+T PickRandom(const std::vector<T>& vec)
+{
+    int nFiles = vec.size();
+    int pickedIndex = (int)(nFiles * ranGen.Rndm());
+    return vec[pickedIndex];
+}
+
+TString PickSubdirectory(TString dirPath);
+
+TString PickFile(TString dirPath, const char* extension="");
+
+std::vector<TString> GetListOfFiles(TString dirPath, const char* extension="", bool recursive=false);
+
+std::vector<TString> GetListOfSubdirectories(TString dirPath);
 
 template int GetSum<int>(const std::vector<int>& vec);
 template float GetSum<float>(const std::vector<float>& vec);

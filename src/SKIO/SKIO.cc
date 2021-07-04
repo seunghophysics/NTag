@@ -1,6 +1,3 @@
-#include <TSystemFile.h>
-#include <TSystemDirectory.h>
-
 #include <skheadC.h>
 #undef MAXHWSK
 #include <fortran_interface.h>
@@ -233,32 +230,4 @@ void FillTQREALBranch(PMTHitCluster& hitCluster)
     skroot_set_tree_(&logicalUnit);
     skroot_fill_tree_(&logicalUnit);
     skroot_clear_(&logicalUnit);
-}
-
-std::vector<TString> GetListOfFiles(TString dirPath, const char* extension) 
-{
-    std::vector<TString> list;
-
-    TSystemDirectory dir(dirPath, dirPath);
-    TList *files = dir.GetListOfFiles();
-    
-    if (files) { 
-        TSystemFile *file; 
-        TString fileName, filePath; 
-        TIter next(files); 
-        while ((file = (TSystemFile*)next())) { 
-            fileName = file->GetName();
-            filePath = file->GetTitle();
-            if (file->IsDirectory() && fileName != "." && fileName != "..") {
-                std::cout << "Checking files in directory: " << filePath << std::endl;
-                std::vector<TString> subdirList = GetListOfFiles(filePath, extension);
-                list.insert(list.end(), subdirList.begin(), subdirList.end());
-            }
-            if (!file->IsDirectory() && fileName.EndsWith(extension)) {
-                list.push_back(filePath + "/" + fileName);
-            }
-        } 
-    }
-    
-    return list;
 }

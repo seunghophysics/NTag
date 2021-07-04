@@ -5,6 +5,7 @@
 
 #include <PMTHitCluster.hh>
 
+class TChain;
 class TTree;
 class TQReal;
 class Header;
@@ -22,10 +23,11 @@ class NoiseManager
 {
     public:
         NoiseManager();
-        NoiseManager(const char* option, int nInputEvents, float tStart, float tEnd, int seed=0);
+        NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed=0);
         NoiseManager(TTree* tree);
         ~NoiseManager();
         
+        void AddNoiseFileToChain(TChain* chain, TString noiseFilePath);
         void SetNoiseTree(TTree* tree);
         void SetNoiseTimeRange(float startTime, float endTime);
         void SetNoiseEventHits();
@@ -37,6 +39,7 @@ class NoiseManager
         
     private:
         TTree* fNoiseTree;
+        TString fNoiseTreeName;
         
         Header* fHeader;
         TQReal* fTQReal;

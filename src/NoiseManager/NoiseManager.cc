@@ -12,7 +12,7 @@
 #include "NoiseManager.hh"
 
 NoiseManager::NoiseManager()
-: fNoiseTree(0),
+: fNoiseTree(0), fNoiseTreeName("data"),
   fNoiseEventLength(1000e3),
   fNoiseStartTime(0), fNoiseEndTime(535e3), fNoiseWindowWidth(535e3), 
   fNoiseT0(0),
@@ -23,56 +23,41 @@ NoiseManager::NoiseManager()
   fDoRepeat(false)
 {}
 
-NoiseManager::NoiseManager(const char* option, int nInputEvents, float tStart, float tEnd, int seed)
+NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed)
 : NoiseManager()
 {
     SetNoiseTimeRange(tStart, tEnd);
     
     // Read dummy (TChain)
-    // "data": reformatted data tree name
-    TString treeName = "data";
-    TChain* dummyChain = new TChain(treeName);
+    TChain* dummyChain = new TChain(fNoiseTreeName);
     
-    // a vector of dummy file paths
-    auto fileList = GetListOfFiles(dummyDir+option, ".root");
-    int nFiles = fileList.size();
-    
-    std::vector<int> usedList(nFiles, 0);
-        
-    TRandom3 ranGen = TRandom3(seed);
+    TObjArray* opt = option.Tokenize('/');
+    TString base = ((TObjString*)(opt->At(0)))->GetString();
+    TString run = "";
+    if (option.Contains("/"))
+        run = ((TObjString*)(opt->At(1)))->GetString();
 
-    // Check which dummy file to open
-    int nDummyEvents = 0;
+    SetSeed(seed);
+    TString dummyRunPath = dummyDir + option;
+    int nRequiredEvents = nInputEvents / fNParts;
     
-    while (nDummyEvents <= nInputEvents/fNParts) {
-        int pickedIndex = (int)(nFiles * ranGen.Rndm());
-        int nAddedEntries = 0;
-        TString dummyFilePath = fileList[pickedIndex];
-        
-        TFile* dummyFile = 0;
-        TTree* tree = 0;
-        if (!usedList[pickedIndex]) {
-            dummyFile = TFile::Open(dummyFilePath);
-            tree = (TTree*)(dummyFile->Get(treeName));
+    std::vector<TString> runDirs = GetListOfSubdirectories(dummyDir+base);
+    std::vector<TString> fileList;
+    if (run != "") fileList = GetListOfFiles(dummyDir + option);
+    
+    TString dummyFilePath;
+    
+    std::vector<TString> usedFilesList;
+    
+    while (fNEntries <= nRequiredEvents) {
+        if (run == "") {
+            dummyRunPath = PickRandom(runDirs);
+            fileList = GetListOfFiles(dummyRunPath, ".root");
         }
-        
-        if (tree) {
-            nAddedEntries = tree->GetEntries(dummyCut);
-            dummyFile->Close();
-        }
-        
-        if (nAddedEntries) {
-            std::cout << "[NoiseManager] Adding dummy file at " << dummyFilePath << ": " << nAddedEntries << " entries\n";
-            dummyChain->Add(dummyFilePath);
-            nDummyEvents += nAddedEntries;
-            usedList[pickedIndex] = 1;
-            if (GetSum(usedList) == nFiles) {
-                std::cerr << "[NoiseManager] Ran out of dummy files!\n";
-                break;
-            }
-        }
+        if (!fileList.empty())    
+            dummyFilePath = PickRandom(fileList);
+        AddNoiseFileToChain(dummyChain, dummyFilePath);
     }
-    std::cout << "[NoiseManager] # of used dummy files: " << GetSum(usedList) << "\n";
     
     SetNoiseTree(dummyChain);
 }
@@ -86,6 +71,30 @@ NoiseManager::NoiseManager(TTree* tree)
 NoiseManager::~NoiseManager()
 {
     delete fNoiseTree;
+}
+
+void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
+{
+    static std::vector<TString> usedFilesList;
+
+    TFile* dummyFile = 0;
+    TTree* tree = 0;
+    int nAddedEntries = 0;
+
+    dummyFile = TFile::Open(noiseFilePath);
+    tree = (TTree*)(dummyFile->Get(fNoiseTreeName));
+    
+    if (tree) {
+        nAddedEntries = tree->GetEntries(dummyCut);
+        dummyFile->Close();
+    }
+    
+    if (nAddedEntries && std::find(usedFilesList.begin(), usedFilesList.end(), noiseFilePath) == usedFilesList.end()) {
+        std::cout << "[NoiseManager] Adding dummy file at " << noiseFilePath << ": " << nAddedEntries << " entries\n";
+        chain->Add(noiseFilePath);
+        fNEntries += nAddedEntries;
+        usedFilesList.push_back(noiseFilePath);
+    }
 }
 
 void NoiseManager::SetNoiseTree(TTree* tree)
