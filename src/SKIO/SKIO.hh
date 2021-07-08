@@ -7,6 +7,7 @@
 
 extern "C" {
     void kzinit_();
+    void kzlimit_(int*);
     void kzenum_(int*, int*);
     void kzbloc_(const char*, int*);
     void kzget1_(const char*, int*, int*, void*, int);

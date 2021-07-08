@@ -66,7 +66,8 @@ void SKIO::OpenFile(const char* fileName, IOMode mode)
     
         // Initialize ZEBRA
         if (!fIsZEBRAInitialized) {
-            kzinit_();
+            int iLimit = 4000000;
+            kzlimit_(&iLimit);
             fIsZEBRAInitialized = true;
         }
 
