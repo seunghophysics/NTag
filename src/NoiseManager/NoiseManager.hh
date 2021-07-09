@@ -48,6 +48,8 @@ class NoiseManager
         float fNoiseStartTime, fNoiseEndTime, fNoiseWindowWidth;
         float fNoiseT0;
         
+        float fMinHitDensity, fMaxHitDensity;
+        
         float fPMTDeadtime;
         
         int fCurrentHitID, fCurrentEntry, fNEntries;

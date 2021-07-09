@@ -1,3 +1,5 @@
+#include <TROOT.h>
+#include <TH1F.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TChain.h>
@@ -16,6 +18,7 @@ NoiseManager::NoiseManager()
   fNoiseEventLength(1000e3),
   fNoiseStartTime(0), fNoiseEndTime(535e3), fNoiseWindowWidth(535e3), 
   fNoiseT0(0),
+  fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
   fPMTDeadtime(900),
   fCurrentHitID(0),
   fCurrentEntry(-1), fNEntries(0),
@@ -106,6 +109,16 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
     fNEntries = fNoiseTree->GetEntries();
     
+    tree->Draw("TQREAL.nhits>>hNHits", dummyCut, "goff", 1000);
+    TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
+    float leftEdge = hNHits->GetMean() - 3 * hNHits->GetRMS();
+    float rightEdge = hNHits->GetMean() + 3 * hNHits->GetRMS();
+
+    fMinHitDensity = leftEdge / fNoiseEventLength;
+    fMaxHitDensity = rightEdge / fNoiseEventLength;
+    
+    std::cout << Form("[NoiseManager] Noise hits per entry: %3.2f +- %3.2f hits\n", hNHits->GetMean(), hNHits->GetRMS());
+    std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.2f , %3.2f) hits/us\n", fMinHitDensity*1e3, fMaxHitDensity*1e3);
     std::cout << "[NoiseManager] Total entries: " << fNEntries << "\n";
     std::cout << "[NoiseManager] Total noise entries: " << fNoiseTree->GetEntries(dummyCut) << "\n";
 }
@@ -159,10 +172,11 @@ void NoiseManager::SetNoiseEventHits()
     fNoiseEventHits.Sort();
     int nHits = fNoiseEventHits.GetSize();
     fNoiseEventLength = fNoiseEventHits[nHits-1].t() - fNoiseEventHits[0].t();
+    float hitDensity = nHits / fNoiseEventLength;
     fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
 
-    if (fNParts == 0) {
-        std::cerr << "[NoiseManager] The current entry is too short. Getting the next entry in the noise tree...\n";
+    if (fNParts <= 0 || hitDensity < fMinHitDensity || hitDensity > fMaxHitDensity) {
+        std::cerr << Form("[NoiseManager] Skipping inappropriate entry with fNParts = %d, hitDensity = %3.2f hits/us\n", fNParts, hitDensity);
         GetNextNoiseEvent();
     }
 

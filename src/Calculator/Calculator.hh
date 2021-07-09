@@ -12,7 +12,6 @@
 #include <TVector3.h>
 
 extern TRandom3 ranGen;
-TRandom3 rangen;
 
 extern "C"
 {
