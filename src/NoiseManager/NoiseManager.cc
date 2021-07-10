@@ -1,7 +1,10 @@
 #include <TROOT.h>
 #include <TH1F.h>
 #include <TFile.h>
+#include <TCanvas.h>
 #include <TTree.h>
+#include <TFitResult.h>
+#include <TFitResultPtr.h>
 #include <TChain.h>
 #include <TRandom3.h>
 
@@ -52,7 +55,7 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
     
     std::vector<TString> usedFilesList;
     
-    while (fNEntries <= nRequiredEvents) {
+    while (fNEntries <= 2*nRequiredEvents) {
         if (run == "") {
             dummyRunPath = PickRandom(runDirs);
             fileList = GetListOfFiles(dummyRunPath, ".root");
@@ -108,19 +111,23 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fNoiseTree->SetBranchAddress("HEADER", &fHeader);
     fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
     fNEntries = fNoiseTree->GetEntries();
-    
-    tree->Draw("TQREAL.nhits>>hNHits", dummyCut, "goff", 1000);
-    TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
-    float leftEdge = hNHits->GetMean() - 3 * hNHits->GetRMS();
-    float rightEdge = hNHits->GetMean() + 3 * hNHits->GetRMS();
 
-    fMinHitDensity = leftEdge / fNoiseEventLength;
-    fMaxHitDensity = rightEdge / fNoiseEventLength;
+    tree->Draw("TQREAL.nhits>>hNHits(100, 50e3, 100e3)", dummyCut, /*"goff"*/"", 1000);
+    TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
+    TFitResultPtr gausFit = hNHits->Fit("gaus", "Sgoff");
+    const double* fitParams = gausFit->GetParams();
+    double fitMean = fitParams[1]; double fitSigma = fitParams[2];
     
-    std::cout << Form("[NoiseManager] Noise hits per entry: %3.2f +- %3.2f hits\n", hNHits->GetMean(), hNHits->GetRMS());
-    std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.2f , %3.2f) hits/us\n", fMinHitDensity*1e3, fMaxHitDensity*1e3);
+    float leftEdge = fitMean - 3 * fitSigma;
+    float rightEdge = fitMean + 3 * fitSigma;
+
+    fMinHitDensity = leftEdge / 1000.;
+    fMaxHitDensity = rightEdge / 1000.;
+    
+    std::cout << "[NoiseManager] Noise hits per entry: " << fitMean << " +- " << fitSigma << " hits\n";
+    std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.1f , %3.1f) hits/us\n", fMinHitDensity, fMaxHitDensity);
     std::cout << "[NoiseManager] Total entries: " << fNEntries << "\n";
-    std::cout << "[NoiseManager] Total noise entries: " << fNoiseTree->GetEntries(dummyCut) << "\n";
+    std::cout << "[NoiseManager] Total dummy trigger entries: " << fNoiseTree->GetEntries(dummyCut) << "\n";
 }
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
@@ -172,11 +179,11 @@ void NoiseManager::SetNoiseEventHits()
     fNoiseEventHits.Sort();
     int nHits = fNoiseEventHits.GetSize();
     fNoiseEventLength = fNoiseEventHits[nHits-1].t() - fNoiseEventHits[0].t();
-    float hitDensity = nHits / fNoiseEventLength;
+    float rawHitDensity = nRawHits / 1000.;
     fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
 
-    if (fNParts <= 0 || hitDensity < fMinHitDensity || hitDensity > fMaxHitDensity) {
-        std::cerr << Form("[NoiseManager] Skipping inappropriate entry with fNParts = %d, hitDensity = %3.2f hits/us\n", fNParts, hitDensity);
+    if (fNParts <= 0 || rawHitDensity < fMinHitDensity || rawHitDensity > fMaxHitDensity) {
+        std::cerr << Form("[NoiseManager] Skipping inappropriate entry with fNParts = %d, rawHitDensity = %3.2f hits/us\n", fNParts, rawHitDensity);
         GetNextNoiseEvent();
     }
 
