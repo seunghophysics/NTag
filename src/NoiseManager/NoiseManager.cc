@@ -1,4 +1,5 @@
 #include <TROOT.h>
+#include <TF1.h>
 #include <TH1F.h>
 #include <TFile.h>
 #include <TCanvas.h>
@@ -44,12 +45,12 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
         run = ((TObjString*)(opt->At(1)))->GetString();
 
     SetSeed(seed);
-    TString dummyRunPath = dummyDir + option;
+    TString dummyRunPath = DUMMYDIR + option;
     int nRequiredEvents = nInputEvents / fNParts;
     
-    std::vector<TString> runDirs = GetListOfSubdirectories(dummyDir+base);
+    std::vector<TString> runDirs = GetListOfSubdirectories(DUMMYDIR+base);
     std::vector<TString> fileList;
-    if (run != "") fileList = GetListOfFiles(dummyDir + option);
+    if (run != "") fileList = GetListOfFiles(DUMMYDIR + option);
     
     TString dummyFilePath;
     
@@ -91,7 +92,7 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
     tree = (TTree*)(dummyFile->Get(fNoiseTreeName));
     
     if (tree) {
-        nAddedEntries = tree->GetEntries(dummyCut);
+        nAddedEntries = tree->GetEntries(DUMMYCUT);
         dummyFile->Close();
     }
     
@@ -112,9 +113,15 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
     fNEntries = fNoiseTree->GetEntries();
 
-    tree->Draw("TQREAL.nhits>>hNHits(100, 50e3, 100e3)", dummyCut, /*"goff"*/"", 1000);
+    //TCanvas* c1 = new TCanvas("c1");
+    tree->Draw(Form("TQREAL.nhits>>hNHits(500, %f, %f)", MINDUMMYHITS, MAXDUMMYHITS), DUMMYCUT, "", 1000);
+    //c1->SaveAs("/disk02/usr6/han/test.pdf");
     TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
-    TFitResultPtr gausFit = hNHits->Fit("gaus", "Sgoff");
+    TF1* gausFunc = new TF1("gaus", "gaus", MINDUMMYHITS, MAXDUMMYHITS);
+    gausFunc->SetParLimits(0, 0, 1000);
+    gausFunc->SetParLimits(1, MINDUMMYHITS, MAXDUMMYHITS);
+    gausFunc->SetParLimits(2, 0, (MAXDUMMYHITS-MINDUMMYHITS)/2.);
+    TFitResultPtr gausFit = hNHits->Fit(gausFunc, "S", "goff");
     const double* fitParams = gausFit->GetParams();
     double fitMean = fitParams[1]; double fitSigma = fitParams[2];
     
@@ -127,7 +134,7 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     std::cout << "[NoiseManager] Noise hits per entry: " << fitMean << " +- " << fitSigma << " hits\n";
     std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.1f , %3.1f) hits/us\n", fMinHitDensity, fMaxHitDensity);
     std::cout << "[NoiseManager] Total entries: " << fNEntries << "\n";
-    std::cout << "[NoiseManager] Total dummy trigger entries: " << fNoiseTree->GetEntries(dummyCut) << "\n";
+    std::cout << "[NoiseManager] Total dummy trigger entries: " << fNoiseTree->GetEntries(DUMMYCUT) << "\n";
 }
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)

@@ -16,8 +16,11 @@ enum TriggerType
     mT2KDummy = -2147483648
 };
 
-static TString dummyDir = "/disk02/calib3/usr/han/dummy/";
-static TString dummyCut = Form("HEADER.idtgsk == %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy);
+static const float MINDUMMYHITS = 50e3;
+static const float MAXDUMMYHITS = 100e3;
+
+static TString DUMMYDIR = "/disk02/calib3/usr/han/dummy/";
+static TString DUMMYCUT = Form("HEADER.idtgsk == %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy);
 
 class NoiseManager
 {
