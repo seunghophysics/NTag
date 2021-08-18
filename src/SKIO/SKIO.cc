@@ -13,7 +13,7 @@ SKIO::SKIO()
 fNEvents(0), fCurrentEventID(0), fIsFileOpen(false)
 {}
 
-SKIO::SKIO(const char* fileName, IOMode mode)
+SKIO::SKIO(std::string fileName, IOMode mode)
 : SKIO()
 {
     SetFilePath(fileName);
@@ -33,14 +33,15 @@ SKIO::~SKIO()
 void SKIO::OpenFile()
 {
     if (fFilePath != "")
-        OpenFile(fFilePath, fIOMode);
+        OpenFile(fFilePath.Data(), fIOMode);
     else
         std::cerr << "[SKIO] File path not specified!\n";
 }
 
-void SKIO::OpenFile(const char* fileName, IOMode mode)
+void SKIO::OpenFile(std::string fileName, IOMode mode)
 {
-    if (strlen(fileName)) SetFilePath(fileName);
+    if (!fileName.empty()) SetFilePath(fileName);
+    else std::cerr << "[SKIO] Specified file path is empty!\n";
     fIOMode = mode;
     
     // SK option
@@ -142,7 +143,7 @@ int SKIO::ReadEvent(int eventID)
         }
         else {
             CloseFile();
-            OpenFile(fFilePath, fIOMode);
+            OpenFile(fFilePath.Data(), fIOMode);
             ReadEvent(eventID);
         }
     }

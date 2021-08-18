@@ -54,11 +54,11 @@ class SKIO
 {
     public:
         SKIO();
-        SKIO(const char* fileName, IOMode mode=mInput);
+        SKIO(std::string fileName, IOMode mode=mInput);
         ~SKIO();
 
         void OpenFile();
-        void OpenFile(const char* fileName, IOMode mode=mInput);
+        void OpenFile(std::string fileName, IOMode mode=mInput);
         void CloseFile();
         
         int ReadNextEvent();
@@ -72,7 +72,7 @@ class SKIO
         void DumpSettings();
         
         const char* GetFilePath() { return fFilePath.Data(); }
-        void SetFilePath(const char* filePath) { fFilePath = filePath; fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; }
+        void SetFilePath(std::string filePath) { fFilePath = filePath; fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; }
         
         const char* GetSKOption() { return fSKOption.Data(); }
         void SetSKOption(const char* skOption) { fSKOption = skOption; }
