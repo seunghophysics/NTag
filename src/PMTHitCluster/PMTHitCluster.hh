@@ -72,6 +72,4 @@ class PMTHitCluster : public Cluster<PMTHit>
         void SetToF(bool unset=false);
 };
 
-typedef PMTHitCluster EventPMTHits;
-
 #endif
