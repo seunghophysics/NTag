@@ -5,8 +5,7 @@
 
 #include "TVector3.h"
 
-static std::map<int, TString> gPIDMap;
-static std::map<int, TString> gIntIDMap;
+#include "ParticleTable.hh"
 
 class Particle
 {
@@ -20,6 +19,8 @@ class Particle
         inline TVector3 Momentum() const { return p; }
         inline unsigned int IntID() const { return intID; }
         inline int ParentPID() const { return parentPID; }
+        
+        inline void AddT0(float t0) { t += t0; }
 
         TString GetName();
         TString GetInteractionName();

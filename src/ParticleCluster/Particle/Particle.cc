@@ -5,15 +5,6 @@ Particle::Particle(int id, float time, TVector3 vtx, TVector3 mom, int parPID, u
 
 TString Particle::GetName()
 {
-    if (!gPIDMap.count(2112)) {
-        gPIDMap[2112]   = "n";
-        gPIDMap[2212]   = "p";
-        gPIDMap[22]     = "gamma";
-        gPIDMap[11]     = "e-";
-        gPIDMap[-11]    = "e+";
-        gPIDMap[100045] = "d";
-    }
-
     if (gPIDMap.count(pid))
         return gPIDMap[pid];
     else
