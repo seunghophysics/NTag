@@ -31,7 +31,7 @@ class Store{
         void Initialize(std::string configFilePath);
 
         virtual void Print();
-        void Clear() { storeMap.clear(); }
+        void Clear() { storeMap.clear(); keyOrder.clear(); }
         bool HasKey(std::string key) { return (storeMap.count(key) > 0); }
 
         template <typename T>
