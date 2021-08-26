@@ -3,27 +3,28 @@
 Particle::Particle(int id, float time, TVector3 vtx, TVector3 mom, int parPID, unsigned int interactionID)
 : pid(id), t(time), v(vtx), p(mom), parentPID(parPID), intID(interactionID) {}
 
-TString Particle::GetName()
+TString Particle::GetName() const
 {
-    if (gPIDMap.count(pid))
-        return gPIDMap[pid];
-    else
-        return TString(std::to_string(pid));
+    return GetParticleName(pid);
 }
 
-TString Particle::GetInteractionName()
+TString Particle::GetIntName() const
 {
-    if (!gIntIDMap.count(18)) {
-        gIntIDMap[18] = "Capture";
-        gIntIDMap[7]  = "Compt.";
-        gIntIDMap[9]  = "Brems.";
-        gIntIDMap[10] = "Delta";
-        gIntIDMap[11] = "Annihi.";
-        gIntIDMap[12] = "Hadr.";
-    }
+    return GetInteractionName(intID);
+}
 
-    if (gIntIDMap.count(intID))
-        return gIntIDMap[intID];
+TString GetParticleName(int code)
+{
+    if (gPIDMap.count(code))
+        return gPIDMap[code];
     else
-        return TString(std::to_string(intID));
+        return TString(std::to_string(code));
+}
+
+TString GetInteractionName(int code)
+{
+    if (gIntIDMap.count(code))
+        return gIntIDMap[code];
+    else
+        return TString(std::to_string(code));
 }

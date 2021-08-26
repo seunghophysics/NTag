@@ -22,8 +22,8 @@ class Particle
         
         inline void AddT0(float t0) { t += t0; }
 
-        TString GetName();
-        TString GetInteractionName();
+        TString GetName() const;
+        TString GetIntName() const;
         
     private:
         float t;
@@ -33,5 +33,8 @@ class Particle
         
     //ClassDef(Particle, 1)
 };
+
+TString GetParticleName(int code);
+TString GetInteractionName(int code);
 
 #endif
