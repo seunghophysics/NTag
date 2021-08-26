@@ -34,6 +34,8 @@ ParticleCluster::ParticleCluster(vcwork_common primaryCommon, secndprt_common se
 
         Append(secondary);
     }
+    
+    Sort();
 }
 
 void ParticleCluster::SetT0(float t0)

@@ -65,7 +65,6 @@ void EventNTagManager::ReadParticles()
     fEventParticles = ParticleCluster(skvect_, secndprt_);
     
     float geantT0; trginfo_(&geantT0);
-    fEventParticles.Sort();
     fEventParticles.SetT0(geantT0);
 }
 
