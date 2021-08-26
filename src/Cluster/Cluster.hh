@@ -33,7 +33,14 @@ class Cluster
 
         virtual void DumpAllElements() {}
 
-        unsigned int GetSize() { return fElement.size(); }
+        const unsigned int GetSize() { return fElement.size(); }
+        
+        typename std::vector<T>::iterator begin() { return fElement.begin(); }
+        typename std::vector<T>::iterator end() { return fElement.end(); }
+        typename std::vector<T>::const_iterator begin() const { return fElement.begin(); }
+        typename std::vector<T>::const_iterator end() const { return fElement.end(); }
+        typename std::vector<T>::const_iterator cbegin() const { return fElement.cbegin(); }
+        typename std::vector<T>::const_iterator cend() const { return fElement.cend(); }
 
         const std::vector<T>& GetVector() { return fElement; }
 
