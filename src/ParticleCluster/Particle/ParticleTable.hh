@@ -5,6 +5,7 @@
 #include <TString.h>
 
 extern std::map<int, TString> gPIDMap;
+extern std::map<int, float> gPIDMassMap;
 extern std::map<int, TString> gIntIDMap;
 extern std::map<int, int> gG3toG4PIDMap;
                                     

@@ -49,6 +49,14 @@ std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {13, "HadElas."},
                                     {20, "HadInel."},
                                     {18, "nCapture"}};
+                                    
+                                    // PDG code : MeV
+std::map<int, float> gPIDMassMap = {{0, 0},
+                                    {11, 0.510998},
+                                    {13, 105.658},
+                                    {22, 0},
+                                    {2112, 939.565},
+                                    {2212, 938.272}};
 
 std::map<int, int> gG3toG4PIDMap = {{1,  22},         // gamma
                                     {2,  -11},        // positron

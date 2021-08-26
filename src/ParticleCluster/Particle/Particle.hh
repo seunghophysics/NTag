@@ -2,10 +2,15 @@
 #define PARTICLE_HH
 
 #include <map>
+#include <cmath>
 
 #include "TVector3.h"
 
 #include "ParticleTable.hh"
+
+float GetMass(int code);
+TString GetParticleName(int code);
+TString GetInteractionName(int code);
 
 class Particle
 {
@@ -17,6 +22,7 @@ class Particle
         inline float Time() const { return t; }
         inline TVector3 Vertex() const { return v; }
         inline TVector3 Momentum() const { return p; }
+        inline float Energy() const { float m = GetMass(pid); return std::sqrt(p.Mag2() + m*m); }
         inline unsigned int IntID() const { return intID; }
         inline int ParentPID() const { return parentPID; }
 
@@ -39,8 +45,5 @@ class Particle
         
     //ClassDef(Particle, 1)
 };
-
-TString GetParticleName(int code);
-TString GetInteractionName(int code);
 
 #endif
