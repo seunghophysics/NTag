@@ -1,10 +1,11 @@
 #include <algorithm>
 #include <iomanip>
 
+#include "NCapture.hh"
 #include "NCaptureCluster.hh"
 
 NCaptureCluster::NCaptureCluster() {}
-NCaptureCluster::NCaptureCluster(ParticleCluster& particleCluster)
+NCaptureCluster::NCaptureCluster(const ParticleCluster& particleCluster)
 {
     for (auto const& particle : particleCluster) {
         

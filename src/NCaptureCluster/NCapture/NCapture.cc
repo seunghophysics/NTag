@@ -1,10 +1,9 @@
-#include <iomanip>
 #include <iostream>
 
 #include "NCapture.hh"
 
 NCapture::NCapture()
-: t(0), E(0), nGamma(0), v() {}
+: Taggable(), nGamma(0) {}
 
 void NCapture::AddGamma(const Particle& gamma)
 {
@@ -21,10 +20,4 @@ void NCapture::AddGamma(const Particle& gamma)
     }
     else
         std::cerr << "NCapture::AddGamma: the input particle is not a gamma-ray... skipping this particle!" << std::endl;
-}
-
-void NCapture::Dump()
-{
-    std::cout << "Capture vertex: " << std::setprecision(2) << v.x() << " ," << v.y() << " ," << v.z()
-              << " Time: " << t << " ns" << " Energy: "  << E << " MeV" << std::endl;
 }

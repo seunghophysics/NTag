@@ -11,7 +11,7 @@ class NCaptureCluster : public Cluster<NCapture>
 {
     public:
         NCaptureCluster();
-        NCaptureCluster(ParticleCluster& particleCluster);
+        NCaptureCluster(const ParticleCluster& particleCluster);
     
         void Sort();
         void DumpAllElements();

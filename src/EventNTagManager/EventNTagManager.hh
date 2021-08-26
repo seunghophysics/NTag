@@ -3,6 +3,7 @@
 
 #include "PMTHitCluster.hh"
 #include "ParticleCluster.hh"
+#include "DecayECluster.hh"
 #include "NCaptureCluster.hh"
 #include "Printer.hh"
 #include "Store.hh"
@@ -23,7 +24,6 @@ class EventNTagManager
         void ReadVariables();
         void ReadHits();
         void ReadParticles();
-        void ReadNCaptures();
         void ReadEventFromCommon();
         
         // set ingredients manually
@@ -36,6 +36,7 @@ class EventNTagManager
         const Store& GetVariables() { return fEventVariables; };
         const PMTHitCluster& GetHits() { return fEventHits; };
         const ParticleCluster& GetParticles() { return fEventParticles; }
+        const DecayECluster& GetDecayEs() { return fEventDecayEs; }
         const NCaptureCluster& GetNCaptures() { return fEventNCaptures; }
 
         //const EventCandidates& GetCandidates(const PMTHitCluster& hitCluster);
@@ -54,6 +55,7 @@ class EventNTagManager
         Store fEventVariables;
         PMTHitCluster fEventHits;
         ParticleCluster fEventParticles;
+        DecayECluster fEventDecayEs;
         NCaptureCluster fEventNCaptures;
         // EventCandidates
         

@@ -66,15 +66,9 @@ void EventNTagManager::ReadParticles()
     
     float geantT0; trginfo_(&geantT0);
     fEventParticles.SetT0(geantT0);
-}
-
-void EventNTagManager::ReadNCaptures()
-{
-    if (fEventParticles.IsEmpty()) {
-        ReadParticles();
-    }
-    else
-        fEventNCaptures = NCaptureCluster(fEventParticles);
+    
+    fEventNCaptures = NCaptureCluster(fEventParticles);
+    fEventDecayEs = DecayECluster(fEventParticles);
 }
 
 void EventNTagManager::ReadEventFromCommon()
@@ -86,7 +80,6 @@ void EventNTagManager::ReadEventFromCommon()
     
     // if MC
     ReadParticles();
-    ReadNCaptures();
 }
 
 void EventNTagManager::ClearData()
@@ -94,5 +87,6 @@ void EventNTagManager::ClearData()
     fEventVariables.Clear();
     fEventHits.Clear();
     fEventParticles.Clear();
+    fEventDecayEs.Clear();
     fEventNCaptures.Clear();
 }
