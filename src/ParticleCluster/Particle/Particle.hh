@@ -19,6 +19,12 @@ class Particle
         inline TVector3 Momentum() const { return p; }
         inline unsigned int IntID() const { return intID; }
         inline int ParentPID() const { return parentPID; }
+
+        inline bool operator==(const Particle& particle) const {
+            return (pid == particle.PID()) & (v == particle.Vertex()) & (p == particle.Momentum());
+        };
+        
+        inline bool operator!=(const Particle& particle) const { return !(*this == particle); }
         
         inline void AddT0(float t0) { t += t0; }
 
