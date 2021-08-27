@@ -150,7 +150,15 @@ std::array<float, 6> PMTHitCluster::GetBetaArray()
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
     int nHits = fElement.size();
 
-    if (!bHasVertex || nHits == 0) abort(); //return beta;
+    if (!bHasVertex) {
+        std::cerr << "PMTHitCluster::GetBetaArray : the hit cluster has no set vertex. Returning a 0-filled array...\n";
+        return beta;
+    }
+    
+    if (!nHits) {
+        std::cerr << "PMTHitCluster::GetBetaArray : the hit cluster is empty. Returning a 0-filled array...\n";
+        return beta;
+    }
 
     for (int i = 0; i < nHits-1; i++) {
         for (int j = i+1; j < nHits; j++) {
