@@ -23,9 +23,9 @@ T0MX        503000
 TWIDTH      14
 TMINPEAKSEP 60
 NHITSTH     7
-NHITSMX     70
+NHITSMX     300
 N200TH      0
-N200MX      200
+N200MX      400
 
 ##### ExtractFeatures #####
 # MC CaptureType
