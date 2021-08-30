@@ -91,14 +91,14 @@ c*** loop
          if(duplicate) then
              qisk(ihcab(dupid)) = qisk(ihcab(dupid)) + qisksend(i)
          else
-             ihcab(i) = cabsend(i)
-             tisk(ihcab(i)) = tisksend(i) - dt + 1000
-             qisk(ihcab(i)) = qisksend(i)
              nqisk = nqisk + 1
+             ihcab(nqisk) = cabsend(i)
+             tisk(ihcab(nqisk)) = tisksend(i) - dt + 1000
+             qisk(ihcab(nqisk)) = qisksend(i)
              
-             if (qisk(ihcab(i)).gt.mxq) then
-                  mxq = qisk(ihcab(i))
-                  mxqisk = ihcab(i)
+             if (qisk(ihcab(nqisk)).gt.mxq) then
+                  mxq = qisk(ihcab(nqisk))
+                  mxqisk = ihcab(nqisk)
              endif
          endif
        enddo
