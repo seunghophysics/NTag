@@ -18,5 +18,5 @@ ATMPDLIB = -L $(ATMPD_ROOT)/lib -lapdrlib -lhutl -laplib -lringlib -ltp -ltf -lr
 		   -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k
 
 ROOTINCLUDE = -I $(ROOTSYS)/include
-ROOTLIB = $(shell root-config --libs)
+ROOTLIB = $(shell root-config --libs) -lMinuit -lXMLIO -lMLP -lTreePlayer -lTMVA
 CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CERN_ROOT)/lib -ljetset74
