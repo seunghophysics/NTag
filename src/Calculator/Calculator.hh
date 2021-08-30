@@ -150,6 +150,9 @@ float GetDWallInDirection(TVector3 vtx, TVector3 dir);
 
 float GetDWall(TVector3 vtx);
 
+unsigned int GetMinIndex(std::vector<float>& vec);
+unsigned int GetMaxIndex(std::vector<float>& vec);
+
 void SetSeed(int seed);
 
 template <typename T>

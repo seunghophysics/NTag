@@ -124,6 +124,20 @@ float GetDWallInDirection(TVector3 vtx, TVector3 dir)
     return distR < distZ ? distR : distZ;
 }
 
+unsigned int GetMinIndex(std::vector<float>& vec)
+{
+    std::vector<float>::iterator iter = std::min_element(vec.begin(), vec.end());
+    size_t index = std::distance(vec.begin(), iter);
+    return index;
+}
+
+unsigned int GetMaxIndex(std::vector<float>& vec)
+{
+    std::vector<float>::iterator iter = std::max_element(vec.begin(), vec.end());
+    size_t index = std::distance(vec.begin(), iter);
+    return index;
+}
+
 void SetSeed(int seed)
 {
     ranGen.SetSeed(seed);
