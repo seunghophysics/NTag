@@ -36,6 +36,9 @@ extern "C" {
     void  odpc_2nd_s_(int*);
     void  inpmt_(float*, int&);
     float wallsk_(float*);
+    void  muechk_gate_(float*, float&, int&);
+    void  apclrmue_();
+    void  apgetmue_(int*);
 }
 
 // BONSAI
