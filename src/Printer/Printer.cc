@@ -56,6 +56,11 @@ void Printer::PrintBlock(TString line, BlockSize size, Verbosity vType, bool new
     if (newLine) std::cout << std::endl;
 }
 
+void Printer::PrintTitle(TString line)
+{
+    std::cout << "\n\n********** " << line << " **********\n";
+}
+
 float Printer::Timer(TString msg, std::clock_t tStart, Verbosity vType)
 {
     float tDuration = (std::clock() - tStart) / (float) CLOCKS_PER_SEC;
