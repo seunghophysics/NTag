@@ -30,12 +30,14 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         void Sort();
 
-        void DumpAllElements() { for (auto& hit: fElement) hit.Dump(); }
+        void DumpAllElements() const { for (auto& hit: fElement) hit.Dump(); }
 
         PMTHit operator[] (int iHit) const { return fElement[iHit]; }
 
         PMTHitCluster Slice(int startIndex, float tWidth);
         PMTHitCluster Slice(int startIndex, float minusT, float plusT);
+        
+        unsigned int GetIndex(float t);
         
         void ApplyDeadtime(float deadtime);
 

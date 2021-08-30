@@ -43,6 +43,7 @@ void PMTHitCluster::SetVertex(const TVector3& inVertex)
     bHasVertex = true;
 
     SetToF();
+    Sort();
 }
 
 void PMTHitCluster::RemoveVertex()
@@ -62,6 +63,7 @@ void PMTHitCluster::SetToF(bool unset)
         std::cerr << "WARNING: Vertex is not set for PMTHitCluster in " << this
                   << ", skipping ToF-subtraction..."<< std::endl;
     else {
+        bSorted = false;
         for (auto& hit: fElement) {
             if (unset)
                 hit.UnsetToFAndDirection();
@@ -79,8 +81,7 @@ void PMTHitCluster::Sort()
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
 {
-    if (!bSorted)
-        Sort();
+    if (!bSorted) Sort();
 
     PMTHitCluster selectedHits;
     if (bHasVertex)
@@ -99,8 +100,7 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
 {
-    if (!bSorted)
-        Sort();
+    if (!bSorted) Sort();
 
     if (lowT > upT)
         std::cerr << "PMTHitCluster::Slice : lower bound is larger than upper bound." << std::endl;
@@ -118,6 +118,23 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
     return selectedHits;
 }
 
+unsigned int PMTHitCluster::GetIndex(float t)
+{
+    bool isFound = false;
+    unsigned int i = 0;
+    for (i=0; i<GetSize(); i++) {
+        if (fabs(t-fElement[i].t()) < 1e-5) {
+            isFound = true;
+            break;
+        }
+    }
+    
+    if (!isFound)
+        std::cerr << "PMTHitCluster::GetIndex: Could not find the right index for the given time " << t
+                  << ", returning the max index...\n";
+    return i;
+}
+
 void PMTHitCluster::ApplyDeadtime(float deadtime)
 {
     TVector3 tempVertex;
@@ -133,13 +150,15 @@ void PMTHitCluster::ApplyDeadtime(float deadtime)
     
     std::vector<PMTHit> dtCorrectedHits;
     
-    Sort();
+    if (!bSorted) Sort();
     for (auto const& hit: fElement) {
-        if (hit.t() - hitTime[hit.i()] < deadtime) {
+        if (hit.t() - hitTime[hit.i()] > deadtime) {
             dtCorrectedHits.push_back(hit);
             hitTime[hit.i()] = hit.t();
         }
     }
+    
+    fElement = dtCorrectedHits;
     
     if (bHadVertex)
         SetVertex(tempVertex);
@@ -232,10 +251,10 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
                     gridPoint = gridOrigin + displacement;
 
                     // Skip grid point out of tank
-                    if (displacement.Perp() > RINTK || abs(displacement.z()) > ZPINTK) continue;
+                    if (gridPoint.Perp() > RINTK || abs(gridPoint.z()) > ZPINTK) continue;
 
                     // Skip grid point further away from the maximum search range
-                    if (displacement.Mag() > VTXSRCRANGE) continue;
+                    if (gridPoint.Mag() > VTXSRCRANGE) continue;
 
                     // Subtract ToF from the search vertex
                     SetVertex(gridPoint);
