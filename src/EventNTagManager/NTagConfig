@@ -25,7 +25,7 @@ TMINPEAKSEP 60
 NHITSTH     7
 NHITSMX     300
 N200TH      0
-N200MX      400
+N200MX      50000
 
 ##### ExtractFeatures #####
 # MC CaptureType
