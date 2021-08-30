@@ -11,6 +11,7 @@
 float GetMass(int code);
 TString GetParticleName(int code);
 TString GetInteractionName(int code);
+TString GetNEUTModeName(int code);
 
 class Particle
 {

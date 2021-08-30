@@ -40,3 +40,11 @@ TString GetInteractionName(int code)
     else
         return TString(std::to_string(code));
 }
+
+TString GetNEUTModeName(int code)
+{
+    if (gNEUTModeMap.count(code))
+        return gNEUTModeMap[code];
+    else
+        return TString(std::to_string(code));
+}

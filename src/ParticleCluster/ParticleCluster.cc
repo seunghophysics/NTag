@@ -5,6 +5,7 @@
 #include "SKLibs.hh"
 #include "Calculator.hh"
 #include "ParticleCluster.hh"
+#include "Printer.hh"
 
 ParticleCluster::ParticleCluster(vcwork_common primaryCommon, secndprt_common secondaryCommon)
 {
@@ -55,9 +56,21 @@ void ParticleCluster::Sort()
             return particle1.Time() < particle2.Time(); });
 }
 
-void ParticleCluster::DumpAllElements()
+void ParticleCluster::DumpAllElements() const
 {
-    std::cout << "\n\033[4m No.   Particle Time (us) Interaction     Parent Momentum (MeV/c) \033[0m" << std::endl;
+    Printer msg;
+
+    if (nework_.modene) {
+        
+        msg.PrintTitle("NEUT MC");
+        std::cout << "\033[4m Neutrino Type      Interaction  Momentum (GeV/c)\033[0m\n ";
+        std::cout << std::right << std::setw(13) << GetParticleName(nework_.ipne[0]) << " ";
+        std::cout << std::right << std::setw(16) << GetNEUTModeName(nework_.modene) << " ";
+        std::cout << std::right << std::setw(14) << std::fixed << std::setprecision(2) << TVector3(nework_.pne[0]).Mag() << "\n\n";
+    }
+
+    msg.PrintTitle("MC Particles");
+    std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent Momentum (MeV/c) \033[0m" << std::endl;
 
     for (int iParticle = 0; iParticle < fElement.size(); iParticle++) {
         auto& particle = fElement[iParticle];
@@ -66,12 +79,15 @@ void ParticleCluster::DumpAllElements()
         auto mom = particle.Momentum().Mag();
         std::cout << std::right << std::setw(3) << iParticle+1 << "  ";
         std::cout << std::right << std::setw(10) << particle.GetName() << " ";
+        if (particle.Time()*1e-3 < 10)
+        std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << particle.Time()*1e-3 << " ";
+        else
         std::cout << std::right << std::setw(8) << (int)(particle.Time()*1e-3+0.5f) << "  ";
         std::cout << std::right << std::setw(11) << particle.GetIntName() << " ";
         std::cout << std::right << std::setw(10) << (parentName=="0" ? TString("-") : parentName) << " ";
         if (mom<10)
-            std::cout << std::right << std::setw(16) << std::setprecision(1) << mom << "\n";
+            std::cout << std::right << std::setw(15) << std::setprecision(1) << mom << "\n";
         else
-            std::cout << std::right << std::setw(14) << std::fixed << (int)(mom+0.5f) << "\n";
+            std::cout << std::right << std::setw(13) << std::fixed << (int)(mom+0.5f) << "\n";
     }
 }

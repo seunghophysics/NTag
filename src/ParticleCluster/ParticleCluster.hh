@@ -17,7 +17,7 @@ class ParticleCluster : public Cluster<Particle>
         void SetT0(float t0);
         
         void Sort();
-        void DumpAllElements();
+        void DumpAllElements() const;
     
     //ClassDef(ParticleCluster, 1)
 };
