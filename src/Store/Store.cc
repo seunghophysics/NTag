@@ -31,13 +31,19 @@ void Store::Initialize(std::string configFilePath)
     file.close();
 }
 
-void Store::Print()
+void Store::Print() const
 {
     Printer msg;
     msg.PrintBlock(name + ": Keys and values");
-
+    
+    int maxWidth = 0;
+    for (auto const& key: keyOrder) {
+        if (key.length() > maxWidth)
+            maxWidth = key.length();
+    }
+    
     for (auto const& key: keyOrder)
-        std::cout << std::left << std::setw(25) << key << ": " << storeMap[key] << "\n";
+        std::cout << std::left << std::setw(maxWidth+1) << key << ": " << storeMap.at(key) << "\n";
     std::cout << std::endl;
 }
 

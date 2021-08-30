@@ -28,18 +28,20 @@ bool CheckType(const std::string& str)
 class Store{
 
     public:
+        Store() {}
+        Store(const char* className): name(className) {}
         void Initialize(std::string configFilePath);
 
-        virtual void Print();
+        virtual void Print() const;
         void Clear() { storeMap.clear(); keyOrder.clear(); }
         bool HasKey(std::string key) { return (storeMap.count(key) > 0); }
 
         template <typename T>
-        bool Get(std::string name, T& out)
+        bool Get(std::string key, T& out)
         {
-            if (storeMap.count(name) > 0) {
+            if (storeMap.count(key) > 0) {
 
-                std::stringstream stream(storeMap[name]);
+                std::stringstream stream(storeMap[key]);
                 stream >> out;
                 return !stream.fail();
             }
@@ -48,12 +50,12 @@ class Store{
         }
 
         template<typename T>
-        void Set(std::string name, T in)
+        void Set(std::string key, T in)
         {
             std::stringstream stream;
             stream << in;
-            if (!storeMap.count(name)) keyOrder.push_back(name);
-            storeMap[name] = stream.str();
+            if (!storeMap.count(key)) keyOrder.push_back(key);
+            storeMap[key] = stream.str();
         }
         
         const std::map<std::string, std::string>& GetMap() { return storeMap; }
