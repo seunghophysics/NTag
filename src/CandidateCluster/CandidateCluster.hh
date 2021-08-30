@@ -14,9 +14,11 @@ class CandidateCluster : public Cluster<Candidate>
 {
     public:
         CandidateCluster();
+        CandidateCluster(const char* className);
         ~CandidateCluster();
         
-        void DumpAllElements();
+        void Sort();
+        void DumpAllElements(std::vector<std::string> keys={}) const;
         void Clear() { Cluster::Clear(); for (auto& pair: featureVectorMap) pair.second->clear(); }
         void FillVectorMap();
         void RegisterFeatureNames(const std::vector<std::string>& keyList)
