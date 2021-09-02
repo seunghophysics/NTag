@@ -6,7 +6,6 @@
 #include "PMTHitCluster.hh"
 #include "ParticleCluster.hh"
 #include "TaggableCluster.hh"
-#include "NCaptureCluster.hh"
 #include "CandidateCluster.hh"
 #include "Printer.hh"
 #include "Store.hh"
@@ -27,6 +26,7 @@ enum TriggerType
     tSHE,
     tAFT
 };
+
 class EventNTagManager
 {
     public:
@@ -69,8 +69,14 @@ class EventNTagManager
         // tmva
         float GetTMVAOutput(Candidate& candidate);
         
+        // root
+        void SetTree(TTree* tree) { fOutputTree = tree; }
+        void FillTree();
+        void WriteRegisteredTrees();
+        
         // printers
         void DumpSettings() { fSettings.Print(); }
+        void DumpEvent();
 
     private:
         void SubtractToF();
@@ -80,6 +86,7 @@ class EventNTagManager
         void MapCandidateClusters(CandidateCluster& candidateCluster);
         void PruneCandidates();
         int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
+        
     
         // DataModel:
         Store fEventVariables;
@@ -100,9 +107,33 @@ class EventNTagManager
         TMVA::Reader fTMVAReader;
         std::map<std::string, float> fFeatureContainer;
         int fCandidateCaptureType;
+        
+        // ROOT
+        bool fIsBranchSet;
+        TTree* fOutputTree;
 
         // Utilities
         Printer fMsg;
+};
+
+#include "TSysEvtHandler.h"
+
+class TInterruptHandler : public TSignalHandler
+{
+   public:
+        TInterruptHandler(EventNTagManager* manager):TSignalHandler(kSigInterrupt, kFALSE)
+        { fNTagManager = manager; }
+
+        virtual Bool_t Notify()
+        {
+            std::cerr << "Received SIGINT. Writing output..." << std::endl;
+            fNTagManager->WriteRegisteredTrees();
+            _exit(2);
+            return kTRUE;
+        }
+
+    private:
+        EventNTagManager* fNTagManager;
 };
 
 #endif

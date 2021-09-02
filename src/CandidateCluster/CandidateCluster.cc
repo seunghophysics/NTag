@@ -3,6 +3,8 @@
 #include <cassert>
 #include <cmath>
 
+#include "TTree.h"
+
 #include "Printer.hh"
 #include "CandidateCluster.hh"
 
@@ -11,7 +13,7 @@ CandidateCluster::CandidateCluster(const char* className) { fName = className; }
 
 CandidateCluster::~CandidateCluster()
 {
-    for (auto& pair: featureVectorMap)
+    for (auto& pair: fFeatureVectorMap)
         delete pair.second;
 }
 
@@ -95,20 +97,20 @@ void CandidateCluster::FillVectorMap()
         for (int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
             auto comparedFeatureMap = fElement[iCandidate].GetFeatureMap();
 
-            for (auto const& basePair: featureVectorMap) {
+            for (auto const& basePair: fFeatureVectorMap) {
 
                 if (!comparedFeatureMap.count(basePair.first)) {
                     std::cerr << "Registered key " << basePair.first << " not found in candidate!" << std::endl;
                     areFeaturesIdentical = false;
                 }
                 else {
-                    featureVectorMap[basePair.first]->resize(iCandidate);
-                    featureVectorMap[basePair.first]->push_back(comparedFeatureMap[basePair.first]);
+                    fFeatureVectorMap[basePair.first]->resize(iCandidate);
+                    fFeatureVectorMap[basePair.first]->push_back(comparedFeatureMap[basePair.first]);
                 }
             }
 
             for (auto const& comparedPair: comparedFeatureMap) {
-                if (!featureVectorMap.count(comparedPair.first)) {
+                if (!fFeatureVectorMap.count(comparedPair.first)) {
                     std::cerr << "Candidate key " << comparedPair.first << " not found in registered keys!" << std::endl;
                     areFeaturesIdentical = false;
                 }
@@ -119,6 +121,13 @@ void CandidateCluster::FillVectorMap()
             std::cerr << "Make sure all candidates share the same set of features specified by CandidateCluster::RegisterFeatureNames!" << std::endl;
         }
         
-        assert(featureVectorMap.begin()->second->size() == GetSize());
+        assert(fFeatureVectorMap.begin()->second->size() == GetSize());
+    }
+}
+
+void CandidateCluster::MakeBranches(TTree* tree)
+{
+    for (auto& pair: fFeatureVectorMap) {
+        tree->Branch(pair.first.c_str(), &(pair.second));
     }
 }

@@ -1,3 +1,5 @@
+#include "TFile.h"
+
 #include "skparmC.h"
 #include "sktqC.h"
 #include "skheadC.h"
@@ -8,7 +10,8 @@
 #include "EventNTagManager.hh"
 #include "Calculator.hh"
 
-EventNTagManager::EventNTagManager(Verbosity verbose) 
+EventNTagManager::EventNTagManager(Verbosity verbose)
+: fIsBranchSet(false)
 {
     fMsg = Printer("NTagManager", verbose);
     
@@ -20,7 +23,20 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     fEventCandidates = CandidateCluster("Delayed");
     fEventEarlyCandidates = CandidateCluster("Early");
     
+    std::vector<std::string> featureList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum", 
+                                            "Beta1", "Beta2", "Beta3", "Beta4", "Beta5", 
+                                            "AngleMean", "AngleSkew", "AngleStdev", "CaptureType",
+                                            "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit", 
+                                            "TMVAOutput", "TagIndex"};
+    fEventCandidates.RegisterFeatureNames(featureList);
+    
+    std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "dirx", "diry", "dirz", "NHits", "Type", "Goodness"};
+    fEventEarlyCandidates.RegisterFeatureNames(earlyFeatureList);
+
     InitializeTMVA();
+    
+    auto handler = new TInterruptHandler(this);
+    handler->Add();
 }
 
 EventNTagManager::~EventNTagManager() {}
@@ -99,6 +115,7 @@ void EventNTagManager::ReadEarlyCandidates()
             candidate.Set("dirz", apmue_.apmuedir[iMuE][2]);
             candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
             candidate.Set("Type", apmue_.apmuetype[iMuE]);
+            candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
             fEventEarlyCandidates.Append(candidate);
         }
     }
@@ -165,7 +182,8 @@ void EventNTagManager::InitializeTMVA()
 
 void EventNTagManager::SearchCandidates()
 {
-    fEventHits.ApplyDeadtime(3000);
+    float pmtDeadTime; fSettings.Get("rbn_deadtime", pmtDeadTime);
+    fEventHits.ApplyDeadtime(pmtDeadTime);
 
     // subtract tof
     SubtractToF();
@@ -240,6 +258,9 @@ void EventNTagManager::SearchCandidates()
     // TMVA output
     for (auto& candidate: fEventCandidates)
         candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
+    
+    fEventEarlyCandidates.FillVectorMap();
+    fEventCandidates.FillVectorMap();
 }
 
 void EventNTagManager::SubtractToF()
@@ -458,4 +479,42 @@ int EventNTagManager::GetMaxNHitsIndex(PMTHitCluster& hitCluster)
     }
     
     return maxID;
+}
+
+void EventNTagManager::DumpEvent()
+{
+    fEventVariables.Print();
+    fEventParticles.DumpAllElements();
+    fEventTaggables.DumpAllElements();
+    fEventEarlyCandidates.DumpAllElements();
+    fEventCandidates.DumpAllElements({"ReconCT", 
+                                      "NHits", 
+                                      "DWall_n", 
+                                      "ThetaMeanDir", 
+                                      "TMVAOutput", 
+                                      "CaptureType", 
+                                      "TagIndex"});
+}
+
+void EventNTagManager::FillTree()
+{
+    // set branch address for the first event
+    if (!fIsBranchSet) {
+        fMsg.Print("Filling branches...");
+        fEventEarlyCandidates.MakeBranches(fOutputTree);
+        fEventCandidates.MakeBranches(fOutputTree);
+        fIsBranchSet = true;
+    }
+    else {
+        // fill tree
+        fOutputTree->Fill();
+    }
+}
+
+void EventNTagManager::WriteRegisteredTrees()
+{
+    if (fOutputTree) {
+        fOutputTree->Write();
+        fOutputTree->GetCurrentFile()->Close();
+    }
 }
