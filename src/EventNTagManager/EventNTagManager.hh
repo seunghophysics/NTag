@@ -51,13 +51,14 @@ class EventNTagManager
         // void SetVariables();
         
         // return private members
-        const Store& GetVariables() { return fEventVariables; };
-        const PMTHitCluster& GetHits() { return fEventHits; };
-        const ParticleCluster& GetParticles() { return fEventParticles; }
-        const TaggableCluster& GetTaggables() { return fEventTaggables; }
+        Store& GetSettings() { return fSettings; };
+        Store& GetVariables() { return fEventVariables; };
+        PMTHitCluster& GetHits() { return fEventHits; };
+        ParticleCluster& GetParticles() { return fEventParticles; }
+        TaggableCluster& GetTaggables() { return fEventTaggables; }
        // const NCaptureCluster& GetNCaptures() { return fEventNCaptures; }
-        const CandidateCluster& GetCandidates() { return fEventCandidates; }
-        const CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
+        CandidateCluster& GetCandidates() { return fEventCandidates; }
+        CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
 
         //const CandidateCluster& GetCandidates(const PMTHitCluster& hitCluster);
         
@@ -70,9 +71,8 @@ class EventNTagManager
         float GetTMVAOutput(Candidate& candidate);
         
         // root
-        void SetTree(TTree* tree) { fOutputTree = tree; }
-        void FillTree();
-        void WriteRegisteredTrees();
+        void FillTrees();
+        void WriteTrees();
         
         // printers
         void DumpSettings() { fSettings.Print(); }
@@ -93,9 +93,9 @@ class EventNTagManager
         PMTHitCluster fEventHits;
         ParticleCluster fEventParticles;
         TaggableCluster fEventTaggables;
-        //NCaptureCluster fEventNCaptures;
         CandidateCluster fEventCandidates;
         CandidateCluster fEventEarlyCandidates;
+        TVector3 fPromptVertex;
         
         // NTag settings
         Store fSettings;
@@ -110,7 +110,6 @@ class EventNTagManager
         
         // ROOT
         bool fIsBranchSet;
-        TTree* fOutputTree;
 
         // Utilities
         Printer fMsg;
@@ -127,7 +126,7 @@ class TInterruptHandler : public TSignalHandler
         virtual Bool_t Notify()
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
-            fNTagManager->WriteRegisteredTrees();
+            fNTagManager->WriteTrees();
             _exit(2);
             return kTRUE;
         }

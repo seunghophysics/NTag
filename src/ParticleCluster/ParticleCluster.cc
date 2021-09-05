@@ -91,3 +91,50 @@ void ParticleCluster::DumpAllElements() const
             std::cout << std::right << std::setw(13) << std::fixed << (int)(mom+0.5f) << "\n";
     }
 }
+
+void ParticleCluster::MakeBranches()
+{
+    if (fOutputTree) {
+        fOutputTree->Branch("SecPID", &fPIDVector);
+        fOutputTree->Branch("ParentPID", &fParentPIDVector);
+        fOutputTree->Branch("SecIntID", &fInteractionIDVector);
+        fOutputTree->Branch("SecT", &fTimeVector);
+        fOutputTree->Branch("secvx", &fXVector);
+        fOutputTree->Branch("secvy", &fYVector);
+        fOutputTree->Branch("secvz", &fZVector);
+        fOutputTree->Branch("secpx", &fPXVector);
+        fOutputTree->Branch("secpy", &fPYVector);
+        fOutputTree->Branch("secpz", &fPZVector);
+    }
+}
+
+void ParticleCluster::FillTree()
+{
+    fPIDVector.clear();
+    fParentPIDVector.clear();
+    fInteractionIDVector.clear();
+    fTimeVector.clear();
+    fXVector.clear();
+    fYVector.clear();
+    fZVector.clear();
+    fPXVector.clear();
+    fPYVector.clear();
+    fPZVector.clear();
+
+    for (auto const& particle: fElement) {
+        auto const& vertex = particle.Vertex();
+        auto const& momentum = particle.Momentum();
+        fPIDVector.push_back(particle.PID());
+        fParentPIDVector.push_back(particle.ParentPID());
+        fInteractionIDVector.push_back(particle.IntID());
+        fTimeVector.push_back(particle.Time());
+        fXVector.push_back(vertex.x());
+        fYVector.push_back(vertex.y());
+        fZVector.push_back(vertex.z());
+        fPXVector.push_back(momentum.x());
+        fPYVector.push_back(momentum.y());
+        fPZVector.push_back(momentum.z());
+    }
+    
+    if (fOutputTree) fOutputTree->Fill();
+}

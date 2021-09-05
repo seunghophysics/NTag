@@ -125,9 +125,11 @@ void CandidateCluster::FillVectorMap()
     }
 }
 
-void CandidateCluster::MakeBranches(TTree* tree)
+void CandidateCluster::MakeBranches()
 {
-    for (auto& pair: fFeatureVectorMap) {
-        tree->Branch(pair.first.c_str(), &(pair.second));
+    if (fOutputTree) {
+        for (auto& pair: fFeatureVectorMap) {
+            fOutputTree->Branch(pair.first.c_str(), &(pair.second));
+        }
     }
 }

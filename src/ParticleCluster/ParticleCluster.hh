@@ -18,6 +18,22 @@ class ParticleCluster : public Cluster<Particle>
         
         void Sort();
         void DumpAllElements() const;
+        
+        void MakeBranches();
+        void FillTree();
+        
+    private:
+        // pid
+        std::vector<int> fPIDVector;
+        std::vector<int> fParentPIDVector;
+        std::vector<int> fInteractionIDVector;
+        std::vector<float> fTimeVector;
+        std::vector<float> fXVector;
+        std::vector<float> fYVector;
+        std::vector<float> fZVector;
+        std::vector<float> fPXVector;
+        std::vector<float> fPYVector;
+        std::vector<float> fPZVector;
     
     //ClassDef(ParticleCluster, 1)
 };

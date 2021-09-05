@@ -5,13 +5,14 @@
 #include <vector>
 #include <iostream>
 
+#include "TTree.h"
 //#include "Rtypes.h"
 
 template <class T>
 class Cluster
 {
     public:
-        Cluster():fElement() {}
+        Cluster():fElement(), fOutputTree(NULL), fIsOutputTreeSet(false) {}
 
         virtual inline void Append(const T& elm) { fElement.push_back(elm); }
         virtual inline void Append(Cluster<T>& cluster)
@@ -48,10 +49,20 @@ class Cluster
 
         T& operator[] (int index) { return fElement[index]; }
         T& At(int index) { return fElement[index]; }
+        
+        // TTree access
+        void SetTree(TTree& tree) { fOutputTree = &tree; };
+        TTree* GetTree() { return fOutputTree; };
+        virtual void FillTree() { if (fOutputTree != NULL) fOutputTree->Fill(); }
+        void WriteTree() { if (fOutputTree != NULL) fOutputTree->Write();}
+        virtual void MakeBranches() { if (fOutputTree != NULL) fOutputTree->Write(); }
+
 
     protected:
         std::string fName;
         std::vector<T> fElement;
+        TTree* fOutputTree;
+        bool fIsOutputTreeSet;
 
     //ClassDef(Cluster, 1)
 };

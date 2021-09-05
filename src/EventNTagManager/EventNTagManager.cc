@@ -60,10 +60,10 @@ void EventNTagManager::ReadVariables()
         // evis
         fEventVariables.Set("EVis", apcomene_.apevis);
         // prompt vertex
-        //fEventVariables.Set("pvx", apcommul_.appos[0]);
-        //fEventVariables.Set("pvy", apcommul_.appos[1]);
-        //fEventVariables.Set("pvz", apcommul_.appos[2]);
-        fEventVariables.Set("PromptVertex", TVector3(apcommul_.appos));
+        fPromptVertex = TVector3(apcommul_.appos);
+        fEventVariables.Set("pvx", apcommul_.appos[0]);
+        fEventVariables.Set("pvy", apcommul_.appos[1]);
+        fEventVariables.Set("pvz", apcommul_.appos[2]);
         // dwall
         fEventVariables.Set("DWall", wallsk_(apcommul_.appos));
         // ring
@@ -252,8 +252,7 @@ void EventNTagManager::SearchCandidates()
     // if MC
     PruneCandidates();
     MapTaggables();
-    TVector3 promptVertex; fEventVariables.Get("PromptVertex", promptVertex);
-    fEventTaggables.SetPromptVertex(promptVertex);
+    fEventTaggables.SetPromptVertex(fPromptVertex);
     
     // TMVA output
     for (auto& candidate: fEventCandidates)
@@ -265,14 +264,11 @@ void EventNTagManager::SearchCandidates()
 
 void EventNTagManager::SubtractToF()
 {
-    TVector3 promptVertex; fEventVariables.Get("PromptVertex", promptVertex);
-    fEventHits.SetVertex(promptVertex);
+    fEventHits.SetVertex(fPromptVertex);
 }
 
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
-    TVector3 promptVertex; fEventVariables.Get("PromptVertex", promptVertex);
-
     PMTHitCluster hitsIn30ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -15, TWIDTH/2. +15);
     PMTHitCluster hitsIn50ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -25, TWIDTH/2. +25);
 
@@ -322,7 +318,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     auto dirVec = hitsInTWIDTH[HitFunc::Dir];
     auto meanDir = GetMean(dirVec).Unit();
     candidate.Set("DWall", dWall);
-    candidate.Set("DWallMeanDir", GetDWallInDirection(promptVertex, meanDir));
+    candidate.Set("DWallMeanDir", GetDWallInDirection(fPromptVertex, meanDir));
     
     // Mean angle formed by all hits and the mean hit direction
     std::vector<float> angles;
@@ -340,7 +336,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("AngleSkew",  openingAngleStats.skewness);
 
     candidate.Set("DWall_n", GetDWall(trmsFitVertex));
-    candidate.Set("prompt_nfit", (promptVertex-trmsFitVertex).Mag());
+    candidate.Set("prompt_nfit", (fPromptVertex-trmsFitVertex).Mag());
 
     //int passDecayECut = 0;
     //if ((candidate.Get("N50") > 50) && reconCT < 20) {
@@ -348,7 +344,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     //}
     //candidate.Set("decay_e_like", passDecayECut);
     
-    fEventHits.SetVertex(promptVertex);
+    fEventHits.SetVertex(fPromptVertex);
 }
 
 float EventNTagManager::GetTMVAOutput(Candidate& candidate)
@@ -496,25 +492,39 @@ void EventNTagManager::DumpEvent()
                                       "TagIndex"});
 }
 
-void EventNTagManager::FillTree()
+void EventNTagManager::FillTrees()
 {
     // set branch address for the first event
     if (!fIsBranchSet) {
-        fMsg.Print("Filling branches...");
-        fEventEarlyCandidates.MakeBranches(fOutputTree);
-        fEventCandidates.MakeBranches(fOutputTree);
+        
+        // make branches
+        fSettings.MakeBranches();
+        fEventVariables.MakeBranches();
+        fEventParticles.MakeBranches();
+        fEventTaggables.MakeBranches();
+        fEventEarlyCandidates.MakeBranches();
+        fEventCandidates.MakeBranches();
+        
+        // settings should be filled only once
+        fSettings.FillTree();
         fIsBranchSet = true;
     }
-    else {
-        // fill tree
-        fOutputTree->Fill();
-    }
+
+    // fill tree
+    fEventVariables.FillTree();
+    fEventParticles.FillTree();
+    fEventTaggables.FillTree();
+    fEventEarlyCandidates.FillTree();
+    fEventCandidates.FillTree();
 }
 
-void EventNTagManager::WriteRegisteredTrees()
+void EventNTagManager::WriteTrees()
 {
-    if (fOutputTree) {
-        fOutputTree->Write();
-        fOutputTree->GetCurrentFile()->Close();
-    }
+    fSettings.WriteTree();
+    fEventVariables.WriteTree();
+    fEventParticles.WriteTree();
+    fEventTaggables.WriteTree();
+    fEventEarlyCandidates.WriteTree();
+    fEventCandidates.WriteTree();
+    fEventCandidates.GetTree()->GetCurrentFile()->Close();
 }

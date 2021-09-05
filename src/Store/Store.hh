@@ -28,7 +28,7 @@ bool CheckType(const std::string& str)
 class Store{
 
     public:
-        Store() {}
+        Store():fOutputTree(NULL) {}
         Store(const char* className): name(className) {}
         void Initialize(std::string configFilePath);
 
@@ -59,13 +59,28 @@ class Store{
         }
         
         const std::map<std::string, std::string>& GetMap() { return storeMap; }
+        
+        // TTree access
+        void SetTree(TTree& tree) { fOutputTree = &tree; }
+        TTree* GetTree() { return fOutputTree; }
+        void FillTree();
+        void WriteTree() { if (fOutputTree == NULL) fOutputTree->Write(); }
+        virtual void MakeBranches();
 
     protected:
         std::string name;
         std::map<std::string, std::string> storeMap;
+        TTree* fOutputTree;
+        bool fIsOutputTreeSet;
         
     private:    
         std::vector<std::string> keyOrder;
+        
+        // temporary values for branching
+        TVector3 tmpVec;
+        float tmpNum;
+        std::string tmpStr;
+        int fillCounter;
 };
 
 template bool CheckType<float>(const std::string& str);

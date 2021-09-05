@@ -76,3 +76,37 @@ void TaggableCluster::DumpAllElements() const
         std::cout << std::right << std::setw(7) << (delayedIndex ? std::to_string(delayedIndex) : "-") << "\n";
     }
 }
+
+void TaggableCluster::MakeBranches()
+{
+     if (fOutputTree != NULL) {
+        fOutputTree->Branch("type", &fTypeVector);
+        fOutputTree->Branch("t", &fTimeVector);
+        fOutputTree->Branch("E", &fEnergyVector);
+        fOutputTree->Branch("vx", &fXVector);
+        fOutputTree->Branch("vy", &fYVector);
+        fOutputTree->Branch("vz", &fZVector);
+    }
+}
+
+void TaggableCluster::FillTree()
+{
+    fTypeVector.clear();
+    fTimeVector.clear();
+    fEnergyVector.clear();
+    fXVector.clear();
+    fYVector.clear();
+    fZVector.clear();
+    
+    for (auto const& taggable: fElement) {
+        auto const& vertex = taggable.Vertex();
+        fTypeVector.push_back(taggable.Type());
+        fTimeVector.push_back(taggable.Time());
+        fEnergyVector.push_back(taggable.Energy());
+        fXVector.push_back(vertex.x());
+        fYVector.push_back(vertex.y());
+        fZVector.push_back(vertex.z());
+    }
+
+    if (fOutputTree != NULL) fOutputTree->Fill();
+}

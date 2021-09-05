@@ -47,6 +47,43 @@ void Store::Print() const
     std::cout << std::endl;
 }
 
+void Store::MakeBranches()
+{
+    if (fOutputTree != NULL) {
+         for (auto const& pair: storeMap) {
+            auto key = pair.first.c_str();
+            auto value = pair.second;
+
+            if (Get(key, tmpNum)) {
+                fOutputTree->Branch(key, &tmpNum);
+            }
+            else {
+                tmpStr = value;
+                fOutputTree->Branch(key, &tmpStr);
+            }       
+        }
+    }
+    
+    fillCounter = 0;
+}
+
+void Store::FillTree()
+{
+    if (fOutputTree != NULL) {
+        for (auto const& pair: storeMap) {
+            auto key = pair.first;
+                if (!Get(key, tmpNum)) {
+                    Get(key, tmpStr);
+                }
+            
+            fOutputTree->GetBranch(key.c_str())->Fill();
+        }
+        
+        fillCounter++;
+        fOutputTree->SetEntries(fillCounter==1? 1 : fillCounter-1);
+    }
+}
+
 std::istream& operator>>(std::istream& istr, TVector3& vec)
 {
     std::string coordinate;

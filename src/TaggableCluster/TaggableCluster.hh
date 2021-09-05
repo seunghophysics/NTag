@@ -16,8 +16,19 @@ class TaggableCluster : public Cluster<Taggable>
         
         void SetPromptVertex(TVector3 v) { fPromptVertex = v; }
         
+        void MakeBranches();
+        void FillTree();
+        
     private:
         TVector3 fPromptVertex;
+        
+        // type, time, energy, vertex
+        std::vector<int> fTypeVector;
+        std::vector<float> fTimeVector;
+        std::vector<float> fEnergyVector;
+        std::vector<float> fXVector;
+        std::vector<float> fYVector;
+        std::vector<float> fZVector;
 };
 
 #endif
