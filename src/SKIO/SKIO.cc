@@ -10,7 +10,7 @@ bool SKIO::fIsZEBRAInitialized = false;
 
 SKIO::SKIO()
 : fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
-fNEvents(0), fCurrentEventID(0), fIsFileOpen(false)
+fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 {}
 
 SKIO::SKIO(std::string fileName, IOMode mode)
@@ -35,13 +35,14 @@ void SKIO::OpenFile()
     if (fFilePath != "")
         OpenFile(fFilePath.Data(), fIOMode);
     else
-        std::cerr << "[SKIO] File path not specified!\n";
+        fMsg.Print("File path not specified!", pERROR);
+        //std::cerr << "[SKIO] File path not specified!\n";
 }
 
 void SKIO::OpenFile(std::string fileName, IOMode mode)
 {
     if (!fileName.empty()) SetFilePath(fileName);
-    else std::cerr << "[SKIO] Specified file path is empty!\n";
+    else fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
     fIOMode = mode;
     
     // SK option
@@ -84,7 +85,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
         skopenf_(&logicalUnit, &fileIndex, "Z", &openError);
 
         if (openError) {
-            std::cerr << "[SKIO] Error occurred while opening the ZBS file: " + fFilePath << "\n";
+            fMsg.Print("SKOPENF returned error status while opening the input ZBS: " + fFilePath, pERROR);
         }
     }
 
@@ -133,8 +134,9 @@ int SKIO::ReadEvent(int eventID)
     
     // invalid eventID
     if ((eventID < 1) || (fNEvents < eventID))
-        std::cerr << Form("[SKIO] The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n", eventID, fNEvents);
-        
+        fMsg.Print(Form("[SKIO] The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n", 
+                        eventID, fNEvents), pERROR);
+
     // valid eventID
     else {
         if (eventID >= fCurrentEventID) {
@@ -175,7 +177,7 @@ int SKIO::GetNumberOfEvents()
         fNEvents = nEvents;
         
         if (!fNEvents) {
-            std::cerr << "[SKIO] The input file " + fFilePath + " is empty!\n"; 
+            fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
     }
 
@@ -190,11 +192,11 @@ int SKIO::GetCurrentEventID()
 void SKIO::DumpSettings()
 {
     std::cout << "\n";
-    std::cout << Form("[SKIO] %s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath << "\n";
-    std::cout << "[SKIO] SK option: " + fSKOption << "\n";
-    std::cout << "[SKIO] SK geometry: " << fSKGeometry << "\n";
-    std::cout << "[SKIO] SK bad channel option: " << fSKBadChOption << "\n";
-    std::cout << "[SKIO] SK reference run number: " << fRefRunNo << "\n";
+    fMsg.Print(Form("[SKIO] %s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
+    fMsg.Print("SK option: " + fSKOption);
+    fMsg.Print("SK geometry: " + fSKGeometry);
+    fMsg.Print("SK bad channel option: " + fSKBadChOption);
+    fMsg.Print("SK reference run number: " + fRefRunNo);
     std::cout << "\n";
 }
 

@@ -3,6 +3,7 @@
 
 #include <TString.h>
 
+#include <Printer.hh>
 #include <PMTHitCluster.hh>
 
 extern "C" {
@@ -100,6 +101,8 @@ class SKIO
         bool fIsFileOpen;
         
         static bool fIsZEBRAInitialized;
+        
+        Printer fMsg;
 };
 
 void FillCommon(PMTHitCluster& hitCluster);
