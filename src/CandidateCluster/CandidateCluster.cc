@@ -127,7 +127,7 @@ void CandidateCluster::FillVectorMap()
 
 void CandidateCluster::MakeBranches()
 {
-    if (fOutputTree) {
+    if (fIsOutputTreeSet) {
         for (auto& pair: fFeatureVectorMap) {
             fOutputTree->Branch(pair.first.c_str(), &(pair.second));
         }

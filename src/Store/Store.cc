@@ -49,7 +49,7 @@ void Store::Print() const
 
 void Store::MakeBranches()
 {
-    if (fOutputTree != NULL) {
+    if (fIsOutputTreeSet) {
          for (auto const& pair: storeMap) {
             auto key = pair.first.c_str();
             auto value = pair.second;
@@ -69,7 +69,7 @@ void Store::MakeBranches()
 
 void Store::FillTree()
 {
-    if (fOutputTree != NULL) {
+    if (fIsOutputTreeSet) {
         for (auto const& pair: storeMap) {
             auto key = pair.first;
                 if (!Get(key, tmpNum)) {

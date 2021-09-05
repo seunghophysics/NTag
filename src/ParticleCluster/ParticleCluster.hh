@@ -14,6 +14,8 @@ class ParticleCluster : public Cluster<Particle>
         ParticleCluster() {}
         ParticleCluster(vcwork_common primary, secndprt_common secondary);
         
+        void ReadCommonBlock(vcwork_common primary, secndprt_common secondary);
+        
         void SetT0(float t0);
         
         void Sort();

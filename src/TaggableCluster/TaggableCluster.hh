@@ -11,6 +11,8 @@ class TaggableCluster : public Cluster<Taggable>
         TaggableCluster();
         TaggableCluster(const ParticleCluster& particleCluster);
         
+        void ReadParticleCluster(const ParticleCluster& particleCluster);
+        
         void Sort();
         void DumpAllElements() const;
         

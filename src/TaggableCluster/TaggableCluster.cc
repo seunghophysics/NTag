@@ -8,6 +8,13 @@
 TaggableCluster::TaggableCluster() {}
 TaggableCluster::TaggableCluster(const ParticleCluster& particleCluster)
 {
+    ReadParticleCluster(particleCluster);
+}
+
+void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster)
+{
+    Clear();
+
     // taggable n
     for (auto const& particle : particleCluster) {
         
@@ -79,7 +86,7 @@ void TaggableCluster::DumpAllElements() const
 
 void TaggableCluster::MakeBranches()
 {
-     if (fOutputTree != NULL) {
+     if (fIsOutputTreeSet) {
         fOutputTree->Branch("type", &fTypeVector);
         fOutputTree->Branch("t", &fTimeVector);
         fOutputTree->Branch("E", &fEnergyVector);
@@ -108,5 +115,5 @@ void TaggableCluster::FillTree()
         fZVector.push_back(vertex.z());
     }
 
-    if (fOutputTree != NULL) fOutputTree->Fill();
+    if (fIsOutputTreeSet) fOutputTree->Fill();
 }

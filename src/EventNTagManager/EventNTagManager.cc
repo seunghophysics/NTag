@@ -86,13 +86,12 @@ void EventNTagManager::ReadHits()
 void EventNTagManager::ReadParticles()
 {
     skgetv_(); apflscndprt_();
-    fEventParticles = ParticleCluster(skvect_, secndprt_);
+    fEventParticles.ReadCommonBlock(skvect_, secndprt_);
     
     float geantT0; trginfo_(&geantT0);
     fEventParticles.SetT0(geantT0);
-    
-    //fEventNCaptures = NCaptureCluster(fEventParticles);
-    fEventTaggables = TaggableCluster(fEventParticles);
+
+    fEventTaggables.ReadParticleCluster(fEventParticles);
 }
 
 void EventNTagManager::ReadEarlyCandidates()

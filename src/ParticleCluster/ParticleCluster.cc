@@ -9,6 +9,13 @@
 
 ParticleCluster::ParticleCluster(vcwork_common primaryCommon, secndprt_common secondaryCommon)
 {
+    ReadCommonBlock(primaryCommon, secondaryCommon);
+}
+
+void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_common secondaryCommon)
+{
+    Clear();
+
     // Primaries
     for (int iVec = 0; iVec < primaryCommon.nvect; iVec++) {
         int g3pid = primaryCommon.ip[iVec];
@@ -94,17 +101,17 @@ void ParticleCluster::DumpAllElements() const
 
 void ParticleCluster::MakeBranches()
 {
-    if (fOutputTree) {
-        fOutputTree->Branch("SecPID", &fPIDVector);
+    if (fIsOutputTreeSet) {
+        fOutputTree->Branch("PID", &fPIDVector);
         fOutputTree->Branch("ParentPID", &fParentPIDVector);
-        fOutputTree->Branch("SecIntID", &fInteractionIDVector);
-        fOutputTree->Branch("SecT", &fTimeVector);
-        fOutputTree->Branch("secvx", &fXVector);
-        fOutputTree->Branch("secvy", &fYVector);
-        fOutputTree->Branch("secvz", &fZVector);
-        fOutputTree->Branch("secpx", &fPXVector);
-        fOutputTree->Branch("secpy", &fPYVector);
-        fOutputTree->Branch("secpz", &fPZVector);
+        fOutputTree->Branch("IntID", &fInteractionIDVector);
+        fOutputTree->Branch("t", &fTimeVector);
+        fOutputTree->Branch("x", &fXVector);
+        fOutputTree->Branch("y", &fYVector);
+        fOutputTree->Branch("z", &fZVector);
+        fOutputTree->Branch("px", &fPXVector);
+        fOutputTree->Branch("py", &fPYVector);
+        fOutputTree->Branch("pz", &fPZVector);
     }
 }
 
@@ -136,5 +143,5 @@ void ParticleCluster::FillTree()
         fPZVector.push_back(momentum.z());
     }
     
-    if (fOutputTree) fOutputTree->Fill();
+    if (fIsOutputTreeSet) fOutputTree->Fill();
 }
