@@ -40,6 +40,15 @@ class Cluster : public TreeOut
         const unsigned int GetSize() const { return fElement.size(); }
         std::string GetName() const { return fName; }
         
+        template<typename Functor>
+        std::vector<T> GetProjection(Functor const& lambda)
+        {
+            std::vector<T> output;
+            for_each(fElement.begin(), fElement.end(), [&](T elem){ output.push_back(lambda(elem)); });
+
+            return output;
+        }
+        
         typename std::vector<T>::iterator begin() { return fElement.begin(); }
         typename std::vector<T>::iterator end() { return fElement.end(); }
         typename std::vector<T>::const_iterator begin() const { return fElement.begin(); }
