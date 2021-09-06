@@ -69,9 +69,6 @@ void TaggableCluster::DumpAllElements() const
         auto delayedIndex = taggable.GetCandidateIndex("Delayed")+1;
         std::cout << std::right << std::setw(3) << iTaggable+1 << "  ";
         std::cout << std::right << std::setw(4) << (taggable.Type() == typeE ? "e" : "n") << " ";
-        //std::cout << std::right << std::setw(5) << (int)(vertex.x()+0.5f) << "  ";
-        //std::cout << std::right << std::setw(5) << (int)(vertex.y()+0.5f) << "  ";
-        //std::cout << std::right << std::setw(5) << (int)(vertex.z()+0.5f) << "  ";
         if (time<10)
         std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << time << " ";
         else
@@ -93,6 +90,10 @@ void TaggableCluster::MakeBranches()
         fOutputTree->Branch("vx", &fXVector);
         fOutputTree->Branch("vy", &fYVector);
         fOutputTree->Branch("vz", &fZVector);
+        fOutputTree->Branch("DistFromPV" ,&fDistVector);
+        fOutputTree->Branch("DWall" ,&fDWallVector);
+        fOutputTree->Branch("EarlyIndex" ,&fEarlyIndexVector);
+        fOutputTree->Branch("DelayedIndex" ,&fDelayedIndexVector);
     }
 }
 
@@ -104,6 +105,10 @@ void TaggableCluster::FillTree()
     fXVector.clear();
     fYVector.clear();
     fZVector.clear();
+    fDistVector.clear(); 
+    fDWallVector.clear(); 
+    fEarlyIndexVector.clear();
+    fDelayedIndexVector.clear(); 
     
     for (auto const& taggable: fElement) {
         auto const& vertex = taggable.Vertex();
@@ -113,6 +118,10 @@ void TaggableCluster::FillTree()
         fXVector.push_back(vertex.x());
         fYVector.push_back(vertex.y());
         fZVector.push_back(vertex.z());
+        fDistVector.push_back((taggable.Vertex()-fPromptVertex).Mag());
+        fDWallVector.push_back(GetDWall(vertex));
+        fEarlyIndexVector.push_back(taggable.GetCandidateIndex("Early"));
+        fDelayedIndexVector.push_back(taggable.GetCandidateIndex("Delayed"));
     }
 
     if (fIsOutputTreeSet) fOutputTree->Fill();

@@ -23,14 +23,17 @@ class TaggableCluster : public Cluster<Taggable>
         
     private:
         TVector3 fPromptVertex;
-        
-        // type, time, energy, vertex
+
         std::vector<int> fTypeVector;
         std::vector<float> fTimeVector;
         std::vector<float> fEnergyVector;
         std::vector<float> fXVector;
         std::vector<float> fYVector;
         std::vector<float> fZVector;
+        std::vector<float> fDistVector;
+        std::vector<float> fDWallVector;
+        std::vector<int> fEarlyIndexVector;
+        std::vector<int> fDelayedIndexVector;
 };
 
 #endif
