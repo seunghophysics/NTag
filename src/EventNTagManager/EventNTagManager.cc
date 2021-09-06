@@ -5,6 +5,7 @@
 #include "skheadC.h"
 #include "apmringC.h"
 #include "apmueC.h"
+#include "nbnkC.h"
 
 #include "SKLibs.hh"
 #include "EventNTagManager.hh"
@@ -175,7 +176,8 @@ void EventNTagManager::InitializeTMVA()
     }
 
     fTMVAReader.AddSpectator("CaptureType", &(fCandidateCaptureType));
-    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/weights/TMVAClassification_MLP.weights.xml");
+    //fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/weights/TMVAClassification_MLP.weights.xml");
+    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/gd/ntgd/ntgd/weights/MLP_Gd0.011p_calibration.xml");
     //sharedData->eventCandidates.RegisterFeatureName("TMVAOutput");
 }
 
@@ -259,6 +261,8 @@ void EventNTagManager::SearchCandidates()
     
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
+    
+    FillNTagCommon();
 }
 
 void EventNTagManager::SubtractToF()
@@ -509,7 +513,7 @@ void EventNTagManager::FillTrees()
         fIsBranchSet = true;
     }
 
-    // fill tree
+    // fill trees
     fEventVariables.FillTree();
     fEventParticles.FillTree();
     fEventTaggables.FillTree();
@@ -517,7 +521,7 @@ void EventNTagManager::FillTrees()
     fEventCandidates.FillTree();
 }
 
-void EventNTagManager::WriteTrees()
+void EventNTagManager::WriteTrees(bool doCloseFile)
 {
     fSettings.WriteTree();
     fEventVariables.WriteTree();
@@ -525,5 +529,38 @@ void EventNTagManager::WriteTrees()
     fEventTaggables.WriteTree();
     fEventEarlyCandidates.WriteTree();
     fEventCandidates.WriteTree();
-    fEventCandidates.GetTree()->GetCurrentFile()->Close();
+    if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
+}
+
+void EventNTagManager::FillNTagCommon()
+{ 
+    int i = 0;
+    bool isELike;
+    int nTaggedN = 0, nTaggedE = fEventEarlyCandidates.GetSize();
+    for (auto const& candidate: fEventCandidates) {
+        int n50 = candidate["N50"];
+        float time = candidate["ReconCT"];
+        int label = candidate["CaptureType"];
+        float nLikelihood = candidate["TMVAOutput"];
+        isELike = (n50 > 50) & (time < 20);
+        ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);
+        ntag_.goodness[i] = nLikelihood;
+        ntag_.tag[i] = (nLikelihood > 0.7) & (!isELike);
+        ntag_.ntime[i] = time*1e3;
+        i++;
+        if (isELike) nTaggedE++;
+        else if (ntag_.tag[i]) nTaggedN++; 
+    }
+    
+    int nTrueN = 0;
+    for (auto const& taggable: fEventTaggables) {
+        if (taggable.Type() == typeN) {
+            nTrueN++;
+        }
+    }
+
+    ntag_.np = fEventCandidates.GetSize();
+    ntag_.nn = nTaggedN;
+    ntag_.mctruth_nn = nTrueN;
+    ntag_.n200m = nTaggedE; // temporarily save the number of revised nmue to n200m for now
 }

@@ -72,7 +72,9 @@ class EventNTagManager
         
         // root
         void FillTrees();
-        void WriteTrees();
+        void WriteTrees(bool doCloseFile=false);
+        
+        void WriteZBS(std::string outZBSPath);
         
         // printers
         void DumpSettings() { fSettings.Print(); }
@@ -85,6 +87,7 @@ class EventNTagManager
         void MapTaggable(Taggable& taggable, int iCandidate, const std::string& key);
         void MapCandidateClusters(CandidateCluster& candidateCluster);
         void PruneCandidates();
+        void FillNTagCommon();
         int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
         
     
@@ -109,6 +112,7 @@ class EventNTagManager
         int fCandidateCaptureType;
         
         // ROOT
+        std::string fOutFilePath;
         bool fIsBranchSet;
 
         // Utilities
@@ -126,7 +130,7 @@ class TInterruptHandler : public TSignalHandler
         virtual Bool_t Notify()
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
-            fNTagManager->WriteTrees();
+            fNTagManager->WriteTrees(true);
             _exit(2);
             return kTRUE;
         }

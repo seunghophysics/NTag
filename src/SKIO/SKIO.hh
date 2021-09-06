@@ -6,13 +6,28 @@
 #include <Printer.hh>
 #include <PMTHitCluster.hh>
 
-extern "C" {
+#include "stdlib.h"
+
+extern "C"
+{
+    void kzbloc_(const char*,int&,size_t);
+    void kzbdel_(const char*,size_t);
+    void kzbcr0_(const char*,int&,size_t);
+    void kzrep0_(const char*,int&,const char*,int&,int *,size_t,size_t);
+    void kznsg0_(const char*,int&,size_t);
+    void kzget0_(const char*,int&,int&,int*,size_t);
+    void kzwrit_(int*);
+    void kzeclr_();
+}
+
+extern "C" 
+{
     void kzinit_();
     void kzlimit_(int*);
     void kzenum_(int*, int*);
-    void kzbloc_(const char*, int*);
+    //void kzbloc_(const char*, int*);
     void kzget1_(const char*, int*, int*, void*, int);
-    void kzbdel_(const char*);
+    //void kzbdel_(const char*);
     void kzbcr1_(const char*, int*, const char*, int*, int*, const char*, int*, int, int, int);
     void kzrep1_(const char*, int*, int*, void*, int);
     void kzldat_(const char*, int*);
@@ -108,5 +123,7 @@ class SKIO
 void FillCommon(PMTHitCluster& hitCluster);
 void FillTQREALBank(PMTHitCluster& hitCluster);
 void FillTQREALBranch(PMTHitCluster& hitCluster);
+void ReadNTagBank();
+void WriteNTagBank();
 
 #endif

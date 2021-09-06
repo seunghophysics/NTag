@@ -25,7 +25,7 @@ $(OBJS): src/%.o: src/%.cc src/%.hh
 	
 $(FORTRANOBJS): src/SKIO/%.o: src/SKIO/%.F
 	@echo "[UtilLib] Building $*..."
-	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe
+	$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe -I $(ATMPD_ROOT)/inc
 
 lib/libutillib.a: $(OBJS) $(FORTRANOBJS)
 	@echo "[UtilLib] Building static shared library..."

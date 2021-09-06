@@ -12,6 +12,7 @@ c#include "skhead.h"
 #include "skvect.h"
 
 c#include "apbnkcntl.h"
+#include "nbnk.h"
 #include "apmring.h"
 #include "appatsp.h"
 #include "appoint.h"
