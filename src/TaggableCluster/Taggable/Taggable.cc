@@ -4,10 +4,10 @@
 #include "Taggable.hh"
 
 Taggable::Taggable()
-: t(0), E(0), v(), earlyIndex(-1), delayedIndex(-1) {}
+: t(0), E(0), v(), earlyIndex(-1), delayedIndex(-1), taggedType(typeMissed) {}
 
 Taggable::Taggable(TaggableType tType, float time, float energy, TVector3 vertex)
-: type(tType), t(time), E(energy), v(vertex), earlyIndex(-1), delayedIndex(-1) {}
+: type(tType), t(time), E(energy), v(vertex), earlyIndex(-1), delayedIndex(-1), taggedType(typeMissed) {}
 
 void Taggable::Dump()
 {

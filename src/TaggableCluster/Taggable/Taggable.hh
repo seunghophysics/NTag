@@ -5,6 +5,7 @@
 
 enum TaggableType
 {
+    typeMissed,
     typeE, 
     typeN
 };
@@ -22,6 +23,8 @@ class Taggable
         inline TVector3 Vertex() const { return v; }
         inline void SetVertex(TVector3 vertex) { v = vertex; }
         inline TaggableType Type() const { return type; }
+        inline TaggableType TaggedType() const { return taggedType; }
+        inline void SetTaggedType(TaggableType t) { taggedType = t; }
 
         void SetCandidateIndex(const std::string& key, int id);
         int GetCandidateIndex(const std::string& key) const;
@@ -34,6 +37,7 @@ class Taggable
         float E;
         int earlyIndex, delayedIndex;
         TaggableType type;
+        TaggableType taggedType;
 };
 
 #endif

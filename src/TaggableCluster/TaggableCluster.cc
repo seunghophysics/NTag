@@ -59,7 +59,7 @@ void TaggableCluster::DumpAllElements() const
 {
     Printer msg;
     msg.PrintTitle("MC Taggables");
-    std::cout << "\033[4m No. Type Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed\033[0m" << std::endl;
+    std::cout << "\033[4m No. Type Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
 
     for (int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
         auto& taggable = fElement[iTaggable];
@@ -67,6 +67,7 @@ void TaggableCluster::DumpAllElements() const
         auto time = taggable.Time()*1e-3;
         auto earlyIndex = taggable.GetCandidateIndex("Early")+1;
         auto delayedIndex = taggable.GetCandidateIndex("Delayed")+1;
+        auto taggedType = taggable.TaggedType();
         std::cout << std::right << std::setw(3) << iTaggable+1 << "  ";
         std::cout << std::right << std::setw(4) << (taggable.Type() == typeE ? "e" : "n") << " ";
         if (time<10)
@@ -74,17 +75,19 @@ void TaggableCluster::DumpAllElements() const
         else
         std::cout << std::right << std::setw(6) << std::fixed << (int)(time+0.5f) << "    ";
         std::cout << std::right << std::setw(8) << (int)((taggable.Vertex()-fPromptVertex).Mag()) << " ";
-        std::cout << std::right << std::setw(9) << (int)(GetDWall(vertex)) << " ";
-        std::cout << std::right << std::setw(11) << std::setprecision(2) << taggable.Energy() << " ";
+        std::cout << std::right << std::setw(10) << (int)(GetDWall(vertex)) << "  ";
+        std::cout << std::right << std::setw(11) << std::setprecision(2) << taggable.Energy() << "  ";
         std::cout << std::right << std::setw(5) << (earlyIndex ? std::to_string(earlyIndex) : "-") << " ";
-        std::cout << std::right << std::setw(7) << (delayedIndex ? std::to_string(delayedIndex) : "-") << "\n";
+        std::cout << std::right << std::setw(7) << (delayedIndex ? std::to_string(delayedIndex) : "-") << " ";
+        std::cout << std::right << std::setw(8) << (taggedType==typeMissed ? "-" : (taggedType==typeE ? "e" : "n")) << "\n";
     }
 }
 
 void TaggableCluster::MakeBranches()
 {
      if (fIsOutputTreeSet) {
-        fOutputTree->Branch("type", &fTypeVector);
+        fOutputTree->Branch("Type", &fTypeVector);
+        fOutputTree->Branch("TaggedType", &fTaggedTypeVector);
         fOutputTree->Branch("t", &fTimeVector);
         fOutputTree->Branch("E", &fEnergyVector);
         fOutputTree->Branch("vx", &fXVector);
@@ -100,6 +103,7 @@ void TaggableCluster::MakeBranches()
 void TaggableCluster::FillTree()
 {
     fTypeVector.clear();
+    fTaggedTypeVector.clear();
     fTimeVector.clear();
     fEnergyVector.clear();
     fXVector.clear();
@@ -113,6 +117,7 @@ void TaggableCluster::FillTree()
     for (auto const& taggable: fElement) {
         auto const& vertex = taggable.Vertex();
         fTypeVector.push_back(taggable.Type());
+        fTaggedTypeVector.push_back(taggable.TaggedType());
         fTimeVector.push_back(taggable.Time());
         fEnergyVector.push_back(taggable.Energy());
         fXVector.push_back(vertex.x());
