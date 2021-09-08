@@ -136,7 +136,7 @@ int SKIO::ReadEvent(int eventID)
     
     // invalid eventID
     if ((eventID < 1) || (fNEvents < eventID))
-        fMsg.Print(Form("[SKIO] The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n", 
+        fMsg.Print(Form("The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n", 
                         eventID, fNEvents), pERROR);
 
     // valid eventID
@@ -171,9 +171,13 @@ int SKIO::GetNumberOfEvents()
         int logicalUnit = fIOMode;
         int readStatus = mReadOK;
         int nEvents = 0;
+
+        std::cout << "\n";
+        fMsg.Print("Counting the number of events in the input file...\n");
         while (readStatus == mReadOK) {
             readStatus = skread_(&logicalUnit);
             if (readStatus == mReadOK) nEvents++;
+            std::cout << "[SKIO] Number of events: " << nEvents << "\r";
         }
         CloseFile();
         fNEvents = nEvents;
@@ -194,7 +198,7 @@ int SKIO::GetCurrentEventID()
 void SKIO::DumpSettings()
 {
     std::cout << "\n";
-    fMsg.Print(Form("[SKIO] %s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
+    fMsg.Print(Form("%s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
     fMsg.Print("SK option: " + fSKOption);
     fMsg.Print("SK geometry: " + fSKGeometry);
     fMsg.Print("SK bad channel option: " + fSKBadChOption);
