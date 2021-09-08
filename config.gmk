@@ -4,7 +4,7 @@ CXX = g++
 CXXFLAGS += -std=c++11 -fPIC -g -O0 -lgfortran
 
 FC = gfortran
-FCFLAGS += -w -fPIC -lstdc++ -ffree-line-length-none
+FCFLAGS += -w -fPIC -lstdc++
 FORTRANINCLUDE += -I$(SKOFL_FORTRAN_INCDIR)/lowe -I$(ATMPD_ROOT)/inc
 
 SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
