@@ -20,7 +20,7 @@ class PMTHitCluster : public Cluster<PMTHit>
     public:
         PMTHitCluster();
         PMTHitCluster(sktqz_common sktqz);
-        
+
         void Append(const PMTHit& hit);
 
         void SetVertex(const TVector3& inVertex);
@@ -36,9 +36,9 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         PMTHitCluster Slice(int startIndex, float tWidth);
         PMTHitCluster Slice(int startIndex, float minusT, float plusT);
-        
+
         unsigned int GetIndex(float t);
-        
+
         void ApplyDeadtime(float deadtime);
 
         template<typename T>

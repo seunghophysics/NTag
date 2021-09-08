@@ -29,7 +29,7 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
         Particle primary(g4pid, 0, TVector3(skvect_.pos), TVector3(skvect_.pin[iVec]));
         Append(primary);
     }
-    
+
     // Secondaries
     for (int iSec = 0; iSec < secondaryCommon.nscndprt; iSec++) {
 
@@ -42,7 +42,7 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
 
         Append(secondary);
     }
-    
+
     Sort();
 }
 
@@ -54,8 +54,8 @@ void ParticleCluster::SetT0(float t0)
 
 void ParticleCluster::Sort()
 {
-    std::sort(fElement.begin(), fElement.end(), 
-    [](const Particle& particle1, const Particle& particle2){ 
+    std::sort(fElement.begin(), fElement.end(),
+    [](const Particle& particle1, const Particle& particle2){
         //if (particle1.GetName().Contains("nu")) {
         //    return true;
         //}
@@ -68,7 +68,7 @@ void ParticleCluster::DumpAllElements() const
     Printer msg;
 
     if (nework_.modene) {
-        
+
         msg.PrintTitle("NEUT MC");
         std::cout << "\033[4m Neutrino Type      Interaction  Momentum (GeV/c)\033[0m\n ";
         std::cout << std::right << std::setw(13) << GetParticleName(nework_.ipne[0]) << " ";
@@ -142,6 +142,6 @@ void ParticleCluster::FillTree()
         fPYVector.push_back(momentum.y());
         fPZVector.push_back(momentum.z());
     }
-    
+
     if (fIsOutputTreeSet) fOutputTree->Fill();
 }

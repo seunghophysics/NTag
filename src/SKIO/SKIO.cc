@@ -20,7 +20,7 @@ SKIO::SKIO(std::string fileName, IOMode mode)
 {
     SetFilePath(fileName);
     fIOMode = mode;
-    
+
     if (fIOMode == mInput) {
         GetNumberOfEvents();
     }
@@ -46,13 +46,13 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     if (!fileName.empty()) SetFilePath(fileName);
     else fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
     fIOMode = mode;
-    
+
     // SK option
     skoptn_(fSKOption.Data(), fSKOption.Length());
-    
+
     // SK geometry
     skheadg_.sk_geometry = fSKGeometry; geoset_();
-    
+
     // SK custom bad channel masking (M. Harada)
     // (SK option 25: mask bad channel)
     // (SK option 26: read bad channel from input file)
@@ -64,10 +64,10 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
 
     //int logicalUnit = fFileFormat==mZBS ? fIOMode : mInput;
     int logicalUnit = fIOMode;
-    
+
     // ZBS
     if (fFileFormat == mZBS) {
-    
+
         // Initialize ZEBRA
         if (!fIsZEBRAInitialized) {
             int iLimit = 4000000;
@@ -101,7 +101,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
         else if (fIOMode == mOutput)
             skroot_open_write_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
     }
-    
+
     fIsFileOpen = true;
 }
 
@@ -133,10 +133,10 @@ int SKIO::ReadNextEvent()
 int SKIO::ReadEvent(int eventID)
 {
     int readStatus = 0;
-    
+
     // invalid eventID
     if ((eventID < 1) || (fNEvents < eventID))
-        fMsg.Print(Form("The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n", 
+        fMsg.Print(Form("The input eventID (given: %d) to SKIO::ReadEvent should be within (1 <= eventID <= nEvents == %d).\n",
                         eventID, fNEvents), pERROR);
 
     // valid eventID
@@ -166,7 +166,7 @@ int SKIO::GetNumberOfEvents()
     if (!fNEvents) {
         if (!fIsFileOpen)
             OpenFile();
-    
+
         // do skread until eof
         int logicalUnit = fIOMode;
         int readStatus = mReadOK;
@@ -181,7 +181,7 @@ int SKIO::GetNumberOfEvents()
         }
         CloseFile();
         fNEvents = nEvents;
-        
+
         if (!fNEvents) {
             fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
@@ -212,14 +212,14 @@ void FillCommon(PMTHitCluster& hitCluster)
     sktqz_.nqiskz = nHits;
     rawtqinfo_.nqisk_raw = nHits;
     rawtqinfo_.pc2pe_raw = 2.46; // SK5
-    
+
     for (int iHit=0; iHit<nHits; iHit++) {
         auto hit = hitCluster[iHit];
         sktqz_.tiskz[iHit] = hit.t();
         sktqz_.qiskz[iHit] = hit.q();
         sktqz_.icabiz[iHit] = hit.i();
         sktqz_.ihtiflz[iHit] = hit.f()<<16;
-        
+
         rawtqinfo_.icabbf_raw[iHit] = hit.i() + (hit.f()<<16);
         rawtqinfo_.tbuf_raw[iHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
         rawtqinfo_.qbuf_raw[iHit] = hit.q();
@@ -229,13 +229,13 @@ void FillCommon(PMTHitCluster& hitCluster)
 void FillTQREALBank(PMTHitCluster& hitCluster)
 {
     FillCommon(hitCluster);
-    write_tq_();   
+    write_tq_();
 }
 
 void FillTQREALBranch(PMTHitCluster& hitCluster)
 {
     FillCommon(hitCluster);
-    
+
     int logicalUnit = 20;
     skroot_set_tree_(&logicalUnit);
     skroot_fill_tree_(&logicalUnit);
@@ -257,7 +257,7 @@ void ReadNTagBank()
   int * ibuff=(int*)buff;
   int nsg;
   kznsg0_(bnkname,nsg,len);
-  if(nsg<0) 
+  if(nsg<0)
     {
       std::cerr<<"No neutron bank exists";
     }
@@ -288,13 +288,13 @@ void ReadNTagBank()
       ntag_.ntime[i]=fbuff[index++];
       ntag_.goodness[i]=fbuff[index++];
       for(int j=0;j<3;j++)
-	{
-	  ntag_.nvx[i][j]=fbuff[index++];
-	}
+    {
+      ntag_.nvx[i][j]=fbuff[index++];
+    }
       for(int j=0;j<3;j++)
-	{
-	  ntag_.bvx[i][j]=fbuff[index++];
-	}
+    {
+      ntag_.bvx[i][j]=fbuff[index++];
+    }
       ntag_.nlow[i]=ibuff[index++];
       ntag_.n300[i]=ibuff[index++];
       ntag_.phi[i]=fbuff[index++];
@@ -313,18 +313,18 @@ void ReadNTagBank()
       ntag_.n10d[i]=ibuff[index++];
       ntag_.t0[i]=fbuff[index++];
       if(version>=2)
-	{
-	  ntag_.mctruth_neutron[i]=ibuff[index++];
-	}
+    {
+      ntag_.mctruth_neutron[i]=ibuff[index++];
+    }
       if(version>=3)
-	{
-	  ntag_.bse2[i]=fbuff[index++];
-	}
+    {
+      ntag_.bse2[i]=fbuff[index++];
+    }
       if(version>=4)
-	{
-	  ntag_.tag[i]=ibuff[index++];
-	}
-      
+    {
+      ntag_.tag[i]=ibuff[index++];
+    }
+
     }
 
     std::cout << "np: " << ntag_.np << "\n";
@@ -344,16 +344,16 @@ void WriteNTagBank()
     int version=4;
     const char* bnkname="NTAG";
     int len=strlen(bnkname);
-    
+
     int buffsize=8+MAXNP*28;
     char buff[4*buffsize];//char = 8 bits, float/int=32 bits
     float * fbuff=(float*) buff;
     int * ibuff=(int*)buff;
-    
+
     int exi;
     kzbloc_(bnkname,exi,len);
     if(exi!=0) kzbdel_(bnkname,len);
-    
+
     int ierr;
     kzbcr0_(bnkname,ierr,len);
     int index=0;
@@ -370,13 +370,13 @@ void WriteNTagBank()
         fbuff[index++]=ntag_.ntime[i];
         fbuff[index++]=ntag_.goodness[i];
         for(int j=0;j<3;j++)
-    	{
-    	  fbuff[index++]=ntag_.nvx[i][j];
-    	}
+        {
+          fbuff[index++]=ntag_.nvx[i][j];
+        }
         for(int j=0;j<3;j++)
-    	{
-    	  fbuff[index++]=ntag_.bvx[i][j];
-    	}
+        {
+          fbuff[index++]=ntag_.bvx[i][j];
+        }
         ibuff[index++]=ntag_.nlow[i];
         ibuff[index++]=ntag_.n300[i];
         fbuff[index++]=ntag_.phi[i];
@@ -398,12 +398,12 @@ void WriteNTagBank()
         fbuff[index++]=ntag_.bse2[i];
         ibuff[index++]=ntag_.tag[i];
     }
-    
-    
+
+
     int zero=0;
     int one=1;
     kzrep0_(bnkname,zero,"I",index,ibuff,len,one);
-    
+
     int luno = 20;
     kzwrit_(&luno);
     kzeclr_();

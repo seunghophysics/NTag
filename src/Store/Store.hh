@@ -58,9 +58,9 @@ class Store : public TreeOut
             if (!storeMap.count(key)) keyOrder.push_back(key);
             storeMap[key] = stream.str();
         }
-        
+
         const std::map<std::string, std::string>& GetMap() { return storeMap; }
-        
+
         // TTree access
         void MakeBranches();
         void FillTree();
@@ -68,10 +68,10 @@ class Store : public TreeOut
     protected:
         std::string name;
         std::map<std::string, std::string> storeMap;
-        
-    private:    
+
+    private:
         std::vector<std::string> keyOrder;
-        
+
         // temporary values for branching
         TVector3 tmpVec;
         float tmpNum;

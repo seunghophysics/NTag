@@ -128,7 +128,7 @@ unsigned int PMTHitCluster::GetIndex(float t)
             break;
         }
     }
-    
+
     if (!isFound)
         std::cerr << "PMTHitCluster::GetIndex: Could not find the right index for the given time " << t
                   << ", returning the max index...\n";
@@ -147,9 +147,9 @@ void PMTHitCluster::ApplyDeadtime(float deadtime)
 
     std::array<float, MAXPM> hitTime;
     hitTime.fill(std::numeric_limits<float>::min());
-    
+
     std::vector<PMTHit> dtCorrectedHits;
-    
+
     if (!bSorted) Sort();
     for (auto const& hit: fElement) {
         if (hit.t() - hitTime[hit.i()] > deadtime) {
@@ -157,9 +157,9 @@ void PMTHitCluster::ApplyDeadtime(float deadtime)
             hitTime[hit.i()] = hit.t();
         }
     }
-    
+
     fElement = dtCorrectedHits;
-    
+
     if (bHadVertex)
         SetVertex(tempVertex);
 }
@@ -173,7 +173,7 @@ std::array<float, 6> PMTHitCluster::GetBetaArray()
         std::cerr << "PMTHitCluster::GetBetaArray : the hit cluster has no set vertex. Returning a 0-filled array...\n";
         return beta;
     }
-    
+
     if (!nHits) {
         std::cerr << "PMTHitCluster::GetBetaArray : the hit cluster is empty. Returning a 0-filled array...\n";
         return beta;

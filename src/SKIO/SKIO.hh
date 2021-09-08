@@ -20,7 +20,7 @@ extern "C"
     void kzeclr_();
 }
 
-extern "C" 
+extern "C"
 {
     void kzinit_();
     void kzlimit_(int*);
@@ -76,29 +76,29 @@ class SKIO
         void OpenFile();
         void OpenFile(std::string fileName, IOMode mode=mInput);
         void CloseFile();
-        
+
         int ReadNextEvent();
         int ReadEvent(int eventID);
-        
+
         void WriteTQREAL(PMTHitCluster& hitCluster);
-        
+
         int GetNumberOfEvents();
         int GetCurrentEventID();
-        
+
         void DumpSettings();
-        
+
         const char* GetFilePath() { return fFilePath.Data(); }
         void SetFilePath(std::string filePath) { fFilePath = filePath; fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; }
-        
+
         const char* GetSKOption() { return fSKOption.Data(); }
         void SetSKOption(const char* skOption) { fSKOption = skOption; }
-        
+
         int GetSKGeometry() { return fSKGeometry; }
         void SetSKGeometry(int skGeometry) { fSKGeometry = skGeometry; }
-        
+
         int GetSKBadChOption() { return fSKBadChOption; }
         void SetSKBadChOption(int skBadChOption) { fSKBadChOption = skBadChOption; }
-        
+
         int GetRefRunNo() { return fRefRunNo; }
         void SetRefRunNo(int refRunNo) { fRefRunNo = refRunNo; }
 
@@ -110,13 +110,13 @@ class SKIO
         int fSKGeometry;
         int fSKBadChOption;
         int fRefRunNo;
-        
+
         int fNEvents, fCurrentEventID;
-        
+
         bool fIsFileOpen;
-        
+
         static bool fIsZEBRAInitialized;
-        
+
         Printer fMsg;
 };
 

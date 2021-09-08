@@ -35,13 +35,13 @@ void Store::Print() const
 {
     Printer msg;
     msg.PrintBlock(name + ": Keys and values");
-    
+
     int maxWidth = 0;
     for (auto const& key: keyOrder) {
         if (key.length() > maxWidth)
             maxWidth = key.length();
     }
-    
+
     for (auto const& key: keyOrder)
         std::cout << std::left << std::setw(maxWidth+1) << key << ": " << storeMap.at(key) << "\n";
     std::cout << std::endl;
@@ -60,10 +60,10 @@ void Store::MakeBranches()
             else {
                 tmpStr = value;
                 fOutputTree->Branch(key, &tmpStr);
-            }       
+            }
         }
     }
-    
+
     fillCounter = 0;
 }
 
@@ -75,10 +75,10 @@ void Store::FillTree()
                 if (!Get(key, tmpNum)) {
                     Get(key, tmpStr);
                 }
-            
+
             fOutputTree->GetBranch(key.c_str())->Fill();
         }
-        
+
         fillCounter++;
         fOutputTree->SetEntries(fillCounter==1? 1 : fillCounter-1);
     }
@@ -88,7 +88,7 @@ std::istream& operator>>(std::istream& istr, TVector3& vec)
 {
     std::string coordinate;
     unsigned int iDim = 0;
-    
+
     while (iDim < 3 && std::getline(istr, coordinate, vecDelimiter)) {
         vec[iDim] = ::atof(coordinate.c_str());
         iDim++;

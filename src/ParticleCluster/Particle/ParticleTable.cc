@@ -29,7 +29,7 @@ std::map<int, TString> gPIDMap = {{11,        "e-"},
                                   {3212,      "sigma0"},
                                   {3222,      "sigma+"},
                                   {100010020, "d"},
-                                  // SK custom PDG code from below, 
+                                  // SK custom PDG code from below,
                                   // refer to gt2pd.h in skdetsim
                                   {100045,    "d"},
                                   {100046,    "t"},
@@ -50,7 +50,7 @@ std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {13, "HadElas."},
                                     {20, "HadInel."},
                                     {18, "nCapture"}};
-                                    
+
                                     // PDG code : MeV
 std::map<int, float> gPIDMassMap = {{0, 0},
                                     {11, 0.510998},
@@ -96,7 +96,7 @@ std::map<int, int> gG3toG4PIDMap = {{1,  22},         // gamma
                                     {47, 1000020040}, // alpha
                                     {48, 0},          // geantino
                                     {50, 0}};         // cherenkov
-                                    
+
 std::map<int, TString> gNEUTModeMap = {{1, "CCQE"},
                                        {-1, "CCQE"},
                                        {2, "CCQE (+N)"},

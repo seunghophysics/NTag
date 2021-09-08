@@ -155,18 +155,18 @@ TString PickSubdirectory(TString dirPath)
     return PickRandom(list);
 }
 
-std::vector<TString> GetListOfFiles(TString dirPath, const char* extension, bool recursive) 
+std::vector<TString> GetListOfFiles(TString dirPath, const char* extension, bool recursive)
 {
     std::vector<TString> list;
 
     TSystemDirectory dir(dirPath, dirPath);
     TList *files = dir.GetListOfFiles();
-    
-    if (files) { 
-        TSystemFile *file; 
-        TString fileName, filePath; 
-        TIter next(files); 
-        while ((file = (TSystemFile*)next())) { 
+
+    if (files) {
+        TSystemFile *file;
+        TString fileName, filePath;
+        TIter next(files);
+        while ((file = (TSystemFile*)next())) {
             fileName = file->GetName();
             filePath = file->GetTitle();
             if (recursive && file->IsDirectory() && fileName != "." && fileName != "..") {
@@ -177,9 +177,9 @@ std::vector<TString> GetListOfFiles(TString dirPath, const char* extension, bool
             if (!file->IsDirectory() && fileName.EndsWith(extension)) {
                 list.push_back(filePath + "/" + fileName);
             }
-        } 
+        }
     }
-    
+
     return list;
 }
 
@@ -189,19 +189,19 @@ std::vector<TString> GetListOfSubdirectories(TString dirPath)
 
     TSystemDirectory dir(dirPath, dirPath);
     TList *files = dir.GetListOfFiles();
-    
-    if (files) { 
-        TSystemFile *file; 
-        TString fileName, filePath; 
-        TIter next(files); 
-        while ((file = (TSystemFile*)next())) { 
+
+    if (files) {
+        TSystemFile *file;
+        TString fileName, filePath;
+        TIter next(files);
+        while ((file = (TSystemFile*)next())) {
             fileName = file->GetName();
             filePath = file->GetTitle();
             if (file->IsDirectory() && fileName != "." && fileName != "..") {
                 list.push_back(filePath);
             }
-        } 
+        }
     }
-    
+
     return list;
 }

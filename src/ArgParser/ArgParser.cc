@@ -9,7 +9,7 @@ ArgParser::ArgParser(int &argc, char **argv)
         this->tokens.push_back(std::string(argv[iArg]));
 }
 
-ArgParser::ArgParser(std::ifstream& f) 
+ArgParser::ArgParser(std::ifstream& f)
 : ArgParser()
 {
     std::string arg;

@@ -20,8 +20,8 @@ CandidateCluster::~CandidateCluster()
 
 void CandidateCluster::Sort()
 {
-    //std::sort(fElement.begin(), fElement.end(), 
-    //[](const Candidate& candidate1, const Candidate& candidate2){ 
+    //std::sort(fElement.begin(), fElement.end(),
+    //[](const Candidate& candidate1, const Candidate& candidate2){
     //    return candidate1.Get("ReconCT") < candidate2.Get("ReconCT"); });
 }
 
@@ -37,12 +37,12 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
         int xWidth = 10;
         std::cout << "\033[4m No. ";
         auto baseFeatureMap = fElement[0].GetFeatureMap();
-        
+
         if (keys.empty()) {
             for (auto const& pair: baseFeatureMap)
                 keys.push_back(pair.first);
         }
-        
+
         for (auto const& key: keys) {
             int textWidth = key.size()>6 ? key.size() : 6;
             std::cout << std::right << std::setw(textWidth) << key << " ";
@@ -55,9 +55,9 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
             for (auto const& key: keys) {
                 int textWidth = key.size()>6 ? key.size() : 6;
                 float value = fElement[iCandidate][key];
-                
+
                 if (TString(key).Contains("Index")) {
-                    std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " "; 
+                    std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " ";
                 }
                 else if (TString(key).Contains("ReconCT") && fabs(value) < 10) {
                     std::cout << std::fixed << std::setprecision(2) << std::setw(textWidth) << value << " ";
@@ -126,7 +126,7 @@ void CandidateCluster::FillVectorMap()
         if (!areFeaturesIdentical) {
             std::cerr << "Make sure all candidates share the same set of features specified by CandidateCluster::RegisterFeatureNames!" << std::endl;
         }
-        
+
         assert(fFeatureVectorMap.begin()->second->size() == GetSize());
     }
 }

@@ -87,7 +87,7 @@ class Printer
          * @param newLine If \c false, no new line is made at the end of output.
          */
         virtual void  PrintBlock(TString line, BlockSize size=pMAIN, Verbosity vType=pDEFAULT, bool newLine=true);
-        
+
         virtual void  PrintTitle(TString line);
 
         /**

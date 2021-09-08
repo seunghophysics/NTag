@@ -9,7 +9,7 @@ extern std::map<int, float> gPIDMassMap;
 extern std::map<int, TString> gIntIDMap;
 extern std::map<int, int> gG3toG4PIDMap;
 extern std::map<int, TString> gNEUTModeMap;
-                                    
+
 enum G3IntCode
 {
     iDECAY = 5,

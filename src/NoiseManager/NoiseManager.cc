@@ -20,7 +20,7 @@
 NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
   fNoiseEventLength(1000e3),
-  fNoiseStartTime(0), fNoiseEndTime(535e3), fNoiseWindowWidth(535e3), 
+  fNoiseStartTime(0), fNoiseEndTime(535e3), fNoiseWindowWidth(535e3),
   fNoiseT0(0),
   fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
   fPMTDeadtime(900),
@@ -34,10 +34,10 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
 : NoiseManager()
 {
     SetNoiseTimeRange(tStart, tEnd);
-    
+
     // Read dummy (TChain)
     TChain* dummyChain = new TChain(fNoiseTreeName);
-    
+
     TObjArray* opt = option.Tokenize('/');
     TString base = ((TObjString*)(opt->At(0)))->GetString();
     TString run = "";
@@ -47,25 +47,25 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
     SetSeed(seed);
     TString dummyRunPath = DUMMYDIR + option;
     int nRequiredEvents = nInputEvents / fNParts;
-    
+
     std::vector<TString> runDirs = GetListOfSubdirectories(DUMMYDIR+base);
     std::vector<TString> fileList;
     if (run != "") fileList = GetListOfFiles(DUMMYDIR + option);
-    
+
     TString dummyFilePath;
-    
+
     std::vector<TString> usedFilesList;
-    
+
     while (fNEntries <= 2*nRequiredEvents) {
         if (run == "") {
             dummyRunPath = PickRandom(runDirs);
             fileList = GetListOfFiles(dummyRunPath, ".root");
         }
-        if (!fileList.empty())    
+        if (!fileList.empty())
             dummyFilePath = PickRandom(fileList);
         AddNoiseFileToChain(dummyChain, dummyFilePath);
     }
-    
+
     SetNoiseTree(dummyChain);
 }
 
@@ -90,12 +90,12 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
 
     dummyFile = TFile::Open(noiseFilePath);
     tree = (TTree*)(dummyFile->Get(fNoiseTreeName));
-    
+
     if (tree) {
         nAddedEntries = tree->GetEntries(DUMMYCUT);
         dummyFile->Close();
     }
-    
+
     if (nAddedEntries && std::find(usedFilesList.begin(), usedFilesList.end(), noiseFilePath) == usedFilesList.end()) {
         std::cout << "[NoiseManager] Adding dummy file at " << noiseFilePath << ": " << nAddedEntries << " entries\n";
         chain->Add(noiseFilePath);
@@ -124,13 +124,13 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     TFitResultPtr gausFit = hNHits->Fit(gausFunc, "S", "goff");
     const double* fitParams = gausFit->GetParams();
     double fitMean = fitParams[1]; double fitSigma = fitParams[2];
-    
+
     float leftEdge = fitMean - 3 * fitSigma;
     float rightEdge = fitMean + 3 * fitSigma;
 
     fMinHitDensity = leftEdge / 1000.;
     fMaxHitDensity = rightEdge / 1000.;
-    
+
     std::cout << "[NoiseManager] Noise hits per entry: " << fitMean << " +- " << fitSigma << " hits\n";
     std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.1f , %3.1f) hits/us\n", fMinHitDensity, fMaxHitDensity);
     std::cout << "[NoiseManager] Total entries: " << fNEntries << "\n";
@@ -138,8 +138,8 @@ void NoiseManager::SetNoiseTree(TTree* tree)
 }
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
-{ 
-    fNoiseStartTime = startTime; 
+{
+    fNoiseStartTime = startTime;
     fNoiseEndTime = endTime;
     fNoiseWindowWidth = endTime - startTime;
     fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
@@ -148,7 +148,7 @@ void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
 void NoiseManager::GetNextNoiseEvent()
 {
     fPartID = 0; fCurrentHitID = 0;
-    
+
     fCurrentEntry++; fNoiseEventHits.Clear();
     if (fCurrentEntry < fNEntries) {
         fNoiseTree->GetEntry(fCurrentEntry);
@@ -175,14 +175,14 @@ void NoiseManager::GetNextNoiseEvent()
 
 void NoiseManager::SetNoiseEventHits()
 {
-    fT = fTQReal->T; 
+    fT = fTQReal->T;
     fQ = fTQReal->Q;
     fI = fTQReal->cables;
     int nRawHits = fT.size();
-    
+
     for (unsigned int j=0; j<=nRawHits; j++)
         fNoiseEventHits.Append({fT[j], fQ[j], fI[j]&0x0000FFFF, 2/*in-gate flag*/});
-        
+
     fNoiseEventHits.Sort();
     int nHits = fNoiseEventHits.GetSize();
     fNoiseEventLength = fNoiseEventHits[nHits-1].t() - fNoiseEventHits[0].t();
@@ -203,10 +203,10 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
         GetNextNoiseEvent();
         std::cout << "[NoiseManager] Current noise entry: " << fCurrentEntry << "\n";
     }
-    
+
     float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
     float partEndTime = partStartTime + fNoiseWindowWidth;
-    
+
     while (fNoiseEventHits[fCurrentHitID].t() < partStartTime) fCurrentHitID++;
 
     while (fNoiseEventHits[fCurrentHitID].t() < partEndTime) {
@@ -215,7 +215,7 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
         signalHits->Append(shiftedHit);
         fCurrentHitID++;
     }
-    
+
     signalHits->ApplyDeadtime(fPMTDeadtime);
     fPartID++;
 }

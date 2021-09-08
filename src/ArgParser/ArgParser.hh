@@ -78,7 +78,7 @@ class ArgParser{
             return std::find(this->tokens.begin(), this->tokens.end(), option)
                    != this->tokens.end();
         }
-        
+
         void OverrideStore(Store* store);
 
     private:

@@ -10,17 +10,17 @@ class TaggableCluster : public Cluster<Taggable>
     public:
         TaggableCluster();
         TaggableCluster(const ParticleCluster& particleCluster);
-        
+
         void ReadParticleCluster(const ParticleCluster& particleCluster);
-        
+
         void Sort();
         void DumpAllElements() const;
-        
+
         void SetPromptVertex(TVector3 v) { fPromptVertex = v; }
-        
+
         void MakeBranches();
         void FillTree();
-        
+
     private:
         TVector3 fPromptVertex;
 

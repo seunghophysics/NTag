@@ -17,32 +17,32 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
     // taggable n
     for (auto const& particle : particleCluster) {
-        
+
         // gamma-ray produced by n-capture
         if (particle.IntID() == iNCAPTURE && particle.PID() == GAMMA) {
-            
+
             bool isNewCapture = true;
 
             // Check saved captures
             for (int iCapture = 0; iCapture < fElement.size(); iCapture++) {
-                
+
                 Taggable& capture = fElement[iCapture];
-                
-                // if a matching capture time exists, 
+
+                // if a matching capture time exists,
                 // just add the gamma-ray to the matching capture
                 if (fabs((double)(particle.Time()-capture.Time()))<1.e-7) {
                     isNewCapture = false;
                     capture.SetEnergy(capture.Energy()+particle.Energy());
                 }
             }
-            
+
             // if this n-capture gamma-ray is new
             if (isNewCapture) {
                 Taggable capture(typeN, particle.Time(), particle.Energy(), particle.Vertex());
                 Append(capture);
             }
         }
-        
+
         // decay electrons
         else if (particle.IntID() == iDECAY && abs(particle.PID()) == ELECTRON)
             Append(Taggable(typeE, particle.Time(), particle.Energy(), particle.Vertex()));
@@ -51,7 +51,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
 void TaggableCluster::Sort()
 {
-    std::sort(fElement.begin(), fElement.end(), 
+    std::sort(fElement.begin(), fElement.end(),
     [](const Taggable& taggable1, const Taggable& taggable2){ return taggable1.Time() < taggable2.Time() ;});
 }
 
@@ -109,11 +109,11 @@ void TaggableCluster::FillTree()
     fXVector.clear();
     fYVector.clear();
     fZVector.clear();
-    fDistVector.clear(); 
-    fDWallVector.clear(); 
+    fDistVector.clear();
+    fDWallVector.clear();
     fEarlyIndexVector.clear();
-    fDelayedIndexVector.clear(); 
-    
+    fDelayedIndexVector.clear();
+
     for (auto const& taggable: fElement) {
         auto const& vertex = taggable.Vertex();
         fTypeVector.push_back(taggable.Type());

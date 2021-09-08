@@ -30,20 +30,20 @@ class Particle
         inline bool operator==(const Particle& particle) const {
             return (pid == particle.PID()) & (v == particle.Vertex()) & (p == particle.Momentum());
         };
-        
+
         inline bool operator!=(const Particle& particle) const { return !(*this == particle); }
-        
+
         inline void AddT0(float t0) { t += t0; }
 
         TString GetName() const;
         TString GetIntName() const;
-        
+
     private:
         float t;
         int pid, parentPID;
         unsigned int intID;
         TVector3 v, p;
-        
+
     //ClassDef(Particle, 1)
 };
 

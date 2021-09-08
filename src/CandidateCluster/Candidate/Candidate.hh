@@ -23,7 +23,7 @@ class Candidate
 
         inline unsigned int HitID() const { return hitID; }
         inline void SetHitID(unsigned int id) { hitID = id; }
-        
+
         const float operator[](const std::string& key) const { return featureMap.at(key); }
         void Set(const std::string& key, float value) { featureMap[key] = value; }
         const float Get(const std::string& key, float value=0) const { if (featureMap.count(key)) return featureMap.at(key); else return value; }
@@ -34,7 +34,7 @@ class Candidate
     private:
         std::map<std::string, float> featureMap;
         unsigned int hitID;
-        
+
     //ClassDef(Candidate, 1);
 };
 

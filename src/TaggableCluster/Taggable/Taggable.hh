@@ -6,7 +6,7 @@
 enum TaggableType
 {
     typeMissed,
-    typeE, 
+    typeE,
     typeN
 };
 

@@ -16,12 +16,12 @@ void Taggable::Dump()
 }
 
 void Taggable::SetCandidateIndex(const std::string& key, int id)
-{ 
-    if (key=="Early") earlyIndex = id; 
-    else delayedIndex = id; 
+{
+    if (key=="Early") earlyIndex = id;
+    else delayedIndex = id;
 }
-int Taggable::GetCandidateIndex(const std::string& key) const 
-{ 
+int Taggable::GetCandidateIndex(const std::string& key) const
+{
     if (key=="Early") return earlyIndex;
     else return delayedIndex;
 }

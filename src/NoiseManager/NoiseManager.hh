@@ -29,7 +29,7 @@ class NoiseManager
         NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed=0);
         NoiseManager(TTree* tree);
         ~NoiseManager();
-        
+
         void AddNoiseFileToChain(TChain* chain, TString noiseFilePath);
         void SetNoiseTree(TTree* tree);
         void SetNoiseTimeRange(float startTime, float endTime);
@@ -37,33 +37,33 @@ class NoiseManager
         void GetNextNoiseEvent();
         void SetPMTDeadtime(float pmtDeadtime) { fPMTDeadtime = pmtDeadtime; }
         void SetRepeat(bool b) { fDoRepeat = b; }
-        
+
         void AddNoise(PMTHitCluster* signalHits);
-        
+
     private:
         TTree* fNoiseTree;
         TString fNoiseTreeName;
-        
+
         Header* fHeader;
         TQReal* fTQReal;
-        
+
         float fNoiseEventLength;
         float fNoiseStartTime, fNoiseEndTime, fNoiseWindowWidth;
         float fNoiseT0;
-        
+
         float fMinHitDensity, fMaxHitDensity;
-        
+
         float fPMTDeadtime;
-        
+
         int fCurrentHitID, fCurrentEntry, fNEntries;
         int fPartID, fNParts;
-        
+
         bool fDoRepeat;
 
         std::vector<float> fT;
         std::vector<float> fQ;
         std::vector<int>   fI;
-        
+
         PMTHitCluster fNoiseEventHits;
 };
 

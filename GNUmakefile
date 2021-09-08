@@ -22,7 +22,7 @@ INC := $(addprefix -I , $(sort $(dir $(shell find src -name '*.hh'))))
 $(OBJS): src/%.o: src/%.cc src/%.hh
 	@echo "[UtilLib] Building utility library: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
-	
+
 $(FORTRANOBJS): src/SKIO/%.o: src/SKIO/%.F
 	@echo "[UtilLib] Building $*..."
 	$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/lowe -I $(ATMPD_ROOT)/inc

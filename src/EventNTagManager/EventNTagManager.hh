@@ -32,16 +32,16 @@ class EventNTagManager
     public:
         EventNTagManager(Verbosity verbose=pDEFAULT);
         ~EventNTagManager();
-        
+
         // read ingredients from sk common blocks
         void ReadVariables();
         void ReadHits();
         void ReadParticles();
         void ReadEarlyCandidates();
         void ReadEventFromCommon();
-        
+
         void SearchCandidates();
-        
+
         // set ingredients manually
         void ClearData();
         void ApplySettings();
@@ -49,7 +49,7 @@ class EventNTagManager
         // void SetHits(PMTHitCluster&);
         // void SetMCParticles(ParticleCluster&);
         // void SetVariables();
-        
+
         // return private members
         Store& GetSettings() { return fSettings; };
         Store& GetVariables() { return fEventVariables; };
@@ -61,21 +61,19 @@ class EventNTagManager
         CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
 
         //const CandidateCluster& GetCandidates(const PMTHitCluster& hitCluster);
-        
+
         // setters
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
         template <typename T>
         void Set(std::string key, T value) { fSettings.Set(key, value); ApplySettings(); }
-        
+
         // tmva
         float GetTMVAOutput(Candidate& candidate);
-        
+
         // root
         void FillTrees();
         void WriteTrees(bool doCloseFile=false);
-        
-        void WriteZBS(std::string outZBSPath);
-        
+
         // printers
         void DumpSettings() { fSettings.Print(); }
         void DumpEvent();
@@ -90,8 +88,8 @@ class EventNTagManager
         void FillNTagCommon();
         int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
         void SetTaggedType(Taggable& taggable, const Candidate& candidate);
-        
-    
+
+
         // DataModel:
         Store fEventVariables;
         PMTHitCluster fEventHits;
@@ -100,18 +98,18 @@ class EventNTagManager
         CandidateCluster fEventCandidates;
         CandidateCluster fEventEarlyCandidates;
         TVector3 fPromptVertex;
-        
+
         // NTag settings
         Store fSettings;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
-        
+
         // TMVA
         TMVA::Reader fTMVAReader;
         std::map<std::string, float> fFeatureContainer;
         int fCandidateLabel;
-        
+
         // ROOT
         std::string fOutFilePath;
         bool fIsBranchSet;
