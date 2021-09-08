@@ -26,7 +26,7 @@ class Candidate
         
         const float operator[](const std::string& key) const { return featureMap.at(key); }
         void Set(const std::string& key, float value) { featureMap[key] = value; }
-        const float Get(const std::string& key) const { return featureMap.at(key); }
+        const float Get(const std::string& key, float value=0) const { if (featureMap.count(key)) return featureMap.at(key); else return value; }
         void Clear() { featureMap.clear(); }
 
         const std::map<std::string, float>& GetFeatureMap() const { return featureMap; }
