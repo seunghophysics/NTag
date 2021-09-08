@@ -89,6 +89,7 @@ class EventNTagManager
         void PruneCandidates();
         void FillNTagCommon();
         int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
+        void SetTaggedType(Taggable& taggable, const Candidate& candidate);
         
     
         // DataModel:
@@ -109,7 +110,7 @@ class EventNTagManager
         // TMVA
         TMVA::Reader fTMVAReader;
         std::map<std::string, float> fFeatureContainer;
-        int fCandidateCaptureType;
+        int fCandidateLabel;
         
         // ROOT
         std::string fOutFilePath;

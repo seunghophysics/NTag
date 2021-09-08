@@ -5,6 +5,8 @@
 #include "skheadC.h"
 #include "apmringC.h"
 #include "apmueC.h"
+#include "appatspC.h"
+#include "neworkC.h"
 #include "nbnkC.h"
 
 #include "SKLibs.hh"
@@ -26,12 +28,13 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     
     std::vector<std::string> featureList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum", 
                                             "Beta1", "Beta2", "Beta3", "Beta4", "Beta5", 
-                                            "AngleMean", "AngleSkew", "AngleStdev", "CaptureType",
+                                            "AngleMean", "AngleSkew", "AngleStdev", "Label",
                                             "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit", 
-                                            "TMVAOutput", "TagIndex"};
+                                            "TMVAOutput", "TagIndex", "TagClass"};
     fEventCandidates.RegisterFeatureNames(featureList);
     
-    std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "dirx", "diry", "dirz", "NHits", "Type", "Goodness"};
+    std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz", 
+                                                 "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"};
     fEventEarlyCandidates.RegisterFeatureNames(earlyFeatureList);
 
     InitializeTMVA();
@@ -70,12 +73,18 @@ void EventNTagManager::ReadVariables()
         // ring
             // nring
             fEventVariables.Set("NRing", apcommul_.apnring);
+            fEventVariables.Set("RingType", apcommul_.apip[0]);
+            fEventVariables.Set("RingEMom", appatsp2_.apmsamom[0][1]);
+            fEventVariables.Set("RingMuMom", appatsp2_.apmsamom[0][2]);
             // most energetic ring pid
             // most energetic ring mom
             
     // mc information
-        // ipnu
-        // pnu
+        float posnu[3]; nerdnebk_(posnu);
+        fEventVariables.Set("NEUTMode", nework_.modene);
+        fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
+        fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
+
     ReadEarlyCandidates();
 }
 
@@ -104,8 +113,8 @@ void EventNTagManager::ReadEarlyCandidates()
 
     for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
         float reconCT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE];
-        if (reconCT < T0TH*1e-3) {
             Candidate candidate;
+            int label = reconCT < T0TH*1e-3 ? typeE : typeMissed;
             candidate.Set("ReconCT", reconCT);
             candidate.Set("x", apmue_.apmuepos[iMuE][0]);
             candidate.Set("y", apmue_.apmuepos[iMuE][1]);
@@ -113,11 +122,12 @@ void EventNTagManager::ReadEarlyCandidates()
             candidate.Set("dirx", apmue_.apmuedir[iMuE][0]);
             candidate.Set("diry", apmue_.apmuedir[iMuE][1]);
             candidate.Set("dirz", apmue_.apmuedir[iMuE][2]);
+            candidate.Set("DWall", wallsk_(apmue_.apmuepos[iMuE]));
             candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
-            candidate.Set("Type", apmue_.apmuetype[iMuE]);
+            candidate.Set("GateType", apmue_.apmuetype[iMuE]);
             candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
+            candidate.Set("TagClass", typeE);
             fEventEarlyCandidates.Append(candidate);
-        }
     }
     
     //fEventEarlyCandidates.Sort();
@@ -175,9 +185,9 @@ void EventNTagManager::InitializeTMVA()
         fTMVAReader.AddVariable(feature, &(fFeatureContainer[feature]));
     }
 
-    fTMVAReader.AddSpectator("CaptureType", &(fCandidateCaptureType));
+    fTMVAReader.AddSpectator("Label", &(fCandidateLabel));
     //fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/weights/TMVAClassification_MLP.weights.xml");
-    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/gd/ntgd/ntgd/weights/MLP_Gd0.011p_calibration.xml");
+    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
     //sharedData->eventCandidates.RegisterFeatureName("TMVAOutput");
 }
 
@@ -256,8 +266,8 @@ void EventNTagManager::SearchCandidates()
     fEventTaggables.SetPromptVertex(fPromptVertex);
     
     // TMVA output
-    for (auto& candidate: fEventCandidates)
-        candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
+    //for (auto& candidate: fEventCandidates)
+    //    candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
     
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
@@ -272,27 +282,28 @@ void EventNTagManager::SubtractToF()
 
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
-    PMTHitCluster hitsIn30ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -15, TWIDTH/2. +15);
-    PMTHitCluster hitsIn50ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -25, TWIDTH/2. +25);
+    int firstHitID = candidate.HitID();
+    //PMTHitCluster hitsIn30ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -15, TWIDTH/2. +15);
+    //PMTHitCluster hitsIn50ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -25, TWIDTH/2. +25);
+    auto hitsInTWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
+    auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.- 25, TWIDTH/2.+ 25);
+    auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
+    auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
 
     // TRMS-fit (BONSAI?)
-    auto trmsFitVertex = hitsIn30ns.FindTRMSMinimizingVertex(/* TRMS-fit options */
+    auto trmsFitVertex = hitsIn50ns.FindTRMSMinimizingVertex(/* TRMS-fit options */
                                                              INITGRIDWIDTH, 
                                                              MINGRIDWIDTH, 
                                                              GRIDSHRINKRATE, 
                                                              VTXSRCRANGE);
                                                              
-    hitsIn50ns.SetVertex(trmsFitVertex);
-    fEventHits.SetVertex(trmsFitVertex);
-    float tempT = hitsIn50ns[GetMaxNHitsIndex(hitsIn50ns)].t();
-    unsigned int trmsFitFirstHitID = fEventHits.GetIndex(tempT);
+    //hitsIn50ns.SetVertex(trmsFitVertex);
+    //fEventHits.SetVertex(trmsFitVertex);
+    //float tempT = hitsIn50ns[GetMaxNHitsIndex(hitsIn50ns)].t();
+    //unsigned int trmsFitFirstHitID = fEventHits.GetIndex(tempT);
 
-    auto hitsInTWIDTH = fEventHits.Slice(trmsFitFirstHitID, TWIDTH);
-    hitsIn50ns        = fEventHits.Slice(trmsFitFirstHitID, TWIDTH/2.- 25, TWIDTH/2.+ 25);
-    auto hitsIn200ns  = fEventHits.Slice(trmsFitFirstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
-    auto hitsIn1300ns = fEventHits.Slice(trmsFitFirstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
 
-    candidate.SetHitID(trmsFitFirstHitID);
+    //candidate.SetHitID(trmsFitFirstHitID);
 
     // Number of hits
     candidate.Set("NHits", hitsInTWIDTH.GetSize());
@@ -340,26 +351,34 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     candidate.Set("DWall_n", GetDWall(trmsFitVertex));
     candidate.Set("prompt_nfit", (fPromptVertex-trmsFitVertex).Mag());
-
-    //int passDecayECut = 0;
-    //if ((candidate.Get("N50") > 50) && reconCT < 20) {
-    //    passDecayECut = 1;
-    //}
-    //candidate.Set("decay_e_like", passDecayECut);
     
-    fEventHits.SetVertex(fPromptVertex);
+    float tmvaOut = GetTMVAOutput(candidate);
+    candidate.Set("TMVAOutput", tmvaOut);
+
+    int tagClass = 0;
+    if ((candidate.Get("N50") > 50) && reconCT < 20) {
+        tagClass = typeE;
+    }
+    else if (tmvaOut > 0.7) {
+        tagClass = typeN;
+    }
+    else
+        tagClass = typeMissed;
+    candidate.Set("TagClass", tagClass);
+    
+    //fEventHits.SetVertex(fPromptVertex);
 }
 
 float EventNTagManager::GetTMVAOutput(Candidate& candidate)
 {
     // get features from candidate and fill feature container
     for (auto const& pair: fFeatureContainer) {
-        float value = candidate.Get(pair.first);
+        float value = candidate[pair.first];
         fFeatureContainer[pair.first] = value;
     }
 
     // get spectator
-    fCandidateCaptureType = candidate.Get("CaptureType");
+    //fCandidateLabel = candidate["Label"];
 
     return fTMVAReader.EvaluateMVA("MLP");
 }
@@ -404,7 +423,7 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
             int iMinMatchTimeCapture = taggableIndexList[GetMinIndex(matchTimeList)];
             auto& taggable = fEventTaggables[iMinMatchTimeCapture];
 
-            // candidate type decided by taggable type
+            // candidate label determined by taggable type
             if (taggable.Type() == typeN) {
                 hasMatchingN = true;
                 if (taggable.Energy() > 6.) label = lnGd;
@@ -421,18 +440,21 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
             // set two taggable candidate indices: 
             // one from early (muechk) and another from delayed (ntag) candidates
             // if the taggable has no previously saved candidate index
-            if (taggable.GetCandidateIndex(key) == -1)
+            if (taggable.GetCandidateIndex(key) == -1) {
+                SetTaggedType(taggable, candidate);
                 taggable.SetCandidateIndex(key, iCandidate);
+            }
             // if the taggable has previously saved candidate index,
             // save the candidate with more hits
             else {
                 auto& givenCandidate = fEventCandidates[iCandidate];
                 auto& savedCandidate = fEventCandidates[taggable.GetCandidateIndex(key)];
-                int givenNHits = givenCandidate.Get("NHits");
-                int savedNHits = savedCandidate.Get("NHits");
+                int givenNHits = givenCandidate["NHits"];
+                int savedNHits = savedCandidate["NHits"];
                 if (givenNHits > savedNHits) {
+                    SetTaggedType(taggable, candidate);
                     taggable.SetCandidateIndex(key, iCandidate);
-                    savedCandidate.Set("CaptureType", lRemnant);
+                    savedCandidate.Set("Label", lRemnant);
                 }
                 else {
                     label = lRemnant;
@@ -443,7 +465,7 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
         if (hasMatchingE && hasMatchingN)
             label = lUndefined;
         
-        candidate.Set("CaptureType", label);
+        candidate.Set("Label", label);
     }
 }
 
@@ -480,6 +502,23 @@ int EventNTagManager::GetMaxNHitsIndex(PMTHitCluster& hitCluster)
     return maxID;
 }
 
+void EventNTagManager::SetTaggedType(Taggable& taggable, const Candidate& candidate)
+{
+    float time = candidate["ReconCT"];
+    if (time < T0TH*1e-3) {
+        taggable.SetTaggedType(typeE);
+    }
+    else if (candidate.Get("N50", 0) > 50 && time < 20) {
+        taggable.SetTaggedType(typeE);
+    }
+    else if (candidate.Get("TMVAOutput", 0) > 0.7) {
+        taggable.SetTaggedType(typeN);
+    }
+    else {
+        taggable.SetTaggedType(typeMissed);
+    }
+}
+
 void EventNTagManager::DumpEvent()
 {
     fEventVariables.Print();
@@ -491,8 +530,9 @@ void EventNTagManager::DumpEvent()
                                       "DWall_n", 
                                       "ThetaMeanDir", 
                                       "TMVAOutput", 
-                                      "CaptureType", 
-                                      "TagIndex"});
+                                      "Label", 
+                                      "TagIndex",
+                                      "TagClass"});
 }
 
 void EventNTagManager::FillTrees()
@@ -540,7 +580,7 @@ void EventNTagManager::FillNTagCommon()
     for (auto const& candidate: fEventCandidates) {
         int n50 = candidate["N50"];
         float time = candidate["ReconCT"];
-        int label = candidate["CaptureType"];
+        int label = candidate["Label"];
         float nLikelihood = candidate["TMVAOutput"];
         isELike = (n50 > 50) & (time < 20);
         ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);

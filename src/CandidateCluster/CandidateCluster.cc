@@ -5,6 +5,7 @@
 
 #include "TTree.h"
 
+#include "Taggable.hh"
 #include "Printer.hh"
 #include "CandidateCluster.hh"
 
@@ -61,14 +62,19 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
                 else if (TString(key).Contains("ReconCT") && fabs(value) < 10) {
                     std::cout << std::fixed << std::setprecision(2) << std::setw(textWidth) << value << " ";
                 }
-                else if (key == "CaptureType") {
+                else if (key == "Label") {
                     if (value <= lNoise) std::cout << std::right << std::setw(textWidth) << "-";
                     else if (value <= lDecayE) std::cout << std::right << std::setw(textWidth) << "e";
                     else if (value <= lnH) std::cout << std::right << std::setw(textWidth) << "nH";
                     else if (value <= lnGd) std::cout << std::right << std::setw(textWidth) << "nGd";
-                    else if (value <= lRemnant) std::cout << std::right << std::setw(textWidth) << "remnant";
+                    else if (value <= lRemnant) std::cout << std::right << std::setw(textWidth) << "=";
                     else if (value <= lUndefined) std::cout << std::right << std::setw(textWidth) << "?";
                     std::cout << " ";
+                }
+                else if (key == "TagClass") {
+                    if (value == typeE) std::cout << std::right << std::setw(textWidth) << "e";
+                    else if (value == typeN) std::cout << std::right << std::setw(textWidth) << "n";
+                    else std::cout << std::right << std::setw(textWidth) << "-";
                 }
                 else if (fabs(value) < 1 && value != 0) {
                     value = roundf(value*100)/100;
