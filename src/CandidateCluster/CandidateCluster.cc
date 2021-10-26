@@ -11,11 +11,18 @@
 
 CandidateCluster::CandidateCluster() {}
 CandidateCluster::CandidateCluster(const char* className) { fName = className; }
+CandidateCluster::CandidateCluster(const CandidateCluster& cluster) { fElement = cluster.GetVector(); }
+CandidateCluster& CandidateCluster::operator=(CandidateCluster const& rhs) 
+{
+    Cluster<Candidate>::operator=(rhs); return *this;
+}
 
 CandidateCluster::~CandidateCluster()
 {
-    for (auto& pair: fFeatureVectorMap)
+    for (auto& pair: fFeatureVectorMap) {
         delete pair.second;
+        fFeatureVectorMap[pair.first] = 0;
+    }
 }
 
 void CandidateCluster::Sort()
@@ -34,7 +41,6 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
         msg.Print("No candidate in cluster!");
     }
     else {
-        int xWidth = 10;
         std::cout << "\033[4m No. ";
         auto baseFeatureMap = fElement[0].GetFeatureMap();
 
@@ -49,7 +55,7 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
         }
         std::cout << "\033[0m\n";
 
-        for (int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
+        for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
             std::cout << std::right << std::setw(4) << iCandidate+1 << " ";
             auto candidateFeatureMap = fElement[iCandidate].GetFeatureMap();
             for (auto const& key: keys) {
@@ -94,13 +100,14 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
 
 void CandidateCluster::FillVectorMap()
 {
-    if (!GetSize())
-        std::cerr << "No elements in CandidateCluster... skipping CandidateCluster::FillVectorMap." << std::endl;
+    if (!GetSize()) {
+        //std::cerr << "No elements in CandidateCluster... skipping CandidateCluster::FillVectorMap." << std::endl;
+    }
 
     else {
         //auto baseFeatureMap = element[0].GetFeatureMap();
         bool areFeaturesIdentical = true;
-        for (int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
+        for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
             auto comparedFeatureMap = fElement[iCandidate].GetFeatureMap();
 
             for (auto const& basePair: fFeatureVectorMap) {

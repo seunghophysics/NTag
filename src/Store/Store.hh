@@ -10,20 +10,21 @@
 
 #include <TVector3.h>
 
+#include "ArgParser.hh"
 #include "TreeOut.hh"
 
 std::istream& operator>>(std::istream& istr, TVector3& vec);
 std::ostream& operator<<(std::ostream& ostr, TVector3 vec);
 
-template<typename T>
-bool CheckType(const std::string& str)
-{
-    T t{};
-    std::stringstream ss;
-    ss << str;
-    ss >> t;
-    return !ss.fail();
-}
+//template<typename T>
+//bool CheckType(const std::string& str)
+//{
+//    T t{};
+//    std::stringstream ss;
+//    ss << str;
+//    ss >> t;
+//    return !ss.fail();
+//}
 
 class Store : public TreeOut
 {
@@ -32,6 +33,7 @@ class Store : public TreeOut
         Store():TreeOut() {}
         Store(const char* className): name(className) {}
         void Initialize(std::string configFilePath);
+        void ReadArguments(const ArgParser& argParser);
 
         virtual void Print() const;
         void Clear() { storeMap.clear(); keyOrder.clear(); }
@@ -64,6 +66,7 @@ class Store : public TreeOut
         // TTree access
         void MakeBranches();
         void FillTree();
+        void WriteTree();
 
     protected:
         std::string name;
@@ -79,7 +82,7 @@ class Store : public TreeOut
         int fillCounter;
 };
 
-template bool CheckType<float>(const std::string& str);
-template bool CheckType<TVector3>(const std::string& str);
+//template bool CheckType<float>(const std::string& str);
+//template bool CheckType<TVector3>(const std::string& str);
 
 #endif

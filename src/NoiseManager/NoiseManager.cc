@@ -178,7 +178,7 @@ void NoiseManager::SetNoiseEventHits()
     fT = fTQReal->T;
     fQ = fTQReal->Q;
     fI = fTQReal->cables;
-    int nRawHits = fT.size();
+    unsigned int nRawHits = fT.size();
 
     for (unsigned int j=0; j<=nRawHits; j++)
         fNoiseEventHits.Append({fT[j], fQ[j], fI[j]&0x0000FFFF, 2/*in-gate flag*/});

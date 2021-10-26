@@ -56,7 +56,7 @@ class Cluster : public TreeOut
         typename std::vector<T>::const_iterator cbegin() const { return fElement.cbegin(); }
         typename std::vector<T>::const_iterator cend() const { return fElement.cend(); }
 
-        const std::vector<T>& GetVector() { return fElement; }
+        const std::vector<T>& GetVector() const { return fElement; }
 
         T& operator[] (int index) { return fElement[index]; }
         T& At(int index) { return fElement[index]; }

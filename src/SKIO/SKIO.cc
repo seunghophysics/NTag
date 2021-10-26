@@ -38,7 +38,6 @@ void SKIO::OpenFile()
         OpenFile(fFilePath.Data(), fIOMode);
     else
         fMsg.Print("File path not specified!", pERROR);
-        //std::cerr << "[SKIO] File path not specified!\n";
 }
 
 void SKIO::OpenFile(std::string fileName, IOMode mode)
@@ -94,6 +93,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     // SKROOT
     else if (fFileFormat == mSKROOT) {
         if (fIOMode == mInput) {
+            kzinit_();
             skroot_open_read_(&logicalUnit);
             skroot_set_input_file_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
             skroot_init_(&logicalUnit);
@@ -143,14 +143,16 @@ int SKIO::ReadEvent(int eventID)
     else {
         if (eventID >= fCurrentEventID) {
             for (int i=fCurrentEventID; i<eventID; i++)
-                ReadNextEvent();
+                readStatus = ReadNextEvent();
         }
         else {
             CloseFile();
             OpenFile(fFilePath.Data(), fIOMode);
-            ReadEvent(eventID);
+            readStatus = ReadEvent(eventID);
         }
     }
+
+    return readStatus;
 }
 
 void SKIO::WriteTQREAL(PMTHitCluster& hitCluster)
@@ -164,21 +166,28 @@ void SKIO::WriteTQREAL(PMTHitCluster& hitCluster)
 int SKIO::GetNumberOfEvents()
 {
     if (!fNEvents) {
-        if (!fIsFileOpen)
-            OpenFile();
 
-        // do skread until eof
         int logicalUnit = fIOMode;
-        int readStatus = mReadOK;
         int nEvents = 0;
+        if (!fIsFileOpen) OpenFile();
 
-        std::cout << "\n";
-        fMsg.Print("Counting the number of events in the input file...\n");
-        while (readStatus == mReadOK) {
-            readStatus = skread_(&logicalUnit);
-            if (readStatus == mReadOK) nEvents++;
-            std::cout << "[SKIO] Number of events: " << nEvents << "\r";
+        if (fFileFormat == mZBS) {
+            // do skread until eof
+            int readStatus = mReadOK;
+
+            std::cout << "\n";
+            fMsg.Print("Counting the number of events in the input file...\n");
+            while (readStatus == mReadOK) {
+                readStatus = skread_(&logicalUnit);
+                if (readStatus == mReadOK) nEvents++;
+                std::cout << "[SKIO] Number of events: " << nEvents << "\r";
+            }
         }
+
+        else if (fFileFormat == mSKROOT) {
+            skroot_get_entries_(&logicalUnit, &nEvents);
+        }
+
         CloseFile();
         fNEvents = nEvents;
 
@@ -199,10 +208,10 @@ void SKIO::DumpSettings()
 {
     std::cout << "\n";
     fMsg.Print(Form("%s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
+    fMsg.Print(Form("SK geometry: %d", fSKGeometry));
     fMsg.Print("SK option: " + fSKOption);
-    fMsg.Print("SK geometry: " + fSKGeometry);
     fMsg.Print("SK bad channel option: " + fSKBadChOption);
-    fMsg.Print("SK reference run number: " + fRefRunNo);
+    fMsg.Print(Form("SK reference run number: %d", fRefRunNo));
     std::cout << "\n";
 }
 

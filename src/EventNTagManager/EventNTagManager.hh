@@ -41,10 +41,13 @@ class EventNTagManager
         void ReadEventFromCommon();
 
         void SearchCandidates();
+        void MapTaggables();
+        void ResetTaggableMapping();
 
         // set ingredients manually
         void ClearData();
         void ApplySettings();
+        void ReadArguments(const ArgParser& argParser);
         void InitializeTMVA();
         // void SetHits(PMTHitCluster&);
         // void SetMCParticles(ParticleCluster&);
@@ -56,9 +59,11 @@ class EventNTagManager
         PMTHitCluster& GetHits() { return fEventHits; };
         ParticleCluster& GetParticles() { return fEventParticles; }
         TaggableCluster& GetTaggables() { return fEventTaggables; }
-       // const NCaptureCluster& GetNCaptures() { return fEventNCaptures; }
-        CandidateCluster& GetCandidates() { return fEventCandidates; }
         CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
+        CandidateCluster& GetCandidates() { return fEventCandidates; }
+        void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
+        void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
+        void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
 
         //const CandidateCluster& GetCandidates(const PMTHitCluster& hitCluster);
 
@@ -81,13 +86,13 @@ class EventNTagManager
     private:
         void SubtractToF();
         void FindFeatures(Candidate& candidate);
-        void MapTaggables();
         void MapTaggable(Taggable& taggable, int iCandidate, const std::string& key);
         void MapCandidateClusters(CandidateCluster& candidateCluster);
         void PruneCandidates();
         void FillNTagCommon();
         int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
-        void SetTaggedType(Taggable& taggable, const Candidate& candidate);
+        int FindTagClass(const Candidate& candidate);
+        void SetTaggedType(Taggable& taggable, Candidate& candidate);
 
 
         // DataModel:
@@ -101,9 +106,13 @@ class EventNTagManager
 
         // NTag settings
         Store fSettings;
+        bool fInputIsSKROOT;
+        VertexMode fVertexMode;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
+        bool fUseECut;
+        float E_N50CUT, E_TIMECUT, N_OUTCUT;
 
         // TMVA
         TMVA::Reader fTMVAReader;

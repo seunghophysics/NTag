@@ -1,24 +1,31 @@
 ##### ReadHits #####
-rbn_deadtime 3000
+TRBNWIDTH 0
 
 ##### AddNoise #####
-noise_file_path /disk02/calib3/usr/han/dummy/sk6/085710/t2k*.root
-noise_start_time 2
-noise_end_time 505
+#noise_file_path /disk02/calib3/usr/han/dummy/sk6/085710/t2k*.root
+#noise_start_time 2
+#noise_end_time 505
 
 ##### SetPromptVertex ####
-vertex_mode         TRUE
-smearing_resolution 7
+#vertex_mode         TRUE
+#PVXRES 7
 
 ##### SearchCandidates #####
 T0TH        3000
-T0MX        503000
+T0MX        535000
 TWIDTH      14
-TMINPEAKSEP 60
+TMINPEAKSEP 200
 NHITSTH     7
 NHITSMX     300
 N200TH      0
 N200MX      50000
+
+##### e-tagging #####
+#E_N50CUT    50
+#E_TIMECUT   20
+
+##### n-tagging #####
+N_OUTCUT    0.7
 
 ##### ExtractFeatures #####
 # MC Label
@@ -31,9 +38,9 @@ GRIDSHRINKRATE 0.5
 VTXSRCRANGE    5000
 
 ##### ApplyTMVA #####
-mva_method_name MLP
+#mva_method_name MLP
 #weight_file_path weights/MLP_Gd0.011p_calibration.xml
 
 ##### WriteOutput #####
-output_file_path testout.root
-output_mode recreate
+#output_file_path testout.root
+#output_mode recreate

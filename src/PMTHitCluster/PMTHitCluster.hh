@@ -32,7 +32,7 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         void DumpAllElements() const { for (auto& hit: fElement) hit.Dump(); }
 
-        PMTHit operator[] (int iHit) const { return fElement[iHit]; }
+        const PMTHit& operator[] (int iHit) const { return fElement[iHit]; }
 
         PMTHitCluster Slice(int startIndex, float tWidth);
         PMTHitCluster Slice(int startIndex, float minusT, float plusT);

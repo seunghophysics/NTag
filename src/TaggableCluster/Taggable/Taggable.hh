@@ -7,7 +7,8 @@ enum TaggableType
 {
     typeMissed,
     typeE,
-    typeN
+    typeN,
+    typeEN
 };
 
 class Taggable

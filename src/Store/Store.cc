@@ -31,12 +31,21 @@ void Store::Initialize(std::string configFilePath)
     file.close();
 }
 
+void Store::ReadArguments(const ArgParser& argParser)
+{
+    auto& optionPairs = argParser.GetOptionPairs();
+    
+    for (auto const& pair: optionPairs) {
+        Set(pair.first, pair.second);
+    }
+}
+
 void Store::Print() const
 {
     Printer msg;
     msg.PrintBlock(name + ": Keys and values");
 
-    int maxWidth = 0;
+    unsigned int maxWidth = 0;
     for (auto const& key: keyOrder) {
         if (key.length() > maxWidth)
             maxWidth = key.length();
@@ -80,8 +89,13 @@ void Store::FillTree()
         }
 
         fillCounter++;
-        fOutputTree->SetEntries(fillCounter==1? 1 : fillCounter-1);
     }
+}
+
+void Store::WriteTree()
+{
+    fOutputTree->SetEntries(fillCounter);
+    TreeOut::WriteTree();
 }
 
 std::istream& operator>>(std::istream& istr, TVector3& vec)

@@ -2,6 +2,7 @@
 #define TAGGABLECLUSTER_HH
 
 #include "Cluster.hh"
+
 #include "Taggable.hh"
 #include "ParticleCluster.hh"
 

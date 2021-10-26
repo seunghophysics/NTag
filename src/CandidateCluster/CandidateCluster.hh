@@ -17,7 +17,10 @@ class CandidateCluster : public Cluster<Candidate>
     public:
         CandidateCluster();
         CandidateCluster(const char* className);
+        CandidateCluster(const CandidateCluster& cluster);
         ~CandidateCluster();
+        
+        CandidateCluster& operator=(CandidateCluster const& rhs);
 
         void Sort();
         void DumpAllElements(std::vector<std::string> keys={}) const;

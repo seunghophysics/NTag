@@ -24,7 +24,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
             bool isNewCapture = true;
 
             // Check saved captures
-            for (int iCapture = 0; iCapture < fElement.size(); iCapture++) {
+            for (unsigned int iCapture = 0; iCapture < fElement.size(); iCapture++) {
 
                 Taggable& capture = fElement[iCapture];
 
@@ -61,7 +61,7 @@ void TaggableCluster::DumpAllElements() const
     msg.PrintTitle("MC Taggables");
     std::cout << "\033[4m No. Type Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
 
-    for (int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
+    for (unsigned int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
         auto& taggable = fElement[iTaggable];
         auto vertex = taggable.Vertex();
         auto time = taggable.Time()*1e-3;
@@ -79,7 +79,10 @@ void TaggableCluster::DumpAllElements() const
         std::cout << std::right << std::setw(11) << std::setprecision(2) << taggable.Energy() << "  ";
         std::cout << std::right << std::setw(5) << (earlyIndex ? std::to_string(earlyIndex) : "-") << " ";
         std::cout << std::right << std::setw(7) << (delayedIndex ? std::to_string(delayedIndex) : "-") << " ";
-        std::cout << std::right << std::setw(8) << (taggedType==typeMissed ? "-" : (taggedType==typeE ? "e" : "n")) << "\n";
+        std::cout << std::right << std::setw(8) << (taggedType==typeMissed ? "-" : (
+                                                    taggedType==typeE ?      "e" : (
+                                                    taggedType==typeN?       "n" : 
+                                                    /* else */               "e/n"))) << "\n";
     }
 }
 

@@ -16,7 +16,17 @@
 #include <string>
 #include <vector>
 
-class Store;
+template<typename T>
+bool CheckType(const std::string& str)
+{
+    T t{};
+    std::stringstream ss;
+    ss << str;
+    ss >> t;
+    return !ss.fail();
+}
+
+template bool CheckType<float>(const std::string& str);
 
 // original code by @iain from stackoverflow
 
@@ -47,12 +57,15 @@ class ArgParser{
          */
         ArgParser& operator+=(ArgParser& addedParser) {
             auto addedToken = addedParser.GetTokens();
-            this->tokens.insert(std::end(this->tokens), std::begin(addedToken), std::end(addedToken));
+            this->fTokens.insert(std::end(this->fTokens), std::begin(addedToken), std::end(addedToken));
             return *this;
         }
 
-        void SetTokens(std::vector<std::string>& token) { tokens = token; }
-        std::vector<std::string>& GetTokens() { return tokens; }
+        void SetOptionPairs();
+        const std::vector<std::pair<std::string, std::string>>& GetOptionPairs() const { return fOptionPairs; }
+
+        void SetTokens(std::vector<std::string>& token) { fTokens = token; }
+        std::vector<std::string>& GetTokens() { return fTokens; }
 
         /**
          * @brief Get the argument following a flag.
@@ -61,8 +74,8 @@ class ArgParser{
          */
         const std::string& GetOption(const std::string& option) const {
             std::vector<std::string>::const_iterator itr;
-            itr = std::find(this->tokens.begin(), this->tokens.end(), option);
-            if (itr != this->tokens.end() && ++itr != this->tokens.end()) {
+            itr = std::find(this->fTokens.begin(), this->fTokens.end(), option);
+            if (itr != this->fTokens.end() && ++itr != this->fTokens.end()) {
                 return *itr;
             }
             static const std::string empty_string("");
@@ -75,15 +88,13 @@ class ArgParser{
          * @return \c true if the option is specified, otherwise \c false
          */
         bool OptionExists(const std::string& option) const {
-            return std::find(this->tokens.begin(), this->tokens.end(), option)
-                   != this->tokens.end();
+            return std::find(this->fTokens.begin(), this->fTokens.end(), option)
+                   != this->fTokens.end();
         }
 
-        void OverrideStore(Store* store);
-
     private:
-        std::vector<std::string> tokens;
-        std::map<std::string, std::string> commandMap;
+        std::vector<std::string> fTokens;
+        std::vector<std::pair<std::string, std::string>> fOptionPairs;
 };
 
 #endif

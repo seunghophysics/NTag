@@ -86,8 +86,8 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     double c = (uB-uC).Mag();
 
     if (a*b*c == 0) {
-        double angleAB = (180./M_PI) * uA.Angle(uB)/2.;
-        double angleAC = (180./M_PI) * uA.Angle(uC)/2.;
+        //double angleAB = (180./M_PI) * uA.Angle(uB)/2.;
+        //double angleAC = (180./M_PI) * uA.Angle(uC)/2.;
         return uA.Angle(uB) == 0 ? (uA.Angle(uC) == 0 ? 0 : uA.Angle(uC)) : uA.Angle(uB);
     }
 
