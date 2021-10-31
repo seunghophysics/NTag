@@ -12,7 +12,7 @@
 #include "appatspC.h"
 #include "neworkC.h"
 #include "nbnkC.h"
-
+#include "skonl/softtrg_cond.h"
 
 #include "SKLibs.hh"
 #include "EventNTagManager.hh"
@@ -60,8 +60,49 @@ void EventNTagManager::ReadVariables()
     // hit information
     int nhitac; odpc_2nd_s_(&nhitac);
     int trgtype = skhead_.idtgsk & 1<<28 ? tSHE : skhead_.idtgsk & 1<<29 ? tAFT : tELSE;
-    float trgOffset = 0; trginfo_(&trgOffset);
-    fEventVariables.Set("QISMSK", skq_.qismsk);
+    float trgOffset = 0;
+
+    if (fInputIsSKROOT) {
+         int lun = 10;
+
+        TreeManager* mgr  = skroot_get_mgr(&lun);
+        MCInfo* MCINFO = mgr->GetMC();
+        mgr->GetEntry();
+
+        trgOffset = 1000 - MCINFO->prim_pret0[0];
+
+        // Dump subtriggers
+	    std::cout << "Sub-trigger information\n";
+	    std::cout << "ID   Type    Time-GeantT0\n";
+	    for (unsigned int i=0; i<10; i++) {
+	        std::cout << std::left << std::setw(4) << i << " ";
+	        if (MCINFO->trigbit[i] & (1<<TRGID_SHE))
+	            std::cout << "SHE     ";
+	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_HE))
+	            std::cout << "HE      ";
+	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_LE))
+	            std::cout << "LE      ";
+	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_SLE))
+	            std::cout << "SLE     ";
+	        else
+	            std::cout << "Other   ";
+	        std::cout << Form("%3.2f ns\n", MCINFO->prim_pret0[i]);
+	    }
+    }
+
+    else trginfo_(&trgOffset);
+
+    float sk_qismsk = skq_.qismsk;
+    float qismsk = 0;
+    for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
+        float hitTime = sktqz_.tiskz[iHit];
+        if (479.2 < hitTime && hitTime < 1779.2) {
+            qismsk += sktqz_.qiskz[iHit];
+        }
+    }
+    std::cout << "SK_QISMSK: " << sk_qismsk << " custom QISMSK: " << qismsk << std::endl;
+
+    fEventVariables.Set("QISMSK", qismsk);
     fEventVariables.Set("NHITAC", nhitac);
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TrgOffset", trgOffset);
@@ -72,7 +113,7 @@ void EventNTagManager::ReadVariables()
         fEventVariables.Set("EVis", apcomene_.apevis);
         // prompt vertex
         fPromptVertex = TVector3(apcommul_.appos);
-        
+
         if (fVertexMode == mAPFIT) {
             fEventVariables.Set("pvx", apcommul_.appos[0]);
             fEventVariables.Set("pvy", apcommul_.appos[1]);
@@ -89,7 +130,7 @@ void EventNTagManager::ReadVariables()
             bool vxExists = fSettings.Get("vx", vx);
             bool vyExists = fSettings.Get("vy", vy);
             bool vzExists = fSettings.Get("vz", vz);
-            
+
             if (vxExists && vyExists && vzExists) {
                 fEventVariables.Set("pvx", vx);
                 fEventVariables.Set("pvy", vy);
@@ -98,7 +139,7 @@ void EventNTagManager::ReadVariables()
             else
                 fMsg.Print("Custom prompt vertex not fully specified! Use -vx, -vy, -vz commands to specify the custom prompt vertex.", pERROR);
         }
-        
+
         // dwall
         fEventVariables.Set("DWall", wallsk_(apcommul_.appos));
         // ring
@@ -132,14 +173,14 @@ void EventNTagManager::ReadParticles()
         TreeManager* mgr  = skroot_get_mgr(&lun);
         SecondaryInfo* SECONDARY = mgr->GetSECONDARY();
         mgr->GetEntry();
-    
+
         secndprt_.nscndprt = SECONDARY->nscndprt;
-    
+
         std::copy(std::begin(SECONDARY->iprtscnd), std::end(SECONDARY->iprtscnd), std::begin(secndprt_.iprtscnd));
         std::copy(std::begin(SECONDARY->iprntprt), std::end(SECONDARY->iprntprt), std::begin(secndprt_.iprntprt));
         std::copy(std::begin(SECONDARY->lmecscnd), std::end(SECONDARY->lmecscnd), std::begin(secndprt_.lmecscnd));
         std::copy(std::begin(SECONDARY->tscnd), std::end(SECONDARY->tscnd), std::begin(secndprt_.tscnd));
-    
+
         std::copy(&SECONDARY->vtxscnd[0][0], &SECONDARY->vtxscnd[0][0] + 3*SECMAXRNG, &secndprt_.vtxscnd[0][0]);
         std::copy(&SECONDARY->pscnd[0][0], &SECONDARY->pscnd[0][0] + 3*SECMAXRNG, &secndprt_.pscnd[0][0]);
     }
@@ -210,16 +251,16 @@ void EventNTagManager::ApplySettings()
 {
     TString inFilePath;
     fSettings.Get("in", inFilePath);
-    
+
     if (inFilePath.EndsWith(".root"))
         fInputIsSKROOT = true;
     else
         fInputIsSKROOT = false;
-        
+
     // vertex mode
     TString vertexMode;
     fSettings.Get("vertex_mode", vertexMode);
-    
+
     if (vertexMode == "APFIT")
         fVertexMode = mAPFIT;
     else if (vertexMode == "TRUE")
@@ -241,7 +282,7 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
     fSettings.Get("GRIDSHRINKRATE", GRIDSHRINKRATE);
     fSettings.Get("VTXSRCRANGE", VTXSRCRANGE);
-    
+
     bool useECut_N50 = fSettings.Get("E_N50CUT", E_N50CUT);
     bool useECut_Time = fSettings.Get("E_TIMECUT", E_TIMECUT);
     if (useECut_N50 && useECut_Time)
@@ -344,7 +385,7 @@ void EventNTagManager::SearchCandidates()
     // if MC
     if (fUseECut) PruneCandidates();
     MapTaggables();
-    
+
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
 
@@ -466,14 +507,14 @@ void EventNTagManager::ResetTaggableMapping()
         taggable.SetCandidateIndex("Delayed", -1);
         taggable.SetTaggedType(typeMissed);
     }
-    
+
     // muechk candidates
     for (auto& candidate: fEventEarlyCandidates) {
         candidate.Set("TagIndex", -1);
         candidate.Set("Label", lNoise);
         candidate.Set("TagClass", FindTagClass(candidate));
     }
-    
+
     // ntag candidates
     for (auto& candidate: fEventCandidates) {
         candidate.Set("TagIndex", -1);
@@ -568,7 +609,7 @@ void EventNTagManager::PruneCandidates()
     //for (int iCandidate=0; iCandidate<fEventEarlyCandidates.GetSize(); iCandidate++) {
     //    auto& candidate = fEventEarlyCandidates[iCandidate];
     //    if (candidate["NHits"] < 50) {
-    //        
+    //
     //    }
 
     std::vector<int> duplicateCandidateList;
@@ -614,16 +655,16 @@ int EventNTagManager::FindTagClass(const Candidate& candidate)
     if (fUseECut) {
         if (reconCT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
         else if (n50 > E_N50CUT && reconCT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
-        else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like 
+        else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
         else                                            tagClass = typeMissed; // otherwise noise
-    } 
+    }
     // naive tagging mode without e/n separation
     else {
         if (n50 < 0)                 tagClass = typeE; // e: muechk
         else if (tmvaOut > N_OUTCUT) tagClass = typeN; // n: ntag && out cut
         else                         tagClass = typeMissed; // otherwise noise
     }
-        
+
     return tagClass;
 }
 
@@ -646,7 +687,7 @@ void EventNTagManager::DumpEvent()
     fEventVariables.Print();
     fEventParticles.DumpAllElements();
     fEventTaggables.DumpAllElements();
-    fEventEarlyCandidates.DumpAllElements({"ReconCT", "NHits", "DWall", "Goodness", 
+    fEventEarlyCandidates.DumpAllElements({"ReconCT", "NHits", "DWall", "Goodness",
                                            "Label", "TagIndex", "TagClass"});
     fEventCandidates.DumpAllElements({"ReconCT",
                                       "NHits",
@@ -698,7 +739,7 @@ void EventNTagManager::WriteTrees(bool doCloseFile)
 void EventNTagManager::FillNTagCommon()
 {
     int nTrueE = 0, nTaggedE = 0, nTrueN = 0, nTaggedN = 0;
-    
+
     // count true
     for (auto const& taggable: fEventTaggables) {
         if      (taggable.Type() == typeE) nTrueE++;
@@ -712,13 +753,13 @@ void EventNTagManager::FillNTagCommon()
         else if (candidate["TagClass"] == typeN)
             nTaggedN++;
     }
-    
+
     // ntag: count tagged
     int i = 0;
     for (auto const& candidate: fEventCandidates) {
         int label = candidate["Label"];
         int isTaggedOrNot = 0;
-    
+
         if (candidate["TagClass"] == typeE) {
             nTaggedE++;
         }
@@ -726,7 +767,7 @@ void EventNTagManager::FillNTagCommon()
             isTaggedOrNot = 1;
             nTaggedN++;
         }
-        
+
         // fill ntag bank: candidates
         ntag_.ntime[i] = candidate["ReconCT"] * 1e3;
         ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);

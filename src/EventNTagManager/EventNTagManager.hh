@@ -12,19 +12,12 @@
 
 enum VertexMode
 {
-    mNONE,
-    mAPFIT,
-    mBONSAI,
-    mCUSTOM,
-    mTRUE,
-    mSTMU
+    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU
 };
 
 enum TriggerType
 {
-    tELSE,
-    tSHE,
-    tAFT
+    tELSE, tSHE, tAFT
 };
 
 class EventNTagManager
@@ -94,7 +87,6 @@ class EventNTagManager
         int FindTagClass(const Candidate& candidate);
         void SetTaggedType(Taggable& taggable, Candidate& candidate);
 
-
         // DataModel:
         Store fEventVariables;
         PMTHitCluster fEventHits;
@@ -125,6 +117,9 @@ class EventNTagManager
 
         // Utilities
         Printer fMsg;
+        
+        // Trigger option
+        bool fIsMC;
 };
 
 #include "TSysEvtHandler.h"

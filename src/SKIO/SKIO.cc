@@ -7,7 +7,6 @@
 #include "nbnkC.h"
 
 #include "SKIO.hh"
-
 bool SKIO::fIsZEBRAInitialized = false;
 
 SKIO::SKIO()
@@ -23,6 +22,9 @@ SKIO::SKIO(std::string fileName, IOMode mode)
 
     if (fIOMode == mInput) {
         GetNumberOfEvents();
+    }
+    else if (fIOMode == mOutput) {
+        OpenFile();
     }
 }
 
@@ -94,12 +96,17 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     else if (fFileFormat == mSKROOT) {
         if (fIOMode == mInput) {
             kzinit_();
+            
             skroot_open_read_(&logicalUnit);
             skroot_set_input_file_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
             skroot_init_(&logicalUnit);
         }
-        else if (fIOMode == mOutput)
-            skroot_open_write_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
+        else if (fIOMode == mOutput) {
+            logicalUnit = mInput;
+            skroot_open_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
+            logicalUnit = mOutput;
+        }
+
     }
 
     fIsFileOpen = true;
@@ -169,8 +176,9 @@ int SKIO::GetNumberOfEvents()
 
         int logicalUnit = fIOMode;
         int nEvents = 0;
-        if (!fIsFileOpen) OpenFile();
 
+        if (!fIsFileOpen) OpenFile();
+    
         if (fFileFormat == mZBS) {
             // do skread until eof
             int readStatus = mReadOK;
@@ -182,13 +190,15 @@ int SKIO::GetNumberOfEvents()
                 if (readStatus == mReadOK) nEvents++;
                 std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
+            
+            CloseFile();
+            OpenFile();
         }
 
         else if (fFileFormat == mSKROOT) {
             skroot_get_entries_(&logicalUnit, &nEvents);
         }
 
-        CloseFile();
         fNEvents = nEvents;
 
         if (!fNEvents) {
@@ -243,10 +253,12 @@ void FillTQREALBank(PMTHitCluster& hitCluster)
 
 void FillTQREALBranch(PMTHitCluster& hitCluster)
 {
+    int logicalUnit = mInput;
+    skroot_get_entry_(&logicalUnit); // get tree entry from input ROOT
+
     FillCommon(hitCluster);
 
-    int logicalUnit = 20;
-    skroot_set_tree_(&logicalUnit);
+    skroot_set_tree_(&logicalUnit); // common header, tqreal, tqareal to ROOT
     skroot_fill_tree_(&logicalUnit);
     skroot_clear_(&logicalUnit);
 }
