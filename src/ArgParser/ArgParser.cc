@@ -46,11 +46,15 @@ void ArgParser::SetOptionPairs()
         // if token is non-numeric
         if (!CheckType<float>(token)) {
             // option is numeric or string without hypen
-            if (CheckType<float>(option) || option.at(0) != '-')
-                fOptionPairs.push_back({token, option});
+            if (!option.empty()) {
+                if (CheckType<float>(option) || option.at(0) != '-')
+                    fOptionPairs.push_back({token, option});
+                else
+                    fOptionPairs.push_back({token, option});
+            }
             // no option: token is boolean true
             else
-                fOptionPairs.push_back({token, option});
+                fOptionPairs.push_back({token, "true"});
         }
     }
 }
