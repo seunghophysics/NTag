@@ -6,6 +6,8 @@
 #include "TTree.h"
 
 #include "tqrealroot.h"
+#undef MAXPM
+#undef MAXPMA
 
 #include "PMTHitCluster.hh"
 #include "Printer.hh"
@@ -28,13 +30,14 @@ class TrgSim
         
         // signal time generation
         void SetSignalTime(float sigFreqHz, float tDurationSec);
-        const std::vector<double>& GetSignalTime() const { return fSignalTime; }
+        const std::vector<double>& GetSignalTime() const { return fSignalEvTime; }
         
         // simulation
         void Simulate();
         
     private:
-        void FillSegement();
+        void GetEntry(TTree* tree, unsigned long entryNo);
+        void FillSegment(unsigned long segNo);
         
         PMTHitCluster GetSignalHits(double global_t_min, double global_t_max);
         PMTHitCluster GetNoiseHits(double global_t_min, double global_t_max);
@@ -42,15 +45,17 @@ class TrgSim
         float fSigFreqHz;
         float fTDurationSec;
         unsigned int fRandomSeed;
-        std::vector<double> fSignalTime; 
+        std::vector<double> fSignalEvTime; 
         
         TTree *fSignalTree, *fNoiseTree;
-        unsigned int fCurrentSignalEntry, fCurrentNoiseEntry,
-                     fTotalSignalEntries, fTotalNoiseEntries;
+        unsigned long fCurrentSignalEntry, fCurrentNoiseEntry,
+                      fTotalSignalEntries, fTotalNoiseEntries;
         
         TQReal *fSignalIDTQ, *fNoiseIDTQ, *fNoiseODTQ;
+        Header *fNoiseHeader;
         
-        PMTHitCluster fSegment;
+        PMTHitCluster fIDSegment, fODSegment;
+        unsigned long fSegmentNo;
         float fSegmentLength;
         
         Verbosity fVerbosity;

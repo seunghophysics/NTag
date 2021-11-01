@@ -10,6 +10,7 @@
 #include "Cluster.hh"
 
 class TTree;
+class TQReal;
 
 typedef struct OpeningAngleStats {
     float mean, median, stdev, skewness;
@@ -20,6 +21,7 @@ class PMTHitCluster : public Cluster<PMTHit>
     public:
         PMTHitCluster();
         PMTHitCluster(sktqz_common sktqz);
+        PMTHitCluster(TQReal* tqreal, int flag=2/* default: in-gate */);
 
         void Append(const PMTHit& hit);
 
@@ -73,5 +75,8 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         void SetToF(bool unset=false);
 };
+
+PMTHitCluster operator+(const PMTHitCluster& hitCluster, const float& time);
+PMTHitCluster operator-(const PMTHitCluster& hitCluster, const float& time);
 
 #endif

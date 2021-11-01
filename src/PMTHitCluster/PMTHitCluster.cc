@@ -4,6 +4,9 @@
 
 #include <TTree.h>
 
+#include <tqrealroot.h>
+#undef MAXPM
+#undef MAXPMA
 #include <geotnkC.h>
 
 #include "Calculator.hh"
@@ -25,12 +28,23 @@ PMTHitCluster::PMTHitCluster(sktqz_common sktqz)
     }
 }
 
+PMTHitCluster::PMTHitCluster(TQReal* tqreal, int flag)
+:PMTHitCluster()
+{
+    auto& t = tqreal->T;
+    auto& q = tqreal->Q;
+    auto& i = tqreal->cables;
+
+    for (unsigned int j=0; j<=t.size(); j++)
+        Append({t[j], q[j], i[j]&0x0000FFFF, flag});
+}
+
 void PMTHitCluster::Append(const PMTHit& hit)
 {
-    int i = hit.i();
+    //int i = hit.i();
 
     // append only hits with meaningful PMT ID
-    if (1 <= i && i <= MAXPM)
+    //if (1 <= i && i <= MAXPM)
         fElement.push_back(hit);
 }
 
@@ -281,4 +295,28 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
     SetVertex(originalVertex);
 
     return minGridPoint;
+}
+
+PMTHitCluster operator+(const PMTHitCluster& hitCluster, const float& time)
+{
+    PMTHitCluster newCluster;
+    
+    for (auto const& hit: hitCluster) {
+        auto newHit = hit + time;
+        newCluster.Append(newHit);
+    }
+
+    return newCluster;
+}
+
+PMTHitCluster operator-(const PMTHitCluster& hitCluster, const float& time)
+{
+    PMTHitCluster newCluster;
+    
+    for (auto const& hit: hitCluster) {
+        auto newHit = hit - time;
+        newCluster.Append(newHit);
+    }
+
+    return newCluster;
 }

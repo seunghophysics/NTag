@@ -171,6 +171,8 @@ std::vector<TString> GetListOfFiles(TString dirPath, const char* extension="", b
 
 std::vector<TString> GetListOfSubdirectories(TString dirPath);
 
+std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, double low, double high);
+
 template int GetSum<int>(const std::vector<int>& vec);
 template float GetSum<float>(const std::vector<float>& vec);
 template int GetMean<int>(const std::vector<int>& vec);
