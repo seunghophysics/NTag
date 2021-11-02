@@ -71,6 +71,7 @@ namespace HitFunc
 {
     const std::function<float(const PMTHit&)> T = [](const PMTHit& hit)->float { return hit.t(); };
     const std::function<float(const PMTHit&)> Q = [](const PMTHit& hit)->float { return hit.q(); };
+    const std::function<int(const PMTHit&)> I = [](const PMTHit& hit)->int { return hit.i(); };
     const std::function<TVector3(const PMTHit&)> Dir = [](const PMTHit& hit)->TVector3 { return hit.GetDirection(); };
 }
 

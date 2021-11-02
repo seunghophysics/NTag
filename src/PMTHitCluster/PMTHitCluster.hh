@@ -2,6 +2,7 @@
 #define PMTHITCLUSTER_HH
 
 #include <functional>
+#include <algorithm>
 
 #include <skparmC.h>
 #include <sktqC.h>
@@ -33,13 +34,19 @@ class PMTHitCluster : public Cluster<PMTHit>
         void Sort();
 
         void DumpAllElements() const { for (auto& hit: fElement) hit.Dump(); }
+        
+        void FillTQReal(TQReal* tqreal);
 
         const PMTHit& operator[] (int iHit) const { return fElement[iHit]; }
 
         PMTHitCluster Slice(int startIndex, float tWidth);
         PMTHitCluster Slice(int startIndex, float minusT, float plusT);
+        PMTHitCluster SliceRange(float startT, float minusT, float plusT);
+        PMTHitCluster SliceRange(float minusT, float plusT);
 
         unsigned int GetIndex(float t);
+        unsigned int GetLowerBoundIndex(float t) { return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
+        unsigned int GetUpperBoundIndex(float t) { return std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
 
         void ApplyDeadtime(float deadtime);
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "TFile.h"
 #include "TTree.h"
 
 #include "tqrealroot.h"
@@ -16,7 +17,7 @@ class TrgSim
 {
     public:
         TrgSim(Verbosity verbose=pDEFAULT);
-        TrgSim(std::string signalFilePath, float sigFreqHz, float tDurationSec, std::string noiseFilePath, unsigned int seed=0, Verbosity verbose=pDEFAULT);
+        TrgSim(std::string signalFilePath, float sigFreqHz, float tDurationSec, std::string noiseFilePath, std::string outFilePath, unsigned int seed=0, Verbosity verbose=pDEFAULT);
         ~TrgSim();
         
         // setter
@@ -25,8 +26,12 @@ class TrgSim
         void SetTimeDuration(float tDurationSec) { fTDurationSec = tDurationSec; }
         void SetRandomSeed(unsigned int seed) { fRandomSeed = seed; }
         void SetSegmentLength(float segLength) { fSegmentLength = segLength; }
+        void SetThreshold(unsigned int thr) { fThreshold = thr; }
+        void SetSHEDeadtime(float dt) { fSHEDeadtime = dt; }
+        void SetAFTDeadtime(float dt) { fAFTDeadtime = dt; }
         void SetSignalFile(std::string signalFilePath);
         void SetNoiseFile(std::string noiseFilePath);
+        void SetOutputFile(std::string outFilePath);
         
         // signal time generation
         void SetSignalTime(float sigFreqHz, float tDurationSec);
@@ -38,26 +43,32 @@ class TrgSim
     private:
         void GetEntry(TTree* tree, unsigned long entryNo);
         void FillSegment(unsigned long segNo);
+        void FindTriggerInSegment();
         
-        PMTHitCluster GetSignalHits(double global_t_min, double global_t_max);
-        PMTHitCluster GetNoiseHits(double global_t_min, double global_t_max);
-    
+        // Signal time
         float fSigFreqHz;
         float fTDurationSec;
         unsigned int fRandomSeed;
         std::vector<double> fSignalEvTime; 
         
-        TTree *fSignalTree, *fNoiseTree;
+        // ROOT I/O
+        TFile* fOutFile;
+        TTree *fSignalTree, *fNoiseTree, *fOutTree;
         unsigned long fCurrentSignalEntry, fCurrentNoiseEntry,
                       fTotalSignalEntries, fTotalNoiseEntries;
+        TQReal *fSignalIDTQ, *fNoiseIDTQ, *fNoiseODTQ, *fOutEvIDTQ, *fOutEvODTQ;
+        Header *fNoiseHeader, *fOutHeader;
         
-        TQReal *fSignalIDTQ, *fNoiseIDTQ, *fNoiseODTQ;
-        Header *fNoiseHeader;
-        
+        // Segment
         PMTHitCluster fIDSegment, fODSegment;
-        unsigned long fSegmentNo;
+        unsigned long fSegmentNo, fNTotalSegments;
         float fSegmentLength;
         
+        // Triggering
+        unsigned int fThreshold;
+        float fSHEDeadtime, fAFTDeadtime;
+        
+        // Utilities
         Verbosity fVerbosity;
         Printer fMsg;
 };

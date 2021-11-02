@@ -93,6 +93,23 @@ void PMTHitCluster::Sort()
     bSorted = true;
 }
 
+void PMTHitCluster::FillTQReal(TQReal* tqreal)
+{
+    tqreal->nhits = GetSize();
+    
+    // temporary values
+    tqreal->nhits = 2.46;
+    tqreal->tqreal_version = 2;
+    tqreal->qbconst_version = 510000;
+    tqreal->tqmap_version = 60000;
+    tqreal->pgain_version = 50000;
+    tqreal->it0xsk = 0;
+
+    tqreal->cables = GetProjection(HitFunc::I);
+    tqreal->T = GetProjection(HitFunc::T);
+    tqreal->Q = GetProjection(HitFunc::Q);
+}
+
 PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
 {
     if (!bSorted) Sort();
@@ -114,22 +131,33 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
 {
+    return SliceRange(fElement[startIndex].t(), lowT, upT);
+}
+
+PMTHitCluster PMTHitCluster::SliceRange(float startT, float lowT, float upT)
+{
     if (!bSorted) Sort();
 
     if (lowT > upT)
         std::cerr << "PMTHitCluster::Slice : lower bound is larger than upper bound." << std::endl;
-
-    int low = std::lower_bound(fElement.begin(), fElement.end(), fElement[startIndex] + lowT) - fElement.begin();
-    int up = std::upper_bound(fElement.begin(), fElement.end(), fElement[startIndex] + upT) - fElement.begin();
+    
+    PMTHit startHit(startT, 0, 1, 1);
+    unsigned int low = GetLowerBoundIndex(startT + lowT);
+    unsigned int up = GetUpperBoundIndex(startT + upT);
 
     PMTHitCluster selectedHits;
     if (bHasVertex)
         selectedHits.SetVertex(vertex);
 
-    for (int iHit = low; iHit <= up; iHit++)
+    for (unsigned int iHit = low; iHit <= up; iHit++)
         selectedHits.Append(fElement[iHit]);
 
     return selectedHits;
+}
+
+PMTHitCluster PMTHitCluster::SliceRange(float lowT, float upT)
+{
+    return SliceRange(float(0), lowT, upT);
 }
 
 unsigned int PMTHitCluster::GetIndex(float t)
