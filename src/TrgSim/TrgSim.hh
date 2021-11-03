@@ -12,57 +12,50 @@
 
 #include "PMTHitCluster.hh"
 #include "Printer.hh"
+#include "RootReader.hh"
 
 class TrgSim
 {
     public:
-        TrgSim(Verbosity verbose=pDEFAULT);
-        TrgSim(std::string signalFilePath, float sigFreqHz, float tDurationSec, std::string noiseFilePath, std::string outFilePath, unsigned int seed=0, Verbosity verbose=pDEFAULT);
+        TrgSim(std::string outFilePath, Verbosity verbose=pDEFAULT);
         ~TrgSim();
         
         // setter
         void SetVerbosity(Verbosity verbose) { fVerbosity = verbose; fMsg.SetVerbosity(verbose); }
-        void SetSignalFrequency(float sigFreqHz) { fSigFreqHz = sigFreqHz; }
         void SetTimeDuration(float tDurationSec) { fTDurationSec = tDurationSec; }
-        void SetRandomSeed(unsigned int seed) { fRandomSeed = seed; }
         void SetSegmentLength(float segLength) { fSegmentLength = segLength; }
         void SetThreshold(unsigned int thr) { fThreshold = thr; }
         void SetSHEDeadtime(float dt) { fSHEDeadtime = dt; }
         void SetAFTDeadtime(float dt) { fAFTDeadtime = dt; }
-        void SetSignalFile(std::string signalFilePath);
-        void SetNoiseFile(std::string noiseFilePath);
         void SetOutputFile(std::string outFilePath);
         
-        // signal time generation
-        void SetSignalTime(float sigFreqHz, float tDurationSec);
-        const std::vector<double>& GetSignalTime() const { return fSignalEvTime; }
+        void PreprocessRootReader(RootReader* rootReader);
+        void AddSignal(SignalReader* signal);
+        void AddNoise(NoiseReader* noise);
         
         // simulation
         void Simulate();
         
     private:
-        void GetEntry(TTree* tree, unsigned long entryNo);
         void FillSegment(unsigned long segNo);
         void FindTriggerInSegment();
         
-        // Signal time
-        float fSigFreqHz;
         float fTDurationSec;
-        unsigned int fRandomSeed;
-        std::vector<double> fSignalEvTime; 
         
-        // ROOT I/O
+        // ROOT output
         TFile* fOutFile;
-        TTree *fSignalTree, *fNoiseTree, *fOutTree;
-        unsigned long fCurrentSignalEntry, fCurrentNoiseEntry,
-                      fTotalSignalEntries, fTotalNoiseEntries;
-        TQReal *fSignalIDTQ, *fNoiseIDTQ, *fNoiseODTQ, *fOutEvIDTQ, *fOutEvODTQ;
-        Header *fNoiseHeader, *fOutHeader;
+        TTree *fOutTree;
+        TQReal *fOutEvIDTQ, *fOutEvODTQ;
+        Header *fOutHeader;
+        
+        // Signal and noise
+        std::vector<SignalReader*> fSignalList;
+        std::vector<NoiseReader*> fNoiseList;
         
         // Segment
         PMTHitCluster fIDSegment, fODSegment;
         unsigned long fSegmentNo, fNTotalSegments;
-        float fSegmentLength;
+        float fSegmentLength, fLastEvEndT;
         
         // Triggering
         unsigned int fThreshold;

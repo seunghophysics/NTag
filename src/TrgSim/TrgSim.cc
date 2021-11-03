@@ -8,60 +8,35 @@
 #include "Calculator.hh"
 #include "TrgSim.hh"
 
-TrgSim::TrgSim(Verbosity verbose) : 
-fSigFreqHz(0), fTDurationSec(0), fRandomSeed(0),
-fOutFile(nullptr), fSignalTree(nullptr), fNoiseTree(nullptr), fOutTree(nullptr),
-fCurrentSignalEntry(-1), fCurrentNoiseEntry(-1),
-fTotalSignalEntries(0), fTotalNoiseEntries(0),
-fSignalIDTQ(nullptr), fNoiseIDTQ(nullptr), fNoiseODTQ(nullptr), fOutEvIDTQ(nullptr), fOutEvODTQ(nullptr), fNoiseHeader(nullptr), fOutHeader(nullptr),
-fIDSegment(), fODSegment(), fSegmentNo(0), fNTotalSegments(0), fSegmentLength(21e-3 /* 21 ms */),
+TrgSim::TrgSim(std::string outFilePath, Verbosity verbose) : 
+fTDurationSec(0),
+fOutFile(nullptr), fOutEvIDTQ(nullptr), fOutEvODTQ(nullptr), fOutHeader(nullptr),
+fIDSegment(), fODSegment(), fSegmentNo(0), fNTotalSegments(0), fSegmentLength(21e-3 /* 21 ms */), fLastEvEndT(-99e99),
 fThreshold(60 /* SHE */), fSHEDeadtime(35e3), fAFTDeadtime(535e3),
 fVerbosity(verbose), fMsg("TrgSim", verbose)
 {
-    //gROOT->LoadMacro("/disk02/usr6/han/skg4/lib/libSKG4Root.so");
-    //gROOT->LoadMacro("/home/skofl/sklib_gcc4.8.5/skofl-trunk/lib/libmcinfo.so");
-    //gROOT->LoadMacro("/home/skofl/sklib_gcc4.8.5/skofl-trunk/lib/libtqrealroot.so");
-    //gROOT->LoadMacro("/home/skofl/sklib_gcc4.8.5/skofl-trunk/lib/libDataDefinition.so");
+    SetOutputFile(outFilePath);
 }
 
-TrgSim::TrgSim(std::string signalFilePath, float sigFreqHz, float tDurationSec, std::string noiseFilePath, std::string outFilePath, unsigned int seed, Verbosity verbose)
-: TrgSim(verbose)
-{
-    SetOutputFile(outFilePath);
-    
-    SetSignalFile(signalFilePath);
-    SetRandomSeed(seed);
-    SetSignalTime(sigFreqHz, tDurationSec);
-    
-    SetNoiseFile(noiseFilePath);
-}
 
 TrgSim::~TrgSim() {}
 
-void TrgSim::SetSignalFile(std::string signalFilePath)
+void TrgSim::PreprocessRootReader(RootReader* rootReader)
 {
-    TChain* signalChain = new TChain("data");
-    signalChain->Add(signalFilePath.c_str());
-    fSignalTree = signalChain;
-    fSignalTree->SetBranchStatus("*", 0);
-    fSignalTree->SetBranchStatus("TQREAL", 1);
-    fSignalTree->SetBranchAddress("TQREAL", &fSignalIDTQ);
-    fTotalSignalEntries = fSignalTree->GetEntries();
+    rootReader->SetTimeDuration(fTDurationSec);
+    rootReader->SetEventTime();
 }
 
-void TrgSim::SetNoiseFile(std::string noiseFilePath)
-{
-    TChain* noiseChain = new TChain("data");
-    noiseChain->Add(noiseFilePath.c_str());
-    fNoiseTree = noiseChain;
-    fNoiseTree->SetBranchStatus("*", 0);
-    fNoiseTree->SetBranchStatus("HEADER", 1);
-    fNoiseTree->SetBranchStatus("TQREAL", 1);
-    fNoiseTree->SetBranchStatus("TQAREAL", 1);
-    fNoiseTree->SetBranchAddress("HEADER", &fNoiseHeader);
-    fNoiseTree->SetBranchAddress("TQREAL", &fNoiseIDTQ);
-    fNoiseTree->SetBranchAddress("TQAREAL", &fNoiseODTQ);
-    fTotalNoiseEntries = fNoiseTree->GetEntries();
+void TrgSim::AddSignal(SignalReader* signal)
+{ 
+    PreprocessRootReader(signal);
+    fSignalList.push_back(signal); 
+}
+
+void TrgSim::AddNoise(NoiseReader* noise)
+{ 
+    PreprocessRootReader(noise);
+    fNoiseList.push_back(noise); 
 }
 
 void TrgSim::SetOutputFile(std::string outputFilePath)
@@ -73,36 +48,6 @@ void TrgSim::SetOutputFile(std::string outputFilePath)
     fOutTree->Branch("HEADER", &fOutHeader);
     fOutTree->Branch("TQREAL", &fOutEvIDTQ);
     fOutTree->Branch("TQAREAL", &fOutEvODTQ);
-}
-
-void TrgSim::SetSignalTime(float sigFreqHz, float tDurationSec)
-{
-    SetSignalFrequency(sigFreqHz);
-    SetTimeDuration(tDurationSec);
-    
-    double dt = 100e-6;
-    unsigned long tAxisSize = (unsigned long)(fTDurationSec/dt);
-    double poissonMeanDt = dt * fSigFreqHz;
-    
-    TUnuran poissonGen; poissonGen.SetSeed(fRandomSeed);
-    TRandom3 uniformGen(fRandomSeed);
-    poissonGen.InitPoisson(poissonMeanDt);
-    
-    fSignalEvTime.clear();
-    for(unsigned long i=0; i<tAxisSize; i++) {
-        unsigned int nOccurrences = poissonGen.SampleDiscr();
-        for (unsigned int occ=0; occ<nOccurrences; occ++)
-            fSignalEvTime.push_back((i+uniformGen.Rndm())*dt);
-    }
-    
-    //for (unsigned int i=0; i<fSignalEvTime.size(); i++) {
-    //   std::cout << i << " " << fSignalEvTime[i]*1e9 << "\n";
-    //}
-    
-    fMsg.Print(Form("Seed: %d", fRandomSeed), pDEBUG);
-    fMsg.Print(Form("Signal frequency: %3.2f Hz, Time duration: %3.2f sec", fSigFreqHz, fTDurationSec), pDEBUG);
-    fMsg.Print(Form("Signal occurence: %d, Simulated signal frequency: %3.2f Hz", fSignalEvTime.size(), fSignalEvTime.size()/fTDurationSec));
-    fMsg.Print(Form("Total input MC events: %d", fTotalSignalEntries));
 }
 
 void TrgSim::Simulate()
@@ -120,21 +65,11 @@ void TrgSim::Simulate()
     fOutFile->Close();
 }
 
-void TrgSim::GetEntry(TTree* tree, unsigned long entryNo)
-{
-    unsigned long nEntries = tree->GetEntries();
-    
-    if (entryNo > nEntries)
-        fMsg.Print("");
-        
-    tree->GetEntry(entryNo % (tree->GetEntries()));
-}
-
 void TrgSim::FillSegment(unsigned long segNo)
 {
     // work in nanoseconds
 
-    float tSegStart = segNo * fSegmentLength * 1e9;
+    float tSegStart = segNo * fSegmentLength * 1e9 - 1e6; // additional 1 ms in the beginning 
     float tSegEnd = (segNo+1) * fSegmentLength * 1e9;
     
     // last segment 
@@ -144,73 +79,17 @@ void TrgSim::FillSegment(unsigned long segNo)
     fIDSegment.Clear(); fODSegment.Clear();
     
     // signal
-    // search for events that might have hits within segment
-    auto signalEvID = GetRangeIndex(fSignalEvTime, tSegStart*1e-9 -1e-3 /* additional 1 ms */, tSegEnd*1e-9);
-    
-    //for (unsigned int i=0; i<signalEvID.size(); i++) {
-    //   std::cout << "Signal ev: " << i << " " << signalEvID[i]<< "\n";
-    //}
-    
-    for (unsigned long iEv=0; iEv<signalEvID.size(); iEv++) {
-        double evTime = fSignalEvTime[signalEvID[iEv]] * 1e9;
-        auto evID = signalEvID[iEv];
-        fSignalTree->GetEntry(evID%fTotalSignalEntries);
-        fCurrentSignalEntry = evID;
-        fMsg.Print(Form("Signal event ID: %d, Time: %3.2f nsec", evID, evTime));
-
-        PMTHitCluster signalIDHits = PMTHitCluster(fSignalIDTQ, 2) + (evTime - 1000) ;
-        
-        for (auto const& hit: signalIDHits) {
-            if ((tSegStart < hit.t()) && (hit.t() < tSegEnd))
-                fIDSegment.Append(hit);
-        }
+    for (auto const& signal: fSignalList) {
+        signal->FillSegments(fIDSegment, fODSegment, tSegStart, tSegEnd);
     }
     
     // noise
-    double addedNoiseLength = 0;
-    unsigned long evID = fCurrentNoiseEntry;
-    while (addedNoiseLength < fSegmentLength*1e9) {
-        
-        // get entry until we get random-wide trigger
-        // this takes quite a long time
-        evID++; fNoiseTree->GetEntry(evID%fTotalNoiseEntries);
-        while (fNoiseHeader->idtgsk >= 0) {
-            evID++; fNoiseTree->GetEntry(evID%fTotalNoiseEntries);
-        }
-        fCurrentNoiseEntry = evID;
-        
-        PMTHitCluster noiseIDHits(fNoiseIDTQ, 1);
-        PMTHitCluster noiseODHits(fNoiseODTQ, 1);
-        
-        auto noiseEvHitT = noiseIDHits.GetProjection(HitFunc::T);
-        double rawEvNoiseStartT = noiseEvHitT[GetMinIndex(noiseEvHitT)];
-        noiseIDHits = noiseIDHits + (tSegStart + addedNoiseLength - rawEvNoiseStartT);
-        noiseODHits = noiseODHits + (tSegStart + addedNoiseLength - rawEvNoiseStartT);
-        
-        for (auto const& hit: noiseIDHits) {
-            if (hit.t() < tSegEnd) {
-                fIDSegment.Append(hit);
-            }
-        }
-
-        for (auto const& hit: noiseODHits) {
-            if (hit.t() < tSegEnd) {
-                fODSegment.Append(hit);
-            }
-        }
-
-        double noiseEvLength = noiseEvHitT[GetMaxIndex(noiseEvHitT)] - rawEvNoiseStartT;
-        fMsg.Print(Form("Noise event ID: %d, length: %3.2f ms", evID, noiseEvLength*1e-6));
-        addedNoiseLength += noiseEvLength;
+    for (auto const& noise: fNoiseList) {
+        noise->FillSegments(fIDSegment, fODSegment, tSegStart, tSegEnd);
     }
-    
+
     fIDSegment.Sort();
     fODSegment.Sort();
-    
-    //fMsg.Print("ID hits: ");
-    //fIDSegment.DumpAllElements();
-    //fMsg.Print("OD hits: ");
-    //fODSegment.DumpAllElements();
 }
 
 void TrgSim::FindTriggerInSegment()
@@ -226,11 +105,15 @@ void TrgSim::FindTriggerInSegment()
     Hit hit;
     hit.cluster = &fIDSegment;
     
+    // first trgStartT
     hit.SetIndex(0);
     
-    double segTrgEnd  = fIDSegment[fIDSegment.GetSize()-1].t() - fAFTDeadtime;
+    if (fLastEvEndT > fIDSegment[0].t()) {
+        fMsg.Print(Form("Previous trigger has a tail in the beginning of the segment. Starting search from %3.2f ns...", fLastEvEndT), pDEBUG);
+        hit.SetIndex(fIDSegment.GetLowerBoundIndex(fLastEvEndT));
+    }
     
-    //std::vector<double> trgTList;
+    double segTrgEnd  = fIDSegment[fIDSegment.GetSize()-1].t() - 1e6;
     
     bool isFirstTrigger = true;
     
@@ -266,6 +149,8 @@ void TrgSim::FindTriggerInSegment()
             fOutTree->Fill();
 
             hit.SetIndex(fIDSegment.GetLowerBoundIndex(hit.t + evEndT));
+            
+            fLastEvEndT = hit.t + evEndT;
             
             fMsg.Print(Form("Found trigger at t=%3.2f ns, evEndT: %3.2f ns", hit.t, evEndT));
             fMsg.Print(Form("Trigger region (%3.2f, %3.2f) ns, N200: %d (signal: %3.2f%)", trgStartT, trgEndT, N200, 100*nSig/float(N200)), pDEBUG);
