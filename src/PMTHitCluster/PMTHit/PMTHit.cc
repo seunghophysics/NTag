@@ -1,6 +1,6 @@
 #include "PMTHit.hh"
 
-PMTHit::PMTHit(float t, float q, int i, int f)
+PMTHit::PMTHit(Float t, float q, int i, int f)
 : fT(t), fQ(q), fToF(0), fPMTID(i), fFlag(f), fIsSignal(false)
 {
     if (1 <= fPMTID && fPMTID <= MAXPM)
@@ -9,12 +9,12 @@ PMTHit::PMTHit(float t, float q, int i, int f)
         fPMTPosition = TVector3();
 }
 
-PMTHit operator+(const PMTHit& hit, const float& time)
+PMTHit operator+(const PMTHit& hit, const Float& time)
 {
     return PMTHit(hit.t()+time, hit.q(), hit.i(), hit.f());
 }
 
-PMTHit operator-(const PMTHit& hit, const float& time)
+PMTHit operator-(const PMTHit& hit, const Float& time)
 {
     return PMTHit(hit.t()-time, hit.q(), hit.i(), hit.f());
 }

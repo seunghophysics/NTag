@@ -25,6 +25,7 @@ void TrgSim::PreprocessRootReader(RootReader* rootReader)
 {
     rootReader->SetTimeDuration(fTDurationSec);
     rootReader->SetEventTime();
+    rootReader->SetVerbosity(fVerbosity);
 }
 
 void TrgSim::AddSignal(SignalReader* signal)
@@ -51,15 +52,16 @@ void TrgSim::SetOutputFile(std::string outputFilePath)
 }
 
 void TrgSim::Simulate()
-{
+{    
     int fNTotalSegments = (int)(fTDurationSec/fSegmentLength);
     if (fmod(fTDurationSec, fSegmentLength)>1e-6) fNTotalSegments++;
     
-    for (fSegmentNo=0; fSegmentNo<fNTotalSegments; fSegmentNo++) {
-        fMsg.Print(Form("Processing segment #%d / %d...", fSegmentNo+1, fNTotalSegments));
-        FillSegment(fSegmentNo);
+    //for (fSegmentNo=0; fSegmentNo<fNTotalSegments; fSegmentNo++) {
+    //    fMsg.Print(Form("Processing segment #%d / %d...", fSegmentNo+1, fNTotalSegments));
+    //    FillSegment(fSegmentNo);
+        FillSegment(52);
         FindTriggerInSegment();
-    }
+    //}
 
     fOutTree->Write();
     fOutFile->Close();
@@ -69,8 +71,10 @@ void TrgSim::FillSegment(unsigned long segNo)
 {
     // work in nanoseconds
 
-    float tSegStart = segNo * fSegmentLength * 1e9 - 1e6; // additional 1 ms in the beginning 
-    float tSegEnd = (segNo+1) * fSegmentLength * 1e9;
+    double tSegStart = segNo * fSegmentLength * 1e9 - 1e6; // additional 1 ms in the beginning 
+    double tSegEnd = (segNo+1) * fSegmentLength * 1e9;
+    
+    fMsg.Print(Form("Segment #%d: (%3.2f, %3.2f) msec", tSegStart*1e-6, tSegEnd*1e-6), pDEBUG);
     
     // last segment 
     if (segNo == fNTotalSegments-1)
@@ -107,6 +111,8 @@ void TrgSim::FindTriggerInSegment()
     
     // first trgStartT
     hit.SetIndex(0);
+    double tSegStart = hit.t;
+    double segTrgStart = tSegStart;
     
     if (fLastEvEndT > fIDSegment[0].t()) {
         fMsg.Print(Form("Previous trigger has a tail in the beginning of the segment. Starting search from %3.2f ns...", fLastEvEndT), pDEBUG);
@@ -114,6 +120,8 @@ void TrgSim::FindTriggerInSegment()
     }
     
     double segTrgEnd  = fIDSegment[fIDSegment.GetSize()-1].t() - 1e6;
+    
+    fMsg.Print(Form("Triggering range of this segment: (%3.2f, %3.2f) msec", segTrgStart*1e-6, segTrgEnd*1e-6), pDEBUG);
     
     bool isFirstTrigger = true;
     
@@ -152,8 +160,8 @@ void TrgSim::FindTriggerInSegment()
             
             fLastEvEndT = hit.t + evEndT;
             
-            fMsg.Print(Form("Found trigger at t=%3.2f ns, evEndT: %3.2f ns", hit.t, evEndT));
-            fMsg.Print(Form("Trigger region (%3.2f, %3.2f) ns, N200: %d (signal: %3.2f%)", trgStartT, trgEndT, N200, 100*nSig/float(N200)), pDEBUG);
+            fMsg.Print(std::string(evEndT>50000 ? "AFT" : "SHE") + Form(" trigger at t = %3.2f msec", hit.t * 1e-6));
+            fMsg.Print(Form("N200: %d (signal: %3.2f%)", N200, 100*nSig/float(N200)), pDEBUG);
         }
         
         else {

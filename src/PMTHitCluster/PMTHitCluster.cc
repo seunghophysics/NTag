@@ -110,7 +110,7 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
     tqreal->Q = GetProjection(HitFunc::Q);
 }
 
-PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
+PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
 {
     if (!bSorted) Sort();
 
@@ -129,12 +129,12 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, float tWidth)
     return selectedHits;
 }
 
-PMTHitCluster PMTHitCluster::Slice(int startIndex, float lowT, float upT)
+PMTHitCluster PMTHitCluster::Slice(int startIndex, Float lowT, Float upT)
 {
     return SliceRange(fElement[startIndex].t(), lowT, upT);
 }
 
-PMTHitCluster PMTHitCluster::SliceRange(float startT, float lowT, float upT)
+PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
 {
     if (!bSorted) Sort();
 
@@ -155,12 +155,12 @@ PMTHitCluster PMTHitCluster::SliceRange(float startT, float lowT, float upT)
     return selectedHits;
 }
 
-PMTHitCluster PMTHitCluster::SliceRange(float lowT, float upT)
+PMTHitCluster PMTHitCluster::SliceRange(Float lowT, Float upT)
 {
-    return SliceRange(float(0), lowT, upT);
+    return SliceRange(Float(0), lowT, upT);
 }
 
-unsigned int PMTHitCluster::GetIndex(float t)
+unsigned int PMTHitCluster::GetIndex(Float t)
 {
     bool isFound = false;
     unsigned int i = 0;
@@ -177,7 +177,7 @@ unsigned int PMTHitCluster::GetIndex(float t)
     return i;
 }
 
-void PMTHitCluster::ApplyDeadtime(float deadtime)
+void PMTHitCluster::ApplyDeadtime(Float deadtime)
 {
     TVector3 tempVertex;
     bool bHadVertex = false;
@@ -187,8 +187,8 @@ void PMTHitCluster::ApplyDeadtime(float deadtime)
         bHadVertex = true;
     }
 
-    std::array<float, MAXPM> hitTime;
-    hitTime.fill(std::numeric_limits<float>::min());
+    std::array<Float, MAXPM> hitTime;
+    hitTime.fill(std::numeric_limits<Float>::min());
 
     std::vector<PMTHit> dtCorrectedHits;
 
@@ -276,8 +276,8 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
     TVector3 minGridPoint;        // temp point to save TRMS-minimizing grid point
     TVector3 gridPoint;           // point in grid to find TRMS
 
-    float minTRMS = 9999.;
-    float tRMS;
+    Float minTRMS = 9999.;
+    Float tRMS;
 
     float gridRLimit = (int)(2*RINTK/gridWidth)*gridWidth/2.;
     float gridZLimit = (int)(2*ZPINTK/gridWidth)*gridWidth/2.;
@@ -325,7 +325,7 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
     return minGridPoint;
 }
 
-PMTHitCluster operator+(const PMTHitCluster& hitCluster, const float& time)
+PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time)
 {
     PMTHitCluster newCluster;
     
@@ -337,7 +337,7 @@ PMTHitCluster operator+(const PMTHitCluster& hitCluster, const float& time)
     return newCluster;
 }
 
-PMTHitCluster operator-(const PMTHitCluster& hitCluster, const float& time)
+PMTHitCluster operator-(const PMTHitCluster& hitCluster, const Float& time)
 {
     PMTHitCluster newCluster;
     

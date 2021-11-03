@@ -16,24 +16,24 @@
 
 TRandom3 ranGen;
 
-float Dot(const float a[3], const float b[3])
+Float Dot(const Float a[3], const Float b[3])
 {
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 }
 
-float Norm(const float vec[3])
+Float Norm(const Float vec[3])
 {
     return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 }
 
-float Norm(float x, float y, float z)
+Float Norm(Float x, Float y, Float z)
 {
     return sqrt(x*x + y*y + z*z);
 }
 
-float GetDistance(const float vec1[3], const float vec2[3])
+Float GetDistance(const Float vec1[3], const Float vec2[3])
 {
-    float tmpVec[3];
+    Float tmpVec[3];
 
     for (int i = 0; i < 3; i++)
         tmpVec[i] = vec1[i] - vec2[i];
@@ -41,11 +41,11 @@ float GetDistance(const float vec1[3], const float vec2[3])
     return Norm(tmpVec);
 }
 
-float GetRMS(const std::vector<float>& vec)
+Float GetRMS(const std::vector<Float>& vec)
 {
-    float N  = static_cast<float>(vec.size());
-    float mean = 0.;
-    float var  = 0.;
+    Float N  = static_cast<Float>(vec.size());
+    Float mean = 0.;
+    Float var  = 0.;
 
     for (auto const& value: vec)
         mean += value / N;
@@ -55,9 +55,9 @@ float GetRMS(const std::vector<float>& vec)
     return sqrt(var);
 }
 
-float GetLegendreP(int i, float& x)
+Float GetLegendreP(int i, Float& x)
 {
-    float result = 0.;
+    Float result = 0.;
 
     switch (i) {
         case 1:
@@ -75,7 +75,7 @@ float GetLegendreP(int i, float& x)
     return result;
 }
 
-float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
+Float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
     // make sure the inputs are unit vectors
     // uA = uA.Unit(); uB = uB.Unit(); uC = uC.Unit();
@@ -102,38 +102,38 @@ float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
     }
 }
 
-float GetDWall(TVector3 vtx)
+Float GetDWall(TVector3 vtx)
 {
-    float vertex[3] = {(float)vtx.x(), (float)vtx.y(), (float)vtx.z()};
+    Float vertex[3] = {(Float)vtx.x(), (Float)vtx.y(), (Float)vtx.z()};
     return wallsk_(vertex);
 }
 
 
-float GetDWallInDirection(TVector3 vtx, TVector3 dir)
+Float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 {
     dir = dir.Unit();
 
-    float dot = vtx.Dot(dir) - vtx.z()*dir.z();
-    float dirSq = dir.Perp2(); float vtxSq = vtx.Perp2();
+    Float dot = vtx.Dot(dir) - vtx.z()*dir.z();
+    Float dirSq = dir.Perp2(); Float vtxSq = vtx.Perp2();
 
     // Calculate distance to barrel and distance to top/bottom
-    float distR = (-dot + sqrt(dot*dot + dirSq*(RINTK*RINTK - vtxSq))) / dirSq;
-    float distZ = dir.z() > 0 ? (ZPINTK-vtx.z())/dir.z() : (ZMINTK-vtx.z())/dir.z();
+    Float distR = (-dot + sqrt(dot*dot + dirSq*(RINTK*RINTK - vtxSq))) / dirSq;
+    Float distZ = dir.z() > 0 ? (ZPINTK-vtx.z())/dir.z() : (ZMINTK-vtx.z())/dir.z();
 
     // Return the smaller
     return distR < distZ ? distR : distZ;
 }
 
-unsigned int GetMinIndex(std::vector<float>& vec)
+unsigned int GetMinIndex(std::vector<Float>& vec)
 {
-    std::vector<float>::iterator iter = std::min_element(vec.begin(), vec.end());
+    std::vector<Float>::iterator iter = std::min_element(vec.begin(), vec.end());
     size_t index = std::distance(vec.begin(), iter);
     return index;
 }
 
-unsigned int GetMaxIndex(std::vector<float>& vec)
+unsigned int GetMaxIndex(std::vector<Float>& vec)
 {
-    std::vector<float>::iterator iter = std::max_element(vec.begin(), vec.end());
+    std::vector<Float>::iterator iter = std::max_element(vec.begin(), vec.end());
     size_t index = std::distance(vec.begin(), iter);
     return index;
 }

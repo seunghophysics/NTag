@@ -39,16 +39,16 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         const PMTHit& operator[] (int iHit) const { return fElement[iHit]; }
 
-        PMTHitCluster Slice(int startIndex, float tWidth);
-        PMTHitCluster Slice(int startIndex, float minusT, float plusT);
-        PMTHitCluster SliceRange(float startT, float minusT, float plusT);
-        PMTHitCluster SliceRange(float minusT, float plusT);
+        PMTHitCluster Slice(int startIndex, Float tWidth);
+        PMTHitCluster Slice(int startIndex, Float minusT, Float plusT);
+        PMTHitCluster SliceRange(Float startT, Float minusT, Float plusT);
+        PMTHitCluster SliceRange(Float minusT, Float plusT);
 
-        unsigned int GetIndex(float t);
-        unsigned int GetLowerBoundIndex(float t) { return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
-        unsigned int GetUpperBoundIndex(float t) { return std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
+        unsigned int GetIndex(Float t);
+        unsigned int GetLowerBoundIndex(Float t) { return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
+        unsigned int GetUpperBoundIndex(Float t) { return std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
 
-        void ApplyDeadtime(float deadtime);
+        void ApplyDeadtime(Float deadtime);
 
         template<typename T>
         float Find(std::function<T(const PMTHit&)> projFunc,
@@ -83,7 +83,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         void SetToF(bool unset=false);
 };
 
-PMTHitCluster operator+(const PMTHitCluster& hitCluster, const float& time);
-PMTHitCluster operator-(const PMTHitCluster& hitCluster, const float& time);
+PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time);
+PMTHitCluster operator-(const PMTHitCluster& hitCluster, const Float& time);
 
 #endif

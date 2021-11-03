@@ -9,6 +9,8 @@
 #include <skparmC.h>
 #include <geopmtC.h>
 
+#include "Calculator.hh"
+
 class PMTHitCluster;
 
 namespace NTagConstant{
@@ -21,9 +23,9 @@ class PMTHit
 {
     public:
         PMTHit(): fT(0), fQ(0), fToF(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}
-        PMTHit(float t, float q, int i, int f);
+        PMTHit(Float t, float q, int i, int f);
 
-        inline const float& t() const { return fT; }
+        inline const Float& t() const { return fT; }
         inline const float& q() const { return fQ; }
         inline const unsigned int& i() const { return fPMTID; }
         inline const int& f() const { return fFlag; }
@@ -47,14 +49,15 @@ class PMTHit
             fHitDirection = TVector3();
         }
 
-        inline const float& GetToF() const { return fToF; }
+        inline const Float& GetToF() const { return fToF; }
         inline const TVector3& GetDirection() const { return fHitDirection; }
         inline const TVector3& GetPosition() const { return fPMTPosition; }
 
         inline bool operator<(const PMTHit &hit) const { return fT < hit.t(); }
 
     private:
-        float fT, fQ, fToF;
+        Float fT, fToF;
+        float fQ;
         unsigned int fPMTID;
         int fFlag;
         bool fIsSignal;
@@ -64,8 +67,8 @@ class PMTHit
     //ClassDef(PMTHit, 1)
 };
 
-PMTHit operator+(const PMTHit& hit, const float& time);
-PMTHit operator-(const PMTHit& hit, const float& time);
+PMTHit operator+(const PMTHit& hit, const Float& time);
+PMTHit operator-(const PMTHit& hit, const Float& time);
 
 namespace HitFunc
 {

@@ -22,11 +22,11 @@ class TrgSim
         
         // setter
         void SetVerbosity(Verbosity verbose) { fVerbosity = verbose; fMsg.SetVerbosity(verbose); }
-        void SetTimeDuration(float tDurationSec) { fTDurationSec = tDurationSec; }
-        void SetSegmentLength(float segLength) { fSegmentLength = segLength; }
+        void SetTimeDuration(double tDurationSec) { fTDurationSec = tDurationSec; }
+        void SetSegmentLength(double segLength) { fSegmentLength = segLength; }
         void SetThreshold(unsigned int thr) { fThreshold = thr; }
-        void SetSHEDeadtime(float dt) { fSHEDeadtime = dt; }
-        void SetAFTDeadtime(float dt) { fAFTDeadtime = dt; }
+        void SetSHEDeadtime(double dt) { fSHEDeadtime = dt; }
+        void SetAFTDeadtime(double dt) { fAFTDeadtime = dt; }
         void SetOutputFile(std::string outFilePath);
         
         void PreprocessRootReader(RootReader* rootReader);
@@ -40,7 +40,7 @@ class TrgSim
         void FillSegment(unsigned long segNo);
         void FindTriggerInSegment();
         
-        float fTDurationSec;
+        double fTDurationSec;
         
         // ROOT output
         TFile* fOutFile;
@@ -55,11 +55,11 @@ class TrgSim
         // Segment
         PMTHitCluster fIDSegment, fODSegment;
         unsigned long fSegmentNo, fNTotalSegments;
-        float fSegmentLength, fLastEvEndT;
+        double fSegmentLength, fLastEvEndT;
         
         // Triggering
         unsigned int fThreshold;
-        float fSHEDeadtime, fAFTDeadtime;
+        double fSHEDeadtime, fAFTDeadtime;
         
         // Utilities
         Verbosity fVerbosity;
