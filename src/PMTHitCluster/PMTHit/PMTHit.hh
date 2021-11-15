@@ -11,6 +11,12 @@
 
 #include "Calculator.hh"
 
+#ifdef USE_DOUBLE
+typedef double Float;
+#else
+typedef float Float;
+#endif
+
 class PMTHitCluster;
 
 namespace NTagConstant{
@@ -32,7 +38,8 @@ class PMTHit
         inline const bool& s() const {return fIsSignal; }
 
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << "\n"; }
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag
+                                             << " x: " << fPMTPosition.x() << " y: " << fPMTPosition.y() << " z: " << fPMTPosition.z() << "\n"; }
 
         inline void SetToFAndDirection(const TVector3& vertex)
         {

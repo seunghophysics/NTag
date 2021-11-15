@@ -25,6 +25,8 @@ class PMTHitCluster : public Cluster<PMTHit>
         PMTHitCluster(TQReal* tqreal, int flag=2/* default: in-gate */);
 
         void Append(const PMTHit& hit);
+        void Append(const PMTHitCluster& hitCluster, bool inGateOnly=false);
+        void AddTQReal(TQReal* tqreal, int flag=2/* default: in-gate */);
 
         void SetVertex(const TVector3& inVertex);
         inline const TVector3& GetVertex() const { return vertex; }

@@ -11,12 +11,6 @@
 #include <TString.h>
 #include <TVector3.h>
 
-//#ifdef USE_DOUBLE
-typedef double Float;
-//#else
-//typedef float Float;
-//#endif
-
 extern TRandom3 ranGen;
 
 extern "C"
@@ -26,18 +20,18 @@ extern "C"
 
 /**
  * @brief Get dot produt of two arrays.
- * @param vec1 A size-3 Float array.
- * @param vec2 A size-3 Float array.
+ * @param vec1 A size-3 float array.
+ * @param vec2 A size-3 float array.
  * @return The dot product of the given two arrays.
  */
-Float Dot(const Float vec1[3], const Float vec2[3]);
+float Dot(const float vec1[3], const float vec2[3]);
 
 /**
- * @brief Get norm of a size-3 Float array.
- * @param vec A size-3 Float array.
+ * @brief Get norm of a size-3 float array.
+ * @param vec A size-3 float array.
  * @return The norm of the given array.
  */
-Float Norm(const Float vec[3]);
+float Norm(const float vec[3]);
 
 /**
  * @brief Get norm of the vector with given x, y, z coordinates.
@@ -46,15 +40,15 @@ Float Norm(const Float vec[3]);
  * @param z Z coordinate of a vector.
  * @return The norm of the vector with given coordinates.
  */
-Float Norm(Float x, Float y, Float z);
+float Norm(float x, float y, float z);
 
 /**
- * @brief Get distance between two points specified by the two given size-3 Float arrays.
- * @param vec1 A size-3 Float array of coordinates of a vector 1.
- * @param vec2 A size-3 Float array of coordinates of a vector 2.
+ * @brief Get distance between two points specified by the two given size-3 float arrays.
+ * @param vec1 A size-3 float array of coordinates of a vector 1.
+ * @param vec2 A size-3 float array of coordinates of a vector 2.
  * @return The distance between vector 1 and 2.
  */
-Float GetDistance(const Float vec1[3], const Float vec2[3]);
+float GetDistance(const float vec1[3], const float vec2[3]);
 
 template <typename T>
 T GetSum(const std::vector<T>& vec)
@@ -74,20 +68,20 @@ T GetSum(const std::vector<T>& vec)
 template <typename T>
 T GetMean(const std::vector<T>& vec)
 {
-    return GetSum<T>(vec) * (1/(Float)(vec.size()));
+    return GetSum<T>(vec) * (1/(float)(vec.size()));
 }
 
 /**
- * @brief Gets the RMS value of a Float vector.
- * @param vec A vector of Float values.
- * @return The RMS value of a Float vector \p T.
+ * @brief Gets the RMS value of a float vector.
+ * @param vec A vector of float values.
+ * @return The RMS value of a float vector \p T.
  */
 template <typename T>
-Float GetRMS(const std::vector<T>& vec)
+float GetRMS(const std::vector<T>& vec)
 {
-    Float N  = static_cast<Float>(vec.size());
-    Float mean = 0.;
-    Float var  = 0.;
+    float N  = static_cast<float>(vec.size());
+    float mean = 0.;
+    float var  = 0.;
 
     for (auto const& value: vec)
         mean += value / N;
@@ -103,7 +97,7 @@ Float GetRMS(const std::vector<T>& vec)
  * @return The median of the value distribution of \c vec.
  */
 template <typename T>
-Float GetMedian(const std::vector<T>& vec)
+float GetMedian(const std::vector<T>& vec)
 {
     std::vector<T> v = vec;
     std::sort(v.begin(), v.end());
@@ -121,11 +115,11 @@ Float GetMedian(const std::vector<T>& vec)
  * @return The skewness of the value distribution of \c vFloat.
  */
 template <typename T>
-Float GetSkew(const std::vector<T>& vec)
+float GetSkew(const std::vector<T>& vec)
 {
-    Float m3 = 0;
-    Float mean = GetMean(vec);
-    Float N = vec.size();
+    float m3 = 0;
+    float mean = GetMean(vec);
+    float N = vec.size();
 
     for (auto const& value: vec) {
         m3 += pow((value - mean), 3.);
@@ -141,7 +135,7 @@ Float GetSkew(const std::vector<T>& vec)
  * @param x The x value to evaluate the polynomial.
  * @return The i-th Legendre polynomial P_i(x) evaluated at x.
  */
-Float GetLegendreP(int i, Float& x);
+float GetLegendreP(int i, float& x);
 
 /**
  * @brief Calculates an opening angle given three unit vectors.
@@ -150,14 +144,14 @@ Float GetLegendreP(int i, Float& x);
  * @param uC A unit vector.
  * @return The opening angle (deg) defined by `uA`, `uB`, and `uC`.
  */
-Float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC);
+float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC);
 
-Float GetDWallInDirection(TVector3 vtx, TVector3 dir);
+float GetDWallInDirection(TVector3 vtx, TVector3 dir);
 
-Float GetDWall(TVector3 vtx);
+float GetDWall(TVector3 vtx);
 
-unsigned int GetMinIndex(std::vector<Float>& vec);
-unsigned int GetMaxIndex(std::vector<Float>& vec);
+unsigned int GetMinIndex(std::vector<float>& vec);
+unsigned int GetMaxIndex(std::vector<float>& vec);
 
 void SetSeed(int seed);
 
@@ -180,16 +174,16 @@ std::vector<TString> GetListOfSubdirectories(TString dirPath);
 std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, double low, double high);
 
 template int GetSum<int>(const std::vector<int>& vec);
-template Float GetSum<Float>(const std::vector<Float>& vec);
+template float GetSum<float>(const std::vector<float>& vec);
 template int GetMean<int>(const std::vector<int>& vec);
-template Float GetMean<Float>(const std::vector<Float>& vec);
+template float GetMean<float>(const std::vector<float>& vec);
 template TVector3 GetMean<TVector3>(const std::vector<TVector3>& vec);
 
 namespace Calc
 {
-    const std::function<Float(const std::vector<Float>&)> Sum = std::bind(GetSum<Float>, std::placeholders::_1);
-    const std::function<Float(const std::vector<Float>&)> Mean = std::bind(GetMean<Float>, std::placeholders::_1);
-    const std::function<Float(const std::vector<Float>&)> RMS = std::bind(GetRMS<Float>, std::placeholders::_1);
+    const std::function<float(const std::vector<float>&)> Sum = std::bind(GetSum<float>, std::placeholders::_1);
+    const std::function<float(const std::vector<float>&)> Mean = std::bind(GetMean<float>, std::placeholders::_1);
+    const std::function<float(const std::vector<float>&)> RMS = std::bind(GetRMS<float>, std::placeholders::_1);
 }
 
 #endif

@@ -31,21 +31,35 @@ PMTHitCluster::PMTHitCluster(sktqz_common sktqz)
 PMTHitCluster::PMTHitCluster(TQReal* tqreal, int flag)
 :PMTHitCluster()
 {
-    auto& t = tqreal->T;
-    auto& q = tqreal->Q;
-    auto& i = tqreal->cables;
-
-    for (unsigned int j=0; j<=t.size(); j++)
-        Append({t[j], q[j], i[j]&0x0000FFFF, flag});
+    AddTQReal(tqreal, flag);
 }
 
 void PMTHitCluster::Append(const PMTHit& hit)
 {
-    //int i = hit.i();
+    int i = hit.i();
 
     // append only hits with meaningful PMT ID
-    //if (1 <= i && i <= MAXPM)
+    if ((1 <= i && i <= MAXPM) || (20001 <= i && i <= 20000+MAXPMA))
         fElement.push_back(hit);
+}
+
+void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
+{
+    for (auto const& hit: hitCluster) {
+        if (!inGateOnly || hit.f() & (1<<1)) 
+            Append(hit);
+    }
+}
+
+void PMTHitCluster::AddTQReal(TQReal* tqreal, int flag)
+{
+    auto& t = tqreal->T;
+    auto& q = tqreal->Q;
+    auto& i = tqreal->cables;
+    
+    for (unsigned int j=0; j<=t.size(); j++) {
+        Append({t[j], q[j], i[j]&0x0000FFFF, flag});
+    }
 }
 
 void PMTHitCluster::SetVertex(const TVector3& inVertex)
@@ -98,16 +112,22 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
     tqreal->nhits = GetSize();
     
     // temporary values
-    tqreal->nhits = 2.46;
+    tqreal->pc2pe = 2.46;
     tqreal->tqreal_version = 2;
     tqreal->qbconst_version = 510000;
     tqreal->tqmap_version = 60000;
     tqreal->pgain_version = 50000;
     tqreal->it0xsk = 0;
 
-    tqreal->cables = GetProjection(HitFunc::I);
-    tqreal->T = GetProjection(HitFunc::T);
-    tqreal->Q = GetProjection(HitFunc::Q);
+    tqreal->cables.clear();
+    tqreal->T.clear();
+    tqreal->Q.clear();
+
+    for (auto const& hit: fElement) {
+        tqreal->cables.push_back(hit.i() + (hit.f() << 16));
+        tqreal->T.push_back(hit.t());
+        tqreal->Q.push_back(hit.q());
+    }
 }
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
@@ -194,9 +214,12 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
 
     if (!bSorted) Sort();
     for (auto const& hit: fElement) {
-        if (hit.t() - hitTime[hit.i()] > deadtime) {
-            dtCorrectedHits.push_back(hit);
-            hitTime[hit.i()] = hit.t();
+        int hitPMTID = hit.i();
+        if (1 <= hitPMTID && hitPMTID <= MAXPM) {
+            if (hit.t() - hitTime[hitPMTID] > deadtime) {
+                dtCorrectedHits.push_back(hit);
+                hitTime[hitPMTID] = hit.t();
+            }
         }
     }
 

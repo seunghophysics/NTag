@@ -25,3 +25,7 @@ ROOTINCLUDE = -I $(TMVASYS)/inc -I $(ROOTSYS)/include
 ROOTLIB = -L $(TMVASYS)/lib -lTMVA.1 $(shell root-config --libs) -lMinuit -lXMLIO -lMLP -lTreePlayer -lUnuran
 #ROOTLIB = $(shell root-config --libs) -lMinuit -lXMLIO -lMLP -lTreePlayer -lTMVA
 CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CERN_ROOT)/lib -ljetset74
+
+ifneq "$(origin USE_DOUBLE)" "undefined"
+CXXFLAGS += -DUSE_DOUBLE=1
+endif
