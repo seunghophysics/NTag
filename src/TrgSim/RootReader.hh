@@ -39,7 +39,6 @@ class RootReader
         virtual void GetEntry(unsigned long entry)
         {
             fTree->GetEntry(entry % fNEntries);
-            fMsg.Print(Form("Getting entry %d...", entry % fNEntries));
             fCurrentEntry = entry;
         }
         
@@ -167,8 +166,9 @@ class NoiseReader : public RootReader
                 PMTHitCluster noiseIDHits = PMTHitCluster(fIDTQ, 1) ;
                 PMTHitCluster noiseODHits = PMTHitCluster(fODTQ, 1);
                 
-                std::vector<Float> noiseEvHitT = noiseIDHits.GetProjection(HitFunc::T);
-                double rawEvNoiseStartT = noiseEvHitT[GetMinIndex(noiseEvHitT)];
+                //std::vector<Float> noiseEvHitT = noiseIDHits.GetProjection(HitFunc::T);
+                //double rawEvNoiseStartT = noiseEvHitT[GetMinIndex(noiseEvHitT)];
+                double rawEvNoiseStartT = fIDTQ->T[0];
                 
                 noiseIDHits = noiseIDHits + (evTime - rawEvNoiseStartT);
                 noiseODHits = noiseODHits + (evTime - rawEvNoiseStartT);
