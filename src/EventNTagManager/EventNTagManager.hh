@@ -29,6 +29,7 @@ class EventNTagManager
         // read ingredients from sk common blocks
         void ReadVariables();
         void ReadHits();
+        void AddHits();
         void ReadParticles();
         void ReadEarlyCandidates();
         void ReadEventFromCommon();
@@ -54,6 +55,7 @@ class EventNTagManager
         TaggableCluster& GetTaggables() { return fEventTaggables; }
         CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
         CandidateCluster& GetCandidates() { return fEventCandidates; }
+        void SetHits(const PMTHitCluster& cluster) { fEventHits = cluster; }
         void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
         void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
         void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }

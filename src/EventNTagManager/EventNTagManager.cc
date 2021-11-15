@@ -60,15 +60,27 @@ void EventNTagManager::ReadVariables()
     // hit information
     int nhitac; odpc_2nd_s_(&nhitac);
     int trgtype = skhead_.idtgsk & 1<<28 ? tSHE : skhead_.idtgsk & 1<<29 ? tAFT : tELSE;
+    
+    // for TrgSim
+    if (skhead_.idtgsk==-1) {
+        trgtype = tSHE;
+    }
+    else if (skhead_.idtgsk==-2) {
+        trgtype = tAFT;
+    }
+
     float trgOffset = 0;
+    float tDiff = 0;
 
     if (fInputIsSKROOT) {
          int lun = 10;
 
         TreeManager* mgr  = skroot_get_mgr(&lun);
         MCInfo* MCINFO = mgr->GetMC();
+        TQReal* TQREAL = mgr->GetTQREALINFO();
         mgr->GetEntry();
-
+        
+        tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
         trgOffset = 1000 - MCINFO->prim_pret0[0];
 
         // Dump subtriggers
@@ -106,6 +118,7 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("NHITAC", nhitac);
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TrgOffset", trgOffset);
+    fEventVariables.Set("TDiff", tDiff);
 
     // reconstructed information
     int bank = 0; aprstbnk_(&bank);
@@ -161,6 +174,34 @@ void EventNTagManager::ReadVariables()
 void EventNTagManager::ReadHits()
 {
     fEventHits = PMTHitCluster(sktqz_);
+    fEventHits.Sort();
+}
+
+void EventNTagManager::AddHits()
+{
+    float tOffset = 0.;
+    PMTHit lastHit;
+
+    bool  coincidenceFound = true;
+
+    if (!fEventHits.IsEmpty()) {
+        coincidenceFound = false;
+        lastHit = fEventHits[fEventHits.GetSize()-1];
+    }
+    
+    if (!coincidenceFound) {
+        for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
+            if (sktqz_.qiskz[iHit] == lastHit.q() && sktqz_.icabiz[iHit] == lastHit.i()) {
+                tOffset = lastHit.t() - sktqz_.tiskz[iHit];
+                coincidenceFound = true;
+                fMsg.Print(Form("Coincidence found: t = %f ns, (offset: %f ns)", lastHit.t(), tOffset));
+                break;
+            }
+        }
+    }
+
+    fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
+    fEventHits.Sort();
 }
 
 void EventNTagManager::ReadParticles()
@@ -227,10 +268,13 @@ void EventNTagManager::ReadEarlyCandidates()
 
 void EventNTagManager::ReadEventFromCommon()
 {
-    ClearData();
+    // if MC or SHE
+    //if (skhead_.nrunsk == 999999 || skhead_.idtgsk & 1<<28)
+    //ClearData();
 
     ReadVariables();
-    ReadHits();
+    //ReadHits();
+    AddHits();
 
     // if MC
     ReadParticles();
@@ -321,7 +365,7 @@ void EventNTagManager::SearchCandidates()
     // subtract tof
     SubtractToF();
 
-    int   iHitPrevious    = 0;
+    int   iHitPrevious    = -1;
     int   NHitsNew        = 0;
     int   NHitsPrevious   = 0;
     int   N200Previous    = 0;
@@ -356,7 +400,7 @@ void EventNTagManager::SearchCandidates()
         // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
-            if (N200Previous < N200MX && t0Previous > T0TH) {
+            if (iHitPrevious >= 0 && N200Previous < N200MX && t0Previous > T0TH) {
                 Candidate candidate(iHitPrevious);
                 FindFeatures(candidate);
                 fEventCandidates.Append(candidate);
@@ -526,6 +570,7 @@ void EventNTagManager::ResetTaggableMapping()
 void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
 {
     std::string key = candidateCluster.GetName();
+    //float trgOffset; fEventVariables.Get("TrgOffset", trgOffset);
 
     for (unsigned int iCandidate=0; iCandidate<candidateCluster.GetSize(); iCandidate++) {
 
