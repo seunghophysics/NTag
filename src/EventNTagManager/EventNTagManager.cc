@@ -59,7 +59,7 @@ void EventNTagManager::ReadVariables()
 
     // hit information
     int nhitac; odpc_2nd_s_(&nhitac);
-    int trgtype = skhead_.idtgsk & 1<<28 ? tSHE : skhead_.idtgsk & 1<<29 ? tAFT : tELSE;
+    int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
     
     // for TrgSim
     if (skhead_.idtgsk==-1) {
