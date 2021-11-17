@@ -34,7 +34,7 @@ void Store::Initialize(std::string configFilePath)
 void Store::ReadArguments(const ArgParser& argParser)
 {
     auto& optionPairs = argParser.GetOptionPairs();
-    
+
     for (auto const& pair: optionPairs) {
         Set(pair.first, pair.second);
     }

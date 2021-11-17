@@ -96,7 +96,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     else if (fFileFormat == mSKROOT) {
         if (fIOMode == mInput) {
             kzinit_();
-            
+
             skroot_open_read_(&logicalUnit);
             skroot_set_input_file_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
             skroot_init_(&logicalUnit);
@@ -178,7 +178,7 @@ int SKIO::GetNumberOfEvents()
         int nEvents = 0;
 
         if (!fIsFileOpen) OpenFile();
-    
+
         if (fFileFormat == mZBS) {
             // do skread until eof
             int readStatus = mReadOK;
@@ -190,7 +190,7 @@ int SKIO::GetNumberOfEvents()
                 if (readStatus == mReadOK) nEvents++;
                 std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
-            
+
             CloseFile();
             OpenFile();
         }

@@ -19,7 +19,7 @@ class CandidateCluster : public Cluster<Candidate>
         CandidateCluster(const char* className);
         CandidateCluster(const CandidateCluster& cluster);
         ~CandidateCluster();
-        
+
         CandidateCluster& operator=(CandidateCluster const& rhs);
 
         void Sort();

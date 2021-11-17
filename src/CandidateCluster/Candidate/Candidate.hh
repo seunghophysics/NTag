@@ -29,7 +29,7 @@ class Candidate
         void Set(const std::string& key, float value) { featureMap[key] = value; }
         const float Get(const std::string& key, float value=0) const { if (featureMap.count(key)) return featureMap.at(key); else return value; }
         void Clear() { featureMap.clear(); }
-        
+
         void Dump() const { for (auto const& pair: featureMap) { std::cout << pair.first << ": " << pair.second; } }
 
         const std::map<std::string, float>& GetFeatureMap() const { return featureMap; }

@@ -98,7 +98,7 @@ void TrgSim::FillSegment(unsigned long segNo)
 
     fIDSegment.Sort();
     fODSegment.Sort();
-    
+
     fMsg.Print(Form("# of ID hits in segment #%d: %d", fSegmentNo+1, fIDSegment.GetSize()));
     fMsg.Print(Form("# of OD hits in segment #%d: %d", fSegmentNo+1, fODSegment.GetSize()));
 }
@@ -149,7 +149,7 @@ void TrgSim::FindTriggerInSegment()
             static int eventNo = 0;
             eventNo++;
             double evEndT = fSHEDeadtime;
-            fOutHeader->idtgsk = -1;
+            fOutHeader->idtgsk = (1<<28);
             fOutHeader->nrunsk = 999999;
             fOutHeader->nsubsk = 0;
             fOutHeader->nevsk = eventNo;
@@ -157,7 +157,7 @@ void TrgSim::FindTriggerInSegment()
             // AFT is only allowed for the first trigger
             if (isFirstTrigger) {
                 evEndT = fAFTDeadtime;
-                fOutHeader->idtgsk = -2;
+                fOutHeader->idtgsk = (1<<29);
                 isFirstTrigger = false;
             }
 
@@ -166,7 +166,7 @@ void TrgSim::FindTriggerInSegment()
 
             eventIDHits.FillTQReal(fOutEvIDTQ);
             eventODHits.FillTQReal(fOutEvODTQ);
-            
+
             // temporarily save TDiff (time from previous event) here (msec)
             fOutEvIDTQ->pc2pe = (hit.t - fLastEvEndT) * 1e-6;
 

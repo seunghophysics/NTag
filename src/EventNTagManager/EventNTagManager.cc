@@ -23,7 +23,7 @@
 #include "Calculator.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fInputIsSKROOT(false), fUseECut(false), fIsBranchSet(false)
+: fInputIsSKROOT(false), fUseECut(false), fIsBranchSet(false), fIsMC(true)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -57,10 +57,9 @@ EventNTagManager::~EventNTagManager() {}
 void EventNTagManager::ReadPromptVertex(VertexMode mode)
 {
     switch (mode) {
-        case mAPFIT: { 
-            fMsg.Print("APFIT MODE!");
+        case mAPFIT: {
             int bank = 0; aprstbnk_(&bank);
-            fPromptVertex = TVector3(apcommul_.appos); break; 
+            fPromptVertex = TVector3(apcommul_.appos); break;
         }
         case mBONSAI: {
             int lun = 10;
@@ -90,67 +89,24 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
             fPromptVertex = TVector3(skvect_.pos); break;
         }
         case mSTMU: {
-            fMsg.Print("STMU MODE!");
-            fPromptVertex = GetStopMuVertex(); break; 
+            fPromptVertex = GetStopMuVertex(); break;
         }
     }
 }
 
 void EventNTagManager::ReadVariables()
 {
-    // basic information
+    if (skhead_.nrunsk == 999999)
+        fIsMC = true;
+    else
+        fIsMC = false;
+
+    // run/event information
     fEventVariables.Set("RunNo", skhead_.nrunsk);
     fEventVariables.Set("SubrunNo", skhead_.nsubsk);
     fEventVariables.Set("EventNo", skhead_.nevsk);
 
     // hit information
-    int nhitac; odpc_2nd_s_(&nhitac);
-    int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
-    
-    // for TrgSim
-    if (skhead_.idtgsk==-1) {
-        trgtype = tSHE;
-    }
-    else if (skhead_.idtgsk==-2) {
-        trgtype = tAFT;
-    }
-
-    float trgOffset = 0;
-    float tDiff = 0;
-
-    if (fInputIsSKROOT) {
-         int lun = 10;
-
-        TreeManager* mgr  = skroot_get_mgr(&lun);
-        MCInfo* MCINFO = mgr->GetMC();
-        TQReal* TQREAL = mgr->GetTQREALINFO();
-        mgr->GetEntry();
-        
-        tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
-        trgOffset = 1000 - MCINFO->prim_pret0[0];
-
-        // Dump subtriggers
-	    std::cout << "Sub-trigger information\n";
-	    std::cout << "ID   Type    Time-GeantT0\n";
-	    for (unsigned int i=0; i<10; i++) {
-	        std::cout << std::left << std::setw(4) << i << " ";
-	        if (MCINFO->trigbit[i] & (1<<TRGID_SHE))
-	            std::cout << "SHE     ";
-	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_HE))
-	            std::cout << "HE      ";
-	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_LE))
-	            std::cout << "LE      ";
-	        else if (MCINFO->trigbit[i] & (1<<TRGID_SW_SLE))
-	            std::cout << "SLE     ";
-	        else
-	            std::cout << "Other   ";
-	        std::cout << Form("%3.2f ns\n", MCINFO->prim_pret0[i]);
-	    }
-    }
-
-    else trginfo_(&trgOffset);
-
-    float sk_qismsk = skq_.qismsk;
     float qismsk = 0;
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
         float hitTime = sktqz_.tiskz[iHit];
@@ -158,13 +114,30 @@ void EventNTagManager::ReadVariables()
             qismsk += sktqz_.qiskz[iHit];
         }
     }
-    std::cout << "SK_QISMSK: " << sk_qismsk << " custom QISMSK: " << qismsk << std::endl;
-
+    // qismsk = skq_.qismsk;
+    int nhitac; odpc_2nd_s_(&nhitac);
     fEventVariables.Set("QISMSK", qismsk);
     fEventVariables.Set("NHITAC", nhitac);
+
+    // trigger information
+    int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
+    float tDiff = 0;
+    float trgOffset = 0;
+    if (fInputIsSKROOT) {
+        int lun = 10;
+
+        TreeManager* mgr  = skroot_get_mgr(&lun);
+        MCInfo* MCINFO = mgr->GetMC();
+        TQReal* TQREAL = mgr->GetTQREALINFO();
+        mgr->GetEntry();
+
+        tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
+        trgOffset = 1000 - MCINFO->prim_pret0[0];
+    }
+    else trginfo_(&trgOffset);
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TrgOffset", trgOffset);
-    fEventVariables.Set("TDiff", tDiff);
+    fEventVariables.Set("TDiff", tDiff); // tDiff is only saved for SKROOT files for now
 
     // reconstructed information
     // prompt vertex
@@ -188,7 +161,7 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
     fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
 
-    ReadEarlyCandidates();
+    if (fVertexMode==mAPFIT) ReadEarlyCandidates();
 }
 
 void EventNTagManager::ReadHits()
@@ -208,7 +181,7 @@ void EventNTagManager::AddHits()
         coincidenceFound = false;
         lastHit = fEventHits[fEventHits.GetSize()-1];
     }
-    
+
     if (!coincidenceFound) {
         for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
             if (sktqz_.qiskz[iHit] == lastHit.q() && sktqz_.icabiz[iHit] == lastHit.i()) {
@@ -251,12 +224,13 @@ void EventNTagManager::ReadParticles()
 
     fEventParticles.ReadCommonBlock(skvect_, secndprt_);
 
-    float geantT0; trginfo_(&geantT0);
+    float geantT0; fEventVariables.Set("TrgOffset", geantT0);
     fEventParticles.SetT0(geantT0);
 
     fEventTaggables.ReadParticleCluster(fEventParticles);
     fEventTaggables.SetPromptVertex(fPromptVertex);
 }
+
 
 void EventNTagManager::ReadEarlyCandidates()
 {
@@ -283,104 +257,14 @@ void EventNTagManager::ReadEarlyCandidates()
             fEventEarlyCandidates.Append(candidate);
     }
 
-    //fEventEarlyCandidates.Sort();
 }
 
 void EventNTagManager::ReadEventFromCommon()
 {
-    // if MC or SHE
-    //if (skhead_.nrunsk == 999999 || skhead_.idtgsk & 1<<28)
-    //ClearData();
-
     ReadVariables();
-    //ReadHits();
     AddHits();
 
-    // if MC
-    ReadParticles();
-}
-
-void EventNTagManager::ClearData()
-{
-    fEventVariables.Clear();
-    fEventHits.Clear();
-    fEventParticles.Clear();
-    fEventTaggables.Clear();
-    //fEventNCaptures.Clear();
-    fEventCandidates.Clear();
-    fEventEarlyCandidates.Clear();
-}
-
-void EventNTagManager::ApplySettings()
-{
-    TString inFilePath;
-    fSettings.Get("in", inFilePath);
-
-    if (inFilePath.EndsWith(".root"))
-        fInputIsSKROOT = true;
-    else
-        fInputIsSKROOT = false;
-
-    // vertex mode
-    TString vertexMode;
-    fSettings.Get("vertex_mode", vertexMode);
-
-    if (vertexMode == "APFIT")
-        fVertexMode = mAPFIT;
-    else if (vertexMode == "BONSAI")
-        fVertexMode = mBONSAI;
-    else if (vertexMode == "CUSTOM")
-        fVertexMode = mCUSTOM;
-    else if (vertexMode == "TRUE")
-        fVertexMode = mTRUE;
-    else if (vertexMode == "STMU")
-        fVertexMode = mSTMU;
-
-    fSettings.Get("T0TH", T0TH);
-    fSettings.Get("T0MX", T0MX);
-    fSettings.Get("TWIDTH", TWIDTH);
-    fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
-    fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
-    fSettings.Get("NHITSTH", NHITSTH);
-    fSettings.Get("NHITSMX", NHITSMX);
-    fSettings.Get("N200TH", N200TH);
-    fSettings.Get("N200MX", N200MX);
-    
-    fSettings.Get("PVXRES", PVXRES);
-
-    fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
-    fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
-    fSettings.Get("GRIDSHRINKRATE", GRIDSHRINKRATE);
-    fSettings.Get("VTXSRCRANGE", VTXSRCRANGE);
-
-    bool useECut_N50 = fSettings.Get("E_N50CUT", E_N50CUT);
-    bool useECut_Time = fSettings.Get("E_TIMECUT", E_TIMECUT);
-    if (useECut_N50 && useECut_Time)
-        fUseECut = true;
-    fSettings.Get("N_OUTCUT", N_OUTCUT);
-}
-
-void EventNTagManager::ReadArguments(const ArgParser& argParser)
-{
-    fSettings.ReadArguments(argParser);
-}
-
-void EventNTagManager::InitializeTMVA()
-{
-    std::vector<std::string> featureList = {"AngleMean", "AngleSkew", "AngleStdev",
-                                            "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                            "DWall", "DWallMeanDir", "DWall_n", "N200", "NHits", "TRMS",
-                                            "ThetaMeanDir", "prompt_nfit"};
-
-    for (auto const& feature: featureList) {
-        fFeatureContainer[feature] = 0;
-        fTMVAReader.AddVariable(feature, &(fFeatureContainer[feature]));
-    }
-
-    fTMVAReader.AddSpectator("Label", &(fCandidateLabel));
-    //fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/weights/TMVAClassification_MLP.weights.xml");
-    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
-    //sharedData->eventCandidates.RegisterFeatureName("TMVAOutput");
+    if (fIsMC) ReadParticles();
 }
 
 void EventNTagManager::SearchCandidates()
@@ -452,18 +336,187 @@ void EventNTagManager::SearchCandidates()
         fEventCandidates.Append(candidate);
     }
 
-    // if MC
     if (fUseECut) PruneCandidates();
-    MapTaggables();
+    if (fIsMC) MapTaggables();
 
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
 
     FillNTagCommon();
+}
 
-    // TMVA output
-    //for (auto& candidate: fEventCandidates)
-    //    candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
+void EventNTagManager::MapTaggables()
+{
+    MapCandidateClusters(fEventEarlyCandidates);
+    MapCandidateClusters(fEventCandidates);
+}
+
+void EventNTagManager::ResetTaggableMapping()
+{
+    // taggables
+    for (auto& taggable: fEventTaggables) {
+        taggable.SetCandidateIndex("Early", -1);
+        taggable.SetCandidateIndex("Delayed", -1);
+        taggable.SetTaggedType(typeMissed);
+    }
+
+    // muechk candidates
+    for (auto& candidate: fEventEarlyCandidates) {
+        candidate.Set("TagIndex", -1);
+        candidate.Set("Label", lNoise);
+        candidate.Set("TagClass", FindTagClass(candidate));
+    }
+
+    // ntag candidates
+    for (auto& candidate: fEventCandidates) {
+        candidate.Set("TagIndex", -1);
+        candidate.Set("Label", lNoise);
+        candidate.Set("TagClass", FindTagClass(candidate));
+    }
+}
+
+void EventNTagManager::ApplySettings()
+{
+    TString inFilePath;
+    fSettings.Get("in", inFilePath);
+
+    if (inFilePath.EndsWith(".root"))
+        fInputIsSKROOT = true;
+    else
+        fInputIsSKROOT = false;
+
+    // vertex mode
+    TString vertexMode;
+    fSettings.Get("vertex_mode", vertexMode);
+
+    if (vertexMode == "APFIT")
+        fVertexMode = mAPFIT;
+    else if (vertexMode == "BONSAI")
+        fVertexMode = mBONSAI;
+    else if (vertexMode == "CUSTOM")
+        fVertexMode = mCUSTOM;
+    else if (vertexMode == "TRUE")
+        fVertexMode = mTRUE;
+    else if (vertexMode == "STMU")
+        fVertexMode = mSTMU;
+
+    fSettings.Get("T0TH", T0TH);
+    fSettings.Get("T0MX", T0MX);
+    fSettings.Get("TWIDTH", TWIDTH);
+    fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
+    fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
+    fSettings.Get("NHITSTH", NHITSTH);
+    fSettings.Get("NHITSMX", NHITSMX);
+    fSettings.Get("N200TH", N200TH);
+    fSettings.Get("N200MX", N200MX);
+    fSettings.Get("PVXRES", PVXRES);
+
+    fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
+    fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
+    fSettings.Get("GRIDSHRINKRATE", GRIDSHRINKRATE);
+    fSettings.Get("VTXSRCRANGE", VTXSRCRANGE);
+
+    fSettings.Get("E_N50CUT", E_N50CUT);
+    fSettings.Get("E_TIMECUT", E_TIMECUT);
+    if (E_N50CUT>0 && E_TIMECUT>0) fUseECut = true;
+
+    fSettings.Get("N_OUTCUT", N_OUTCUT);
+}
+
+void EventNTagManager::ReadArguments(const ArgParser& argParser)
+{
+    fSettings.ReadArguments(argParser);
+}
+
+void EventNTagManager::InitializeTMVA()
+{
+    std::vector<std::string> featureList = {"AngleMean", "AngleSkew", "AngleStdev",
+                                            "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
+                                            "DWall", "DWallMeanDir", "DWall_n", "N200", "NHits", "TRMS",
+                                            "ThetaMeanDir", "prompt_nfit"};
+
+    for (auto const& feature: featureList) {
+        fFeatureContainer[feature] = 0;
+        fTMVAReader.AddVariable(feature, &(fFeatureContainer[feature]));
+    }
+
+    fTMVAReader.AddSpectator("Label", &(fCandidateLabel));
+    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
+}
+
+float EventNTagManager::GetTMVAOutput(Candidate& candidate)
+{
+    // get features from candidate and fill feature container
+    for (auto const& pair: fFeatureContainer) {
+        float value = candidate[pair.first];
+        fFeatureContainer[pair.first] = value;
+    }
+
+    return fTMVAReader.EvaluateMVA("MLP");
+}
+
+void EventNTagManager::FillTrees()
+{
+    // set branch address for the first event
+    if (!fIsBranchSet) {
+
+        // make branches
+        fSettings.MakeBranches();
+        fEventVariables.MakeBranches();
+        fEventParticles.MakeBranches();
+        fEventTaggables.MakeBranches();
+        fEventEarlyCandidates.MakeBranches();
+        fEventCandidates.MakeBranches();
+
+        // settings should be filled only once
+        fSettings.FillTree();
+        fIsBranchSet = true;
+    }
+
+    // fill trees
+    fEventVariables.FillTree();
+    fEventParticles.FillTree();
+    fEventTaggables.FillTree();
+    fEventEarlyCandidates.FillTree();
+    fEventCandidates.FillTree();
+}
+
+void EventNTagManager::WriteTrees(bool doCloseFile)
+{
+    fSettings.WriteTree();
+    fEventVariables.WriteTree();
+    fEventParticles.WriteTree();
+    fEventTaggables.WriteTree();
+    fEventEarlyCandidates.WriteTree();
+    fEventCandidates.WriteTree();
+    if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
+}
+
+void EventNTagManager::ClearData()
+{
+    fEventVariables.Clear();
+    fEventHits.Clear();
+    fEventParticles.Clear();
+    fEventTaggables.Clear();
+    fEventCandidates.Clear();
+    fEventEarlyCandidates.Clear();
+}
+
+void EventNTagManager::DumpEvent()
+{
+    fEventVariables.Print();
+    fEventParticles.DumpAllElements();
+    fEventTaggables.DumpAllElements();
+    fEventEarlyCandidates.DumpAllElements({"ReconCT", "NHits", "DWall", "Goodness",
+                                           "Label", "TagIndex", "TagClass"});
+    fEventCandidates.DumpAllElements({"ReconCT",
+                                      "NHits",
+                                      "DWall_n",
+                                      "ThetaMeanDir",
+                                      "TMVAOutput",
+                                      "Label",
+                                      "TagIndex",
+                                      "TagClass"});
 }
 
 void EventNTagManager::SubtractToF()
@@ -474,8 +527,6 @@ void EventNTagManager::SubtractToF()
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
     int firstHitID = candidate.HitID();
-    //PMTHitCluster hitsIn30ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -15, TWIDTH/2. +15);
-    //PMTHitCluster hitsIn50ns = fEventHits.Slice(candidate.HitID(), TWIDTH/2. -25, TWIDTH/2. +25);
     auto hitsInTWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
     auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.- 25, TWIDTH/2.+ 25);
     auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
@@ -487,14 +538,6 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
                                                              MINGRIDWIDTH,
                                                              GRIDSHRINKRATE,
                                                              VTXSRCRANGE);
-
-    //hitsIn50ns.SetVertex(trmsFitVertex);
-    //fEventHits.SetVertex(trmsFitVertex);
-    //float tempT = hitsIn50ns[GetMaxNHitsIndex(hitsIn50ns)].t();
-    //unsigned int trmsFitFirstHitID = fEventHits.GetIndex(tempT);
-
-
-    //candidate.SetHitID(trmsFitFirstHitID);
 
     // Number of hits
     candidate.Set("NHits", hitsInTWIDTH.GetSize());
@@ -545,58 +588,11 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
     candidate.Set("TagClass", FindTagClass(candidate));
-
-    //fEventHits.SetVertex(fPromptVertex);
-}
-
-float EventNTagManager::GetTMVAOutput(Candidate& candidate)
-{
-    // get features from candidate and fill feature container
-    for (auto const& pair: fFeatureContainer) {
-        float value = candidate[pair.first];
-        fFeatureContainer[pair.first] = value;
-    }
-
-    // get spectator
-    //fCandidateLabel = candidate["Label"];
-
-    return fTMVAReader.EvaluateMVA("MLP");
-}
-
-void EventNTagManager::MapTaggables()
-{
-    MapCandidateClusters(fEventEarlyCandidates);
-    MapCandidateClusters(fEventCandidates);
-}
-
-void EventNTagManager::ResetTaggableMapping()
-{
-    // taggables
-    for (auto& taggable: fEventTaggables) {
-        taggable.SetCandidateIndex("Early", -1);
-        taggable.SetCandidateIndex("Delayed", -1);
-        taggable.SetTaggedType(typeMissed);
-    }
-
-    // muechk candidates
-    for (auto& candidate: fEventEarlyCandidates) {
-        candidate.Set("TagIndex", -1);
-        candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", FindTagClass(candidate));
-    }
-
-    // ntag candidates
-    for (auto& candidate: fEventCandidates) {
-        candidate.Set("TagIndex", -1);
-        candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", FindTagClass(candidate));
-    }
 }
 
 void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
 {
     std::string key = candidateCluster.GetName();
-    //float trgOffset; fEventVariables.Get("TrgOffset", trgOffset);
 
     for (unsigned int iCandidate=0; iCandidate<candidateCluster.GetSize(); iCandidate++) {
 
@@ -674,47 +670,6 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
     }
 }
 
-void EventNTagManager::PruneCandidates()
-{
-    // n-like early candidates
-    //for (int iCandidate=0; iCandidate<fEventEarlyCandidates.GetSize(); iCandidate++) {
-    //    auto& candidate = fEventEarlyCandidates[iCandidate];
-    //    if (candidate["NHits"] < 50) {
-    //
-    //    }
-
-    std::vector<int> duplicateCandidateList;
-    for (unsigned int iCandidate=0; iCandidate<fEventCandidates.GetSize(); iCandidate++) {
-        auto& candidate = fEventCandidates[iCandidate];
-        for (auto& early: fEventEarlyCandidates) {
-            if (early["TagClass"] == typeE &&
-                fabs(early["ReconCT"] - candidate["ReconCT"])*1e3 < 2*TMATCHWINDOW) {
-                duplicateCandidateList.push_back(iCandidate); break;
-            }
-        }
-    }
-
-    for (auto& duplicateIndex: duplicateCandidateList)
-        fEventCandidates.Erase(duplicateIndex);
-}
-
-int EventNTagManager::GetMaxNHitsIndex(PMTHitCluster& hitCluster)
-{
-    int maxID = 0;
-    int maxNHits = 0;
-
-    for (unsigned int i=0; i<hitCluster.GetSize(); i++) {
-
-        int nHits = hitCluster.Slice(i, TWIDTH).GetSize();
-        if (nHits > maxNHits) {
-            maxID = i;
-            maxNHits = nHits;
-        }
-    }
-
-    return maxID;
-}
-
 int EventNTagManager::FindTagClass(const Candidate& candidate)
 {
     int tagClass = 0;
@@ -753,58 +708,21 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
         taggable.SetTaggedType(tagClass);
 }
 
-void EventNTagManager::DumpEvent()
+void EventNTagManager::PruneCandidates()
 {
-    fEventVariables.Print();
-    fEventParticles.DumpAllElements();
-    fEventTaggables.DumpAllElements();
-    fEventEarlyCandidates.DumpAllElements({"ReconCT", "NHits", "DWall", "Goodness",
-                                           "Label", "TagIndex", "TagClass"});
-    fEventCandidates.DumpAllElements({"ReconCT",
-                                      "NHits",
-                                      "DWall_n",
-                                      "ThetaMeanDir",
-                                      "TMVAOutput",
-                                      "Label",
-                                      "TagIndex",
-                                      "TagClass"});
-}
-
-void EventNTagManager::FillTrees()
-{
-    // set branch address for the first event
-    if (!fIsBranchSet) {
-
-        // make branches
-        fSettings.MakeBranches();
-        fEventVariables.MakeBranches();
-        fEventParticles.MakeBranches();
-        fEventTaggables.MakeBranches();
-        fEventEarlyCandidates.MakeBranches();
-        fEventCandidates.MakeBranches();
-
-        // settings should be filled only once
-        fSettings.FillTree();
-        fIsBranchSet = true;
+    std::vector<int> duplicateCandidateList;
+    for (unsigned int iCandidate=0; iCandidate<fEventCandidates.GetSize(); iCandidate++) {
+        auto& candidate = fEventCandidates[iCandidate];
+        for (auto& early: fEventEarlyCandidates) {
+            if (early["TagClass"] == typeE &&
+                fabs(early["ReconCT"] - candidate["ReconCT"])*1e3 < 2*TMATCHWINDOW) {
+                duplicateCandidateList.push_back(iCandidate); break;
+            }
+        }
     }
 
-    // fill trees
-    fEventVariables.FillTree();
-    fEventParticles.FillTree();
-    fEventTaggables.FillTree();
-    fEventEarlyCandidates.FillTree();
-    fEventCandidates.FillTree();
-}
-
-void EventNTagManager::WriteTrees(bool doCloseFile)
-{
-    fSettings.WriteTree();
-    fEventVariables.WriteTree();
-    fEventParticles.WriteTree();
-    fEventTaggables.WriteTree();
-    fEventEarlyCandidates.WriteTree();
-    fEventCandidates.WriteTree();
-    if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
+    for (auto& duplicateIndex: duplicateCandidateList)
+        fEventCandidates.Erase(duplicateIndex);
 }
 
 void EventNTagManager::FillNTagCommon()

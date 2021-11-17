@@ -27,28 +27,43 @@ class EventNTagManager
         ~EventNTagManager();
 
         // read ingredients from sk common blocks
+        void ReadPromptVertex(VertexMode mode);
         void ReadVariables();
         void ReadHits();
-        void ReadPromptVertex(VertexMode mode);
         void AddHits();
         void ReadParticles();
         void ReadEarlyCandidates();
+
+        // combo of all read functions
         void ReadEventFromCommon();
 
+        // main search function
         void SearchCandidates();
+
+        // MC taggable mapping
         void MapTaggables();
         void ResetTaggableMapping();
 
-        // set ingredients manually
-        void ClearData();
+        // settings
         void ApplySettings();
         void ReadArguments(const ArgParser& argParser);
-        void InitializeTMVA();
-        // void SetHits(PMTHitCluster&);
-        // void SetMCParticles(ParticleCluster&);
-        // void SetVariables();
 
-        // return private members
+        // TMVA
+        void InitializeTMVA();
+        float GetTMVAOutput(Candidate& candidate);
+
+        // root
+        void FillTrees();
+        void WriteTrees(bool doCloseFile=false);
+
+        // clear
+        void ClearData();
+
+        // printers
+        void DumpSettings() { fSettings.Print(); }
+        void DumpEvent();
+
+        // getters
         Store& GetSettings() { return fSettings; };
         Store& GetVariables() { return fEventVariables; };
         PMTHitCluster& GetHits() { return fEventHits; };
@@ -56,39 +71,37 @@ class EventNTagManager
         TaggableCluster& GetTaggables() { return fEventTaggables; }
         CandidateCluster& GetEarlyCandidates() { return fEventEarlyCandidates; }
         CandidateCluster& GetCandidates() { return fEventCandidates; }
-        void SetHits(const PMTHitCluster& cluster) { fEventHits = cluster; }
-        void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
-        void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
-        void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
-
-        //const CandidateCluster& GetCandidates(const PMTHitCluster& hitCluster);
 
         // setters
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
         template <typename T>
         void Set(std::string key, T value) { fSettings.Set(key, value); ApplySettings(); }
-
-        // tmva
-        float GetTMVAOutput(Candidate& candidate);
-
-        // root
-        void FillTrees();
-        void WriteTrees(bool doCloseFile=false);
-
-        // printers
-        void DumpSettings() { fSettings.Print(); }
-        void DumpEvent();
+        void SetHits(const PMTHitCluster& cluster) { fEventHits = cluster; }
+        void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
+        void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
+        void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
 
     private:
+        // ToF subtraction
         void SubtractToF();
+
+        // feature extraction
         void FindFeatures(Candidate& candidate);
-        void MapTaggable(Taggable& taggable, int iCandidate, const std::string& key);
+
+        // MC taggable mapping
         void MapCandidateClusters(CandidateCluster& candidateCluster);
-        void PruneCandidates();
-        void FillNTagCommon();
-        int GetMaxNHitsIndex(PMTHitCluster& hitCluster);
+
+        // tag class for candidate
         int FindTagClass(const Candidate& candidate);
+
+        // tagged type for taggable
         void SetTaggedType(Taggable& taggable, Candidate& candidate);
+
+        // duplicate candidate pruning
+        void PruneCandidates();
+
+        // zbs common filling
+        void FillNTagCommon();
 
         // DataModel:
         Store fEventVariables;
@@ -121,8 +134,8 @@ class EventNTagManager
 
         // Utilities
         Printer fMsg;
-        
-        // Trigger option
+
+        // data or MC
         bool fIsMC;
 };
 

@@ -12,7 +12,7 @@
 CandidateCluster::CandidateCluster() {}
 CandidateCluster::CandidateCluster(const char* className) { fName = className; }
 CandidateCluster::CandidateCluster(const CandidateCluster& cluster) { fElement = cluster.GetVector(); }
-CandidateCluster& CandidateCluster::operator=(CandidateCluster const& rhs) 
+CandidateCluster& CandidateCluster::operator=(CandidateCluster const& rhs)
 {
     Cluster<Candidate>::operator=(rhs); return *this;
 }
@@ -23,13 +23,6 @@ CandidateCluster::~CandidateCluster()
         delete pair.second;
         fFeatureVectorMap[pair.first] = 0;
     }
-}
-
-void CandidateCluster::Sort()
-{
-    //std::sort(fElement.begin(), fElement.end(),
-    //[](const Candidate& candidate1, const Candidate& candidate2){
-    //    return candidate1.Get("ReconCT") < candidate2.Get("ReconCT"); });
 }
 
 void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const

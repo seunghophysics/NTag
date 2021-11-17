@@ -3,10 +3,10 @@
 *	INCLUDE "nbnk.h"
 *   ----------------
 *   Include file for tagged neutron information
-* 
+*
 *   NN				:	# of neutrons tagged
-*   TRGTYPE			:	the event trigger type:	
-*						0 = 40us SHE trigger only 
+*   TRGTYPE			:	the event trigger type:
+*						0 = 40us SHE trigger only
 *						1 = 350us AFT trigger
 *						2 = 500us AFT trigger
 *						3 = 800us AFT trigger
@@ -57,12 +57,12 @@
       INTEGER MCTRUTH_NEUTRON(MAXNP)
       INTEGER MCTRUTH_NN
       INTEGER TAG(MAXNP)
-      COMMON /NTAG/ NN, TRGTYPE, LASTHIT, GOODNESS, NTIME, 
+      COMMON /NTAG/ NN, TRGTYPE, LASTHIT, GOODNESS, NTIME,
      $      NVX, BVX,
-     $      N200M, T200M, NLOW, N300, 
-     $      PHI, THETA, TRMSOLD, 
+     $      N200M, T200M, NLOW, N300,
+     $      PHI, THETA, TRMSOLD,
      $     TRMSDIFF, MINTRMS6,
-     $     MINTRMS3, BSWALL, BSE, FPDIS, BFDIS, 
+     $     MINTRMS3, BSWALL, BSE, FPDIS, BFDIS,
      $     NC, FWALL, N10, N10D, T0, NP,
      $     MCTRUTH_NEUTRON, MCTRUTH_NN,BSE2,TAG
-#endif 
+#endif

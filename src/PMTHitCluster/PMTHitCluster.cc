@@ -46,7 +46,7 @@ void PMTHitCluster::Append(const PMTHit& hit)
 void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
 {
     for (auto const& hit: hitCluster) {
-        if (!inGateOnly || hit.f() & (1<<1)) 
+        if (!inGateOnly || hit.f() & (1<<1))
             Append(hit);
     }
 }
@@ -56,7 +56,7 @@ void PMTHitCluster::AddTQReal(TQReal* tqreal, int flag)
     auto& t = tqreal->T;
     auto& q = tqreal->Q;
     auto& i = tqreal->cables;
-    
+
     for (unsigned int j=0; j<=t.size(); j++) {
         Append({t[j], q[j], i[j]&0x0000FFFF, flag});
     }
@@ -110,7 +110,7 @@ void PMTHitCluster::Sort()
 void PMTHitCluster::FillTQReal(TQReal* tqreal)
 {
     tqreal->nhits = GetSize();
-    
+
     // temporary values
     tqreal->pc2pe = 2.46;
     tqreal->tqreal_version = 2;
@@ -160,7 +160,7 @@ PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
 
     if (lowT > upT)
         std::cerr << "PMTHitCluster::Slice : lower bound is larger than upper bound." << std::endl;
-    
+
     PMTHit startHit(startT, 0, 1, 1);
     unsigned int low = GetLowerBoundIndex(startT + lowT);
     unsigned int up = GetUpperBoundIndex(startT + upT);
@@ -351,7 +351,7 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
 PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time)
 {
     PMTHitCluster newCluster;
-    
+
     for (auto const& hit: hitCluster) {
         auto newHit = hit + time;
         newCluster.Append(newHit);
@@ -363,7 +363,7 @@ PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time)
 PMTHitCluster operator-(const PMTHitCluster& hitCluster, const Float& time)
 {
     PMTHitCluster newCluster;
-    
+
     for (auto const& hit: hitCluster) {
         auto newHit = hit - time;
         newCluster.Append(newHit);

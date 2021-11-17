@@ -1,3 +1,4 @@
+c original code from $ATMPD_ROOT/src/calib/stopmudcye
 *
       subroutine pfdodirfit(ip)
 *
@@ -72,7 +73,7 @@ C         call sparisep(1,0,1,3)
             angcor = (dist-dcor)/
      &       sqrt((dist-dcor)**2+(dist*tan(ang*3.141592/180.))**2)
             angcor = acos(angcor)*180./3.141592
-            print *,'opening angle correction ',ang,' --> ',angcor
+C            print *,'opening angle correction ',ang,' --> ',angcor
 C            ang = ang+(angcor-ang)*0.589
             ang = angcor
          endif
@@ -83,8 +84,7 @@ C            ang = ang+(angcor-ang)*0.589
 *     calc scatter light
          call spthini
          call pfperini
-        
-        print *, 'APPERF0: ', APPERF0(1,1)
+
 C         do while (  dang.gt.TOLANG
 C     $              .and. itel.le.MAXITEL )
 C         do istep = 1,4
@@ -144,8 +144,8 @@ C            call pfpermstfit(dmove0,maxstep)
                   pfmask(isq) = 0
                endif
             enddo
-            print *,'pftime0 : t0= ',t0,
-     $        '  Scatter light : Direct light ',npmt(2),' : ',npmt(1)
+c            print *,'pftime0 : t0= ',t0,
+c     $        '  Scatter light : Direct light ',npmt(2),' : ',npmt(1)
 
 
 C*          position fit along particle direction
@@ -163,19 +163,19 @@ C            dmove0 = dmove0/2.**maxstep
              maxstep = 4
              dang0 = 10.
 
-             print *,' CALL PFDIRMSTFIT(',dang0,',',maxstep,')'
+c             print *,' CALL PFDIRMSTFIT(',dang0,',',maxstep,')'
              print *,ir
-             call pfdirmstfit(ir,dang0,maxstep)
-             print *, 'APPERF: ', APPERF(1,1)
-             print *,'pfrmslg: ', pfprmslg(1,3)
-             print *,'   ip amom angle ',
-     $            apip(ir),apamom(ir),apangcer(ir)
+c             call pfdirmstfit(ir,dang0,maxstep)
+c             print *, 'APPERF: ', APPERF(1,1)
+c             print *,'pfrmslg: ', pfprmslg(1,3)
+c             print *,'   ip amom angle ',
+c     $            apip(ir),apamom(ir),apangcer(ir)
 
             call skopenr(apdir(1,ir),dirold,dang)
             dang = dang*180./3.141592
             dang0 = dang0/2.**maxstep
 
-            print *,'PFDOFIT : ITEL DPOS DANG ',itel,dpos,dang
+c            print *,'PFDOFIT : ITEL DPOS DANG ',itel,dpos,dang
 
 C         enddo
 

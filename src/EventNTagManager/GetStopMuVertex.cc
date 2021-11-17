@@ -19,8 +19,7 @@ TVector3 GetStopMuVertex()
 {
     Printer msg("GetStopMuVertex");
     msg.PrintBlock("Estimating muon stopping point...", pSUBEVENT, pDEFAULT, false);
-    msg.Print(Form("skwaterlen: %3.2f", skwaterlen_.skwaterlen));   
-       
+
     float initPoint[3], momDir[3];
     float muonMom;
     float goodness, entryQ; // probably dummy

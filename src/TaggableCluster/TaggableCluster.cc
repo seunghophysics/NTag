@@ -81,7 +81,7 @@ void TaggableCluster::DumpAllElements() const
         std::cout << std::right << std::setw(7) << (delayedIndex ? std::to_string(delayedIndex) : "-") << " ";
         std::cout << std::right << std::setw(8) << (taggedType==typeMissed ? "-" : (
                                                     taggedType==typeE ?      "e" : (
-                                                    taggedType==typeN?       "n" : 
+                                                    taggedType==typeN?       "n" :
                                                     /* else */               "e/n"))) << "\n";
     }
 }

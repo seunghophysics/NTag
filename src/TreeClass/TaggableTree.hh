@@ -44,7 +44,7 @@ public :
    TBranch        *b_DWall;   //!
    TBranch        *b_EarlyIndex;   //!
    TBranch        *b_DelayedIndex;   //!
-   
+
    TaggableCluster cluster;
 
    TaggableTree(TTree *tree=0);
@@ -87,15 +87,15 @@ Int_t TaggableTree::GetEntry(Long64_t entry)
 // Read contents of entry.
    if (!fChain) return 0;
    Int_t entryExists = fChain->GetEntry(entry);
-   
+
    cluster.Clear();
 
    for (unsigned int i=0; i<Type->size(); i++) {
-     Taggable taggable(static_cast<TaggableType>(Type->at(i)), 
+     Taggable taggable(static_cast<TaggableType>(Type->at(i)),
                        t->at(i), E->at(i), TVector3(vx->at(i), vy->at(i), vz->at(i)));
      cluster.Append(taggable);
    }
-   
+
    return entryExists;
 }
 Long64_t TaggableTree::LoadTree(Long64_t entry)

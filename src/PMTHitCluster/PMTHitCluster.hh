@@ -36,7 +36,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         void Sort();
 
         void DumpAllElements() const { for (auto& hit: fElement) hit.Dump(); }
-        
+
         void FillTQReal(TQReal* tqreal);
 
         const PMTHit& operator[] (int iHit) const { return fElement[iHit]; }

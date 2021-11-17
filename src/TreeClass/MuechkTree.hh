@@ -50,7 +50,7 @@ public :
    TBranch        *b_x;   //!
    TBranch        *b_y;   //!
    TBranch        *b_z;   //!
-   
+
    CandidateCluster cluster;
 
    MuechkTree(TTree *tree=0);
@@ -80,7 +80,7 @@ MuechkTree::MuechkTree(TTree *tree)
 
    }
    Init(tree);
-   
+
    cluster.RegisterFeatureNames({"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
                                  "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"});
 }
@@ -96,7 +96,7 @@ Int_t MuechkTree::GetEntry(Long64_t entry)
 // Read contents of entry.
    if (!fChain) return 0;
    Int_t entryExists = fChain->GetEntry(entry);
-   
+
    cluster.Clear();
 
    for (unsigned int i=0; i<NHits->size(); i++) {
@@ -117,7 +117,7 @@ Int_t MuechkTree::GetEntry(Long64_t entry)
      candidate.Set("z", z->at(i));
      cluster.Append(candidate);
    }
-   
+
    return entryExists;
 }
 Long64_t MuechkTree::LoadTree(Long64_t entry)

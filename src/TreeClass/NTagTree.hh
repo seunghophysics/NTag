@@ -70,7 +70,7 @@ public :
    TBranch        *b_TagIndex;   //!
    TBranch        *b_ThetaMeanDir;   //!
    TBranch        *b_prompt_nfit;   //!
-   
+
    CandidateCluster cluster;
 
    NTagTree(TTree *tree=0);
@@ -100,7 +100,7 @@ NTagTree::NTagTree(TTree *tree)
 
    }
    Init(tree);
-   
+
    cluster.RegisterFeatureNames({"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum",
                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                  "AngleMean", "AngleSkew", "AngleStdev", "Label",
@@ -119,7 +119,7 @@ Int_t NTagTree::GetEntry(Long64_t entry)
 // Read contents of entry.
    if (!fChain) return 0;
    Int_t entryExists = fChain->GetEntry(entry);
-   
+
    cluster.Clear();
 
    for (unsigned int i=0; i<NHits->size(); i++) {
@@ -150,7 +150,7 @@ Int_t NTagTree::GetEntry(Long64_t entry)
      candidate.Set("prompt_nfit", prompt_nfit->at(i));
      cluster.Append(candidate);
    }
-   
+
    return entryExists;
 }
 Long64_t NTagTree::LoadTree(Long64_t entry)

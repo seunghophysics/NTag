@@ -210,15 +210,15 @@ std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, do
 {
     std::vector<unsigned int> vIndex;
     //std::cout << "low: " << low << " high: " << high << std::endl;
-    
+
     auto start = std::lower_bound(sortedVec.begin(), sortedVec.end(), low);
     auto end = std::upper_bound(sortedVec.begin(), sortedVec.end(), high);
-    
+
     //std::cout << "start_i: " << start-sortedVec.begin() << " end_i: " << end-sortedVec.begin() << std::endl;
-    
+
     for (auto it=start; it!=end; ++it) {
         vIndex.push_back(it-sortedVec.begin());
     }
-    
+
     return vIndex;
 }

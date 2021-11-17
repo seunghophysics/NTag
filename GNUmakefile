@@ -38,14 +38,14 @@ $(FORTRANOBJS): src/%.o: src/%.F
 lib/libutillib.a: $(OBJS) $(FORTRANOBJS)
 	@echo "[UtilLib] Building static shared library..."
 	@ar crf $@ $^
-	
+
 lib/libutillib_double.a: $(OBJS) $(FORTRANOBJS)
 	@echo "[UtilLib] Building static shared library (for double)..."
 	@ar crf $@ $^
 
 clean:
 	@rm -rf src/*.o src/*/*.o src/*/*/*.o lib include
-	
+
 cleanobj:
 	@rm -rf src/*.o src/*/*.o src/*/*/*.o
 

@@ -36,21 +36,21 @@ cc  Get 0th element of Tqreal bank
       endif
 
 cc  Delete TQreal bank
-    
+
       call kzbdel('TQREAL')
 
 cc  Modify number of hits
 
-      ibuf(1) = nqiskz 
+      ibuf(1) = nqiskz
 
 cc  Create TQreal bank
 
-      CALL KZBCR1('TQREAL',7,'1I 1F 5I',nqiskz,3,'1I 2F',IERR) 
+      CALL KZBCR1('TQREAL',7,'1I 1F 5I',nqiskz,3,'1I 2F',IERR)
       CALL KZREP1('TQREAL',0,7,ibuf)
 
 cc  Copy to TQreal bank
 
-      do i = 1,nqiskz 
+      do i = 1,nqiskz
          ibufz(1,i) = icabiz(i) + ihtiflz(i)
          rbufz(2,i) = tiskz(i)
          rbufz(3,i) = qiskz(i)
@@ -61,7 +61,7 @@ cc  Copy to TQreal bank
          nent = 3*nqiskz
          CALL LBFCOPY(IBUFZ,IZBS(LDAT+7+1),nent)
       END IF
-         
+
 cc   Make additional bank
 
 C      call kzbcr0('MERGE',IERR)

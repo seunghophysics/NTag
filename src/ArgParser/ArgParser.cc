@@ -7,7 +7,7 @@ ArgParser::ArgParser(int &argc, char **argv)
 {
     for (int iArg = 1; iArg < argc; ++iArg)
         this->fTokens.push_back(std::string(argv[iArg]));
-        
+
     SetOptionPairs();
 }
 
@@ -27,7 +27,7 @@ ArgParser::ArgParser(std::ifstream& f)
             }
         }
     }
-    
+
     SetOptionPairs();
 }
 

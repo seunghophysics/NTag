@@ -1,35 +1,19 @@
-##### ReadHits #####
-TRBNWIDTH 0
+# PMT noise reduction
+TRBNWIDTH      0
 
-##### AddNoise #####
-#noise_file_path /disk02/calib3/usr/han/dummy/sk6/085710/t2k*.root
-#noise_start_time 2
-#noise_end_time 505
+# prompt vertex
+vertex_mode    TRUE
+PVXRES     7
 
-##### SetPromptVertex ####
-#vertex_mode         TRUE
-#PVXRES 7
-
-##### SearchCandidates #####
-T0TH        3000
-T0MX        535000
-TWIDTH      14
-TMINPEAKSEP 200
-NHITSTH     7
-NHITSMX     300
-N200TH      0
-N200MX      50000
-
-##### e-tagging #####
-#E_N50CUT    50
-#E_TIMECUT   20
-
-##### n-tagging #####
-N_OUTCUT    0.7
-
-##### ExtractFeatures #####
-# MC Label
-TMATCHWINDOW   50
+# candidate search
+T0TH           3000
+T0MX           535000
+TWIDTH         14
+TMINPEAKSEP    60
+NHITSTH        7
+NHITSMX        300
+N200TH         0
+N200MX         50000
 
 # TRMS-fit
 INITGRIDWIDTH  800
@@ -37,10 +21,12 @@ MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
 VTXSRCRANGE    5000
 
-##### ApplyTMVA #####
-#mva_method_name MLP
-#weight_file_path weights/MLP_Gd0.011p_calibration.xml
+# e-tagging
+E_N50CUT       50
+E_TIMECUT      20
 
-##### WriteOutput #####
-#output_file_path testout.root
-#output_mode recreate
+# n-tagging
+N_OUTCUT       0.7
+
+# MC labeling
+TMATCHWINDOW   50
