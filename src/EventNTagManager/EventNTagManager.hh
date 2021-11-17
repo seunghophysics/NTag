@@ -53,6 +53,7 @@ class EventNTagManager
         float GetTMVAOutput(Candidate& candidate);
 
         // root
+        void MakeTrees();
         void FillTrees();
         void WriteTrees(bool doCloseFile=false);
 

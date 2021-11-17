@@ -455,6 +455,23 @@ float EventNTagManager::GetTMVAOutput(Candidate& candidate)
     return fTMVAReader.EvaluateMVA("MLP");
 }
 
+void EventNTagManager::MakeTrees()
+{
+    TTree* settingsTree = new TTree("settings", "settings");
+    TTree* eventTree = new TTree("event", "event");
+    TTree* particleTree = new TTree("particle", "particle");
+    TTree* taggableTree = new TTree("taggable", "taggable");
+    TTree* nTree = new TTree("ntag", "ntag");
+    TTree* eTree = new TTree("muechk", "muechk");
+
+    fSettings.SetTree(settingsTree);
+    fEventVariables.SetTree(eventTree);
+    fEventParticles.SetTree(particleTree);
+    fEventTaggables.SetTree(taggableTree);
+    fEventCandidates.SetTree(nTree);
+    fEventEarlyCandidates.SetTree(eTree);
+}
+
 void EventNTagManager::FillTrees()
 {
     // set branch address for the first event

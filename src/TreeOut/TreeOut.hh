@@ -9,7 +9,7 @@ class TreeOut
         TreeOut(): fOutputTree(NULL), fIsOutputTreeSet(false) {}
 
         // TTree access
-        virtual void SetTree(TTree& tree) { fOutputTree = &tree; fIsOutputTreeSet = true; }
+        virtual void SetTree(TTree* tree) { fOutputTree = tree; fIsOutputTreeSet = true; }
         TTree* GetTree() { return fOutputTree; }
         virtual void FillTree() { if (fIsOutputTreeSet) fOutputTree->Fill(); }
         virtual void WriteTree() { if (fIsOutputTreeSet) fOutputTree->Write(); }
