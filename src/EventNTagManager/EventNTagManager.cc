@@ -9,12 +9,16 @@
 #include "skheadC.h"
 #include "apmringC.h"
 #include "apmueC.h"
+#include "apmsfitC.h"
 #include "appatspC.h"
+#include "apringspC.h"
+#include "geotnkC.h"
 #include "neworkC.h"
 #include "nbnkC.h"
 #include "skonl/softtrg_cond.h"
 
 #include "SKLibs.hh"
+#include "GetStopMuVertex.hh"
 #include "EventNTagManager.hh"
 #include "Calculator.hh"
 
@@ -49,6 +53,48 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
 }
 
 EventNTagManager::~EventNTagManager() {}
+
+void EventNTagManager::ReadPromptVertex(VertexMode mode)
+{
+    switch (mode) {
+        case mAPFIT: { 
+            fMsg.Print("APFIT MODE!");
+            int bank = 0; aprstbnk_(&bank);
+            fPromptVertex = TVector3(apcommul_.appos); break; 
+        }
+        case mBONSAI: {
+            int lun = 10;
+            TreeManager* mgr = skroot_get_mgr(&lun);
+            LoweInfo* LOWE = mgr->GetLOWE();
+            mgr->GetEntry();
+            fPromptVertex = TVector3(LOWE->bsvertex); break;
+        }
+        case mCUSTOM: {
+            float vx, vy, vz;
+            if (fSettings.Get("vx", vx) && fSettings.Get("vy", vy) && fSettings.Get("vz", vz)) {
+                float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
+                float maxDist = 150.;
+                while (Norm(dx, dy, dz) > maxDist) {
+                    dx = gRandom->BreitWigner(0, PVXRES);
+                    dy = gRandom->BreitWigner(0, PVXRES);
+                    dz = gRandom->BreitWigner(0, PVXRES);
+                }
+                fPromptVertex = TVector3(vx, vy, vz) + TVector3(dx, dy, dz); break;
+            }
+            else
+                fMsg.Print("Custom prompt vertex not fully specified! "
+                           "Use -vx, -vy, -vz commands to specify the custom prompt vertex.", pERROR);
+        }
+        case mTRUE: {
+            skgetv_();
+            fPromptVertex = TVector3(skvect_.pos); break;
+        }
+        case mSTMU: {
+            fMsg.Print("STMU MODE!");
+            fPromptVertex = GetStopMuVertex(); break; 
+        }
+    }
+}
 
 void EventNTagManager::ReadVariables()
 {
@@ -121,46 +167,20 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("TDiff", tDiff);
 
     // reconstructed information
-    int bank = 0; aprstbnk_(&bank);
-        // evis
-        fEventVariables.Set("EVis", apcomene_.apevis);
-        // prompt vertex
-        fPromptVertex = TVector3(apcommul_.appos);
-
-        if (fVertexMode == mAPFIT) {
-            fEventVariables.Set("pvx", apcommul_.appos[0]);
-            fEventVariables.Set("pvy", apcommul_.appos[1]);
-            fEventVariables.Set("pvz", apcommul_.appos[2]);
-        }
-        else if (fVertexMode == mTRUE) {
-            skgetv_();
-            fEventVariables.Set("pvx", skvect_.pos[0]);
-            fEventVariables.Set("pvy", skvect_.pos[1]);
-            fEventVariables.Set("pvz", skvect_.pos[2]);
-        }
-        else if (fVertexMode == mCUSTOM) {
-            float vx, vy, vz;
-            bool vxExists = fSettings.Get("vx", vx);
-            bool vyExists = fSettings.Get("vy", vy);
-            bool vzExists = fSettings.Get("vz", vz);
-
-            if (vxExists && vyExists && vzExists) {
-                fEventVariables.Set("pvx", vx);
-                fEventVariables.Set("pvy", vy);
-                fEventVariables.Set("pvz", vz);
-            }
-            else
-                fMsg.Print("Custom prompt vertex not fully specified! Use -vx, -vy, -vz commands to specify the custom prompt vertex.", pERROR);
-        }
-
-        // dwall
-        fEventVariables.Set("DWall", wallsk_(apcommul_.appos));
-        // ring
-            // nring
-            fEventVariables.Set("NRing", apcommul_.apnring);
-            fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
-            fEventVariables.Set("FirstRingEMom", appatsp2_.apmsamom[0][1]);
-            fEventVariables.Set("FirstRingMuMom", appatsp2_.apmsamom[0][2]);
+    // prompt vertex
+    ReadPromptVertex(fVertexMode);
+    fEventVariables.Set("pvx", fPromptVertex.x());
+    fEventVariables.Set("pvy", fPromptVertex.y());
+    fEventVariables.Set("pvz", fPromptVertex.z());
+    // evis
+    fEventVariables.Set("EVis", apcomene_.apevis);
+    // dwall
+    fEventVariables.Set("DWall", GetDWall(fPromptVertex));
+    // ring
+    fEventVariables.Set("NRing", apcommul_.apnring);
+    fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
+    fEventVariables.Set("FirstRingEMom", appatsp2_.apmsamom[0][1]);
+    fEventVariables.Set("FirstRingMuMom", appatsp2_.apmsamom[0][2]);
 
     // mc information
     float posnu[3]; nerdnebk_(posnu);
@@ -307,10 +327,14 @@ void EventNTagManager::ApplySettings()
 
     if (vertexMode == "APFIT")
         fVertexMode = mAPFIT;
-    else if (vertexMode == "TRUE")
-        fVertexMode = mTRUE;
+    else if (vertexMode == "BONSAI")
+        fVertexMode = mBONSAI;
     else if (vertexMode == "CUSTOM")
         fVertexMode = mCUSTOM;
+    else if (vertexMode == "TRUE")
+        fVertexMode = mTRUE;
+    else if (vertexMode == "STMU")
+        fVertexMode = mSTMU;
 
     fSettings.Get("T0TH", T0TH);
     fSettings.Get("T0MX", T0MX);
@@ -321,6 +345,8 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("NHITSMX", NHITSMX);
     fSettings.Get("N200TH", N200TH);
     fSettings.Get("N200MX", N200MX);
+    
+    fSettings.Get("PVXRES", PVXRES);
 
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
     fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);

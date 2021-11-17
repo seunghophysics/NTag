@@ -29,6 +29,7 @@ class EventNTagManager
         // read ingredients from sk common blocks
         void ReadVariables();
         void ReadHits();
+        void ReadPromptVertex(VertexMode mode);
         void AddHits();
         void ReadParticles();
         void ReadEarlyCandidates();
@@ -102,6 +103,7 @@ class EventNTagManager
         Store fSettings;
         bool fInputIsSKROOT;
         VertexMode fVertexMode;
+        float PVXRES;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;

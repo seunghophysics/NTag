@@ -10,7 +10,7 @@
 bool SKIO::fIsZEBRAInitialized = false;
 
 SKIO::SKIO()
-: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
+: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,23,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
 fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 {}
 
