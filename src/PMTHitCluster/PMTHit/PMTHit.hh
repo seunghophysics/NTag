@@ -28,7 +28,7 @@ namespace NTagConstant{
 class PMTHit
 {
     public:
-        PMTHit(): fT(0), fQ(0), fToF(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}
+        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}
         PMTHit(Float t, float q, int i, int f);
 
         inline const Float& t() const { return fT; }

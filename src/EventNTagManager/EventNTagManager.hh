@@ -3,6 +3,7 @@
 
 #include "TMVA/Reader.h"
 
+#include "SKLibs.hh"
 #include "PMTHitCluster.hh"
 #include "ParticleCluster.hh"
 #include "TaggableCluster.hh"
@@ -34,8 +35,15 @@ class EventNTagManager
         void ReadParticles();
         void ReadEarlyCandidates();
 
-        // combo of all read functions
+        // read
         void ReadEventFromCommon();
+        // process
+        void SearchAndFill();
+        
+        // automatic event processing
+        void ProcessEvent();
+        void ProcessDataEvent();
+        void ProcessFlatEvent();
 
         // main search function
         void SearchCandidates();
@@ -115,13 +123,11 @@ class EventNTagManager
 
         // NTag settings
         Store fSettings;
-        bool fInputIsSKROOT;
         VertexMode fVertexMode;
         float PVXRES;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
-        bool fUseECut;
         float E_N50CUT, E_TIMECUT, N_OUTCUT;
 
         // TMVA
@@ -131,13 +137,12 @@ class EventNTagManager
 
         // ROOT
         std::string fOutFilePath;
-        bool fIsBranchSet;
 
         // Utilities
         Printer fMsg;
 
-        // data or MC
-        bool fIsMC;
+        // booleans
+        bool fIsBranchSet, fIsInputSKROOT, fIsMC, fDoUseECut;
 };
 
 #include "TSysEvtHandler.h"
@@ -152,6 +157,8 @@ class TInterruptHandler : public TSignalHandler
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
             fNTagManager->WriteTrees(true);
+            int lun = 20; skclosef_(&lun);
+            
             _exit(2);
             return kTRUE;
         }

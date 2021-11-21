@@ -10,9 +10,21 @@
 #ifndef SKLIBS_HH
 #define SKLIBS_HH 1
 
-// SK I/O
+// ZBS I/O
 extern "C" {
     void kzinit_();
+    void kzbloc_(const char*, int&, size_t);
+    void kzbdel_(const char*, size_t);
+    void kzbcr0_(const char*, int&, size_t);
+    void kzrep0_(const char*, int&, const char*, int&, int *, size_t, size_t);
+    void kznsg0_(const char*, int&, size_t);
+    void kzget0_(const char*, int&, int&, int*, size_t);
+    void kzwrit_(int*);
+    void kzeclr_();
+}
+
+// SK I/O
+extern "C" {
     void geoset_();
     void set_rflist_(int*, const char*, const char*, const char*, const char*,
                      const char*, const char*, const char*, const char*, const char*,
@@ -56,7 +68,6 @@ extern "C" {
     void pfdodirfit_(int&);
     void sppang_(int&, float&, float&);
     void spfinalsep_();
-//	float pttruewaterlen_(float&);
 }
 
 #endif

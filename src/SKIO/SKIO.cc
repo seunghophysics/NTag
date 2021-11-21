@@ -6,11 +6,13 @@
 
 #include "nbnkC.h"
 
+#include "SKLibs.hh"
 #include "SKIO.hh"
+
 bool SKIO::fIsZEBRAInitialized = false;
 
 SKIO::SKIO()
-: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,23,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
+: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
 fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 {}
 
@@ -23,9 +25,9 @@ SKIO::SKIO(std::string fileName, IOMode mode)
     if (fIOMode == mInput) {
         GetNumberOfEvents();
     }
-    else if (fIOMode == mOutput) {
-        OpenFile();
-    }
+    //else if (fIOMode == mOutput) {
+    //    OpenFile();
+    //}
 }
 
 SKIO::~SKIO()
@@ -71,8 +73,9 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
 
         // Initialize ZEBRA
         if (!fIsZEBRAInitialized) {
-            int iLimit = 4000000;
-            kzlimit_(&iLimit);
+            zbsinit_();
+            //int iLimit = 4000000;
+            //kzlimit_(&iLimit);
             fIsZEBRAInitialized = true;
         }
 
@@ -124,7 +127,7 @@ void SKIO::CloseFile()
         skroot_end_();
     }
 
-    fNEvents = 0;
+    //fNEvents = 0;
     fCurrentEventID = 0;
     fIsFileOpen = false;
 }
@@ -172,12 +175,12 @@ void SKIO::WriteTQREAL(PMTHitCluster& hitCluster)
 
 int SKIO::GetNumberOfEvents()
 {
-    if (!fNEvents) {
+    if (!fNEvents && !fIsFileOpen) {
 
         int logicalUnit = fIOMode;
         int nEvents = 0;
-
-        if (!fIsFileOpen) OpenFile();
+        
+        OpenFile();
 
         if (fFileFormat == mZBS) {
             // do skread until eof
@@ -191,8 +194,8 @@ int SKIO::GetNumberOfEvents()
                 std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
 
-            CloseFile();
-            OpenFile();
+            //CloseFile();
+            //OpenFile();
         }
 
         else if (fFileFormat == mSKROOT) {
@@ -204,6 +207,8 @@ int SKIO::GetNumberOfEvents()
         if (!fNEvents) {
             fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
+        
+        if (fIsFileOpen) CloseFile();
     }
 
     return fNEvents;
@@ -346,16 +351,6 @@ void ReadNTagBank()
       ntag_.tag[i]=ibuff[index++];
     }
 
-    }
-
-    std::cout << "np: " << ntag_.np << "\n";
-    std::cout << "nn: " << ntag_.nn << "\n";
-    std::cout << "mctruth_nn: " << ntag_.mctruth_nn << "\n";
-    for (int i=0; i<ntag_.np; i++)
-    {
-        std::cout << "goodness[" << i << "]: " << ntag_.goodness[i];
-        std::cout << " mctruth_neutron[" << i << "]: " << ntag_.mctruth_neutron[i];
-        std::cout << " tag[" << i << "]: " << ntag_.tag[i] << "\n";
     }
   }
 }

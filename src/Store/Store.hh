@@ -60,6 +60,34 @@ class Store : public TreeOut
             if (!storeMap.count(key)) keyOrder.push_back(key);
             storeMap[key] = stream.str();
         }
+        
+        bool GetBool(std::string key, bool emptyVal=false)
+        {
+            if (storeMap.count(key) > 0) {
+                if (storeMap[key]=="true" || storeMap[key]=="1") return true;
+                else if (storeMap[key]=="false" || storeMap[key]=="0") return false;
+                else {
+                    std::cerr << "Key " << key << " in the Store " << name
+                              << " has a non-boolean value " << storeMap[key] << "\n";
+                    return emptyVal;
+                }
+            }
+            else return emptyVal;
+        }
+        
+        int GetInt(std::string key, int emptyVal=0)
+        {
+            if (storeMap.count(key) > 0)
+                return std::stoi(storeMap[key]);
+            else return emptyVal;
+        }
+        
+        float GetFloat(std::string key, float emptyVal=0)
+        {
+            if (storeMap.count(key) > 0)
+                return std::stof(storeMap[key]);
+            else return emptyVal;
+        }
 
         const std::map<std::string, std::string>& GetMap() { return storeMap; }
 

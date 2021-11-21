@@ -22,29 +22,8 @@ extern "C"
 
 extern "C"
 {
-    void kzinit_();
-    void kzlimit_(int*);
-    void kzenum_(int*, int*);
-    //void kzbloc_(const char*, int*);
-    void kzget1_(const char*, int*, int*, void*, int);
-    //void kzbdel_(const char*);
-    void kzbcr1_(const char*, int*, const char*, int*, int*, const char*, int*, int, int, int);
-    void kzrep1_(const char*, int*, int*, void*, int);
-    void kzldat_(const char*, int*);
-    void lbfcopy_(void*, void*, int*);
+    void zbsinit_(); // best working solution for opening a large zbs
     void write_tq_();
-    void geoset_();
-    void set_rflist_(int*, const char*, const char*, const char*, const char*,
-                     const char*, const char*, const char*, const char*, const char*,
-                     int, int, int, int, int, int, int, int, int);
-    void reset_rflist_();
-    void skopenf_(int*, int*, const char*, int*);
-    void skoptn_(const char*, int);
-    void skbadopt_(int*);
-    void skbadch_(int*, int*, int*);
-    int  skread_(int*);
-    void skclosef_(int*);
-    void skroot_init_(int*);
 }
 
 enum IOMode
@@ -92,6 +71,7 @@ class SKIO
 
         const char* GetSKOption() { return fSKOption.Data(); }
         void SetSKOption(const char* skOption) { fSKOption = skOption; }
+        void AddSKOption(int opt) { fSKOption += ("," + std::to_string(opt)); }
 
         int GetSKGeometry() { return fSKGeometry; }
         void SetSKGeometry(int skGeometry) { fSKGeometry = skGeometry; }

@@ -18,12 +18,13 @@
 #include "skonl/softtrg_cond.h"
 
 #include "SKLibs.hh"
+#include "SKIO.hh"
 #include "GetStopMuVertex.hh"
 #include "EventNTagManager.hh"
 #include "Calculator.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fInputIsSKROOT(false), fUseECut(false), fIsBranchSet(false), fIsMC(true)
+: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true), fDoUseECut(false)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -57,6 +58,9 @@ EventNTagManager::~EventNTagManager() {}
 void EventNTagManager::ReadPromptVertex(VertexMode mode)
 {
     switch (mode) {
+        case mNONE: {
+            break;
+        }
         case mAPFIT: {
             int bank = 0; aprstbnk_(&bank);
             fPromptVertex = TVector3(apcommul_.appos); break;
@@ -71,14 +75,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         case mCUSTOM: {
             float vx, vy, vz;
             if (fSettings.Get("vx", vx) && fSettings.Get("vy", vy) && fSettings.Get("vz", vz)) {
-                float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
-                float maxDist = 150.;
-                while (Norm(dx, dy, dz) > maxDist) {
-                    dx = gRandom->BreitWigner(0, PVXRES);
-                    dy = gRandom->BreitWigner(0, PVXRES);
-                    dz = gRandom->BreitWigner(0, PVXRES);
-                }
-                fPromptVertex = TVector3(vx, vy, vz) + TVector3(dx, dy, dz); break;
+                fPromptVertex = TVector3(vx, vy, vz); break;
             }
             else
                 fMsg.Print("Custom prompt vertex not fully specified! "
@@ -86,7 +83,14 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         }
         case mTRUE: {
             skgetv_();
-            fPromptVertex = TVector3(skvect_.pos); break;
+            float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
+            float maxDist = 150.;
+            while (Norm(dx, dy, dz) > maxDist) {
+                dx = gRandom->BreitWigner(0, PVXRES);
+                dy = gRandom->BreitWigner(0, PVXRES);
+                dz = gRandom->BreitWigner(0, PVXRES);
+            }
+            fPromptVertex = TVector3(skvect_.pos) + TVector3(dx, dy, dz); break;
         }
         case mSTMU: {
             fPromptVertex = GetStopMuVertex(); break;
@@ -123,7 +127,7 @@ void EventNTagManager::ReadVariables()
     int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
     float tDiff = 0;
     float trgOffset = 0;
-    if (fInputIsSKROOT) {
+    if (fIsInputSKROOT) {
         int lun = 10;
 
         TreeManager* mgr  = skroot_get_mgr(&lun);
@@ -152,16 +156,16 @@ void EventNTagManager::ReadVariables()
     // ring
     fEventVariables.Set("NRing", apcommul_.apnring);
     fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
-    fEventVariables.Set("FirstRingEMom", appatsp2_.apmsamom[0][1]);
-    fEventVariables.Set("FirstRingMuMom", appatsp2_.apmsamom[0][2]);
+    if      (apcommul_.apip[0] == ELECTRON)
+        fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][1]);
+    else if (apcommul_.apip[0] == MUON)
+        fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][2]);
 
     // mc information
     float posnu[3]; nerdnebk_(posnu);
     fEventVariables.Set("NEUTMode", nework_.modene);
     fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
     fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
-
-    if (fVertexMode==mAPFIT) ReadEarlyCandidates();
 }
 
 void EventNTagManager::ReadHits()
@@ -184,7 +188,7 @@ void EventNTagManager::AddHits()
 
     if (!coincidenceFound) {
         for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
-            if (sktqz_.qiskz[iHit] == lastHit.q() && sktqz_.icabiz[iHit] == lastHit.i()) {
+            if (sktqz_.qiskz[iHit] == lastHit.q() && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) {
                 tOffset = lastHit.t() - sktqz_.tiskz[iHit];
                 coincidenceFound = true;
                 fMsg.Print(Form("Coincidence found: t = %f ns, (offset: %f ns)", lastHit.t(), tOffset));
@@ -201,7 +205,7 @@ void EventNTagManager::ReadParticles()
 {
     skgetv_();
 
-    if (fInputIsSKROOT) {
+    if (fIsInputSKROOT) {
         int lun = 10;
 
         TreeManager* mgr  = skroot_get_mgr(&lun);
@@ -224,7 +228,7 @@ void EventNTagManager::ReadParticles()
 
     fEventParticles.ReadCommonBlock(skvect_, secndprt_);
 
-    float geantT0; fEventVariables.Set("TrgOffset", geantT0);
+    float geantT0; fEventVariables.Get("TrgOffset", geantT0);
     fEventParticles.SetT0(geantT0);
 
     fEventTaggables.ReadParticleCluster(fEventParticles);
@@ -256,7 +260,6 @@ void EventNTagManager::ReadEarlyCandidates()
             candidate.Set("TagClass", FindTagClass(candidate));
             fEventEarlyCandidates.Append(candidate);
     }
-
 }
 
 void EventNTagManager::ReadEventFromCommon()
@@ -264,16 +267,73 @@ void EventNTagManager::ReadEventFromCommon()
     ReadVariables();
     AddHits();
 
-    if (fIsMC) ReadParticles();
+    if (fIsMC) 
+        ReadParticles();
+    if (fVertexMode==mAPFIT || fVertexMode==mSTMU)
+        ReadEarlyCandidates();
+}
+
+void EventNTagManager::SearchAndFill()
+{
+    SearchCandidates();
+    DumpEvent();
+    FillTrees();
+    if (fSettings.GetBool("write_bank")) 
+        WriteNTagBank();
+    ClearData();
+}
+
+void EventNTagManager::ProcessEvent()
+{
+    if (fIsMC || fSettings.GetBool("force_flat")) 
+        ProcessFlatEvent();
+    else
+        ProcessDataEvent();
+}
+
+void EventNTagManager::ProcessDataEvent()
+{
+    auto thisEvTrg = skhead_.idtgsk & (1<<29) ? tAFT : (skhead_.idtgsk & (1<<28) ? tSHE : tELSE);
+
+    // if current event is AFT, append TQ and fill output.
+    if (thisEvTrg == tAFT) {
+        fEventVariables.Set("TrgType", tAFT);
+        AddHits();
+        SearchAndFill();
+    }
+
+    // if previous event was SHE without following AFT,
+    // just fill output because there's nothing to append.
+    else if (!fEventHits.IsEmpty()) {
+        SearchAndFill();
+    }
+
+    // if the current event is SHE,
+    // save raw hit info and don't fill output.
+    if (thisEvTrg == tSHE) {
+        ReadEventFromCommon();
+    }
+
+    // if the current event is neither SHE nor AFT (e.g. HE, LE, etc.),
+    // save raw hit info and fill output.
+    if (thisEvTrg == tELSE) {
+        ProcessFlatEvent();
+    }
+}
+
+void EventNTagManager::ProcessFlatEvent()
+{
+    ReadEventFromCommon();
+    SearchAndFill();
 }
 
 void EventNTagManager::SearchCandidates()
 {
     float pmtDeadTime; fSettings.Get("TRBNWIDTH", pmtDeadTime);
-    fEventHits.ApplyDeadtime(pmtDeadTime);
+    if (pmtDeadTime) fEventHits.ApplyDeadtime(pmtDeadTime);
 
     // subtract tof
-    SubtractToF();
+    if (fVertexMode != mNONE) SubtractToF();
 
     int   iHitPrevious    = -1;
     int   NHitsNew        = 0;
@@ -336,8 +396,8 @@ void EventNTagManager::SearchCandidates()
         fEventCandidates.Append(candidate);
     }
 
-    if (fUseECut) PruneCandidates();
-    if (fIsMC) MapTaggables();
+    if (fDoUseECut) PruneCandidates();
+    /*if (fIsMC)*/  MapTaggables();
 
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
@@ -381,23 +441,25 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("in", inFilePath);
 
     if (inFilePath.EndsWith(".root"))
-        fInputIsSKROOT = true;
+        fIsInputSKROOT = true;
     else
-        fInputIsSKROOT = false;
+        fIsInputSKROOT = false;
 
     // vertex mode
     TString vertexMode;
-    fSettings.Get("vertex_mode", vertexMode);
-
-    if (vertexMode == "APFIT")
+    fSettings.Get("vertex", vertexMode);
+    
+    if (vertexMode == "none")
+        fVertexMode = mNONE;
+    else if (vertexMode == "apfit")
         fVertexMode = mAPFIT;
-    else if (vertexMode == "BONSAI")
+    else if (vertexMode == "bonsai")
         fVertexMode = mBONSAI;
-    else if (vertexMode == "CUSTOM")
+    else if (vertexMode == "custom")
         fVertexMode = mCUSTOM;
-    else if (vertexMode == "TRUE")
+    else if (vertexMode == "true")
         fVertexMode = mTRUE;
-    else if (vertexMode == "STMU")
+    else if (vertexMode == "stmu")
         fVertexMode = mSTMU;
 
     fSettings.Get("T0TH", T0TH);
@@ -418,7 +480,7 @@ void EventNTagManager::ApplySettings()
 
     fSettings.Get("E_N50CUT", E_N50CUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
-    if (E_N50CUT>0 && E_TIMECUT>0) fUseECut = true;
+    if (E_N50CUT>0 && E_TIMECUT>0) fDoUseECut = true;
 
     fSettings.Get("N_OUTCUT", N_OUTCUT);
 }
@@ -579,7 +641,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("Beta5", beta[5]);
 
     // DWall
-    float dWall; fEventVariables.Get("DWall", dWall);
+    float dWall = fEventVariables.GetFloat("DWall");
     auto dirVec = hitsInTWIDTH[HitFunc::Dir];
     auto meanDir = GetMean(dirVec).Unit();
     candidate.Set("DWall", dWall);
@@ -695,7 +757,7 @@ int EventNTagManager::FindTagClass(const Candidate& candidate)
     float tmvaOut = candidate.Get("TMVAOutput");
 
     // simple cuts mode for e/n separation
-    if (fUseECut) {
+    if (fDoUseECut) {
         if (reconCT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
         else if (n50 > E_N50CUT && reconCT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
         else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like

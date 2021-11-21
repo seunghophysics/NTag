@@ -58,7 +58,7 @@ void TrgSim::Simulate()
     if (fmod(fTDurationSec, fSegmentLength)>1e-6) fNTotalSegments++;
 
     for (fSegmentNo=0; fSegmentNo<fNTotalSegments; fSegmentNo++) {
-        fMsg.Print(Form("Processing segment #%d / %d...", fSegmentNo+1, fNTotalSegments));
+        fMsg.Print(Form("Processing segment #%lu / %lu...", fSegmentNo+1, fNTotalSegments));
         FillSegment(fSegmentNo);
         FindTriggerInSegment();
         if (fSegmentNo>0 && fSegmentNo%100==0) {
@@ -84,7 +84,7 @@ void TrgSim::FillSegment(unsigned long segNo)
     }
 
     fIDSegment.Clear(); fODSegment.Clear();
-    fMsg.Print(Form("Segment #%d: (%3.2f, %3.2f) msec", fSegmentNo+1, tSegStart*1e-6, tSegEnd*1e-6), pDEBUG);
+    fMsg.Print(Form("Segment #%lu: (%3.2f, %3.2f) msec", fSegmentNo+1, tSegStart*1e-6, tSegEnd*1e-6), pDEBUG);
 
     // signal
     for (auto const& signal: fSignalList) {
@@ -99,8 +99,8 @@ void TrgSim::FillSegment(unsigned long segNo)
     fIDSegment.Sort();
     fODSegment.Sort();
 
-    fMsg.Print(Form("# of ID hits in segment #%d: %d", fSegmentNo+1, fIDSegment.GetSize()));
-    fMsg.Print(Form("# of OD hits in segment #%d: %d", fSegmentNo+1, fODSegment.GetSize()));
+    fMsg.Print(Form("# of ID hits in segment #%lu: %d", fSegmentNo+1, fIDSegment.GetSize()));
+    fMsg.Print(Form("# of OD hits in segment #%lu: %d", fSegmentNo+1, fODSegment.GetSize()));
 }
 
 void TrgSim::FindTriggerInSegment()
@@ -110,7 +110,7 @@ void TrgSim::FindTriggerInSegment()
         double t;
         PMTHitCluster* cluster;
 
-        double SetIndex(unsigned int index) { i = index; t = cluster->At(index).t(); }
+        void SetIndex(unsigned int index) { i = index; t = cluster->At(index).t(); }
     };
 
     Hit hit;
@@ -177,7 +177,7 @@ void TrgSim::FindTriggerInSegment()
             fLastEvEndT = hit.t + evEndT;
 
             fMsg.Print(std::string(evEndT>50000 ? "AFT" : "SHE") + Form(" trigger at t = %3.2f msec", hit.t * 1e-6));
-            fMsg.Print(Form("N200: %d (signal: %3.2f%)", N200, 100*nSig/float(N200)), pDEBUG);
+            fMsg.Print(Form("N200: %d (signal: %3.2f%%)", N200, 100*nSig/float(N200)), pDEBUG);
         }
 
         else {

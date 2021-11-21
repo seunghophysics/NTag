@@ -164,7 +164,7 @@ C            dmove0 = dmove0/2.**maxstep
              dang0 = 10.
 
 c             print *,' CALL PFDIRMSTFIT(',dang0,',',maxstep,')'
-             print *,ir
+c             print *,ir
 c             call pfdirmstfit(ir,dang0,maxstep)
 c             print *, 'APPERF: ', APPERF(1,1)
 c             print *,'pfrmslg: ', pfprmslg(1,3)

@@ -1,9 +1,13 @@
+# event processing
+force_flat     0
+write_bank     0
+
 # PMT noise reduction
 TRBNWIDTH      0
 
 # prompt vertex
-vertex_mode    TRUE
-PVXRES     7
+vertex         true
+PVXRES         7
 
 # candidate search
 T0TH           3000

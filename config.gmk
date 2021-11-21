@@ -5,7 +5,6 @@ CXXFLAGS += -std=c++11 -fPIC -g -O0 -lgfortran
 
 FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
-FORTRANINCLUDE += -I$(SKOFL_FORTRAN_INCDIR)/lowe -I$(ATMPD_ROOT)/inc
 
 SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
 ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/
@@ -18,7 +17,7 @@ SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llib
 								-lskroot -lDataDefinition -ltqrealroot -lloweroot -latmpdroot -lmcinfo -lsofttrgroot -lidod_xtlk_root
 ATMPDINCLUDE = -I $(ATMPD_ROOT)/include -I $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd -I $(ATMPD_ROOT)/src/recon/fitqun
 ATMPDLIB = -L $(ATMPD_ROOT)/lib -lapdrlib -lhutl -laplib -lringlib -ltp -ltf -lringlib \
-		   -laplib -lmsfit -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
+		   -laplib -lmsfit -lseplib -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
 		   -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k -lNtag
 
 ROOTINCLUDE = -I $(TMVASYS)/inc -I $(ROOTSYS)/include

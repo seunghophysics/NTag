@@ -90,8 +90,8 @@ class SignalReader : public RootReader
 
             fMsg.Print(Form("Seed: %d", fRandomSeed));
             fMsg.Print(Form("Input signal frequency: %3.2f Hz, Time duration: %3.2f sec", fSigFreqHz, fTDurationSec));
-            fMsg.Print(Form("Signal occurence: %d, Simulated signal frequency: %3.2f Hz", fEvTime.size(), fEvTime.size()/fTDurationSec));
-            fMsg.Print(Form("Total input MC events: %d", fNEntries));
+            fMsg.Print(Form("Signal occurence: %lu, Simulated signal frequency: %3.2f Hz", fEvTime.size(), fEvTime.size()/fTDurationSec));
+            fMsg.Print(Form("Total input MC events: %lu", fNEntries));
         }
 
         void FillSegments(PMTHitCluster& segmentID, PMTHitCluster& segmentOD, double tSegStart, double tSegEnd)
