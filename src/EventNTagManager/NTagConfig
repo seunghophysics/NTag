@@ -6,7 +6,7 @@ write_bank     0
 TRBNWIDTH      0
 
 # prompt vertex
-vertex         true
+prompt_vertex  true
 PVXRES         7
 
 # candidate search
@@ -18,6 +18,9 @@ NHITSTH        7
 NHITSMX        300
 N200TH         0
 N200MX         50000
+
+# delayed vertex
+delayed_vertex trms
 
 # TRMS-fit
 INITGRIDWIDTH  800

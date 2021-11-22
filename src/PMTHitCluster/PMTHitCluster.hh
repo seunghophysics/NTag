@@ -60,7 +60,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         }
 
         template<typename T>
-        std::vector<T> GetProjection(std::function<T(const PMTHit&)> lambda)
+        std::vector<T> GetProjection(std::function<T(const PMTHit&)> lambda) const
         {
             std::vector<T> output;
             for_each(fElement.begin(), fElement.end(), [&](PMTHit hit){ output.push_back(lambda(hit)); });

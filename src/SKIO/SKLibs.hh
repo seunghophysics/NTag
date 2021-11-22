@@ -10,6 +10,8 @@
 #ifndef SKLIBS_HH
 #define SKLIBS_HH 1
 
+#include <cstddef>
+
 // ZBS I/O
 extern "C" {
     void kzinit_();
@@ -55,10 +57,16 @@ extern "C" {
 
 // BONSAI
 extern "C" {
-    void bonsai_ini_(int*);
-    void bonsai_fit_(int*, float*, float*, float*, int*, int*, float*, float*, float*,
-                     float*, float*, float*, float*, float*, float*);
-    void bonsai_end_();
+    float darklf_(int*);
+    void skrunday_();
+    void skwt_();
+    void cfbsinit_(int*, float*);
+    void cfbsexit_();
+    void lfwater_(int*, float*);
+    void lfallfit_sk4_data_(float*, int*, int*);
+    void lfallfit_sk6_data_(float*, int*, int*, int*, int*);
+    void lfallfit_sk4_mc_(float*, int*, int*);
+    //void effwallf_(int*, float*, float*, float*);
 }
 
 // stopmu fit

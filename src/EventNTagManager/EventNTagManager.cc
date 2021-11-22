@@ -70,7 +70,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
             TreeManager* mgr = skroot_get_mgr(&lun);
             LoweInfo* LOWE = mgr->GetLOWE();
             mgr->GetEntry();
-            fPromptVertex = TVector3(LOWE->bsvertex); break;
+            fPromptVertex = TVector3(LOWE->bsvertex[0], LOWE->bsvertex[1], LOWE->bsvertex[2]); break;
         }
         case mCUSTOM: {
             float vx, vy, vz;
@@ -94,6 +94,11 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         }
         case mSTMU: {
             fPromptVertex = GetStopMuVertex(); break;
+        }
+        case mTRMS: {
+            fMsg.Print("Invalid prompt vertex mode, setting vertex mode to NONE...", pWARNING);
+            fPromptVertexMode = mNONE;
+            break;
         }
     }
 }
@@ -145,7 +150,7 @@ void EventNTagManager::ReadVariables()
 
     // reconstructed information
     // prompt vertex
-    ReadPromptVertex(fVertexMode);
+    ReadPromptVertex(fPromptVertexMode);
     fEventVariables.Set("pvx", fPromptVertex.x());
     fEventVariables.Set("pvy", fPromptVertex.y());
     fEventVariables.Set("pvz", fPromptVertex.z());
@@ -269,7 +274,7 @@ void EventNTagManager::ReadEventFromCommon()
 
     if (fIsMC) 
         ReadParticles();
-    if (fVertexMode==mAPFIT || fVertexMode==mSTMU)
+    if (fPromptVertexMode==mAPFIT || fPromptVertexMode==mSTMU)
         ReadEarlyCandidates();
 }
 
@@ -333,7 +338,7 @@ void EventNTagManager::SearchCandidates()
     if (pmtDeadTime) fEventHits.ApplyDeadtime(pmtDeadTime);
 
     // subtract tof
-    if (fVertexMode != mNONE) SubtractToF();
+    if (fPromptVertexMode != mNONE) SubtractToF();
 
     int   iHitPrevious    = -1;
     int   NHitsNew        = 0;
@@ -450,17 +455,19 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("vertex", vertexMode);
     
     if (vertexMode == "none")
-        fVertexMode = mNONE;
+        fPromptVertexMode = mNONE;
     else if (vertexMode == "apfit")
-        fVertexMode = mAPFIT;
+        fPromptVertexMode = mAPFIT;
     else if (vertexMode == "bonsai")
-        fVertexMode = mBONSAI;
+        fPromptVertexMode = mBONSAI;
     else if (vertexMode == "custom")
-        fVertexMode = mCUSTOM;
+        fPromptVertexMode = mCUSTOM;
     else if (vertexMode == "true")
-        fVertexMode = mTRUE;
+        fPromptVertexMode = mTRUE;
     else if (vertexMode == "stmu")
-        fVertexMode = mSTMU;
+        fPromptVertexMode = mSTMU;
+    else if (vertexMode == "trms")
+        fPromptVertexMode = mTRMS;
 
     fSettings.Get("T0TH", T0TH);
     fSettings.Get("T0MX", T0MX);
@@ -765,8 +772,8 @@ int EventNTagManager::FindTagClass(const Candidate& candidate)
     }
     // naive tagging mode without e/n separation
     else {
-        if (n50 < 0)                 tagClass = typeE; // e: muechk
-        else if (tmvaOut > N_OUTCUT) tagClass = typeN; // n: ntag && out cut
+        if (n50 < 0)                 tagClass = typeE;      // e: muechk
+        else if (tmvaOut > N_OUTCUT) tagClass = typeN;      // n: ntag && out cut
         else                         tagClass = typeMissed; // otherwise noise
     }
 

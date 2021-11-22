@@ -33,7 +33,7 @@ $(OBJS): src/%.o: src/%.cc src/%.hh
 
 $(FORTRANOBJS): src/%.o: src/%.F
 	@echo "[UtilLib] Building FORTRAN code $*.F..."
-	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(ATMPD_ROOT)/inc -I $(SKOFL_ROOT)/inc/lowe -I $(ATMPD_ROOT)/inc
+	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(SKOFL_ROOT)/inc/lowe -I $(ATMPD_ROOT)/inc
 
 lib/libutillib.a: $(OBJS) $(FORTRANOBJS)
 	@echo "[UtilLib] Building static shared library..."

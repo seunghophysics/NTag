@@ -13,7 +13,7 @@
 
 enum VertexMode
 {
-    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU
+    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU, mTRMS
 };
 
 enum TriggerType
@@ -55,6 +55,7 @@ class EventNTagManager
         // settings
         void ApplySettings();
         void ReadArguments(const ArgParser& argParser);
+        void ReadVertexMode(VertexMode& mode);
 
         // TMVA
         void InitializeTMVA();
@@ -123,7 +124,7 @@ class EventNTagManager
 
         // NTag settings
         Store fSettings;
-        VertexMode fVertexMode;
+        VertexMode fPromptVertexMode, fDelayedVertexMode;
         float PVXRES;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
