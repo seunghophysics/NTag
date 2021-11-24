@@ -18,7 +18,7 @@ extern "C" {
     void kzbloc_(const char*, int&, size_t);
     void kzbdel_(const char*, size_t);
     void kzbcr0_(const char*, int&, size_t);
-    void kzrep0_(const char*, int&, const char*, int&, int *, size_t, size_t);
+    void kzrep0_(const char*, int&, const char*, int&, int*, size_t, size_t);
     void kznsg0_(const char*, int&, size_t);
     void kzget0_(const char*, int&, int&, int*, size_t);
     void kzwrit_(int*);

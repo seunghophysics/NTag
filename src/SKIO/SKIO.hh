@@ -103,7 +103,5 @@ class SKIO
 void FillCommon(PMTHitCluster& hitCluster);
 void FillTQREALBank(PMTHitCluster& hitCluster);
 void FillTQREALBranch(PMTHitCluster& hitCluster);
-void ReadNTagBank();
-void WriteNTagBank();
 
 #endif

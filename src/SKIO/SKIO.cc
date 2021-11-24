@@ -179,7 +179,7 @@ int SKIO::GetNumberOfEvents()
 
         int logicalUnit = fIOMode;
         int nEvents = 0;
-        
+
         OpenFile();
 
         if (fFileFormat == mZBS) {
@@ -207,7 +207,7 @@ int SKIO::GetNumberOfEvents()
         if (!fNEvents) {
             fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
-        
+
         if (fIsFileOpen) CloseFile();
     }
 
@@ -266,161 +266,4 @@ void FillTQREALBranch(PMTHitCluster& hitCluster)
     skroot_set_tree_(&logicalUnit); // common header, tqreal, tqareal to ROOT
     skroot_fill_tree_(&logicalUnit);
     skroot_clear_(&logicalUnit);
-}
-
-// copied from $ATMPD_ROOT/src/analysis/neutron/ntag/WriteNtag.cc
-
-void ReadNTagBank()
-{
-    int version;
-  const char * bnkname="NTAG";
-  int len=strlen(bnkname);
-
-  int buffsize=8+MAXNP*28;
-
-  char buff[4*buffsize];
-  float * fbuff=(float*)buff;
-  int * ibuff=(int*)buff;
-  int nsg;
-  kznsg0_(bnkname,nsg,len);
-  if(nsg<0)
-    {
-      std::cerr<<"No neutron bank exists";
-    }
-  else {
-
-  int zero=0;
-  int ndata;
-  kzget0_(bnkname,zero,ndata,ibuff,len);
-  int index=0;
-  version=ibuff[index++];
-  ntag_.nn=ibuff[index++];
-  ntag_.trgtype=ibuff[index++];
-  ntag_.n200m=ibuff[index++];
-  ntag_.lasthit=fbuff[index++];
-  ntag_.t200m=fbuff[index++];
-  if(version>=1)
-    {
-      ntag_.np=ibuff[index++];
-    }
-  if(version>=2)
-    {
-      ntag_.mctruth_nn=ibuff[index++];
-    }
-  int num=ntag_.nn;
-  if(version>=4) num=ntag_.np;
-  for(int i=0;i<num;i++)
-    {
-      ntag_.ntime[i]=fbuff[index++];
-      ntag_.goodness[i]=fbuff[index++];
-      for(int j=0;j<3;j++)
-    {
-      ntag_.nvx[i][j]=fbuff[index++];
-    }
-      for(int j=0;j<3;j++)
-    {
-      ntag_.bvx[i][j]=fbuff[index++];
-    }
-      ntag_.nlow[i]=ibuff[index++];
-      ntag_.n300[i]=ibuff[index++];
-      ntag_.phi[i]=fbuff[index++];
-      ntag_.theta[i]=fbuff[index++];
-      ntag_.trmsold[i]=fbuff[index++];
-      ntag_.trmsdiff[i]=fbuff[index++];
-      ntag_.mintrms6[i]=fbuff[index++];
-      ntag_.mintrms3[i]=fbuff[index++];
-      ntag_.bswall[i]=fbuff[index++];
-      ntag_.bse[i]=fbuff[index++];
-      ntag_.fpdis[i]=fbuff[index++];
-      ntag_.bfdis[i]=fbuff[index++];
-      ntag_.nc[i]=ibuff[index++];
-      ntag_.fwall[i]=fbuff[index++];
-      ntag_.n10[i]=ibuff[index++];
-      ntag_.n10d[i]=ibuff[index++];
-      ntag_.t0[i]=fbuff[index++];
-      if(version>=2)
-    {
-      ntag_.mctruth_neutron[i]=ibuff[index++];
-    }
-      if(version>=3)
-    {
-      ntag_.bse2[i]=fbuff[index++];
-    }
-      if(version>=4)
-    {
-      ntag_.tag[i]=ibuff[index++];
-    }
-
-    }
-  }
-}
-
-void WriteNTagBank()
-{
-    int version=4;
-    const char* bnkname="NTAG";
-    int len=strlen(bnkname);
-
-    int buffsize=8+MAXNP*28;
-    char buff[4*buffsize];//char = 8 bits, float/int=32 bits
-    float * fbuff=(float*) buff;
-    int * ibuff=(int*)buff;
-
-    int exi;
-    kzbloc_(bnkname,exi,len);
-    if(exi!=0) kzbdel_(bnkname,len);
-
-    int ierr;
-    kzbcr0_(bnkname,ierr,len);
-    int index=0;
-    ibuff[index++]=version;
-    ibuff[index++]=ntag_.nn;
-    ibuff[index++]=ntag_.trgtype;
-    ibuff[index++]=ntag_.n200m;
-    fbuff[index++]=ntag_.lasthit;
-    fbuff[index++]=ntag_.t200m;
-    ibuff[index++]=ntag_.np;
-    ibuff[index++]=ntag_.mctruth_nn;
-    for(int i=0;i<ntag_.np;i++)
-    {
-        fbuff[index++]=ntag_.ntime[i];
-        fbuff[index++]=ntag_.goodness[i];
-        for(int j=0;j<3;j++)
-        {
-          fbuff[index++]=ntag_.nvx[i][j];
-        }
-        for(int j=0;j<3;j++)
-        {
-          fbuff[index++]=ntag_.bvx[i][j];
-        }
-        ibuff[index++]=ntag_.nlow[i];
-        ibuff[index++]=ntag_.n300[i];
-        fbuff[index++]=ntag_.phi[i];
-        fbuff[index++]=ntag_.theta[i];
-        fbuff[index++]=ntag_.trmsold[i];
-        fbuff[index++]=ntag_.trmsdiff[i];
-        fbuff[index++]=ntag_.mintrms6[i];
-        fbuff[index++]=ntag_.mintrms3[i];
-        fbuff[index++]=ntag_.bswall[i];
-        fbuff[index++]=ntag_.bse[i];
-        fbuff[index++]=ntag_.fpdis[i];
-        fbuff[index++]=ntag_.bfdis[i];
-        ibuff[index++]=ntag_.nc[i];
-        fbuff[index++]=ntag_.fwall[i];
-        ibuff[index++]=ntag_.n10[i];
-        ibuff[index++]=ntag_.n10d[i];
-        fbuff[index++]=ntag_.t0[i];
-        ibuff[index++]=ntag_.mctruth_neutron[i];
-        fbuff[index++]=ntag_.bse2[i];
-        ibuff[index++]=ntag_.tag[i];
-    }
-
-
-    int zero=0;
-    int one=1;
-    kzrep0_(bnkname,zero,"I",index,ibuff,len,one);
-
-    int luno = 20;
-    kzwrit_(&luno);
-    kzeclr_();
 }

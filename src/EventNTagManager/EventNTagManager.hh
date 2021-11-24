@@ -183,4 +183,7 @@ class TInterruptHandler : public TSignalHandler
         EventNTagManager* fNTagManager;
 };
 
+void WriteNTAGBank();
+void ReadNTAGBank();
+
 #endif
