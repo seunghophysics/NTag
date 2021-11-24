@@ -38,9 +38,10 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
 
     std::vector<std::string> featureList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum",
                                             "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                            "AngleMean", "AngleSkew", "AngleStdev", "Label",
-                                            "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit",
-                                            "TMVAOutput", "TagIndex", "TagClass"};
+                                            "AngleMean", "AngleSkew", "AngleStdev", /*"Label",*/
+                                            "DWall", "DWallMeanDir", "ThetaMeanDir", /*"DWall_n", "prompt_nfit",*/
+                                            "dvx", "dvy", "dvz", "DPrompt"
+                                            /*"TMVAOutput", "TagIndex", "TagClass"*/};
     fEventCandidates.RegisterFeatureNames(featureList);
 
     std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
@@ -51,55 +52,60 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
 
     auto handler = new TInterruptHandler(this);
     handler->Add();
+
+    fTRMSFitManager = TRMSFitManager(verbose);
+    fBonsaiManager  = BonsaiManager(verbose);
+    fBonsaiManager.Initialize();
 }
 
 EventNTagManager::~EventNTagManager() {}
 
 void EventNTagManager::ReadPromptVertex(VertexMode mode)
 {
-    switch (mode) {
-        case mNONE: {
-            break;
+    if (mode == mNONE);
+
+    else if (mode == mAPFIT) {
+        int bank = 0; aprstbnk_(&bank);
+        fPromptVertex = TVector3(apcommul_.appos);
+    }
+
+    else if (mode == mBONSAI) {
+        int lun = 10;
+        TreeManager* mgr = skroot_get_mgr(&lun);
+        LoweInfo* LOWE = mgr->GetLOWE();
+        mgr->GetEntry();
+        fPromptVertex = TVector3(LOWE->bsvertex);
+    }
+
+    else if (mode == mCUSTOM) {
+        float vx, vy, vz;
+        if (fSettings.Get("vx", vx) && fSettings.Get("vy", vy) && fSettings.Get("vz", vz)) {
+            fPromptVertex = TVector3(vx, vy, vz);
         }
-        case mAPFIT: {
-            int bank = 0; aprstbnk_(&bank);
-            fPromptVertex = TVector3(apcommul_.appos); break;
+        else
+            fMsg.Print("Custom prompt vertex not fully specified! "
+                       "Use -vx, -vy, -vz commands to specify the custom prompt vertex.", pERROR);
+    }
+
+    else if (mode == mTRUE) {
+        skgetv_();
+        float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
+        float maxDist = 150.;
+        while (Norm(dx, dy, dz) > maxDist) {
+            dx = gRandom->BreitWigner(0, PVXRES);
+            dy = gRandom->BreitWigner(0, PVXRES);
+            dz = gRandom->BreitWigner(0, PVXRES);
         }
-        case mBONSAI: {
-            int lun = 10;
-            TreeManager* mgr = skroot_get_mgr(&lun);
-            LoweInfo* LOWE = mgr->GetLOWE();
-            mgr->GetEntry();
-            fPromptVertex = TVector3(LOWE->bsvertex[0], LOWE->bsvertex[1], LOWE->bsvertex[2]); break;
-        }
-        case mCUSTOM: {
-            float vx, vy, vz;
-            if (fSettings.Get("vx", vx) && fSettings.Get("vy", vy) && fSettings.Get("vz", vz)) {
-                fPromptVertex = TVector3(vx, vy, vz); break;
-            }
-            else
-                fMsg.Print("Custom prompt vertex not fully specified! "
-                           "Use -vx, -vy, -vz commands to specify the custom prompt vertex.", pERROR);
-        }
-        case mTRUE: {
-            skgetv_();
-            float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
-            float maxDist = 150.;
-            while (Norm(dx, dy, dz) > maxDist) {
-                dx = gRandom->BreitWigner(0, PVXRES);
-                dy = gRandom->BreitWigner(0, PVXRES);
-                dz = gRandom->BreitWigner(0, PVXRES);
-            }
-            fPromptVertex = TVector3(skvect_.pos) + TVector3(dx, dy, dz); break;
-        }
-        case mSTMU: {
-            fPromptVertex = GetStopMuVertex(); break;
-        }
-        case mTRMS: {
-            fMsg.Print("Invalid prompt vertex mode, setting vertex mode to NONE...", pWARNING);
-            fPromptVertexMode = mNONE;
-            break;
-        }
+        fPromptVertex = TVector3(skvect_.pos) + TVector3(dx, dy, dz);
+    }
+
+    else if (mode == mSTMU) {
+        fPromptVertex = GetStopMuVertex();
+    }
+
+    else {
+        fMsg.Print("Invalid prompt vertex mode, setting vertex mode to NONE...", pWARNING);
+        fPromptVertexMode = mNONE;
     }
 }
 
@@ -272,7 +278,7 @@ void EventNTagManager::ReadEventFromCommon()
     ReadVariables();
     AddHits();
 
-    if (fIsMC) 
+    if (fIsMC)
         ReadParticles();
     if (fPromptVertexMode==mAPFIT || fPromptVertexMode==mSTMU)
         ReadEarlyCandidates();
@@ -283,14 +289,14 @@ void EventNTagManager::SearchAndFill()
     SearchCandidates();
     DumpEvent();
     FillTrees();
-    if (fSettings.GetBool("write_bank")) 
+    if (fSettings.GetBool("write_bank"))
         WriteNTagBank();
     ClearData();
 }
 
 void EventNTagManager::ProcessEvent()
 {
-    if (fIsMC || fSettings.GetBool("force_flat")) 
+    if (fIsMC || fSettings.GetBool("force_flat"))
         ProcessFlatEvent();
     else
         ProcessDataEvent();
@@ -338,7 +344,8 @@ void EventNTagManager::SearchCandidates()
     if (pmtDeadTime) fEventHits.ApplyDeadtime(pmtDeadTime);
 
     // subtract tof
-    if (fPromptVertexMode != mNONE) SubtractToF();
+    if (fPromptVertexMode != mNONE) SetToF(fPromptVertex);
+    else                            UnsetToF();
 
     int   iHitPrevious    = -1;
     int   NHitsNew        = 0;
@@ -375,11 +382,8 @@ void EventNTagManager::SearchCandidates()
         // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
         // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
         if (t0New - t0Previous > TMINPEAKSEP) {
-            if (iHitPrevious >= 0 && N200Previous < N200MX && t0Previous > T0TH) {
-                Candidate candidate(iHitPrevious);
-                FindFeatures(candidate);
-                fEventCandidates.Append(candidate);
-            }
+            if (iHitPrevious >= 0 && N200Previous < N200MX && t0Previous > T0TH)
+                FindDelayedCandidate(iHitPrevious);
             // Reset NHitsPrevious,
             // if peaks are separated enough
             NHitsPrevious = 0;
@@ -395,11 +399,8 @@ void EventNTagManager::SearchCandidates()
     }
 
     // Save the last peak
-    if (NHitsPrevious >= NHITSTH) {
-        Candidate candidate(iHitPrevious);
-        FindFeatures(candidate);
-        fEventCandidates.Append(candidate);
-    }
+    if (NHitsPrevious >= NHITSTH)
+        FindDelayedCandidate(iHitPrevious);
 
     if (fDoUseECut) PruneCandidates();
     /*if (fIsMC)*/  MapTaggables();
@@ -407,13 +408,13 @@ void EventNTagManager::SearchCandidates()
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
 
-    FillNTagCommon();
+    //FillNTagCommon();
 }
 
 void EventNTagManager::MapTaggables()
 {
     MapCandidateClusters(fEventEarlyCandidates);
-    MapCandidateClusters(fEventCandidates);
+    //MapCandidateClusters(fEventCandidates);
 }
 
 void EventNTagManager::ResetTaggableMapping()
@@ -451,23 +452,28 @@ void EventNTagManager::ApplySettings()
         fIsInputSKROOT = false;
 
     // vertex mode
-    TString vertexMode;
-    fSettings.Get("vertex", vertexMode);
-    
-    if (vertexMode == "none")
-        fPromptVertexMode = mNONE;
-    else if (vertexMode == "apfit")
-        fPromptVertexMode = mAPFIT;
-    else if (vertexMode == "bonsai")
-        fPromptVertexMode = mBONSAI;
-    else if (vertexMode == "custom")
-        fPromptVertexMode = mCUSTOM;
-    else if (vertexMode == "true")
-        fPromptVertexMode = mTRUE;
-    else if (vertexMode == "stmu")
-        fPromptVertexMode = mSTMU;
-    else if (vertexMode == "trms")
-        fPromptVertexMode = mTRMS;
+    std::string promptVertexMode, delayedVertexMode;
+    fSettings.Get("prompt_vertex", promptVertexMode);
+    fSettings.Get("delayed_vertex", delayedVertexMode);
+
+    SetVertexMode(fPromptVertexMode, promptVertexMode);
+    SetVertexMode(fDelayedVertexMode, delayedVertexMode);
+
+    if (fDelayedVertexMode == mTRMS)
+        fDelayedVertexManager = &fTRMSFitManager;
+    else if (fDelayedVertexMode == mBONSAI)
+        fDelayedVertexManager = &fBonsaiManager;
+    else if (fPromptVertexMode == mNONE && fDelayedVertexMode == mPROMPT) {
+        fMsg.Print("Delayed vertex mode is \"prompt\", but no prompt vertex is specified.", pWARNING);
+        fMsg.Print("Setting delayed vertex mode as \"bonsai\"...", pWARNING);
+        fDelayedVertexMode = mBONSAI;
+        fDelayedVertexManager = &fBonsaiManager;
+    }
+    else if (fDelayedVertexMode != mPROMPT){
+        fMsg.Print("Delayed vertex mode should be one of \"trms\", \"bonsai\", or \"prompt\".", pWARNING);
+        fMsg.Print("Setting delayed vertex mode as \"prompt\"...", pWARNING);
+        fDelayedVertexMode = mPROMPT;
+    }
 
     fSettings.Get("T0TH", T0TH);
     fSettings.Get("T0MX", T0MX);
@@ -485,6 +491,8 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("GRIDSHRINKRATE", GRIDSHRINKRATE);
     fSettings.Get("VTXSRCRANGE", VTXSRCRANGE);
 
+    fTRMSFitManager.SetParameters(INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE);
+
     fSettings.Get("E_N50CUT", E_N50CUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
     if (E_N50CUT>0 && E_TIMECUT>0) fDoUseECut = true;
@@ -495,6 +503,26 @@ void EventNTagManager::ApplySettings()
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
 {
     fSettings.ReadArguments(argParser);
+}
+
+void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
+{
+    if (key == "none")
+        mode = mNONE;
+    else if (key == "apfit")
+        mode = mAPFIT;
+    else if (key == "bonsai")
+        mode = mBONSAI;
+    else if (key == "custom")
+        mode = mCUSTOM;
+    else if (key == "true")
+        mode = mTRUE;
+    else if (key == "stmu")
+        mode = mSTMU;
+    else if (key == "trms")
+        mode = mTRMS;
+    else if (key == "prompt")
+        mode = mPROMPT;
 }
 
 void EventNTagManager::InitializeTMVA()
@@ -527,11 +555,11 @@ float EventNTagManager::GetTMVAOutput(Candidate& candidate)
 void EventNTagManager::MakeTrees()
 {
     TTree* settingsTree = new TTree("settings", "settings");
-    TTree* eventTree = new TTree("event", "event");
+    TTree* eventTree    = new TTree("event", "event");
     TTree* particleTree = new TTree("particle", "particle");
     TTree* taggableTree = new TTree("taggable", "taggable");
-    TTree* nTree = new TTree("ntag", "ntag");
-    TTree* eTree = new TTree("muechk", "muechk");
+    TTree* nTree        = new TTree("ntag", "ntag");
+    TTree* eTree        = new TTree("muechk", "muechk");
 
     fSettings.SetTree(settingsTree);
     fEventVariables.SetTree(eventTree);
@@ -597,33 +625,95 @@ void EventNTagManager::DumpEvent()
                                            "Label", "TagIndex", "TagClass"});
     fEventCandidates.DumpAllElements({"ReconCT",
                                       "NHits",
-                                      "DWall_n",
+                                      //"DWall_n",
+                                      "dvx",
+                                      "dvy",
+                                      "dvz",
+                                      "DPrompt",
+                                      "DWall",
                                       "ThetaMeanDir",
-                                      "TMVAOutput",
+                                      /*"TMVAOutput",
                                       "Label",
                                       "TagIndex",
-                                      "TagClass"});
+                                      "TagClass"*/});
 }
 
-void EventNTagManager::SubtractToF()
+void EventNTagManager::SetToF(const TVector3& vertex)
 {
-    fEventHits.SetVertex(fPromptVertex);
+    fEventHits.SetVertex(vertex);
+}
+
+void EventNTagManager::UnsetToF()
+{
+    fEventHits.RemoveVertex();
+}
+
+void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
+{
+    // delayed vertex = prompt vertex
+    if (fDelayedVertexMode == mPROMPT)
+        SetToF(fPromptVertex);
+
+    // delayed vertex fit
+    else {
+        PMTHitCluster hitsForFit;
+        PMTHit firstHit = fEventHits[iHit];
+
+        if (fDelayedVertexMode == mTRMS)
+            hitsForFit = fEventHits.Slice(iHit, TWIDTH/2.-25, TWIDTH/2.+25) - firstHit.t() + 1000;
+
+        else if (fDelayedVertexMode == mBONSAI) {
+            fEventHits.RemoveVertex();
+            fEventHits.Sort();
+            firstHit.UnsetToFAndDirection();
+            unsigned int firstHitID = fEventHits.GetIndex(firstHit);
+            hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780) - firstHit.t() + 1000;
+        }
+
+        hitsForFit.Sort();
+
+        fDelayedVertexManager->Fit(hitsForFit);
+
+        auto delayedVertex = fDelayedVertexManager->GetFitVertex();
+        hitsForFit.SetVertex(delayedVertex);
+
+        unsigned int maxNHits = 0, maxNHitsIndex = 0;
+        for (unsigned int i=0; i<hitsForFit.GetSize(); i++) {
+            auto hitsInTWIDTH = hitsForFit.Slice(i, TWIDTH);
+            unsigned int nHits = hitsInTWIDTH.GetSize();
+            if (nHits > maxNHits) {
+                maxNHits = nHits;
+                maxNHitsIndex = i;
+            }
+        }
+
+        fEventHits.SetVertex(delayedVertex);
+        iHit = fEventHits.GetIndex(hitsForFit[maxNHitsIndex] + firstHit.t() - 1000);
+    }
+    auto hitsInTWIDTH = fEventHits.Slice(iHit, TWIDTH);
+
+    if (hitsInTWIDTH.GetSize() > 2) {
+        Candidate candidate(iHit);
+        FindFeatures(candidate);
+        fEventCandidates.Append(candidate);
+    }
+
+    SetToF(fPromptVertex);
 }
 
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
-    int firstHitID = candidate.HitID();
+    unsigned int firstHitID = candidate.HitID();
     auto hitsInTWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
     auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.- 25, TWIDTH/2.+ 25);
     auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
     auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
 
-    // TRMS-fit (BONSAI?)
-    auto trmsFitVertex = hitsIn50ns.FindTRMSMinimizingVertex(/* TRMS-fit options */
-                                                             INITGRIDWIDTH,
-                                                             MINGRIDWIDTH,
-                                                             GRIDSHRINKRATE,
-                                                             VTXSRCRANGE);
+    // Delayed vertex
+    auto delayedVertex = fEventHits.GetVertex();
+    candidate.Set("dvx", delayedVertex.x());
+    candidate.Set("dvy", delayedVertex.y());
+    candidate.Set("dvz", delayedVertex.z());
 
     // Number of hits
     candidate.Set("NHits", hitsInTWIDTH.GetSize());
@@ -648,17 +738,16 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("Beta5", beta[5]);
 
     // DWall
-    float dWall = fEventVariables.GetFloat("DWall");
     auto dirVec = hitsInTWIDTH[HitFunc::Dir];
+
     auto meanDir = GetMean(dirVec).Unit();
-    candidate.Set("DWall", dWall);
-    candidate.Set("DWallMeanDir", GetDWallInDirection(fPromptVertex, meanDir));
+    candidate.Set("DWall", GetDWall(delayedVertex));
+    candidate.Set("DWallMeanDir", GetDWallInDirection(delayedVertex, meanDir));
 
     // Mean angle formed by all hits and the mean hit direction
     std::vector<float> angles;
-    for (auto const& dir: dirVec) {
+    for (auto const& dir: dirVec)
         angles.push_back((180/M_PI)*meanDir.Angle(dir));
-    }
 
     float meanAngleWithMeanDirection = GetMean(angles);
     candidate.Set("ThetaMeanDir", meanAngleWithMeanDirection);
@@ -669,11 +758,10 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("AngleStdev", openingAngleStats.stdev);
     candidate.Set("AngleSkew",  openingAngleStats.skewness);
 
-    candidate.Set("DWall_n", GetDWall(trmsFitVertex));
-    candidate.Set("prompt_nfit", (fPromptVertex-trmsFitVertex).Mag());
+    candidate.Set("DPrompt", (fPromptVertex-delayedVertex).Mag());
 
-    candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
-    candidate.Set("TagClass", FindTagClass(candidate));
+    //candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
+    //candidate.Set("TagClass", FindTagClass(candidate));
 }
 
 void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)

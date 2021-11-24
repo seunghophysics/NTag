@@ -8,12 +8,14 @@
 #include "ParticleCluster.hh"
 #include "TaggableCluster.hh"
 #include "CandidateCluster.hh"
+#include "TRMSFitManager.hh"
+#include "BonsaiManager.hh"
 #include "Printer.hh"
 #include "Store.hh"
 
 enum VertexMode
 {
-    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU, mTRMS
+    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT
 };
 
 enum TriggerType
@@ -39,7 +41,7 @@ class EventNTagManager
         void ReadEventFromCommon();
         // process
         void SearchAndFill();
-        
+
         // automatic event processing
         void ProcessEvent();
         void ProcessDataEvent();
@@ -55,7 +57,6 @@ class EventNTagManager
         // settings
         void ApplySettings();
         void ReadArguments(const ArgParser& argParser);
-        void ReadVertexMode(VertexMode& mode);
 
         // TMVA
         void InitializeTMVA();
@@ -93,7 +94,14 @@ class EventNTagManager
 
     private:
         // ToF subtraction
-        void SubtractToF();
+        void SetToF(const TVector3& vertex);
+        void UnsetToF();
+
+        // read vertex mode from key
+        void SetVertexMode(VertexMode& mode, std::string key);
+
+        // delayed vertex fit and max hit search
+        void FindDelayedCandidate(unsigned int iHit);
 
         // feature extraction
         void FindFeatures(Candidate& candidate);
@@ -131,6 +139,11 @@ class EventNTagManager
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
         float E_N50CUT, E_TIMECUT, N_OUTCUT;
 
+        // Delayed vertex fitters
+        VertexFitManager* fDelayedVertexManager;
+        TRMSFitManager fTRMSFitManager;
+        BonsaiManager fBonsaiManager;
+
         // TMVA
         TMVA::Reader fTMVAReader;
         std::map<std::string, float> fFeatureContainer;
@@ -159,7 +172,7 @@ class TInterruptHandler : public TSignalHandler
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
             fNTagManager->WriteTrees(true);
             int lun = 20; skclosef_(&lun);
-            
+
             _exit(2);
             return kTRUE;
         }

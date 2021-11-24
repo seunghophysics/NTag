@@ -20,7 +20,7 @@ N200TH         0
 N200MX         50000
 
 # delayed vertex
-delayed_vertex trms
+delayed_vertex bonsai
 
 # TRMS-fit
 INITGRIDWIDTH  800
