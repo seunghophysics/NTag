@@ -28,7 +28,7 @@ CandidateCluster::~CandidateCluster()
 void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
 {
     Printer msg;
-    msg.PrintTitle(fName + " Candidates");
+    msg.PrintBlock(fName + " Candidates", pSUBEVENT);
 
     if (!GetSize()) {
         msg.Print("No candidate in cluster!");

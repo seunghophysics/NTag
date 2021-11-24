@@ -58,7 +58,7 @@ void TaggableCluster::Sort()
 void TaggableCluster::DumpAllElements() const
 {
     Printer msg;
-    msg.PrintTitle("MC Taggables");
+    msg.PrintBlock("MC Taggables", pEVENT);
     std::cout << "\033[4m No. Type Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
 
     for (unsigned int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {

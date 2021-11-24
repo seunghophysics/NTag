@@ -59,7 +59,6 @@ class EventNTagManager
         void ReadArguments(const ArgParser& argParser);
 
         // TMVA
-        void EnableTMVA(bool b) { fDoApplyTMVA = b; }
         void InitializeTMVA();
         float GetTMVAOutput(Candidate& candidate);
 
@@ -123,7 +122,7 @@ class EventNTagManager
         // zbs common filling
         void FillNTagCommon();
 
-        // DataModel:
+        // data models
         Store fEventVariables;
         PMTHitCluster fEventHits;
         ParticleCluster fEventParticles;
@@ -141,7 +140,7 @@ class EventNTagManager
         float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
         float E_N50CUT, E_TIMECUT, N_OUTCUT;
 
-        // Delayed vertex fitters
+        // delayed vertex fitters
         VertexFitManager* fDelayedVertexManager;
         TRMSFitManager fTRMSFitManager;
         BonsaiManager fBonsaiManager;
@@ -154,11 +153,11 @@ class EventNTagManager
         // ROOT
         std::string fOutFilePath;
 
-        // Utilities
+        // utilities
         Printer fMsg;
 
         // booleans
-        bool fIsBranchSet, fIsInputSKROOT, fIsMC, fDoUseECut, fDoApplyTMVA;
+        bool fIsBranchSet, fIsInputSKROOT, fIsMC;
 };
 
 #include "TSysEvtHandler.h"

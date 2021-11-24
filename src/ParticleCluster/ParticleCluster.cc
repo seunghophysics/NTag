@@ -68,15 +68,14 @@ void ParticleCluster::DumpAllElements() const
     Printer msg;
 
     if (nework_.modene) {
-
-        msg.PrintTitle("NEUT MC");
+        msg.PrintBlock("NEUT MC", pEVENT);
         std::cout << "\033[4m Neutrino Type      Interaction  Momentum (GeV/c)\033[0m\n ";
         std::cout << std::right << std::setw(13) << GetParticleName(nework_.ipne[0]) << " ";
         std::cout << std::right << std::setw(16) << GetNEUTModeName(nework_.modene) << " ";
         std::cout << std::right << std::setw(14) << std::fixed << std::setprecision(2) << TVector3(nework_.pne[0]).Mag() << "\n\n";
     }
 
-    msg.PrintTitle("MC Particles");
+    msg.PrintBlock("MC Particles", pEVENT);
     std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent Momentum (MeV/c) \033[0m" << std::endl;
 
     for (unsigned int iParticle = 0; iParticle < fElement.size(); iParticle++) {

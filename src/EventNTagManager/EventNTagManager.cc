@@ -24,7 +24,7 @@
 #include "Calculator.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true), fDoUseECut(false), fDoApplyTMVA(true)
+: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -67,6 +67,17 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
     else if (mode == mAPFIT) {
         int bank = 0; aprstbnk_(&bank);
         fPromptVertex = TVector3(apcommul_.appos);
+        
+        // ring
+        fEventVariables.Set("NRing", apcommul_.apnring);
+        fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
+        if      (apcommul_.apip[0] == ELECTRON)
+            fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][1]);
+        else if (apcommul_.apip[0] == MUON)
+            fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][2]);
+            
+        // visible energy
+        fEventVariables.Set("EVis", apcomene_.apevis);
     }
 
     else if (mode == mBONSAI) {
@@ -75,6 +86,9 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         LoweInfo* LOWE = mgr->GetLOWE();
         mgr->GetEntry();
         fPromptVertex = TVector3(LOWE->bsvertex);
+        
+        // visible energy
+        fEventVariables.Set("EVis", LOWE->bsenergy);
     }
 
     else if (mode == mCUSTOM) {
@@ -160,23 +174,16 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("pvx", fPromptVertex.x());
     fEventVariables.Set("pvy", fPromptVertex.y());
     fEventVariables.Set("pvz", fPromptVertex.z());
-    // evis
-    fEventVariables.Set("EVis", apcomene_.apevis);
     // dwall
     fEventVariables.Set("DWall", GetDWall(fPromptVertex));
-    // ring
-    fEventVariables.Set("NRing", apcommul_.apnring);
-    fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
-    if      (apcommul_.apip[0] == ELECTRON)
-        fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][1]);
-    else if (apcommul_.apip[0] == MUON)
-        fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][2]);
 
-    // mc information
-    float posnu[3]; nerdnebk_(posnu);
-    fEventVariables.Set("NEUTMode", nework_.modene);
-    fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
-    fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
+    // mc information from NEUT
+    if (fSettings.GetBool("neut")) {
+        float posnu[3]; nerdnebk_(posnu);
+        fEventVariables.Set("NEUTMode", nework_.modene);
+        fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
+        fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
+    }
 }
 
 void EventNTagManager::ReadHits()
@@ -278,10 +285,8 @@ void EventNTagManager::ReadEventFromCommon()
     ReadVariables();
     AddHits();
 
-    if (fIsMC)
-        ReadParticles();
-    if (fPromptVertexMode==mAPFIT || fPromptVertexMode==mSTMU)
-        ReadEarlyCandidates();
+    if (fIsMC) ReadParticles();
+    if (fSettings.GetBool("muechk")) ReadEarlyCandidates();
 }
 
 void EventNTagManager::SearchAndFill()
@@ -402,7 +407,7 @@ void EventNTagManager::SearchCandidates()
     if (NHitsPrevious >= NHITSTH)
         FindDelayedCandidate(iHitPrevious);
 
-    if (fDoUseECut) PruneCandidates();
+    if (fSettings.GetBool("tag_e")) PruneCandidates();
     /*if (fIsMC)*/  MapTaggables();
 
     fEventEarlyCandidates.FillVectorMap();
@@ -450,6 +455,18 @@ void EventNTagManager::ApplySettings()
         fIsInputSKROOT = true;
     else
         fIsInputSKROOT = false;
+        
+    // NTag parameters
+    fSettings.Get("T0TH", T0TH);
+    fSettings.Get("T0MX", T0MX);
+    fSettings.Get("TWIDTH", TWIDTH);
+    fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
+    fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
+    fSettings.Get("NHITSTH", NHITSTH);
+    fSettings.Get("NHITSMX", NHITSMX);
+    fSettings.Get("N200TH", N200TH);
+    fSettings.Get("N200MX", N200MX);
+    fSettings.Get("PVXRES", PVXRES);
 
     // vertex mode
     std::string promptVertexMode, delayedVertexMode;
@@ -463,28 +480,20 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexManager = &fTRMSFitManager;
     else if (fDelayedVertexMode == mBONSAI)
         fDelayedVertexManager = &fBonsaiManager;
-    else if (fPromptVertexMode == mNONE && fDelayedVertexMode == mPROMPT) {
+    else if (fPromptVertexMode == mNONE) {
+        fMsg.Print("Prompt vertex mode is set to \"none\". TWIDTH > 100 ns and NHITSTH > 10 recommended.", pWARNING);
+        if (fDelayedVertexMode == mPROMPT) {
         fMsg.Print("Delayed vertex mode is \"prompt\", but no prompt vertex is specified.", pWARNING);
         fMsg.Print("Setting delayed vertex mode as \"bonsai\"...", pWARNING);
         fDelayedVertexMode = mBONSAI;
         fDelayedVertexManager = &fBonsaiManager;
+        }
     }
     else if (fDelayedVertexMode != mPROMPT){
         fMsg.Print("Delayed vertex mode should be one of \"trms\", \"bonsai\", or \"prompt\".", pWARNING);
         fMsg.Print("Setting delayed vertex mode as \"prompt\"...", pWARNING);
         fDelayedVertexMode = mPROMPT;
     }
-
-    fSettings.Get("T0TH", T0TH);
-    fSettings.Get("T0MX", T0MX);
-    fSettings.Get("TWIDTH", TWIDTH);
-    fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
-    fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
-    fSettings.Get("NHITSTH", NHITSTH);
-    fSettings.Get("NHITSMX", NHITSMX);
-    fSettings.Get("N200TH", N200TH);
-    fSettings.Get("N200MX", N200MX);
-    fSettings.Get("PVXRES", PVXRES);
 
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
     fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
@@ -495,11 +504,8 @@ void EventNTagManager::ApplySettings()
 
     fSettings.Get("E_N50CUT", E_N50CUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
-    if (E_N50CUT>0 && E_TIMECUT>0) fDoUseECut = true;
 
     fSettings.Get("N_OUTCUT", N_OUTCUT);
-    if (fSettings.GetBool("no_tmva"))
-        fDoApplyTMVA = false;
 }
 
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
@@ -603,7 +609,7 @@ void EventNTagManager::WriteTrees(bool doCloseFile)
     fEventVariables.WriteTree();
     fEventParticles.WriteTree();
     fEventTaggables.WriteTree();
-    fEventEarlyCandidates.WriteTree();
+    if (fSettings.GetBool("muechk")) fEventEarlyCandidates.WriteTree();
     fEventCandidates.WriteTree();
     if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
 }
@@ -761,7 +767,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     candidate.Set("DPrompt", (fPromptVertex-delayedVertex).Mag());
 
-    float tmvaOutput = fDoApplyTMVA ? GetTMVAOutput(candidate) : 1;
+    float tmvaOutput = fSettings.GetBool("tmva") ? GetTMVAOutput(candidate) : 1;
     candidate.Set("TMVAOutput", tmvaOutput);
     candidate.Set("TagClass", FindTagClass(candidate));
 }
@@ -854,7 +860,7 @@ int EventNTagManager::FindTagClass(const Candidate& candidate)
     float tmvaOut = candidate.Get("TMVAOutput");
 
     // simple cuts mode for e/n separation
-    if (fDoUseECut) {
+    if (fSettings.GetBool("tag_e")) {
         if (reconCT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
         else if (n50 > E_N50CUT && reconCT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
         else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
