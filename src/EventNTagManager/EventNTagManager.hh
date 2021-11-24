@@ -59,6 +59,7 @@ class EventNTagManager
         void ReadArguments(const ArgParser& argParser);
 
         // TMVA
+        void EnableTMVA(bool b) { fDoApplyTMVA = b; }
         void InitializeTMVA();
         float GetTMVAOutput(Candidate& candidate);
 
@@ -115,7 +116,8 @@ class EventNTagManager
         // tagged type for taggable
         void SetTaggedType(Taggable& taggable, Candidate& candidate);
 
-        // duplicate candidate pruning
+        // prune duplicate candidates with TagClass==e and same ReconCT
+        // among early and delayed candidates
         void PruneCandidates();
 
         // zbs common filling
@@ -156,7 +158,7 @@ class EventNTagManager
         Printer fMsg;
 
         // booleans
-        bool fIsBranchSet, fIsInputSKROOT, fIsMC, fDoUseECut;
+        bool fIsBranchSet, fIsInputSKROOT, fIsMC, fDoUseECut, fDoApplyTMVA;
 };
 
 #include "TSysEvtHandler.h"
@@ -164,7 +166,8 @@ class EventNTagManager
 class TInterruptHandler : public TSignalHandler
 {
    public:
-        TInterruptHandler(EventNTagManager* manager):TSignalHandler(kSigInterrupt, kFALSE)
+        TInterruptHandler(EventNTagManager* manager)
+        : TSignalHandler(kSigInterrupt, kFALSE)
         { fNTagManager = manager; }
 
         virtual Bool_t Notify()

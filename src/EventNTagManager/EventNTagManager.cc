@@ -24,7 +24,7 @@
 #include "Calculator.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true), fDoUseECut(false)
+: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true), fDoUseECut(false), fDoApplyTMVA(true)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -38,10 +38,10 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
 
     std::vector<std::string> featureList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum",
                                             "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                            "AngleMean", "AngleSkew", "AngleStdev", /*"Label",*/
+                                            "AngleMean", "AngleSkew", "AngleStdev", "Label",
                                             "DWall", "DWallMeanDir", "ThetaMeanDir", /*"DWall_n", "prompt_nfit",*/
-                                            "dvx", "dvy", "dvz", "DPrompt"
-                                            /*"TMVAOutput", "TagIndex", "TagClass"*/};
+                                            "dvx", "dvy", "dvz", "DPrompt",
+                                            "TMVAOutput", "TagIndex", "TagClass"};
     fEventCandidates.RegisterFeatureNames(featureList);
 
     std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
@@ -146,7 +146,7 @@ void EventNTagManager::ReadVariables()
         TQReal* TQREAL = mgr->GetTQREALINFO();
         mgr->GetEntry();
 
-        tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
+        //tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
         trgOffset = 1000 - MCINFO->prim_pret0[0];
     }
     else trginfo_(&trgOffset);
@@ -408,13 +408,13 @@ void EventNTagManager::SearchCandidates()
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
 
-    //FillNTagCommon();
+    FillNTagCommon();
 }
 
 void EventNTagManager::MapTaggables()
 {
     MapCandidateClusters(fEventEarlyCandidates);
-    //MapCandidateClusters(fEventCandidates);
+    MapCandidateClusters(fEventCandidates);
 }
 
 void EventNTagManager::ResetTaggableMapping()
@@ -498,6 +498,8 @@ void EventNTagManager::ApplySettings()
     if (E_N50CUT>0 && E_TIMECUT>0) fDoUseECut = true;
 
     fSettings.Get("N_OUTCUT", N_OUTCUT);
+    if (fSettings.GetBool("no_tmva"))
+        fDoApplyTMVA = false;
 }
 
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
@@ -625,17 +627,16 @@ void EventNTagManager::DumpEvent()
                                            "Label", "TagIndex", "TagClass"});
     fEventCandidates.DumpAllElements({"ReconCT",
                                       "NHits",
-                                      //"DWall_n",
                                       "dvx",
                                       "dvy",
                                       "dvz",
                                       "DPrompt",
                                       "DWall",
                                       "ThetaMeanDir",
-                                      /*"TMVAOutput",
+                                      "TMVAOutput",
                                       "Label",
                                       "TagIndex",
-                                      "TagClass"*/});
+                                      "TagClass"});
 }
 
 void EventNTagManager::SetToF(const TVector3& vertex)
@@ -760,8 +761,9 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     candidate.Set("DPrompt", (fPromptVertex-delayedVertex).Mag());
 
-    //candidate.Set("TMVAOutput", GetTMVAOutput(candidate));
-    //candidate.Set("TagClass", FindTagClass(candidate));
+    float tmvaOutput = fDoApplyTMVA ? GetTMVAOutput(candidate) : 1;
+    candidate.Set("TMVAOutput", tmvaOutput);
+    candidate.Set("TagClass", FindTagClass(candidate));
 }
 
 void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)

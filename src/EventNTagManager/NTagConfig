@@ -33,6 +33,7 @@ E_N50CUT       50
 E_TIMECUT      20
 
 # n-tagging
+no_tmva        false
 N_OUTCUT       0.7
 
 # MC labeling
