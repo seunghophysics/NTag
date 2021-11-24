@@ -211,8 +211,8 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
 
     while (fNoiseEventHits[fCurrentHitID].t() < partEndTime) {
         PMTHit hit = fNoiseEventHits[fCurrentHitID];
-        PMTHit shiftedHit(hit.t() - partStartTime + fNoiseStartTime, hit.q(), hit.i(), hit.f());
-        signalHits->Append(shiftedHit);
+        hit += (fNoiseStartTime - partStartTime);
+        signalHits->Append(hit);
         fCurrentHitID++;
     }
 

@@ -35,7 +35,7 @@ class PMTHit
         inline const float& q() const { return fQ; }
         inline const unsigned int& i() const { return fPMTID; }
         inline const int& f() const { return fFlag; }
-        inline const bool& s() const {return fIsSignal; }
+        inline const bool& s() const { return fIsSignal; }
 
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag
@@ -61,6 +61,9 @@ class PMTHit
         inline const TVector3& GetPosition() const { return fPMTPosition; }
 
         inline bool operator<(const PMTHit &hit) const { return fT < hit.t(); }
+
+        PMTHit& operator+=(const Float& time);
+        PMTHit& operator-=(const Float& time);
 
     private:
         Float fT, fToF;

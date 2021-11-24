@@ -11,12 +11,28 @@ PMTHit::PMTHit(Float t, float q, int i, int f)
     }
 }
 
+PMTHit& PMTHit::operator+=(const Float& time)
+{
+    fT += time;
+    return *this;
+}
+
+PMTHit& PMTHit::operator-=(const Float& time)
+{
+    fT -= time;
+    return *this;
+}
+
 PMTHit operator+(const PMTHit& hit, const Float& time)
 {
-    return PMTHit(hit.t()+time, hit.q(), hit.i(), hit.f());
+    PMTHit newHit = hit;
+    newHit += time;
+    return newHit;
 }
 
 PMTHit operator-(const PMTHit& hit, const Float& time)
 {
-    return PMTHit(hit.t()-time, hit.q(), hit.i(), hit.f());
+    PMTHit newHit = hit;
+    newHit -= time;
+    return newHit;
 }

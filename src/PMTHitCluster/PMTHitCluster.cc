@@ -13,7 +13,7 @@
 #include "PMTHitCluster.hh"
 
 PMTHitCluster::PMTHitCluster()
-:bSorted(false), bHasVertex(false) {}
+:fIsSorted(false), fHasVertex(false) {}
 
 PMTHitCluster::PMTHitCluster(sktqz_common sktqz)
 :PMTHitCluster()
@@ -39,8 +39,10 @@ void PMTHitCluster::Append(const PMTHit& hit)
     int i = hit.i();
 
     // append only hits with meaningful PMT ID
-    if ((1 <= i && i <= MAXPM) || (20001 <= i && i <= 20000+MAXPMA))
+    if ((1 <= i && i <= MAXPM) || (20001 <= i && i <= 20000+MAXPMA)) {
         fElement.push_back(hit);
+        //fIndex.push_back(fElement.size());
+    }
 }
 
 void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
@@ -49,6 +51,11 @@ void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
         if (!inGateOnly || hit.f() & (1<<1))
             Append(hit);
     }
+}
+
+void PMTHitCluster::Clear()
+{
+    *this = PMTHitCluster();
 }
 
 void PMTHitCluster::AddTQReal(TQReal* tqreal, int flag)
@@ -64,39 +71,40 @@ void PMTHitCluster::AddTQReal(TQReal* tqreal, int flag)
 
 void PMTHitCluster::SetVertex(const TVector3& inVertex)
 {
-    if (bHasVertex)
-        RemoveVertex();
+    if (!fHasVertex || fVertex != inVertex) {
+        if (fHasVertex) RemoveVertex();
 
-    vertex = inVertex;
-    bHasVertex = true;
+        fVertex = inVertex;
+        fHasVertex = true;
 
-    SetToF();
-    Sort();
+        SetToF();
+        Sort();
+    }
 }
 
 void PMTHitCluster::RemoveVertex()
 {
-    if (bHasVertex) {
+    if (fHasVertex) {
         bool unset = true;
         SetToF(unset);
 
-        vertex = TVector3();
-        bHasVertex = false;
+        fVertex = TVector3();
+        fHasVertex = false;
     }
 }
 
 void PMTHitCluster::SetToF(bool unset)
 {
-    if (!bHasVertex)
+    if (!fHasVertex)
         std::cerr << "WARNING: Vertex is not set for PMTHitCluster in " << this
                   << ", skipping ToF-subtraction..."<< std::endl;
     else {
-        bSorted = false;
+        fIsSorted = false;
         for (auto& hit: fElement) {
             if (unset)
                 hit.UnsetToFAndDirection();
             else
-                hit.SetToFAndDirection(vertex);
+                hit.SetToFAndDirection(fVertex);
         }
     }
 }
@@ -104,7 +112,7 @@ void PMTHitCluster::SetToF(bool unset)
 void PMTHitCluster::Sort()
 {
     std::sort(fElement.begin(), fElement.end(), [](const PMTHit& hit1, const PMTHit& hit2) {return hit1.t() < hit2.t();} );
-    bSorted = true;
+    fIsSorted = true;
 }
 
 void PMTHitCluster::FillTQReal(TQReal* tqreal)
@@ -132,11 +140,11 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
 {
-    if (!bSorted) Sort();
+    if (!fIsSorted) Sort();
 
     PMTHitCluster selectedHits;
-    if (bHasVertex)
-        selectedHits.SetVertex(vertex);
+    if (fHasVertex)
+        selectedHits.SetVertex(fVertex);
 
     unsigned int searchIndex = (unsigned int)startIndex;
     unsigned int nHits = fElement.size();
@@ -156,7 +164,7 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, Float lowT, Float upT)
 
 PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
 {
-    if (!bSorted) Sort();
+    if (!fIsSorted) Sort();
 
     if (lowT > upT)
         std::cerr << "PMTHitCluster::Slice : lower bound is larger than upper bound." << std::endl;
@@ -166,8 +174,8 @@ PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
     unsigned int up = GetUpperBoundIndex(startT + upT);
 
     PMTHitCluster selectedHits;
-    if (bHasVertex)
-        selectedHits.SetVertex(vertex);
+    if (fHasVertex)
+        selectedHits.SetVertex(fVertex);
 
     for (unsigned int iHit = low; iHit <= up; iHit++)
         selectedHits.Append(fElement[iHit]);
@@ -180,29 +188,38 @@ PMTHitCluster PMTHitCluster::SliceRange(Float lowT, Float upT)
     return SliceRange(Float(0), lowT, upT);
 }
 
-unsigned int PMTHitCluster::GetIndex(Float t)
+unsigned int PMTHitCluster::GetIndex(PMTHit hit)
 {
     bool isFound = false;
     unsigned int i = 0;
     for (i=0; i<GetSize(); i++) {
-        if (fabs(t-fElement[i].t()) < 1e-5) {
+        if (fabs(hit.t() - fElement[i].t()) < 1 &&
+            fabs(hit.q() - fElement[i].q()) < 1e-5 &&
+            hit.i() == fElement[i].i()) {
             isFound = true;
             break;
         }
     }
 
     if (!isFound)
-        std::cerr << "PMTHitCluster::GetIndex: Could not find the right index for the given time " << t
+        std::cerr << "PMTHitCluster::GetIndex: Could not find the right index for the given hit "
+                  << "t: " << hit.t() << " q: " << hit.q() << " i: " << hit.i()
                   << ", returning the max index...\n";
     return i;
+}
+
+void PMTHitCluster::AddTimeOffset(Float tOffset)
+{
+    for (auto& hit: fElement)
+        hit = hit + tOffset;
 }
 
 void PMTHitCluster::ApplyDeadtime(Float deadtime)
 {
     TVector3 tempVertex;
     bool bHadVertex = false;
-    if (bHasVertex) {
-        tempVertex = vertex;
+    if (fHasVertex) {
+        tempVertex = fVertex;
         RemoveVertex();
         bHadVertex = true;
     }
@@ -212,7 +229,7 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
 
     std::vector<PMTHit> dtCorrectedHits;
 
-    if (!bSorted) Sort();
+    if (!fIsSorted) Sort();
     for (auto const& hit: fElement) {
         int hitPMTID = hit.i();
         if (1 <= hitPMTID && hitPMTID <= MAXPM) {
@@ -234,7 +251,7 @@ std::array<float, 6> PMTHitCluster::GetBetaArray()
     std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
     int nHits = fElement.size();
 
-    if (!bHasVertex) {
+    if (!fHasVertex) {
         std::cerr << "PMTHitCluster::GetBetaArray : the hit cluster has no set vertex. Returning a 0-filled array...\n";
         return beta;
     }
@@ -288,6 +305,7 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
     return stats;
 }
 
+/*
 TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXSRCRANGE)
 {
     TVector3 originalVertex = vertex;
@@ -347,27 +365,30 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
 
     return minGridPoint;
 }
+*/
+
+PMTHitCluster& PMTHitCluster::operator+=(const Float& time)
+{
+    AddTimeOffset(time);
+    return *this;
+}
+
+PMTHitCluster& PMTHitCluster::operator-=(const Float& time)
+{
+    AddTimeOffset(-time);
+    return *this;
+}
 
 PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time)
 {
-    PMTHitCluster newCluster;
-
-    for (auto const& hit: hitCluster) {
-        auto newHit = hit + time;
-        newCluster.Append(newHit);
-    }
-
+    PMTHitCluster newCluster = hitCluster;
+    newCluster += time;
     return newCluster;
 }
 
 PMTHitCluster operator-(const PMTHitCluster& hitCluster, const Float& time)
 {
-    PMTHitCluster newCluster;
-
-    for (auto const& hit: hitCluster) {
-        auto newHit = hit - time;
-        newCluster.Append(newHit);
-    }
-
+    PMTHitCluster newCluster = hitCluster;
+    newCluster -= time;
     return newCluster;
 }
