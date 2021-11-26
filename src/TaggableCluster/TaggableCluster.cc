@@ -18,12 +18,15 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
     // taggable n
     for (auto const& particle : particleCluster) {
 
+        // skip particles outside tank
+        if (GetDWall(particle.Vertex()) < 0) continue;
+
         // gamma-ray produced by n-capture
         if (particle.IntID() == iNCAPTURE && particle.PID() == GAMMA) {
 
             bool isNewCapture = true;
 
-            // Check saved captures
+            // check saved captures
             for (unsigned int iCapture = 0; iCapture < fElement.size(); iCapture++) {
 
                 Taggable& capture = fElement[iCapture];
