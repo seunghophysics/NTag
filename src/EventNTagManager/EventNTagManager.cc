@@ -20,8 +20,10 @@
 #include "SKLibs.hh"
 #include "SKIO.hh"
 #include "GetStopMuVertex.hh"
-#include "EventNTagManager.hh"
+#include "NTagBankIO.hh"
 #include "Calculator.hh"
+#include "NoiseManager.hh"
+#include "EventNTagManager.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
 : fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true)
@@ -36,17 +38,8 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     fEventCandidates = CandidateCluster("Delayed");
     fEventEarlyCandidates = CandidateCluster("Early");
 
-    std::vector<std::string> featureList = {"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum",
-                                            "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                            "AngleMean", "AngleSkew", "AngleStdev", "Label",
-                                            "DWall", "DWallMeanDir", "ThetaMeanDir", /*"DWall_n", "prompt_nfit",*/
-                                            "dvx", "dvy", "dvz", "DPrompt",
-                                            "TMVAOutput", "TagIndex", "TagClass"};
-    fEventCandidates.RegisterFeatureNames(featureList);
-
-    std::vector<std::string> earlyFeatureList = {"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
-                                                 "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"};
-    fEventEarlyCandidates.RegisterFeatureNames(earlyFeatureList);
+    fEventCandidates.RegisterFeatureNames(gNTagFeatures);
+    fEventEarlyCandidates.RegisterFeatureNames(gMuechkFeatures);
 
     InitializeTMVA();
 
@@ -150,8 +143,12 @@ void EventNTagManager::ReadVariables()
 
     // trigger information
     int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
-    float tDiff = 0;
     float trgOffset = 0;
+    static double prevEvTime = -1;
+    double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
+                        + skhead_.nt48sk[1] * std::pow(2, 16)
+                        + skhead_.nt48sk[2]) * 20 * 1e-6;      // [ms]
+    double tDiff = prevEvTime < 0 ? 1e6 : globalTime - prevEvTime;
     if (fIsInputSKROOT) {
         int lun = 10;
 
@@ -160,13 +157,13 @@ void EventNTagManager::ReadVariables()
         TQReal* TQREAL = mgr->GetTQREALINFO();
         mgr->GetEntry();
 
-        //tDiff = TQREAL->pc2pe > 1e10 ? 1e3 : TQREAL->pc2pe; // cut off tDiff too large
         trgOffset = 1000 - MCINFO->prim_pret0[0];
     }
     else trginfo_(&trgOffset);
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TrgOffset", trgOffset);
-    fEventVariables.Set("TDiff", tDiff); // tDiff is only saved for SKROOT files for now
+    fEventVariables.Set("TDiff", tDiff);
+    prevEvTime = globalTime;
 
     // reconstructed information
     // prompt vertex
@@ -219,9 +216,16 @@ void EventNTagManager::AddHits()
     fEventHits.Sort();
 }
 
+void EventNTagManager::AddNoise()
+{
+    fNoiseManager->AddNoise(&fEventHits);
+    
+    // propagate noise to sktqz_
+}
+
 void EventNTagManager::ReadParticles()
 {
-    skgetv_();
+    //skgetv_();
 
     if (fIsInputSKROOT) {
         int lun = 10;
@@ -253,7 +257,6 @@ void EventNTagManager::ReadParticles()
     fEventTaggables.SetPromptVertex(fPromptVertex);
 }
 
-
 void EventNTagManager::ReadEarlyCandidates()
 {
     float parentPeakTime;
@@ -280,13 +283,22 @@ void EventNTagManager::ReadEarlyCandidates()
     }
 }
 
-void EventNTagManager::ReadEventFromCommon()
+void EventNTagManager::ReadInfoFromCommon()
 {
     ReadVariables();
-    AddHits();
 
     if (fIsMC) ReadParticles();
     if (fSettings.GetBool("muechk")) ReadEarlyCandidates();
+}
+
+void EventNTagManager::ReadEventFromCommon()
+{
+    ReadInfoFromCommon();
+    AddHits();
+    if (fSettings.GetBool("add_noise")) {
+        fEventHits.SetAsSignal(true);
+        AddNoise();
+    }
 }
 
 void EventNTagManager::SearchAndFill()
@@ -455,7 +467,7 @@ void EventNTagManager::ApplySettings()
         fIsInputSKROOT = true;
     else
         fIsInputSKROOT = false;
-        
+    
     // NTag parameters
     fSettings.Get("T0TH", T0TH);
     fSettings.Get("T0MX", T0MX);
@@ -495,6 +507,7 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexMode = mPROMPT;
     }
 
+    fSettings.Get("TRMSTWIDTH", TRMSTWIDTH);
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
     fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
     fSettings.Get("GRIDSHRINKRATE", GRIDSHRINKRATE);
@@ -535,12 +548,7 @@ void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
 
 void EventNTagManager::InitializeTMVA()
 {
-    std::vector<std::string> featureList = {"AngleMean", "AngleSkew", "AngleStdev",
-                                            "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                            "DWall", "DWallMeanDir", "DWall_n", "N200", "NHits", "TRMS",
-                                            "ThetaMeanDir", "prompt_nfit"};
-
-    for (auto const& feature: featureList) {
+    for (auto const& feature: gTMVAFeatures) {
         fFeatureContainer[feature] = 0;
         fTMVAReader.AddVariable(feature, &(fFeatureContainer[feature]));
     }
@@ -633,12 +641,10 @@ void EventNTagManager::DumpEvent()
                                            "Label", "TagIndex", "TagClass"});
     fEventCandidates.DumpAllElements({"ReconCT",
                                       "NHits",
-                                      "dvx",
-                                      "dvy",
-                                      "dvz",
                                       "DPrompt",
                                       "DWall",
                                       "ThetaMeanDir",
+                                      "SignalRatio",
                                       "TMVAOutput",
                                       "Label",
                                       "TagIndex",
@@ -657,18 +663,23 @@ void EventNTagManager::UnsetToF()
 
 void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 {
-    // delayed vertex = prompt vertex
-    if (fDelayedVertexMode == mPROMPT)
-        SetToF(fPromptVertex);
+    TVector3 delayedVertex(0, 0, 0);
+    float delayedTime = 0;
+    PMTHit firstHit = fEventHits[iHit];
 
+    // delayed vertex = prompt vertex
+    if (fDelayedVertexMode == mPROMPT) {
+        delayedVertex = fPromptVertex;
+        delayedTime = fEventHits.Slice(iHit, TWIDTH).Find(HitFunc::T, Calc::Mean);
+    }
     // delayed vertex fit
     else {
         PMTHitCluster hitsForFit;
-        PMTHit firstHit = fEventHits[iHit];
+        //PMTHit firstHit = fEventHits[iHit];
 
         if (fDelayedVertexMode == mTRMS)
-            hitsForFit = fEventHits.Slice(iHit, TWIDTH/2.-25, TWIDTH/2.+25) - firstHit.t() + 1000;
-
+            // hitsForFit = fEventHits.Slice(iHit, TWIDTH/2.-25, TWIDTH/2.+25) - firstHit.t() + 1000;
+            hitsForFit = fEventHits.Slice(iHit, (TWIDTH-TRMSTWIDTH)/2., (TWIDTH+TRMSTWIDTH)/2.) - firstHit.t() + 1000;
         else if (fDelayedVertexMode == mBONSAI) {
             fEventHits.RemoveVertex();
             fEventHits.Sort();
@@ -681,26 +692,32 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
         fDelayedVertexManager->Fit(hitsForFit);
 
-        auto delayedVertex = fDelayedVertexManager->GetFitVertex();
-        hitsForFit.SetVertex(delayedVertex);
+        std::cout << "fit time: " << fDelayedVertexManager->GetFitTime() << "\n";
+        delayedVertex = fDelayedVertexManager->GetFitVertex();
+        delayedTime   = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
+        //hitsForFit.SetVertex(delayedVertex);
 
-        unsigned int maxNHits = 0, maxNHitsIndex = 0;
-        for (unsigned int i=0; i<hitsForFit.GetSize(); i++) {
-            auto hitsInTWIDTH = hitsForFit.Slice(i, TWIDTH);
-            unsigned int nHits = hitsInTWIDTH.GetSize();
-            if (nHits > maxNHits) {
-                maxNHits = nHits;
-                maxNHitsIndex = i;
-            }
-        }
+        //unsigned int maxNHits = 0, maxNHitsIndex = 0;
+        //for (unsigned int i=0; i<hitsForFit.GetSize(); i++) {
+        //    auto hitsInTWIDTH = hitsForFit.Slice(i, TWIDTH);
+        //    unsigned int nHits = hitsInTWIDTH.GetSize();
+        //    if (nHits > maxNHits) {
+        //        maxNHits = nHits;
+        //        maxNHitsIndex = i;
+        //    }
+        //}
 
-        fEventHits.SetVertex(delayedVertex);
-        iHit = fEventHits.GetIndex(hitsForFit[maxNHitsIndex] + firstHit.t() - 1000);
+        //iHit = fEventHits.GetIndex(hitsForFit[maxNHitsIndex] + firstHit.t() - 1000);
     }
-    auto hitsInTWIDTH = fEventHits.Slice(iHit, TWIDTH);
+    fEventHits.SetVertex(delayedVertex);
+    firstHit.SetToFAndDirection(delayedVertex);
+    iHit = fEventHits.GetLowerBoundIndex(delayedTime);
+    unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
+    std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
 
-    if (hitsInTWIDTH.GetSize() > 2) {
-        Candidate candidate(iHit);
+    // NHits > 4 to prevent NaN in angle variables
+    if (nHits > 3 && fabs(delayedTime-firstHit.t())<TMINPEAKSEP) {
+        Candidate candidate(iHit, delayedTime);
         FindFeatures(candidate);
         fEventCandidates.Append(candidate);
     }
@@ -711,10 +728,14 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
     unsigned int firstHitID = candidate.HitID();
-    auto hitsInTWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
-    auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.- 25, TWIDTH/2.+ 25);
-    auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
-    auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
+    auto hitsInTWIDTH = fEventHits.Slice(firstHitID, -TWIDTH/2., TWIDTH/2.);
+    auto hitsIn50ns   = fEventHits.Slice(firstHitID, -25, 25);
+    auto hitsIn200ns  = fEventHits.Slice(firstHitID, -100, +100);
+    auto hitsIn1300ns = fEventHits.Slice(firstHitID, -520, +780);
+    //auto hitsInTWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
+    //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
+    //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
+    //auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
 
     // Delayed vertex
     auto delayedVertex = fEventHits.GetVertex();
@@ -729,8 +750,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("N1300", hitsIn1300ns.GetSize());
 
     // Time
-    float reconCT = hitsInTWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
-    candidate.Set("ReconCT", reconCT);
+    //float reconCT = hitsInTWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
+    candidate.Set("ReconCT", candidate.Time()*1e-3);
     candidate.Set("TRMS", hitsInTWIDTH.Find(HitFunc::T, Calc::RMS));
 
     // Charge
@@ -766,6 +787,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("AngleSkew",  openingAngleStats.skewness);
 
     candidate.Set("DPrompt", (fPromptVertex-delayedVertex).Mag());
+    
+    candidate.Set("SignalRatio", hitsInTWIDTH.GetSignalRatio());
 
     float tmvaOutput = fSettings.GetBool("tmva") ? GetTMVAOutput(candidate) : 1;
     candidate.Set("TMVAOutput", tmvaOutput);
@@ -959,149 +982,4 @@ void EventNTagManager::FillNTagCommon()
     fEventVariables.Set("NTaggedE", nTaggedE);
     fEventVariables.Set("NTrueN", nTrueN);
     fEventVariables.Set("NTaggedN", nTaggedN);
-}
-
-void ReadNTAGBank()
-{
-    int version;
-    const char* bankName = "NTAG";
-    int nameLength = strlen(bankName);
-
-    // initialize buffer
-    int bufferSize  = 8 + MAXNP*28;
-    char buffer[4*bufferSize];
-    float* floatBuffer = (float*)buffer;
-    int* intBuffer = (int*)buffer;
-
-    // locate NTAG bank
-    int nsg;
-    kznsg0_(bankName, nsg, nameLength);
-    if (nsg < 0) {
-      std::cerr << "NTAG bank is missing!\n";
-    }
-    else {
-        int iSegment=0, iEntry=0, ndata;
-        // fill buffer with the 0-th segment of the located bank
-        kzget0_(bankName, iSegment, ndata, intBuffer, nameLength);
-
-            version       = intBuffer[iEntry++];   // 0
-            ntag_.nn      = intBuffer[iEntry++];   // 1
-            ntag_.trgtype = intBuffer[iEntry++];   // 2
-            ntag_.n200m   = intBuffer[iEntry++];   // 3
-            ntag_.lasthit = floatBuffer[iEntry++]; // 4
-            ntag_.t200m   = floatBuffer[iEntry++]; // 5
-
-        if (version>=1)
-            ntag_.np         = intBuffer[iEntry++]; // 6
-        if (version>=2)
-            ntag_.mctruth_nn = intBuffer[iEntry++]; // 7
-
-        int nCandidates = version>=4 ? ntag_.np : ntag_.nn;
-        for (int iCandidate=0; iCandidate<nCandidates; iCandidate++) {
-                ntag_.ntime[iCandidate]     = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 0
-                ntag_.goodness[iCandidate]  = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 1
-
-            for(int iDim=0; iDim<3; iDim++)
-                ntag_.nvx[iCandidate][iDim] = floatBuffer[iEntry++];     // 8 + iCandidate*28 + (2 to 4)
-            for(int iDim=0; iDim<3; iDim++)
-                ntag_.bvx[iCandidate][iDim] = floatBuffer[iEntry++];     // 8 + iCandidate*28 + (5 to 7)
-
-                ntag_.nlow[iCandidate]      = intBuffer[iEntry++];       // 8 + iCandidate*28 + 8
-                ntag_.n300[iCandidate]      = intBuffer[iEntry++];       // 8 + iCandidate*28 + 9
-                ntag_.phi[iCandidate]       = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 10
-                ntag_.theta[iCandidate]     = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 11
-                ntag_.trmsold[iCandidate]   = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 12
-                ntag_.trmsdiff[iCandidate]  = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 13
-                ntag_.mintrms6[iCandidate]  = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 14
-                ntag_.mintrms3[iCandidate]  = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 15
-                ntag_.bswall[iCandidate]    = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 16
-                ntag_.bse[iCandidate]       = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 17
-                ntag_.fpdis[iCandidate]     = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 18
-                ntag_.bfdis[iCandidate]     = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 19
-                ntag_.nc[iCandidate]        = intBuffer[iEntry++];       // 8 + iCandidate*28 + 20
-                ntag_.fwall[iCandidate]     = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 21
-                ntag_.n10[iCandidate]       = intBuffer[iEntry++];       // 8 + iCandidate*28 + 22
-                ntag_.n10d[iCandidate]      = intBuffer[iEntry++];       // 8 + iCandidate*28 + 23
-                ntag_.t0[iCandidate]        = floatBuffer[iEntry++];     // 8 + iCandidate*28 + 24
-
-            if(version>=2)
-                ntag_.mctruth_neutron[iCandidate] = intBuffer[iEntry++]; // 8 + iCandidate*28 + 25
-            if(version>=3)
-                ntag_.bse2[iCandidate] = floatBuffer[iEntry++];          // 8 + iCandidate*28 + 26
-            if(version>=4)
-                ntag_.tag[iCandidate] = intBuffer[iEntry++];             // 8 + iCandidate*28 + 27
-        }
-    }
-}
-
-void WriteNTAGBank()
-{
-    int version = 4;
-    const char* bankName = "NTAG";
-    int nameLength = strlen(bankName);
-
-    // initialize buffer
-    int bufferSize = 8 + MAXNP*28;
-    char buffer[4*bufferSize];
-    float* floatBuffer = (float*)buffer;
-    int* intBuffer = (int*)buffer;
-
-    int bankExists;
-    kzbloc_(bankName, bankExists, nameLength);    // locate bank
-    if(bankExists) kzbdel_(bankName, nameLength); // delete bank if exists
-
-    int errorStatus;
-    kzbcr0_(bankName, errorStatus, nameLength);   // create bank
-
-    int iEntry = 0;
-    intBuffer[iEntry++]   = version;          // 0
-    intBuffer[iEntry++]   = ntag_.nn;         // 1
-    intBuffer[iEntry++]   = ntag_.trgtype;    // 2
-    intBuffer[iEntry++]   = ntag_.n200m;      // 3
-    floatBuffer[iEntry++] = ntag_.lasthit;    // 4
-    floatBuffer[iEntry++] = ntag_.t200m;      // 5
-    intBuffer[iEntry++]   = ntag_.np;         // 6
-    intBuffer[iEntry++]   = ntag_.mctruth_nn; // 7
-
-    // fill buffer with ntag common
-    // each candidate has 28 saved properties
-    int nCandidates = ntag_.np;
-    for(int iCandidate=0; iCandidate<nCandidates; iCandidate++) {
-            floatBuffer[iEntry++] = ntag_.ntime[iCandidate];           // 8 + iCandidate*28 + 0
-            floatBuffer[iEntry++] = ntag_.goodness[iCandidate];        // 8 + iCandidate*28 + 1
-
-        for(int iDim=0; iDim<3; iDim++)
-            floatBuffer[iEntry++] = ntag_.nvx[iCandidate][iDim];       // 8 + iCandidate*28 + (2 to 4)
-        for(int iDim=0; iDim<3; iDim++)
-            floatBuffer[iEntry++] = ntag_.bvx[iCandidate][iDim];       // 8 + iCandidate*28 + (5 to 7)
-
-            intBuffer[iEntry++]   = ntag_.nlow[iCandidate];            // 8 + iCandidate*28 + 8
-            intBuffer[iEntry++]   = ntag_.n300[iCandidate];            // 8 + iCandidate*28 + 9
-            floatBuffer[iEntry++] = ntag_.phi[iCandidate];             // 8 + iCandidate*28 + 10
-            floatBuffer[iEntry++] = ntag_.theta[iCandidate];           // 8 + iCandidate*28 + 11
-            floatBuffer[iEntry++] = ntag_.trmsold[iCandidate];         // 8 + iCandidate*28 + 12
-            floatBuffer[iEntry++] = ntag_.trmsdiff[iCandidate];        // 8 + iCandidate*28 + 13
-            floatBuffer[iEntry++] = ntag_.mintrms6[iCandidate];        // 8 + iCandidate*28 + 14
-            floatBuffer[iEntry++] = ntag_.mintrms3[iCandidate];        // 8 + iCandidate*28 + 15
-            floatBuffer[iEntry++] = ntag_.bswall[iCandidate];          // 8 + iCandidate*28 + 16
-            floatBuffer[iEntry++] = ntag_.bse[iCandidate];             // 8 + iCandidate*28 + 17
-            floatBuffer[iEntry++] = ntag_.fpdis[iCandidate];           // 8 + iCandidate*28 + 18
-            floatBuffer[iEntry++] = ntag_.bfdis[iCandidate];           // 8 + iCandidate*28 + 19
-            intBuffer[iEntry++]   = ntag_.nc[iCandidate];              // 8 + iCandidate*28 + 20
-            floatBuffer[iEntry++] = ntag_.fwall[iCandidate];           // 8 + iCandidate*28 + 21
-            intBuffer[iEntry++]   = ntag_.n10[iCandidate];             // 8 + iCandidate*28 + 22
-            intBuffer[iEntry++]   = ntag_.n10d[iCandidate];            // 8 + iCandidate*28 + 23
-            floatBuffer[iEntry++] = ntag_.t0[iCandidate];              // 8 + iCandidate*28 + 24
-            intBuffer[iEntry++]   = ntag_.mctruth_neutron[iCandidate]; // 8 + iCandidate*28 + 25
-            floatBuffer[iEntry++] = ntag_.bse2[iCandidate];            // 8 + iCandidate*28 + 26
-            intBuffer[iEntry++]   = ntag_.tag[iCandidate];             // 8 + iCandidate*28 + 27
-    }
-
-    // fill 0-th segment of NTAG bank with buffer
-    int iSegment=0, iLength=1;
-    kzrep0_(bankName, iSegment, "I", iEntry, intBuffer, nameLength, iLength);
-
-    int luno = 20;
-    kzwrit_(&luno); // write bank to file
-    kzeclr_();      // clear bank
 }

@@ -13,15 +13,9 @@
 #include "Printer.hh"
 #include "Store.hh"
 
-enum VertexMode
-{
-    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT
-};
+class NoiseManager;
 
-enum TriggerType
-{
-    tELSE, tSHE, tAFT
-};
+#include "NTagGlobal.hh"
 
 class EventNTagManager
 {
@@ -34,10 +28,12 @@ class EventNTagManager
         void ReadVariables();
         void ReadHits();
         void AddHits();
+        void AddNoise();
         void ReadParticles();
         void ReadEarlyCandidates();
 
         // read
+        void ReadInfoFromCommon();
         void ReadEventFromCommon();
         // process
         void SearchAndFill();
@@ -87,6 +83,7 @@ class EventNTagManager
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
         template <typename T>
         void Set(std::string key, T value) { fSettings.Set(key, value); ApplySettings(); }
+        void SetNoiseManager(NoiseManager* noiseManager) { fNoiseManager = noiseManager; }
         void SetHits(const PMTHitCluster& cluster) { fEventHits = cluster; }
         void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
         void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
@@ -121,6 +118,9 @@ class EventNTagManager
 
         // zbs common filling
         void FillNTagCommon();
+        
+        // noise manager
+        NoiseManager* fNoiseManager;
 
         // data models
         Store fEventVariables;
@@ -137,7 +137,7 @@ class EventNTagManager
         float PVXRES;
         float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
-        float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
+        float TRMSTWIDTH, INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
         float E_N50CUT, E_TIMECUT, N_OUTCUT;
 
         // delayed vertex fitters
@@ -182,8 +182,5 @@ class TInterruptHandler : public TSignalHandler
     private:
         EventNTagManager* fNTagManager;
 };
-
-void WriteNTAGBank();
-void ReadNTAGBank();
 
 #endif
