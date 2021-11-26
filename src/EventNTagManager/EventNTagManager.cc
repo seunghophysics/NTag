@@ -41,8 +41,6 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     fEventCandidates.RegisterFeatureNames(gNTagFeatures);
     fEventEarlyCandidates.RegisterFeatureNames(gMuechkFeatures);
 
-    InitializeTMVA();
-
     auto handler = new TInterruptHandler(this);
     handler->Add();
 
@@ -219,13 +217,11 @@ void EventNTagManager::AddHits()
 void EventNTagManager::AddNoise()
 {
     fNoiseManager->AddNoise(&fEventHits);
-    
-    // propagate noise to sktqz_
 }
 
 void EventNTagManager::ReadParticles()
 {
-    //skgetv_();
+    skgetv_();
 
     if (fIsInputSKROOT) {
         int lun = 10;
@@ -278,7 +274,7 @@ void EventNTagManager::ReadEarlyCandidates()
             candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
             candidate.Set("GateType", apmue_.apmuetype[iMuE]);
             candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
-            candidate.Set("TagClass", FindTagClass(candidate));
+            candidate.Set("TagClass", fTagger->Classify(candidate));
             fEventEarlyCandidates.Append(candidate);
     }
 }
@@ -447,14 +443,14 @@ void EventNTagManager::ResetTaggableMapping()
     for (auto& candidate: fEventEarlyCandidates) {
         candidate.Set("TagIndex", -1);
         candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", FindTagClass(candidate));
+        candidate.Set("TagClass", fTagger->Classify(candidate));
     }
 
     // ntag candidates
     for (auto& candidate: fEventCandidates) {
         candidate.Set("TagIndex", -1);
         candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", FindTagClass(candidate));
+        candidate.Set("TagClass", fTagger->Classify(candidate));
     }
 }
 
@@ -517,8 +513,19 @@ void EventNTagManager::ApplySettings()
 
     fSettings.Get("E_N50CUT", E_N50CUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
-
     fSettings.Get("N_OUTCUT", N_OUTCUT);
+    
+    if (fSettings.GetBool("tag_e")) 
+        fTMVATagger.SetECut(T0TH, E_N50CUT, E_TIMECUT);
+    fTMVATagger.SetNCut(N_OUTCUT);
+    
+    if (fSettings.GetBool("tmva")) {
+        fTMVATagger.Initialize();
+        fTagger = &fTMVATagger;
+    }
+    else {
+        fTagger = &fVoidTagger;
+    }
 }
 
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
@@ -544,28 +551,6 @@ void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
         mode = mTRMS;
     else if (key == "prompt")
         mode = mPROMPT;
-}
-
-void EventNTagManager::InitializeTMVA()
-{
-    for (auto const& feature: gTMVAFeatures) {
-        fFeatureContainer[feature] = 0;
-        fTMVAReader.AddVariable(feature, &(fFeatureContainer[feature]));
-    }
-
-    fTMVAReader.AddSpectator("Label", &(fCandidateLabel));
-    fTMVAReader.BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
-}
-
-float EventNTagManager::GetTMVAOutput(Candidate& candidate)
-{
-    // get features from candidate and fill feature container
-    for (auto const& pair: fFeatureContainer) {
-        float value = candidate[pair.first];
-        fFeatureContainer[pair.first] = value;
-    }
-
-    return fTMVAReader.EvaluateMVA("MLP");
 }
 
 void EventNTagManager::MakeTrees()
@@ -645,7 +630,7 @@ void EventNTagManager::DumpEvent()
                                       "DWall",
                                       "ThetaMeanDir",
                                       "SignalRatio",
-                                      "TMVAOutput",
+                                      "TagOut",
                                       "Label",
                                       "TagIndex",
                                       "TagClass"});
@@ -696,18 +681,6 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         delayedVertex = fDelayedVertexManager->GetFitVertex();
         delayedTime   = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
         //hitsForFit.SetVertex(delayedVertex);
-
-        //unsigned int maxNHits = 0, maxNHitsIndex = 0;
-        //for (unsigned int i=0; i<hitsForFit.GetSize(); i++) {
-        //    auto hitsInTWIDTH = hitsForFit.Slice(i, TWIDTH);
-        //    unsigned int nHits = hitsInTWIDTH.GetSize();
-        //    if (nHits > maxNHits) {
-        //        maxNHits = nHits;
-        //        maxNHitsIndex = i;
-        //    }
-        //}
-
-        //iHit = fEventHits.GetIndex(hitsForFit[maxNHitsIndex] + firstHit.t() - 1000);
     }
     fEventHits.SetVertex(delayedVertex);
     firstHit.SetToFAndDirection(delayedVertex);
@@ -790,9 +763,9 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     
     candidate.Set("SignalRatio", hitsInTWIDTH.GetSignalRatio());
 
-    float tmvaOutput = fSettings.GetBool("tmva") ? GetTMVAOutput(candidate) : 1;
-    candidate.Set("TMVAOutput", tmvaOutput);
-    candidate.Set("TagClass", FindTagClass(candidate));
+    float likelihood = fTagger->GetLikelihood(candidate);
+    candidate.Set("TagOut", likelihood);
+    candidate.Set("TagClass", fTagger->Classify(candidate));
 }
 
 void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
@@ -875,37 +848,13 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
     }
 }
 
-int EventNTagManager::FindTagClass(const Candidate& candidate)
-{
-    int tagClass = 0;
-    int n50 = candidate.Get("N50", -1);
-    float reconCT = candidate.Get("ReconCT");
-    float tmvaOut = candidate.Get("TMVAOutput");
-
-    // simple cuts mode for e/n separation
-    if (fSettings.GetBool("tag_e")) {
-        if (reconCT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
-        else if (n50 > E_N50CUT && reconCT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
-        else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
-        else                                            tagClass = typeMissed; // otherwise noise
-    }
-    // naive tagging mode without e/n separation
-    else {
-        if (n50 < 0)                 tagClass = typeE;      // e: muechk
-        else if (tmvaOut > N_OUTCUT) tagClass = typeN;      // n: ntag && out cut
-        else                         tagClass = typeMissed; // otherwise noise
-    }
-
-    return tagClass;
-}
-
 void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
 {
     TaggableType tagClass = static_cast<TaggableType>((int)(candidate.Get("TagClass", -1)+0.5f));
     TaggableType tagType = taggable.TaggedType();
     // if candidate tag class undefined
     if (tagClass < 0)
-        candidate.Set("TagClass", FindTagClass(candidate));
+        candidate.Set("TagClass", fTagger->Classify(candidate));
     // if candidate tag class defined
     else if (tagType != typeMissed && tagType != tagClass)
         taggable.SetTaggedType(typeEN);
@@ -965,7 +914,7 @@ void EventNTagManager::FillNTagCommon()
         // fill ntag bank: candidates
         ntag_.ntime[i] = candidate["ReconCT"] * 1e3;
         ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);
-        ntag_.goodness[i] = candidate["TMVAOutput"];
+        ntag_.goodness[i] = candidate["TagOut"];
         ntag_.tag[i] = isTaggedOrNot;
         i++;
     }

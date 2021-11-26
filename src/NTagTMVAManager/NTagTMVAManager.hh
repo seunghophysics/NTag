@@ -10,6 +10,7 @@ namespace TMVA
     class Factory;
 }
 
+#include "CandidateTagger.hh"
 #include "Printer.hh"
 
 class NTagTMVAManager
@@ -18,14 +19,20 @@ class NTagTMVAManager
         NTagTMVAManager();
         ~NTagTMVAManager();
         
+        void InitializeReader();
         void SetMethods(bool turnOn);
     
+        float GetTMVAOutput(const Candidate& candidate);
+
         void TrainWeights(const char* inFileName, const char* outFileName);
         void ApplyWeights();
 
     private:
         TMVA::Factory* fFactory;
         TMVA::Reader*  fReader;
+        
+        std::map<std::string, float> fFeatureContainer;
+        int fCandidateLabel;
     
         std::map<std::string, bool> fUse;
         

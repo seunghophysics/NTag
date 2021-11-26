@@ -19,6 +19,19 @@ NTagTMVAManager::~NTagTMVAManager()
     if (fReader)  delete fReader;
 }
 
+void NTagTMVAManager::InitializeReader()
+{
+    fReader = new TMVA::Reader();
+    
+    for (auto const& feature: gTMVAFeatures) {
+        fFeatureContainer[feature] = 0;
+        fReader->AddVariable(feature, &(fFeatureContainer[feature]));
+    }
+
+    fReader->AddSpectator("Label", &(fCandidateLabel));
+    fReader->BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
+}
+
 void NTagTMVAManager::SetMethods(bool turnOn)
 {
     // Simple cuts
@@ -52,6 +65,17 @@ void NTagTMVAManager::SetMethods(bool turnOn)
         for (auto const& pair: fUse)
             fUse[pair.first] = false;
     }
+}
+
+float NTagTMVAManager::GetTMVAOutput(const Candidate& candidate)
+{
+    // get features from candidate and fill feature container
+    for (auto const& pair: fFeatureContainer) {
+        float value = candidate[pair.first];
+        fFeatureContainer[pair.first] = value;
+    }
+
+    return fReader->EvaluateMVA("MLP");
 }
 
 void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileName)

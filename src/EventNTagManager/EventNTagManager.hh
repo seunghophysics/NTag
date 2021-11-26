@@ -1,8 +1,6 @@
 #ifndef EVENTNTAGMANAGER_HH
 #define EVENTNTAGMANAGER_HH
 
-#include "TMVA/Reader.h"
-
 #include "SKLibs.hh"
 #include "PMTHitCluster.hh"
 #include "ParticleCluster.hh"
@@ -10,12 +8,12 @@
 #include "CandidateCluster.hh"
 #include "TRMSFitManager.hh"
 #include "BonsaiManager.hh"
+#include "NTagTMVATagger.hh"
 #include "Printer.hh"
 #include "Store.hh"
+#include "NTagGlobal.hh"
 
 class NoiseManager;
-
-#include "NTagGlobal.hh"
 
 class EventNTagManager
 {
@@ -53,10 +51,6 @@ class EventNTagManager
         // settings
         void ApplySettings();
         void ReadArguments(const ArgParser& argParser);
-
-        // TMVA
-        void InitializeTMVA();
-        float GetTMVAOutput(Candidate& candidate);
 
         // root
         void MakeTrees();
@@ -145,10 +139,10 @@ class EventNTagManager
         TRMSFitManager fTRMSFitManager;
         BonsaiManager fBonsaiManager;
 
-        // TMVA
-        TMVA::Reader fTMVAReader;
-        std::map<std::string, float> fFeatureContainer;
-        int fCandidateLabel;
+        // Tagger
+        CandidateTagger* fTagger;
+        CandidateTagger fVoidTagger;
+        NTagTMVATagger  fTMVATagger;
 
         // ROOT
         std::string fOutFilePath;
