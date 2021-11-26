@@ -5,10 +5,15 @@ write_bank     0
 # PMT noise reduction
 TRBNWIDTH      0
 
+# MC noise
+noise_type     sk6
+TNOISESTART    0
+TNOISEEND      535
+NOISESEED      0
+
 # read variables
 muechk         false
 neut           false
-
 
 # prompt vertex
 # available options: none, apfit, bonsai, custom, true, stmu
@@ -22,7 +27,7 @@ PVXRES         7
 T0TH           3000
 T0MX           535000
 TWIDTH         14
-TMINPEAKSEP    60
+TMINPEAKSEP    100
 NHITSTH        7
 NHITSMX        300
 N200TH         0
@@ -33,6 +38,7 @@ N200MX         50000
 delayed_vertex bonsai
 
 # TRMS-fit
+TRMSTWIDTH     30
 INITGRIDWIDTH  800
 MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
@@ -45,7 +51,7 @@ E_TIMECUT      20
 
 # n-tagging
 tmva           true
-N_OUTCUT       0.7
+N_OUTCUT       0.5
 
 # MC labeling
-TMATCHWINDOW   50
+TMATCHWINDOW   100

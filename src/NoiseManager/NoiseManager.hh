@@ -10,7 +10,7 @@ class TTree;
 class TQReal;
 class Header;
 
-enum TriggerType
+enum NoiseTriggerType
 {
     mRandomWide = 2048,
     mT2KDummy = -2147483648

@@ -217,5 +217,6 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
     }
 
     signalHits->ApplyDeadtime(fPMTDeadtime);
+    signalHits->Sort();
     fPartID++;
 }
