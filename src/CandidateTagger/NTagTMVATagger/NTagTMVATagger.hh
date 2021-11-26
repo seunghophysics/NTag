@@ -7,7 +7,7 @@
 class NTagTMVATagger : public CandidateTagger
 {
     public:
-        NTagTMVATagger();
+        NTagTMVATagger(Verbosity verbose=pDEFAULT);
         ~NTagTMVATagger();
         
         void Initialize() { fTMVAManager.InitializeReader(); }

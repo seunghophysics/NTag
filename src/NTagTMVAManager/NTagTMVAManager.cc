@@ -197,7 +197,61 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
     fMsg.Print("TMVA evaluation complete!");
 }
 
-void NTagTMVAManager::ApplyWeights()
+void NTagTMVAManager::ApplyWeights(const char* inFileName, const char* outFileName)
 {
+    //SetReader(methodName, weightFileName);
+    //InstantiateReader();
+    InitializeReader();
+    //DumpReaderCutRange();
 
+    TFile* inFile = TFile::Open(inFileName);
+    TTree* inNtvarTree = (TTree*)inFile->Get("ntvar");
+    TTree* inTruthTree = (TTree*)inFile->Get("truth");
+
+    if (inNtvarTree->GetListOfBranches()->FindObject("TagOut"))
+        inNtvarTree->SetBranchStatus("TagOut", 0);
+    fVariables.SetBranchAddressToTree(inNtvarTree);
+
+    TFile* outFile = new TFile(outFileName, "recreate");
+    TTree* outNtvarTree = inNtvarTree->CloneTree(-1, "fast");
+    TTree* outTruthTree = 0;
+    if (inTruthTree)
+        outTruthTree = inTruthTree->CloneTree();
+
+    // Replace old output with new one
+    std::vector<float> outputVector;
+    TBranch* newOutBranch = outNtvarTree->Branch("TMVAOutput", &outputVector);
+
+    std::cout << std::endl;
+    msg.Print("Using MVA method: " + methodName);
+
+    long nEntries = inNtvarTree->GetEntries();
+
+    for(long iEntry = 0; iEntry < nEntries; iEntry++){
+
+        msg.Print(Form("Processing entry %ld / %ld...\r", iEntry, nEntries), pDEFAULT, false);
+        std::cout << std::flush;
+
+        outputVector.clear();
+
+        if (!inNtvarTree->GetEntry(iEntry)) continue;
+
+        int nCandidates = fVariables.GetNumberOfCandidates();
+
+        for(int iCandidate = 0; iCandidate < nCandidates; iCandidate++) {
+            float output = GetOutputFromCandidate(iCandidate);
+            outputVector.push_back(output);
+        }
+
+        newOutBranch->Fill();
+    }
+
+    outNtvarTree->Write();
+    if (outTruthTree)
+        outTruthTree->Write();
+
+    outFile->Close();
+    inFile->Close();
+
+    msg.Print("TMVA output generation complete!      ");
 }

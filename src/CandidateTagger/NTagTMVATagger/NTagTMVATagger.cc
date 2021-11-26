@@ -2,8 +2,9 @@
 
 #include "NTagTMVATagger.hh"
 
-NTagTMVATagger::NTagTMVATagger()
-: fDoTagE(false), E_N50CUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
+NTagTMVATagger::NTagTMVATagger(Verbosity verbose)
+: CandidateTagger("NTagTMVATagger", verbose), 
+fDoTagE(false), E_N50CUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
 NTagTMVATagger::~NTagTMVATagger() {}
 
 int NTagTMVATagger::Classify(const Candidate& candidate)
