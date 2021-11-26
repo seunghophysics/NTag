@@ -32,7 +32,7 @@ $(OBJS): src/%.o: src/%.cc src/%.hh
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 
 $(FORTRANOBJS): src/%.o: src/%.F
-	@echo "[UtilLib] Building FORTRAN code $*.F..."
+	@echo "[UtilLib] Building FORTRAN code $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(SKOFL_ROOT)/inc/lowe -I $(ATMPD_ROOT)/inc
 
 lib/libutillib.a: $(OBJS) $(FORTRANOBJS)
