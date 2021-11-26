@@ -3,27 +3,21 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
 #include <iostream>
+#include <vector>
 
 //#include "Rtypes.h"
-
-enum TrueLabel
-{
-    lNoise,
-    lDecayE,
-    lnH,
-    lnGd,
-    lRemnant,
-    lUndefined
-};
 
 class Candidate
 {
     public:
-        Candidate(const unsigned int iHit=0): fHitID(iHit) {}
+        Candidate(unsigned int iHit=0, float t=0): fHitID(iHit), fTime(t) {}
 
         inline unsigned int HitID() const { return fHitID; }
         inline void SetHitID(unsigned int id) { fHitID = id; }
+        inline float Time() const { return fTime; }
+        inline void SetHitID(float t) { fTime = t; }
 
         const float operator[](const std::string& key) const { return fFeatureMap.at(key); }
         void Set(const std::string& key, float value) { fFeatureMap[key] = value; }
@@ -34,9 +28,10 @@ class Candidate
 
         const std::map<std::string, float>& GetFeatureMap() const { return fFeatureMap; }
 
-    private:
+    protected:
         std::map<std::string, float> fFeatureMap;
         unsigned int fHitID;
+        float fTime;
 
     //ClassDef(Candidate, 1);
 };

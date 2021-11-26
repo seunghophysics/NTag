@@ -5,6 +5,7 @@
 
 #include "TTree.h"
 
+#include "NTagGlobal.hh"
 #include "Taggable.hh"
 #include "Printer.hh"
 #include "CandidateCluster.hh"
