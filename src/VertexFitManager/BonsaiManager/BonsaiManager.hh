@@ -26,7 +26,6 @@ class BonsaiManager : public VertexFitManager
         pmt_geometry* fPMTGeometry;
         likelihood*   fLikelihood;
 
-        float    fFitTime;
         float    fFitEnergy;
         float    fFitGoodness;
         float    fFitDirKS;

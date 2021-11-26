@@ -29,7 +29,7 @@ float* GetPMTPositionArray()
 
 BonsaiManager::BonsaiManager(Verbosity verbose):
 VertexFitManager("BonsaiManager", verbose), fPMTGeometry(nullptr), fLikelihood(nullptr),
-fFitTime(0), fFitEnergy(0), fFitGoodness(0), fFitDirKS(0), fFitOvaQ(0),
+fFitEnergy(0), fFitGoodness(0), fFitDirKS(0), fFitOvaQ(0),
 fIsInitialized(false)
 {}
 
@@ -104,8 +104,6 @@ void BonsaiManager::Fit(const PMTHitCluster& hitCluster)
             fFitEnergy = 0;
             fFitDirKS = 0;
             fFitOvaQ = 0;
-
-            // std::cout << "fit goodness: " << fFitGoodness << "\n";
         }
     }
 

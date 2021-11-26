@@ -61,4 +61,6 @@ void TRMSFitManager::Fit(const PMTHitCluster& hitCluster)
     }
 
     fFitVertex = minGridPoint;
+    cluster.SetVertex(fFitVertex);
+    fFitTime = cluster.Find(HitFunc::T, Calc::Mean);
 }
