@@ -367,6 +367,22 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
 }
 */
 
+void PMTHitCluster::SetAsSignal(bool b)
+{
+    for (auto& hit: fElement) {
+        hit.SetSignalFlag(b);
+    }
+}
+
+float PMTHitCluster::GetSignalRatio()
+{
+    float sigSum = 0;
+    for (auto& hit: fElement)
+        sigSum += hit.s();
+    
+    return sigSum / GetSize();
+}
+
 PMTHitCluster& PMTHitCluster::operator+=(const Float& time)
 {
     AddTimeOffset(time);

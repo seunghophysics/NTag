@@ -82,6 +82,9 @@ class PMTHitCluster : public Cluster<PMTHit>
         OpeningAngleStats GetOpeningAngleStats();
         //TVector3 FindTRMSMinimizingVertex(float INITGRIDWIDTH=800, float MINGRIDWIDTH=50, float GRIDSHRINKRATE=0.5, float VTXSRCRANGE=5000);
 
+        void SetAsSignal(bool b);
+        float GetSignalRatio();
+        
     private:
         bool fIsSorted, fHasVertex;
         TVector3 fVertex;
