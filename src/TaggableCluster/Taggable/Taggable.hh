@@ -2,14 +2,7 @@
 #define TAGGABLE_HH
 
 #include "TVector3.h"
-
-enum TaggableType
-{
-    typeMissed,
-    typeE,
-    typeN,
-    typeEN
-};
+#include "NTagGlobal.hh"
 
 class Taggable
 {
