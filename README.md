@@ -70,6 +70,7 @@ NTag -in (input filename) -out (output filename)
 ### Command line options
 
 * Argument options
+
 N.B. Time in options should be in event time (ToF subtracted if not using noToF option), rather than time from trigger (which is in 1000 ns)
 
 | Option  |           Argument            |                      Example usage              |   Use     |
