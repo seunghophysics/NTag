@@ -70,6 +70,7 @@ NTag -in (input filename) -out (output filename)
 ### Command line options
 
 * Argument options
+N.B. Time in options should be in event time (ToF subtracted if not using noToF option), rather than time from trigger (which is in 1000 ns)
 
 | Option  |           Argument            |                      Example usage              |   Use     |
 |:--------|-------------------------------|-------------------------------------------------|-----------|
@@ -82,7 +83,7 @@ NTag -in (input filename) -out (output filename)
 |-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
 |-NHITSTH/MX| (NHits threshold / maximum) | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`        | optional  |
 |-TWIDTH  | (Sliding T window width) [ns] | `NTag -in in.dat -TWIDTH 13`                    | optional  |
-|-T0TH/MX | (T0 threshold / maximum) [ns] | `NTag -in in.dat -T0TH 18 -NHITSMX 835`         | optional  |
+|-T0TH/MX | (T0 threshold / maximum) [&mus] | `NTag -in in.dat -T0TH 19 -T0MX 836`          | optional  |
 |-TRBNWIDTH | (PMT deadtime width) [&mus] | `NTag -in in.dat -TRBNWIDTH 6`                  | optional  |
 |-PVXRES | (Prompt vertex resolution) [cm] | `NTag -in in.dat -PVXRES 10`                   | optional  |
 |-VTXSRCRANGE | (Neut-fit search range) [cm] | `NTag -in in.dat -VTXSRCRANGE 1000`          | optional  |
