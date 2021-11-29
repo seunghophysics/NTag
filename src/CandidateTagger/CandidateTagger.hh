@@ -7,7 +7,7 @@
 class CandidateTagger
 {
     public:
-        CandidateTagger(const char* fitterName, Verbosity verbose=pDEFAULT):
+        CandidateTagger(const char* fitterName="", Verbosity verbose=pDEFAULT):
         fMsg(fitterName, verbose) {}
         ~CandidateTagger() {}
         

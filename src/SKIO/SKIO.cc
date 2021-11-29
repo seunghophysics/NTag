@@ -19,8 +19,13 @@ fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 SKIO::SKIO(std::string fileName, IOMode mode)
 : SKIO()
 {
-    SetFilePath(fileName);
+    SetFilePath(fileName); // sets file format also
     fIOMode = mode;
+    
+    if (fFileFormat == mSKROOT) {
+        SuperManager* superManager = SuperManager::GetManager();
+        superManager->CreateTreeManager(mInput, fFilePath.Data(), "0", 0);
+    }
 
     if (fIOMode == mInput) {
         GetNumberOfEvents();
@@ -165,12 +170,29 @@ int SKIO::ReadEvent(int eventID)
     return readStatus;
 }
 
-void SKIO::WriteTQREAL(PMTHitCluster& hitCluster)
+void SKIO::FillTQREAL(PMTHitCluster& hitCluster)
 {
-    if (fFileFormat == mZBS)
-        FillTQREALBank(hitCluster);
-    else if (fFileFormat == mSKROOT)
-        FillTQREALBranch(hitCluster);
+    if (fFileFormat == mZBS) {
+        hitCluster.FillCommon();
+        filltqreal_();
+        //WriteZBS();
+    }
+    else if (fFileFormat == mSKROOT) {
+        int logicalUnit = mInput;
+        skroot_get_entry_(&logicalUnit); // get tree entry from input ROOT
+        hitCluster.FillCommon();
+        skroot_set_tree_(&logicalUnit);  // common header, tqreal, tqareal to ROOT
+        skroot_fill_tree_(&logicalUnit);
+        skroot_clear_(&logicalUnit);
+    }
+}
+
+void SKIO::Write()
+{
+    if (fFileFormat==mZBS) {
+        int lun = 20;
+        kzwrit_(&lun); kzeclr_();
+    }
 }
 
 int SKIO::GetNumberOfEvents()
@@ -230,40 +252,18 @@ void SKIO::DumpSettings()
     std::cout << "\n";
 }
 
-void FillCommon(PMTHitCluster& hitCluster)
+void ClearTQCommon()
 {
-    int nHits = hitCluster.GetSize();
-    sktqz_.nqiskz = nHits;
-    rawtqinfo_.nqisk_raw = nHits;
-    rawtqinfo_.pc2pe_raw = 2.46; // SK5
+    for (int iHit=0; iHit<30*MAXPM; iHit++) {
+        sktqz_.nqiskz = 0;
+        sktqz_.tiskz[iHit] = 0;
+        sktqz_.qiskz[iHit] = 0;
+        sktqz_.icabiz[iHit] = 0;
+        sktqz_.ihtiflz[iHit] = 0;
 
-    for (int iHit=0; iHit<nHits; iHit++) {
-        auto hit = hitCluster[iHit];
-        sktqz_.tiskz[iHit] = hit.t();
-        sktqz_.qiskz[iHit] = hit.q();
-        sktqz_.icabiz[iHit] = hit.i();
-        sktqz_.ihtiflz[iHit] = hit.f()<<16;
-
-        rawtqinfo_.icabbf_raw[iHit] = hit.i() + (hit.f()<<16);
-        rawtqinfo_.tbuf_raw[iHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
-        rawtqinfo_.qbuf_raw[iHit] = hit.q();
+        rawtqinfo_.nqisk_raw = 0;
+        rawtqinfo_.tbuf_raw[iHit] = 0;
+        rawtqinfo_.qbuf_raw[iHit] = 0;
+        rawtqinfo_.icabbf_raw[iHit] = 0;
     }
-}
-
-void FillTQREALBank(PMTHitCluster& hitCluster)
-{
-    FillCommon(hitCluster);
-    write_tq_();
-}
-
-void FillTQREALBranch(PMTHitCluster& hitCluster)
-{
-    int logicalUnit = mInput;
-    skroot_get_entry_(&logicalUnit); // get tree entry from input ROOT
-
-    FillCommon(hitCluster);
-
-    skroot_set_tree_(&logicalUnit); // common header, tqreal, tqareal to ROOT
-    skroot_fill_tree_(&logicalUnit);
-    skroot_clear_(&logicalUnit);
 }

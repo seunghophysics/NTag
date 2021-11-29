@@ -26,7 +26,7 @@
 #include "EventNTagManager.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true)
+: fOutDataFile(nullptr), fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -303,7 +303,12 @@ void EventNTagManager::SearchAndFill()
     DumpEvent();
     FillTrees();
     if (fSettings.GetBool("write_bank"))
-        WriteNTAGBank();
+        FillNTAGBank();
+    if (fOutDataFile) {
+        fOutDataFile->FillTQREAL(fEventHits);
+        fOutDataFile->Write();
+    }
+        
     ClearData();
 }
 
@@ -553,21 +558,34 @@ void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
         mode = mPROMPT;
 }
 
-void EventNTagManager::MakeTrees()
+void EventNTagManager::MakeTrees(TFile* outfile)
 {
+    if (outfile) outfile->cd();
+
     TTree* settingsTree = new TTree("settings", "settings");
     TTree* eventTree    = new TTree("event", "event");
     TTree* particleTree = new TTree("particle", "particle");
     TTree* taggableTree = new TTree("taggable", "taggable");
     TTree* nTree        = new TTree("ntag", "ntag");
     TTree* eTree        = new TTree("muechk", "muechk");
-
+    
+    if (outfile) {
+        settingsTree->SetDirectory(outfile);
+        eventTree->SetDirectory(outfile);
+        particleTree->SetDirectory(outfile);
+        taggableTree->SetDirectory(outfile);
+        nTree->SetDirectory(outfile);
+        eTree->SetDirectory(outfile);
+    }
+    
     fSettings.SetTree(settingsTree);
     fEventVariables.SetTree(eventTree);
     fEventParticles.SetTree(particleTree);
     fEventTaggables.SetTree(taggableTree);
     fEventCandidates.SetTree(nTree);
     fEventEarlyCandidates.SetTree(eTree);
+    
+    std::cout << "out tree file path: " << eTree->GetCurrentFile()->GetPath() << std::endl;
 }
 
 void EventNTagManager::FillTrees()

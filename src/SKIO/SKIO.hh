@@ -23,7 +23,7 @@ extern "C"
 extern "C"
 {
     void zbsinit_(); // best working solution for opening a large zbs
-    void write_tq_();
+    void filltqreal_();
 }
 
 enum IOMode
@@ -59,7 +59,8 @@ class SKIO
         int ReadNextEvent();
         int ReadEvent(int eventID);
 
-        void WriteTQREAL(PMTHitCluster& hitCluster);
+        void FillTQREAL(PMTHitCluster& hitCluster);
+        void Write();
 
         int GetNumberOfEvents();
         int GetCurrentEventID();
@@ -68,6 +69,7 @@ class SKIO
 
         const char* GetFilePath() { return fFilePath.Data(); }
         void SetFilePath(std::string filePath) { fFilePath = filePath; fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; }
+        FileFormat GetFileFormat() { return fFileFormat; }
 
         const char* GetSKOption() { return fSKOption.Data(); }
         void SetSKOption(const char* skOption) { fSKOption = skOption; }
@@ -100,8 +102,6 @@ class SKIO
         Printer fMsg;
 };
 
-void FillCommon(PMTHitCluster& hitCluster);
-void FillTQREALBank(PMTHitCluster& hitCluster);
-void FillTQREALBranch(PMTHitCluster& hitCluster);
+void ClearTQCommon();
 
 #endif

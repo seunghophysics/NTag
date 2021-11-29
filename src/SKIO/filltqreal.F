@@ -1,9 +1,8 @@
-      subroutine write_tq
+      subroutine filltqreal
 
       implicit none
 
 #include "skparm.h"
-c#include "skhead.h"
 #include "sktq.h"
 #include "skpdst.h"
 #include "geotnk.h"
@@ -11,7 +10,6 @@ c#include "skhead.h"
 #include "skbadc.h"
 #include "skvect.h"
 
-c#include "apbnkcntl.h"
 #include "nbnk.h"
 #include "apmring.h"
 #include "appatsp.h"
@@ -69,8 +67,10 @@ C      call kzrep0('MERGE',0,'I',39,ibuf_bank)
 
 cc   Save event
 
-      CALL KZWRIT(20)
-      CALL KZECLR
+c      write(*,*)"writing bank"
+c      CALL KZWRIT(20)
+c      write(*,*) "done"
+c      CALL KZECLR
       return
 
       End

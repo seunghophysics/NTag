@@ -197,6 +197,7 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
     fMsg.Print("TMVA evaluation complete!");
 }
 
+/*
 void NTagTMVAManager::ApplyWeights(const char* inFileName, const char* outFileName)
 {
     //SetReader(methodName, weightFileName);
@@ -253,5 +254,6 @@ void NTagTMVAManager::ApplyWeights(const char* inFileName, const char* outFileNa
     outFile->Close();
     inFile->Close();
 
-    msg.Print("TMVA output generation complete!      ");
+    msg.Print("TMVA output generation complete!");
 }
+*/

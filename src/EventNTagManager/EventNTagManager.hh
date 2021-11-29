@@ -2,6 +2,7 @@
 #define EVENTNTAGMANAGER_HH
 
 #include "SKLibs.hh"
+#include "SKIO.hh"
 #include "PMTHitCluster.hh"
 #include "ParticleCluster.hh"
 #include "TaggableCluster.hh"
@@ -53,7 +54,7 @@ class EventNTagManager
         void ReadArguments(const ArgParser& argParser);
 
         // root
-        void MakeTrees();
+        void MakeTrees(TFile* outFile=nullptr);
         void FillTrees();
         void WriteTrees(bool doCloseFile=false);
 
@@ -78,6 +79,7 @@ class EventNTagManager
         template <typename T>
         void Set(std::string key, T value) { fSettings.Set(key, value); ApplySettings(); }
         void SetNoiseManager(NoiseManager* noiseManager) { fNoiseManager = noiseManager; }
+        void SetOutDataFile(SKIO* outfile) { fOutDataFile = outfile; }
         void SetHits(const PMTHitCluster& cluster) { fEventHits = cluster; }
         void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
         void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
@@ -112,6 +114,9 @@ class EventNTagManager
 
         // zbs common filling
         void FillNTagCommon();
+        
+        // output data file
+        SKIO* fOutDataFile;
         
         // noise manager
         NoiseManager* fNoiseManager;
@@ -167,7 +172,8 @@ class TInterruptHandler : public TSignalHandler
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
             fNTagManager->WriteTrees(true);
-            int lun = 20; skclosef_(&lun);
+            int lun = 10; skclosef_(&lun);
+                lun = 20; skclosef_(&lun);
 
             _exit(2);
             return kTRUE;

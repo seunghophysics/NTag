@@ -25,7 +25,7 @@ class NTagTMVAManager
         float GetTMVAOutput(const Candidate& candidate);
 
         void TrainWeights(const char* inFileName, const char* outFileName);
-        void ApplyWeights();
+        //void ApplyWeights(const char* inFileName, const char* outFileName);
 
     private:
         TMVA::Factory* fFactory;

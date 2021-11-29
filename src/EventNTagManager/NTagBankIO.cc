@@ -79,7 +79,7 @@ void ReadNTAGBank()
     }
 }
 
-void WriteNTAGBank()
+void FillNTAGBank()
 {
     int version = 4;
     const char* bankName = "NTAG";
@@ -146,7 +146,7 @@ void WriteNTAGBank()
     int iSegment=0, iLength=1;
     kzrep0_(bankName, iSegment, "I", iEntry, intBuffer, nameLength, iLength);
 
-    int luno = 20;
-    kzwrit_(&luno); // write bank to file
-    kzeclr_();      // clear bank
+    //int luno = 20;
+    //kzwrit_(&luno); // write bank to file
+    //kzeclr_();      // clear bank
 }

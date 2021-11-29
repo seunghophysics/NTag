@@ -4,6 +4,7 @@
 
 #include <TTree.h>
 
+#include <skheadC.h>
 #include <tqrealroot.h>
 #undef MAXPM
 #undef MAXPMA
@@ -135,6 +136,29 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
         tqreal->cables.push_back(hit.i() + (hit.f() << 16));
         tqreal->T.push_back(hit.t());
         tqreal->Q.push_back(hit.q());
+    }
+}
+
+void PMTHitCluster::FillCommon()
+{
+    int nHits = GetSize();
+    sktqz_.nqiskz = nHits;
+    rawtqinfo_.nqisk_raw = nHits;
+    rawtqinfo_.pc2pe_raw = 2.46; // SK5
+    
+    std::cout << "Filling common \n";
+
+    for (int iHit=0; iHit<nHits; iHit++) {
+        auto const& hit = fElement[iHit];
+        //hit.Dump();
+        sktqz_.tiskz[iHit] = hit.t();
+        sktqz_.qiskz[iHit] = hit.q();
+        sktqz_.icabiz[iHit] = hit.i();
+        sktqz_.ihtiflz[iHit] = hit.f()<<16;
+
+        rawtqinfo_.icabbf_raw[iHit] = hit.i() + (hit.f()<<16);
+        rawtqinfo_.tbuf_raw[iHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
+        rawtqinfo_.qbuf_raw[iHit] = hit.q();
     }
 }
 

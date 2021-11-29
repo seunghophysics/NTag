@@ -2,6 +2,6 @@
 #define NTAGBANKIO_HH
 
 void ReadNTAGBank();
-void WriteNTAGBank();
+void FillNTAGBank();
 
 #endif
