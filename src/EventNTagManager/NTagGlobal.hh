@@ -6,7 +6,7 @@
 
 enum VertexMode
 {
-    mNONE, mAPFIT, mBONSAI, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT
+    mNONE, mAPFIT, mBONSAI, mFITQUN, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT
 };
 
 enum TriggerType

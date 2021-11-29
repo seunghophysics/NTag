@@ -12,6 +12,8 @@
 #include "apmsfitC.h"
 #include "appatspC.h"
 #include "apringspC.h"
+#include "spliTChanOutC.h"
+#include "fitqunoutC.h"
 #include "geotnkC.h"
 #include "neworkC.h"
 #include "nbnkC.h"
@@ -80,6 +82,12 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         
         // visible energy
         fEventVariables.Set("EVis", LOWE->bsenergy);
+    }
+    
+    else if (mode == mFITQUN) {
+        int fqbank = 0;
+        readfqzbsbank_(&fqbank);
+        fPromptVertex = TVector3(fitqunmr_.fqmrpos[0][0]);
     }
 
     else if (mode == mCUSTOM) {
@@ -546,6 +554,8 @@ void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
         mode = mAPFIT;
     else if (key == "bonsai")
         mode = mBONSAI;
+    else if (key == "fitqun")
+        mode = mFITQUN;
     else if (key == "custom")
         mode = mCUSTOM;
     else if (key == "true")

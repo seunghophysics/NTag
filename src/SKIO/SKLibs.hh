@@ -40,7 +40,7 @@ extern "C" {
     void skroot_init_(int*);
 }
 
-// data control
+// atmpd data control
 extern "C" {
     void  nerdnebk_(float*);
     void  skgetv_();
@@ -53,19 +53,20 @@ extern "C" {
     void  muechk_gate_(float*, float&, int&);
     void  apclrmue_();
     void  apgetmue_(int*);
+    void  readfqzbsbank_(int*);
 }
 
 // BONSAI
 extern "C" {
     float darklf_(int*);
-    void skrunday_();
-    void skwt_();
-    void cfbsinit_(int*, float*);
-    void cfbsexit_();
-    void lfwater_(int*, float*);
-    void lfallfit_sk4_data_(float*, int*, int*);
-    void lfallfit_sk6_data_(float*, int*, int*, int*, int*);
-    void lfallfit_sk4_mc_(float*, int*, int*);
+    void  skrunday_();
+    void  skwt_();
+    void  cfbsinit_(int*, float*);
+    void  cfbsexit_();
+    void  lfwater_(int*, float*);
+    void  lfallfit_sk4_data_(float*, int*, int*);
+    void  lfallfit_sk6_data_(float*, int*, int*, int*, int*);
+    void  lfallfit_sk4_mc_(float*, int*, int*);
     //void effwallf_(int*, float*, float*, float*);
 }
 
