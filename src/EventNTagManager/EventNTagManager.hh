@@ -86,6 +86,9 @@ class EventNTagManager
         void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
 
     private:
+        // check if MC
+        void CheckMC();
+    
         // ToF subtraction
         void SetToF(const TVector3& vertex);
         void UnsetToF();

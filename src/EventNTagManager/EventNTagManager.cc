@@ -124,11 +124,6 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
 
 void EventNTagManager::ReadVariables()
 {
-    if (skhead_.nrunsk == 999999)
-        fIsMC = true;
-    else
-        fIsMC = false;
-
     // run/event information
     fEventVariables.Set("RunNo", skhead_.nrunsk);
     fEventVariables.Set("SubrunNo", skhead_.nsubsk);
@@ -307,7 +302,16 @@ void EventNTagManager::ReadEventFromCommon()
 
 void EventNTagManager::SearchAndFill()
 {
-    SearchCandidates();
+    int nhitac = fEventVariables.GetInt("NHITAC");
+    int nodhitmx = fSettings.GetInt("NODHITMX");
+    if (nhitac > nodhitmx) {
+        fMsg.Print(Form("%d OD hits in this event (allowed: NHITODMX = %d)...", nhitac, nodhitmx), pWARNING);
+        fMsg.Print(Form("Skipping search for this event (EventNo: %d)", fEventVariables.GetInt("EventNo")), pWARNING);
+    }
+    else {
+        SearchCandidates();
+    }
+
     DumpEvent();
     FillTrees();
     if (fSettings.GetBool("write_bank"))
@@ -322,6 +326,8 @@ void EventNTagManager::SearchAndFill()
 
 void EventNTagManager::ProcessEvent()
 {
+    CheckMC();
+
     if (fIsMC || fSettings.GetBool("force_flat"))
         ProcessFlatEvent();
     else
@@ -331,9 +337,11 @@ void EventNTagManager::ProcessEvent()
 void EventNTagManager::ProcessDataEvent()
 {
     auto thisEvTrg = skhead_.idtgsk & (1<<29) ? tAFT : (skhead_.idtgsk & (1<<28) ? tSHE : tELSE);
+    fMsg.Print(Form("This evtrg: %d", thisEvTrg), pWARNING);
 
     // if current event is AFT, append TQ and fill output.
     if (thisEvTrg == tAFT) {
+        fMsg.Print("Appending AFT to previous SHE", pWARNING);
         fEventVariables.Set("TrgType", tAFT);
         AddHits();
         SearchAndFill();
@@ -342,18 +350,22 @@ void EventNTagManager::ProcessDataEvent()
     // if previous event was SHE without following AFT,
     // just fill output because there's nothing to append.
     else if (!fEventHits.IsEmpty()) {
+        fMsg.Print("Processing previous SHE", pWARNING);
         SearchAndFill();
     }
 
     // if the current event is SHE,
     // save raw hit info and don't fill output.
     if (thisEvTrg == tSHE) {
+        fMsg.Print("Skipping current SHE", pWARNING);
         ReadEventFromCommon();
+        DumpEvent();
     }
 
     // if the current event is neither SHE nor AFT (e.g. HE, LE, etc.),
     // save raw hit info and fill output.
     if (thisEvTrg == tELSE) {
+        fMsg.Print("ELSE", pWARNING);
         ProcessFlatEvent();
     }
 }
@@ -433,8 +445,6 @@ void EventNTagManager::SearchCandidates()
 
     fEventEarlyCandidates.FillVectorMap();
     fEventCandidates.FillVectorMap();
-
-    FillNTagCommon();
 }
 
 void EventNTagManager::MapTaggables()
@@ -600,8 +610,11 @@ void EventNTagManager::MakeTrees(TFile* outfile)
 
 void EventNTagManager::FillTrees()
 {
+    FillNTagCommon();
+
     // set branch address for the first event
     if (!fIsBranchSet) {
+        fMsg.Print("Making branches!");
 
         // make branches
         fSettings.MakeBranches();
@@ -662,6 +675,14 @@ void EventNTagManager::DumpEvent()
                                       "Label",
                                       "TagIndex",
                                       "TagClass"});
+}
+
+void EventNTagManager::CheckMC()
+{
+    if (skhead_.nrunsk == 999999)
+        fIsMC = true;
+    else
+        fIsMC = false;
 }
 
 void EventNTagManager::SetToF(const TVector3& vertex)

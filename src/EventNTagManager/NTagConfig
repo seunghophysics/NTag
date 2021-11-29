@@ -5,6 +5,9 @@ write_bank     0
 # PMT noise reduction
 TRBNWIDTH      0
 
+# OD event cut
+NODHITMX       100000
+
 # MC noise
 noise_type     sk6
 TNOISESTART    0

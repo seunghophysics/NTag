@@ -22,10 +22,10 @@ SKIO::SKIO(std::string fileName, IOMode mode)
     SetFilePath(fileName); // sets file format also
     fIOMode = mode;
     
-    if (fFileFormat == mSKROOT) {
-        SuperManager* superManager = SuperManager::GetManager();
-        superManager->CreateTreeManager(mInput, fFilePath.Data(), "0", 0);
-    }
+    // if (fFileFormat == mSKROOT) {
+        // SuperManager* superManager = SuperManager::GetManager();
+        // superManager->CreateTreeManager(mInput, fFilePath.Data(), "\0", 0);
+    // }
 
     if (fIOMode == mInput) {
         GetNumberOfEvents();

@@ -77,7 +77,7 @@ NoiseManager::NoiseManager(TTree* tree)
 
 NoiseManager::~NoiseManager()
 {
-    delete fNoiseTree;
+    if (fNoiseTree) delete fNoiseTree;
 }
 
 void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)

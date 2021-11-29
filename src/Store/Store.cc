@@ -64,6 +64,7 @@ void Store::MakeBranches()
             auto value = pair.second;
 
             if (Get(key, tmpNum)) {
+                std::cout << "Making branch " << key << std::endl;
                 fOutputTree->Branch(key, &tmpNum);
             }
             else {
