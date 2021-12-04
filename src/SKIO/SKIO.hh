@@ -68,7 +68,7 @@ class SKIO
         void DumpSettings();
 
         const char* GetFilePath() { return fFilePath.Data(); }
-        void SetFilePath(std::string filePath) { fFilePath = filePath; fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; }
+        void SetFile(std::string filePath, IOMode mode=mInput);
         FileFormat GetFileFormat() { return fFileFormat; }
 
         const char* GetSKOption() { return fSKOption.Data(); }
@@ -98,6 +98,8 @@ class SKIO
         bool fIsFileOpen;
 
         static bool fIsZEBRAInitialized;
+        static TString fInFilePath;
+        static TString fOutFilePath;
 
         Printer fMsg;
 };

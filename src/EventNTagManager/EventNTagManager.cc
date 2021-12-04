@@ -33,8 +33,8 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     fMsg = Printer("NTagManager", verbose);
 
     fSettings = Store("Settings");
-    fSettings.Initialize("/disk02/usr6/han/phd/utillib/src/EventNTagManager/NTagConfig");
-    ApplySettings();
+    fSettings.Initialize(GetENV("NTAGPATH")+"/NTagConfig");
+    //ApplySettings();
 
     fEventVariables = Store("Variables");
     fEventCandidates = CandidateCluster("Delayed");
@@ -604,8 +604,6 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     fEventTaggables.SetTree(taggableTree);
     fEventCandidates.SetTree(nTree);
     fEventEarlyCandidates.SetTree(eTree);
-    
-    std::cout << "out tree file path: " << eTree->GetCurrentFile()->GetPath() << std::endl;
 }
 
 void EventNTagManager::FillTrees()
@@ -614,8 +612,6 @@ void EventNTagManager::FillTrees()
 
     // set branch address for the first event
     if (!fIsBranchSet) {
-        fMsg.Print("Making branches!");
-
         // make branches
         fSettings.MakeBranches();
         fEventVariables.MakeBranches();
@@ -669,7 +665,7 @@ void EventNTagManager::DumpEvent()
                                       "NHits",
                                       "DPrompt",
                                       "DWall",
-                                      "ThetaMeanDir",
+                                      "MeanDirAngleMean",
                                       "SignalRatio",
                                       "TagOut",
                                       "Label",
@@ -722,20 +718,25 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780) - firstHit.t() + 1000;
         }
 
+        // firstHit.Dump();
         hitsForFit.Sort();
+        // hitsForFit.DumpAllElements();
 
         fDelayedVertexManager->Fit(hitsForFit);
 
-        std::cout << "fit time: " << fDelayedVertexManager->GetFitTime() << "\n";
+        // std::cout << "fit time: " << fDelayedVertexManager->GetFitTime() << "\n";
         delayedVertex = fDelayedVertexManager->GetFitVertex();
         delayedTime   = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
+        // std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
         //hitsForFit.SetVertex(delayedVertex);
     }
     fEventHits.SetVertex(delayedVertex);
+    // std::cout << "firstHit T: " << firstHit.t() << " firstHit ToF: " << firstHit.GetToF() << std::endl;
     firstHit.SetToFAndDirection(delayedVertex);
+    // std::cout << "firstHit T: " << firstHit.t() << " firstHit ToF: " << firstHit.GetToF() << std::endl;
     iHit = fEventHits.GetLowerBoundIndex(delayedTime);
     unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
-    std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
+    // std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
 
     // NHits > 4 to prevent NaN in angle variables
     if (nHits > 3 && fabs(delayedTime-firstHit.t())<TMINPEAKSEP) {
@@ -758,6 +759,15 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
     //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
     //auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
+    
+    //hitsInTWIDTH.FindHitProperties();
+    //hitsInTWIDTH.DumpAllElements();
+    //float deg = 3.141592/180.;
+    //unsigned int nClusHits = hitsInTWIDTH.Slice(HitFunc::MinAngle, 0, 14.1*deg).GetSize();
+    //unsigned int nBackHits = hitsInTWIDTH.Slice(HitFunc::DirAngle, 90*deg, 180*deg).GetSize();
+    //unsigned int nLowHits = hitsInTWIDTH.Slice(HitFunc::Acceptance, 90, 180).GetSize();
+    //candidate.Set("NClusHits", nClusHits);
+    //candidate.Set("NBackHits", nBackHits);
 
     // Delayed vertex
     auto delayedVertex = fEventHits.GetVertex();
@@ -799,14 +809,14 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     for (auto const& dir: dirVec)
         angles.push_back((180/M_PI)*meanDir.Angle(dir));
 
-    float meanAngleWithMeanDirection = GetMean(angles);
-    candidate.Set("ThetaMeanDir", meanAngleWithMeanDirection);
+    candidate.Set("MeanDirAngleMean", GetMean(angles));
+    candidate.Set("MeanDirAngleRMS", GetRMS(angles));
 
     // Opening angle stats
     auto openingAngleStats = hitsInTWIDTH.GetOpeningAngleStats();
-    candidate.Set("AngleMean",  openingAngleStats.mean);
-    candidate.Set("AngleStdev", openingAngleStats.stdev);
-    candidate.Set("AngleSkew",  openingAngleStats.skewness);
+    candidate.Set("OpeningAngleMean",  openingAngleStats.mean);
+    candidate.Set("OpeningAngleStdev", openingAngleStats.stdev);
+    candidate.Set("OpeningAngleSkew",  openingAngleStats.skewness);
 
     candidate.Set("DPrompt", (fPromptVertex-delayedVertex).Mag());
     

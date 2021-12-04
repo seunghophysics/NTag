@@ -3,7 +3,8 @@
 
 #include <vector>
 
-#include <PMTHitCluster.hh>
+#include "Printer.hh"
+#include "PMTHitCluster.hh"
 
 class TChain;
 class TTree;
@@ -65,6 +66,8 @@ class NoiseManager
         std::vector<int>   fI;
 
         PMTHitCluster fNoiseEventHits;
+        
+        Printer fMsg;
 };
 
 #endif

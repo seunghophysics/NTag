@@ -10,6 +10,8 @@
 #include "SKIO.hh"
 
 bool SKIO::fIsZEBRAInitialized = false;
+TString SKIO::fInFilePath = "";
+TString SKIO::fOutFilePath = "";
 
 SKIO::SKIO()
 : fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
@@ -19,20 +21,7 @@ fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 SKIO::SKIO(std::string fileName, IOMode mode)
 : SKIO()
 {
-    SetFilePath(fileName); // sets file format also
-    fIOMode = mode;
-    
-    // if (fFileFormat == mSKROOT) {
-        // SuperManager* superManager = SuperManager::GetManager();
-        // superManager->CreateTreeManager(mInput, fFilePath.Data(), "\0", 0);
-    // }
-
-    if (fIOMode == mInput) {
-        GetNumberOfEvents();
-    }
-    //else if (fIOMode == mOutput) {
-    //    OpenFile();
-    //}
+    SetFile(fileName, mode);
 }
 
 SKIO::~SKIO()
@@ -49,11 +38,29 @@ void SKIO::OpenFile()
         fMsg.Print("File path not specified!", pERROR);
 }
 
+void SKIO::SetFile(std::string filePath, IOMode mode) 
+{ 
+    fFilePath = filePath; 
+    fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; 
+    fIOMode = mode;
+    if (fIOMode==mInput)
+        fInFilePath = fFilePath;
+    else if (fIOMode==mOutput)
+        fOutFilePath = fFilePath;
+}
+
 void SKIO::OpenFile(std::string fileName, IOMode mode)
 {
-    if (!fileName.empty()) SetFilePath(fileName);
-    else fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
-    fIOMode = mode;
+    if (!fileName.empty()) SetFile(fileName, mode);
+    else fMsg.Print("The given file path is an empty string!", pERROR);
+
+    if (fFileFormat==mSKROOT && fIOMode==mOutput) {
+        SuperManager* superManager = SuperManager::GetManager();
+        if (fInFilePath!="") {
+            superManager->DeleteTreeManager(mInput);
+            //superManager->CreateTreeManager(mInput, fInFilePath.Data(), fOutFilePath.Data(), 0);
+        }
+    }
 
     // SK option
     skoptn_(fSKOption.Data(), fSKOption.Length());
@@ -112,12 +119,16 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
         else if (fIOMode == mOutput) {
             logicalUnit = mInput;
             skroot_open_(&logicalUnit, fFilePath.Data(), fFilePath.Length());
-            logicalUnit = mOutput;
+            skroot_set_input_file_(&logicalUnit, fInFilePath.Data(), fInFilePath.Length());
+            skroot_init_(&logicalUnit);
         }
 
     }
 
     fIsFileOpen = true;
+    
+    if (fIOMode == mInput)
+        fNEvents = GetNumberOfEvents();
 }
 
 void SKIO::CloseFile()
@@ -197,14 +208,15 @@ void SKIO::Write()
 
 int SKIO::GetNumberOfEvents()
 {
-    if (!fNEvents && !fIsFileOpen) {
-
+    if (fNEvents==0) {
         int logicalUnit = fIOMode;
         int nEvents = 0;
 
-        OpenFile();
+        bool wasFileOpen = fIsFileOpen;
+        if (!fIsFileOpen) OpenFile();
 
         if (fFileFormat == mZBS) {
+
             // do skread until eof
             int readStatus = mReadOK;
 
@@ -216,21 +228,20 @@ int SKIO::GetNumberOfEvents()
                 std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
 
-            //CloseFile();
-            //OpenFile();
+            CloseFile(); 
+            fNEvents = nEvents;
+            if (wasFileOpen) OpenFile();
         }
 
         else if (fFileFormat == mSKROOT) {
             skroot_get_entries_(&logicalUnit, &nEvents);
+            fNEvents = nEvents;
+            if (!wasFileOpen) CloseFile();
         }
-
-        fNEvents = nEvents;
 
         if (!fNEvents) {
             fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
-
-        if (fIsFileOpen) CloseFile();
     }
 
     return fNEvents;

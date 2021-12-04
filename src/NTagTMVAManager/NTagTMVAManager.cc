@@ -29,7 +29,7 @@ void NTagTMVAManager::InitializeReader()
     }
 
     fReader->AddSpectator("Label", &(fCandidateLabel));
-    fReader->BookMVA("MLP", "/disk02/usr6/han/phd/ntag/test_weight.xml");
+    fReader->BookMVA("MLP", GetENV("NTAGPATH")+"/weights/TMVA_MLP.xml");
 }
 
 void NTagTMVAManager::SetMethods(bool turnOn)

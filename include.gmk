@@ -7,7 +7,6 @@ FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
 
 SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
-#SKOFL_ROOT = /disk02/usr6/han/skofl_21a
 ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/
 
 TMVASYS = /disk02/usr6/han/Apps/TMVA

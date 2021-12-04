@@ -54,6 +54,7 @@ extern "C" {
     void  apclrmue_();
     void  apgetmue_(int*);
     void  readfqzbsbank_(int*);
+    float coseffsk_(float*);
 }
 
 // BONSAI

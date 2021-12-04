@@ -10,8 +10,8 @@ NODHITMX       100000
 
 # MC noise
 noise_type     sk6
-TNOISESTART    0
-TNOISEEND      535
+TNOISESTART    3000
+TNOISEEND      536000
 NOISESEED      0
 
 # read variables
@@ -24,11 +24,11 @@ prompt_vertex  custom
 vx             0
 vy             0
 vz             0
-PVXRES         7
+PVXRES         0
 
 # candidate search
-T0TH           3000
-T0MX           535000
+T0TH           4000
+T0MX           536000
 TWIDTH         14
 TMINPEAKSEP    100
 NHITSTH        7

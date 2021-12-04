@@ -94,6 +94,12 @@ void PMTHitCluster::RemoveVertex()
     }
 }
 
+void PMTHitCluster::FindMeanDirection()
+{
+    auto dirVec = GetProjection(HitFunc::Dir);
+    fMeanDirection = GetMean(dirVec).Unit();
+}
+
 void PMTHitCluster::SetToF(bool unset)
 {
     if (!fHasVertex)
@@ -145,8 +151,6 @@ void PMTHitCluster::FillCommon()
     sktqz_.nqiskz = nHits;
     rawtqinfo_.nqisk_raw = nHits;
     rawtqinfo_.pc2pe_raw = 2.46; // SK5
-    
-    std::cout << "Filling common \n";
 
     for (int iHit=0; iHit<nHits; iHit++) {
         auto const& hit = fElement[iHit];
@@ -405,6 +409,38 @@ float PMTHitCluster::GetSignalRatio()
         sigSum += hit.s();
     
     return sigSum / GetSize();
+}
+
+void PMTHitCluster::FindHitProperties()
+{
+    FindMeanDirection();
+
+    for (auto& hit: fElement) {
+        hit.FindMinAngle(this);
+        hit.FindDirAngle(fMeanDirection);
+        hit.FindAcceptance();
+    }
+}
+
+PMTHitCluster PMTHitCluster::Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const
+{
+    PMTHitCluster newCluster;
+    
+    for (auto const& hit: fElement) {
+        if (min < lambda(hit) && lambda(hit) < max)
+            newCluster.Append(hit);
+    }
+    
+    return newCluster;
+}
+
+void PMTHitCluster::ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max)
+{
+    for (unsigned int iHit=0; iHit<GetSize(); iHit++) {
+        auto& hit = fElement[iHit];
+        if (min > lambda(hit) || lambda(hit) > max)
+            fElement.erase(fElement.begin()+iHit);
+    }
 }
 
 PMTHitCluster& PMTHitCluster::operator+=(const Float& time)

@@ -27,7 +27,8 @@ NoiseManager::NoiseManager()
   fCurrentHitID(0),
   fCurrentEntry(-1), fNEntries(0),
   fPartID(0), fNParts(2),
-  fDoRepeat(false)
+  fDoRepeat(false),
+  fMsg("NoiseManager")
 {}
 
 NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed)
@@ -97,7 +98,7 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
     }
 
     if (nAddedEntries && std::find(usedFilesList.begin(), usedFilesList.end(), noiseFilePath) == usedFilesList.end()) {
-        std::cout << "[NoiseManager] Adding dummy file at " << noiseFilePath << ": " << nAddedEntries << " entries\n";
+        fMsg.Print(Form("Adding dummy file at ") + noiseFilePath + Form(": %d entries", nAddedEntries));
         chain->Add(noiseFilePath);
         fNEntries += nAddedEntries;
         usedFilesList.push_back(noiseFilePath);
@@ -113,9 +114,7 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
     fNEntries = fNoiseTree->GetEntries();
 
-    //TCanvas* c1 = new TCanvas("c1");
     tree->Draw(Form("TQREAL.nhits>>hNHits(500, %f, %f)", MINDUMMYHITS, MAXDUMMYHITS), DUMMYCUT, "", 1000);
-    //c1->SaveAs("/disk02/usr6/han/test.pdf");
     TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
     TF1* gausFunc = new TF1("gaus", "gaus", MINDUMMYHITS, MAXDUMMYHITS);
     gausFunc->SetParLimits(0, 0, 1000);
@@ -131,10 +130,10 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fMinHitDensity = leftEdge / 1000.;
     fMaxHitDensity = rightEdge / 1000.;
 
-    std::cout << "[NoiseManager] Noise hits per entry: " << fitMean << " +- " << fitSigma << " hits\n";
-    std::cout << Form("[NoiseManager] 3-sigma hit density range: (%3.1f , %3.1f) hits/us\n", fMinHitDensity, fMaxHitDensity);
-    std::cout << "[NoiseManager] Total entries: " << fNEntries << "\n";
-    std::cout << "[NoiseManager] Total dummy trigger entries: " << fNoiseTree->GetEntries(DUMMYCUT) << "\n";
+    fMsg.Print(Form("Noise hits per entry: %3.2f +- %3.2f hits", fitMean, fitSigma));
+    fMsg.Print(Form("3-sigma hit density range: (%3.1f , %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
+    fMsg.Print(Form("Total entries: %d", fNEntries));
+    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(DUMMYCUT)));
 }
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
@@ -158,17 +157,16 @@ void NoiseManager::GetNextNoiseEvent()
             SetNoiseEventHits();
     }
     else {
-        std::cerr << "[NoiseManager] Noise tree reached its end!\n";
+        fMsg.Print("Noise tree reached its end!", pWARNING);
         if (fCurrentEntry == fNEntries && fDoRepeat) {
             // start from beginning
-            std::cerr << "[NoiseManager] Repetition allowed: going back to the first entry in noise tree...\n";
+            fMsg.Print("Repetition allowed: going back to the first entry in noise tree...", pWARNING);
             fCurrentEntry = 0;
             fNoiseTree->GetEntry(fCurrentEntry);
         }
         else {
             // error
-            std::cerr << "[NoiseManager] Repetition disallowed. To allow, use NoiseManager::SetRepeat(true). Aborting program...\n";
-            exit(-1);
+            fMsg.Print("Repetition disallowed. To allow, use NoiseManager::SetRepeat(true). Aborting program...", pERROR);
         }
     }
 }
@@ -190,7 +188,7 @@ void NoiseManager::SetNoiseEventHits()
     fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
 
     if (fNParts <= 0 || rawHitDensity < fMinHitDensity || rawHitDensity > fMaxHitDensity) {
-        std::cerr << Form("[NoiseManager] Skipping inappropriate entry with fNParts = %d, rawHitDensity = %3.2f hits/us\n", fNParts, rawHitDensity);
+        fMsg.Print(Form("Skipping inappropriate entry with fNParts = %d, rawHitDensity = %3.2f hits/us\n", fNParts, rawHitDensity), pWARNING, false);
         GetNextNoiseEvent();
     }
 
@@ -201,7 +199,7 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
 {
     if (fCurrentEntry == -1 || fPartID == fNParts) {
         GetNextNoiseEvent();
-        std::cout << "[NoiseManager] Current noise entry: " << fCurrentEntry << "\n";
+        fMsg.Print(Form("Current noise entry: %d", fCurrentEntry));
     }
 
     float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;

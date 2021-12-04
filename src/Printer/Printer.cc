@@ -33,7 +33,7 @@ void Printer::Print(TString msg, Verbosity vType, bool newLine)
         }
         else {
             std::cout << "\033[m" << msg;
-            if (newLine) std::cout << std::endl;
+            if (newLine) std::cout << "\n";
         }
     }
 }
@@ -47,13 +47,13 @@ void Printer::PrintBlock(TString line, BlockSize size, Verbosity vType, bool new
     Print(blockWall, vType);
     if (size == pMAIN) {
         Print("", vType, false);
-        std::cout << std::right << std::setw((size + coloredLine.Length())/2) << coloredLine << std::endl;
+        std::cout << std::right << std::setw((size + coloredLine.Length())/2) << coloredLine << "\n";
     }
     else
         Print(coloredLine, vType);
     Print(blockWall, vType);
 
-    if (newLine) std::cout << std::endl;
+    if (newLine) std::cout << "\n";
 }
 
 void Printer::PrintTitle(TString line)

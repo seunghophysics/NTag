@@ -33,6 +33,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         inline const TVector3& GetVertex() const { return fVertex; }
         bool HasVertex() { return fHasVertex; }
         void RemoveVertex();
+        void FindMeanDirection();
 
         void Sort();
 
@@ -51,6 +52,8 @@ class PMTHitCluster : public Cluster<PMTHit>
         unsigned int GetIndex(PMTHit hit);
         unsigned int GetLowerBoundIndex(Float t) { return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
         unsigned int GetUpperBoundIndex(Float t) { return std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
+
+        inline const TVector3& GetMeanDirection() const { return fMeanDirection; }
 
         void AddTimeOffset(Float tOffset);
         void ApplyDeadtime(Float deadtime);
@@ -81,20 +84,20 @@ class PMTHitCluster : public Cluster<PMTHit>
 
         std::array<float, 6> GetBetaArray();
         OpeningAngleStats GetOpeningAngleStats();
-        //TVector3 FindTRMSMinimizingVertex(float INITGRIDWIDTH=800, float MINGRIDWIDTH=50, float GRIDSHRINKRATE=0.5, float VTXSRCRANGE=5000);
 
         void SetAsSignal(bool b);
         float GetSignalRatio();
         
+        void FindHitProperties();
+        PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
+        void ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max);
+        
     private:
         bool fIsSorted, fHasVertex;
-        TVector3 fVertex;
-
-        //std::vector<unsigned int> fIndex;
+        TVector3 fVertex, fMeanDirection;
 
         void SetToF(bool unset=false);
 };
-
 
 PMTHitCluster operator+(const PMTHitCluster& hitCluster, const Float& time);
 PMTHitCluster operator-(const PMTHitCluster& hitCluster, const Float& time);

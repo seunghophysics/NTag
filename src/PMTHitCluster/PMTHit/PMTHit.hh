@@ -28,7 +28,7 @@ namespace NTagConstant{
 class PMTHit
 {
     public:
-        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}
+        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false), fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
         PMTHit(Float t, float q, int i, int f);
 
         inline const Float& t() const { return fT; }
@@ -38,11 +38,11 @@ class PMTHit
         inline const bool& s() const { return fIsSignal; }
 
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag
-                                             << " x: " << fPMTPosition.x() << " y: " << fPMTPosition.y() << " z: " << fPMTPosition.z() << "\n"; }
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
 
-        inline void SetToFAndDirection(const TVector3& vertex)
+        void SetToFAndDirection(const TVector3& vertex)
         {
+            fT += fToF;
             TVector3 displacement = fPMTPosition - vertex;
             fHitDirection = displacement.Unit();
             fToF = displacement.Mag() / NTagConstant::C_WATER;
@@ -62,10 +62,17 @@ class PMTHit
 
         inline bool operator<(const PMTHit &hit) const { return fT < hit.t(); }
 
+        void FindMinAngle(PMTHitCluster* cluster);
+        void FindDirAngle(TVector3 vec);
+        void FindAcceptance();
+        inline const float& GetMinAngle() const { return fMinAngle; }
+        inline const float& GetDirAngle() const { return fDirAngle; }
+        inline const float& GetAcceptance() const { return fAcceptance; }
+
         PMTHit& operator+=(const Float& time);
         PMTHit& operator-=(const Float& time);
 
-    private:
+    protected:
         Float fT, fToF;
         float fQ;
         unsigned int fPMTID;
@@ -73,6 +80,10 @@ class PMTHit
         bool fIsSignal;
         TVector3 fPMTPosition;
         TVector3 fHitDirection;
+        
+        float fMinAngle;
+        float fDirAngle;
+        float fAcceptance;
 
     //ClassDef(PMTHit, 1)
 };
@@ -85,6 +96,9 @@ namespace HitFunc
     const std::function<float(const PMTHit&)> T = [](const PMTHit& hit)->float { return hit.t(); };
     const std::function<float(const PMTHit&)> Q = [](const PMTHit& hit)->float { return hit.q(); };
     const std::function<int(const PMTHit&)> I = [](const PMTHit& hit)->int { return hit.i(); };
+    const std::function<int(const PMTHit&)> MinAngle = [](const PMTHit& hit)->int { return hit.GetMinAngle(); };
+    const std::function<int(const PMTHit&)> DirAngle = [](const PMTHit& hit)->int { return hit.GetDirAngle(); };
+    const std::function<int(const PMTHit&)> Acceptance = [](const PMTHit& hit)->int { return hit.GetAcceptance(); };
     const std::function<TVector3(const PMTHit&)> Dir = [](const PMTHit& hit)->TVector3 { return hit.GetDirection(); };
 }
 
