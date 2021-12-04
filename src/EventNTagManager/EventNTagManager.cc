@@ -264,9 +264,9 @@ void EventNTagManager::ReadEarlyCandidates()
     int bank = 0; apclrmue_(); apgetmue_(&bank);
 
     for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
-        float reconCT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE];
+        float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE];
             Candidate candidate;
-            candidate.Set("ReconCT", reconCT);
+            candidate.Set("FitT", fitT);
             candidate.Set("x", apmue_.apmuepos[iMuE][0]);
             candidate.Set("y", apmue_.apmuepos[iMuE][1]);
             candidate.Set("z", apmue_.apmuepos[iMuE][2]);
@@ -659,9 +659,9 @@ void EventNTagManager::DumpEvent()
     fEventVariables.Print();
     fEventParticles.DumpAllElements();
     fEventTaggables.DumpAllElements();
-    fEventEarlyCandidates.DumpAllElements({"ReconCT", "NHits", "DWall", "Goodness",
+    fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
                                            "Label", "TagIndex", "TagClass"});
-    fEventCandidates.DumpAllElements({"ReconCT",
+    fEventCandidates.DumpAllElements({"FitT",
                                       "NHits",
                                       "DPrompt",
                                       "DWall",
@@ -782,8 +782,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("N1300", hitsIn1300ns.GetSize());
 
     // Time
-    //float reconCT = hitsInTWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
-    candidate.Set("ReconCT", candidate.Time()*1e-3);
+    //float fitT = hitsInTWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
+    candidate.Set("FitT", candidate.Time()*1e-3);
     candidate.Set("TRMS", hitsInTWIDTH.Find(HitFunc::T, Calc::RMS));
 
     // Charge
@@ -848,7 +848,7 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
         matchTimeList.clear();
         for (unsigned int iTaggable=0; iTaggable<fEventTaggables.GetSize(); iTaggable++) {
             auto& taggable = fEventTaggables[iTaggable];
-            float tDiff = fabs(taggable.Time() - candidate["ReconCT"]*1e3);
+            float tDiff = fabs(taggable.Time() - candidate["FitT"]*1e3);
             if (tDiff < TMATCHWINDOW) {
                 matchTimeList.push_back(tDiff);
                 taggableIndexList.push_back(iTaggable);
@@ -928,7 +928,7 @@ void EventNTagManager::PruneCandidates()
         auto& candidate = fEventCandidates[iCandidate];
         for (auto& early: fEventEarlyCandidates) {
             if (early["TagClass"] == typeE &&
-                fabs(early["ReconCT"] - candidate["ReconCT"])*1e3 < 2*TMATCHWINDOW) {
+                fabs(early["FitT"] - candidate["FitT"])*1e3 < 2*TMATCHWINDOW) {
                 duplicateCandidateList.push_back(iCandidate); break;
             }
         }
@@ -971,7 +971,7 @@ void EventNTagManager::FillNTagCommon()
         }
 
         // fill ntag bank: candidates
-        ntag_.ntime[i] = candidate["ReconCT"] * 1e3;
+        ntag_.ntime[i] = candidate["FitT"] * 1e3;
         ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);
         ntag_.goodness[i] = candidate["TagOut"];
         ntag_.tag[i] = isTaggedOrNot;

@@ -111,7 +111,7 @@ class EventNTagManager
         // tagged type for taggable
         void SetTaggedType(Taggable& taggable, Candidate& candidate);
 
-        // prune duplicate candidates with TagClass==e and same ReconCT
+        // prune duplicate candidates with TagClass==e and same FitT
         // among early and delayed candidates
         void PruneCandidates();
 

@@ -25,7 +25,7 @@ public :
    std::vector<float>   *Goodness;
    std::vector<float>   *Label;
    std::vector<float>   *NHits;
-   std::vector<float>   *ReconCT;
+   std::vector<float>   *FitT;
    std::vector<float>   *TagClass;
    std::vector<float>   *TagIndex;
    std::vector<float>   *dirx;
@@ -41,7 +41,7 @@ public :
    TBranch        *b_Goodness;   //!
    TBranch        *b_Label;   //!
    TBranch        *b_NHits;   //!
-   TBranch        *b_ReconCT;   //!
+   TBranch        *b_FitT;   //!
    TBranch        *b_TagClass;   //!
    TBranch        *b_TagIndex;   //!
    TBranch        *b_dirx;   //!
@@ -81,7 +81,7 @@ MuechkTree::MuechkTree(TTree *tree)
    }
    Init(tree);
 
-   cluster.RegisterFeatureNames({"ReconCT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
+   cluster.RegisterFeatureNames({"FitT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
                                  "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"});
 }
 
@@ -106,7 +106,7 @@ Int_t MuechkTree::GetEntry(Long64_t entry)
      candidate.Set("Goodness", Goodness->at(i));
      candidate.Set("Label", Label->at(i));
      candidate.Set("NHits", NHits->at(i));
-     candidate.Set("ReconCT", ReconCT->at(i));
+     candidate.Set("FitT", FitT->at(i));
      candidate.Set("TagClass", TagClass->at(i));
      candidate.Set("TagIndex", TagIndex->at(i));
      candidate.Set("dirx", dirx->at(i));
@@ -151,7 +151,7 @@ void MuechkTree::Init(TTree *tree)
    Goodness = 0;
    Label = 0;
    NHits = 0;
-   ReconCT = 0;
+   FitT = 0;
    TagClass = 0;
    TagIndex = 0;
    dirx = 0;
@@ -171,7 +171,7 @@ void MuechkTree::Init(TTree *tree)
    fChain->SetBranchAddress("Goodness", &Goodness, &b_Goodness);
    fChain->SetBranchAddress("Label", &Label, &b_Label);
    fChain->SetBranchAddress("NHits", &NHits, &b_NHits);
-   fChain->SetBranchAddress("ReconCT", &ReconCT, &b_ReconCT);
+   fChain->SetBranchAddress("FitT", &FitT, &b_FitT);
    fChain->SetBranchAddress("TagClass", &TagClass, &b_TagClass);
    fChain->SetBranchAddress("TagIndex", &TagIndex, &b_TagIndex);
    fChain->SetBranchAddress("dirx", &dirx, &b_dirx);

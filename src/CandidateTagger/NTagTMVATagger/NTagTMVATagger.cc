@@ -11,13 +11,13 @@ int NTagTMVATagger::Classify(const Candidate& candidate)
 {
     int tagClass = 0;
     int n50 = candidate.Get("N50", -1);
-    float reconCT = candidate.Get("ReconCT");
+    float fitT = candidate.Get("FitT");
     float tmvaOut = GetLikelihood(candidate);
 
     // simple cuts mode for e/n separation
     if (fDoTagE) {
-        if (reconCT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
-        else if (n50 > E_N50CUT && reconCT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
+        if (fitT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
+        else if (n50 > E_N50CUT && fitT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
         else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
         else                                            tagClass = typeMissed; // otherwise noise
     }

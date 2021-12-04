@@ -37,7 +37,7 @@ public :
    std::vector<float>   *N50;
    std::vector<float>   *NHits;
    std::vector<float>   *QSum;
-   std::vector<float>   *ReconCT;
+   std::vector<float>   *FitT;
    std::vector<float>   *TMVAOutput;
    std::vector<float>   *TRMS;
    std::vector<float>   *TagClass;
@@ -63,7 +63,7 @@ public :
    TBranch        *b_N50;   //!
    TBranch        *b_NHits;   //!
    TBranch        *b_QSum;   //!
-   TBranch        *b_ReconCT;   //!
+   TBranch        *b_FitT;   //!
    TBranch        *b_TMVAOutput;   //!
    TBranch        *b_TRMS;   //!
    TBranch        *b_TagClass;   //!
@@ -101,7 +101,7 @@ NTagTree::NTagTree(TTree *tree)
    }
    Init(tree);
 
-   cluster.RegisterFeatureNames({"NHits", "N50", "N200", "N1300", "ReconCT", "TRMS", "QSum",
+   cluster.RegisterFeatureNames({"NHits", "N50", "N200", "N1300", "FitT", "TRMS", "QSum",
                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                  "AngleMean", "AngleSkew", "AngleStdev", "Label",
                                  "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit",
@@ -141,7 +141,7 @@ Int_t NTagTree::GetEntry(Long64_t entry)
      candidate.Set("N50", N50->at(i));
      candidate.Set("NHits", NHits->at(i));
      candidate.Set("QSum", QSum->at(i));
-     candidate.Set("ReconCT", ReconCT->at(i));
+     candidate.Set("FitT", FitT->at(i));
      candidate.Set("TMVAOutput", TMVAOutput->at(i));
      candidate.Set("TRMS", TRMS->at(i));
      candidate.Set("TagClass", TagClass->at(i));
@@ -196,7 +196,7 @@ void NTagTree::Init(TTree *tree)
    N50 = 0;
    NHits = 0;
    QSum = 0;
-   ReconCT = 0;
+   FitT = 0;
    TMVAOutput = 0;
    TRMS = 0;
    TagClass = 0;
@@ -226,7 +226,7 @@ void NTagTree::Init(TTree *tree)
    fChain->SetBranchAddress("N50", &N50, &b_N50);
    fChain->SetBranchAddress("NHits", &NHits, &b_NHits);
    fChain->SetBranchAddress("QSum", &QSum, &b_QSum);
-   fChain->SetBranchAddress("ReconCT", &ReconCT, &b_ReconCT);
+   fChain->SetBranchAddress("FitT", &FitT, &b_FitT);
    fChain->SetBranchAddress("TMVAOutput", &TMVAOutput, &b_TMVAOutput);
    fChain->SetBranchAddress("TRMS", &TRMS, &b_TRMS);
    fChain->SetBranchAddress("TagClass", &TagClass, &b_TagClass);
