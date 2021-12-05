@@ -144,11 +144,11 @@ void EventNTagManager::ReadVariables()
 
     // trigger information
     int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
-    static double prevEvTime = -1;
+    static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
                         + skhead_.nt48sk[2]) * 20 * 1e-6;      // [ms]
-    double tDiff = prevEvTime < 0 ? 1e6 : globalTime - prevEvTime;
+    double tDiff = globalTime - prevEvTime;
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TDiff", tDiff);
     prevEvTime = globalTime;
@@ -163,14 +163,6 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("DWall", GetDWall(fPromptVertex));
 
     if (fIsMC) {
-        // NEUT
-        if (fSettings.GetBool("neut")) {
-            float posnu[3]; nerdnebk_(posnu);
-            fEventVariables.Set("NEUTMode", nework_.modene);
-            fEventVariables.Set("NuType", nework_.ipne[0]);
-            fEventVariables.Set("NuMom", TVector3(nework_.pne[0]).Mag());
-        }
-    
         // vector information (true event generation vertex)
         skgetv_();
         fEventVariables.Set("vecvx", skvect_.pos[0]);
@@ -180,6 +172,14 @@ void EventNTagManager::ReadVariables()
         
         // trgOffset
         fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat));
+
+        // NEUT
+        if (fSettings.GetBool("neut")) {
+            float posnu[3]; nerdnebk_(posnu);
+            fEventVariables.Set("NEUTMode", nework_.modene);
+            fEventVariables.Set("NuType", nework_.ipne[0]);
+            fEventVariables.Set("NuMom", TVector3(nework_.pne[0]).Mag());
+        }
     }
 }
 
