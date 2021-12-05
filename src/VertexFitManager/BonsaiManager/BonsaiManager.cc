@@ -43,7 +43,7 @@ BonsaiManager::~BonsaiManager()
 void BonsaiManager::Initialize()
 {
     if (!skheadg_.sk_geometry) {
-        skheadg_.sk_geometry = 4; // default: SK4
+        skheadg_.sk_geometry = 5; // default: SK5
         geoset_();
     }
 

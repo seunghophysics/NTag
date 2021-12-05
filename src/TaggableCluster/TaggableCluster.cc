@@ -33,7 +33,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
                 // if a matching capture time exists,
                 // just add the gamma-ray to the matching capture
-                if (fabs((double)(particle.Time()-capture.Time()))<1.e-7) {
+                if (fabs((double)(particle.Time()*1e-3-capture.Time()))<1.e-4) {
                     isNewCapture = false;
                     capture.SetEnergy(capture.Energy()+particle.Energy());
                 }
@@ -41,7 +41,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
             // if this n-capture gamma-ray is new
             if (isNewCapture) {
-                Taggable capture(typeN, particle.Time(), particle.Energy(), particle.Vertex());
+                Taggable capture(typeN, particle.Time()*1e-3, particle.Energy(), particle.Vertex());
                 Append(capture);
             }
         }
@@ -67,7 +67,7 @@ void TaggableCluster::DumpAllElements() const
     for (unsigned int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
         auto& taggable = fElement[iTaggable];
         auto vertex = taggable.Vertex();
-        auto time = taggable.Time()*1e-3;
+        auto time = taggable.Time();
         auto earlyIndex = taggable.GetCandidateIndex("Early")+1;
         auto delayedIndex = taggable.GetCandidateIndex("Delayed")+1;
         auto taggedType = taggable.TaggedType();

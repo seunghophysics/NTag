@@ -10,8 +10,8 @@ NODHITMX       100000
 
 # MC noise
 noise_type     sk6
-TNOISESTART    3000
-TNOISEEND      536000
+TNOISESTART    2
+TNOISEEND      535
 NOISESEED      0
 
 # read variables
@@ -27,10 +27,10 @@ vz             0
 PVXRES         0
 
 # candidate search
-T0TH           4000
-T0MX           536000
+TMIN           3
+TMAX           535
 TWIDTH         14
-TMINPEAKSEP    100
+TMINPEAKSEP    200
 NHITSTH        7
 NHITSMX        300
 N200TH         0
@@ -57,4 +57,4 @@ tmva           true
 N_OUTCUT       0.5
 
 # MC labeling
-TMATCHWINDOW   100
+TMATCHWINDOW   200

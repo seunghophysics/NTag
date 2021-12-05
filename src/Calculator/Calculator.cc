@@ -108,7 +108,6 @@ float GetDWall(TVector3 vtx)
     return wallsk_(vertex);
 }
 
-
 float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 {
     dir = dir.Unit();

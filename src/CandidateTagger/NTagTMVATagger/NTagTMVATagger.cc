@@ -16,7 +16,7 @@ int NTagTMVATagger::Classify(const Candidate& candidate)
 
     // simple cuts mode for e/n separation
     if (fDoTagE) {
-        if (fitT < T0TH*1e-3)                        tagClass = typeE;      // e: muechk && before ntag
+        if (fitT < TMIN)                        tagClass = typeE;      // e: muechk && before ntag
         else if (n50 > E_N50CUT && fitT < E_TIMECUT) tagClass = typeE;      // e: ntag && elike
         else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
         else                                            tagClass = typeMissed; // otherwise noise

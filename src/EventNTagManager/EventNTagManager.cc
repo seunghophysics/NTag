@@ -158,9 +158,12 @@ void EventNTagManager::ReadVariables()
         TQReal* TQREAL = mgr->GetTQREALINFO();
         mgr->GetEntry();
 
-        trgOffset = 1000 - MCINFO->prim_pret0[0];
+        trgOffset = -MCINFO->prim_pret0[0];
     }
-    else trginfo_(&trgOffset);
+    else {
+        trginfo_(&trgOffset);
+        trgOffset -= 1000;
+    }
     fEventVariables.Set("TrgType", trgtype);
     fEventVariables.Set("TrgOffset", trgOffset);
     fEventVariables.Set("TDiff", tDiff);
@@ -250,7 +253,7 @@ void EventNTagManager::ReadParticles()
     fEventParticles.ReadCommonBlock(skvect_, secndprt_);
 
     float geantT0; fEventVariables.Get("TrgOffset", geantT0);
-    fEventParticles.SetT0(geantT0);
+    fEventParticles.SetT0(geantT0*1e-3);
 
     fEventTaggables.ReadParticleCluster(fEventParticles);
     fEventTaggables.SetPromptVertex(fPromptVertex);
@@ -264,7 +267,7 @@ void EventNTagManager::ReadEarlyCandidates()
     int bank = 0; apclrmue_(); apgetmue_(&bank);
 
     for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
-        float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE];
+        float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE] - 1;
             Candidate candidate;
             candidate.Set("FitT", fitT);
             candidate.Set("x", apmue_.apmuepos[iMuE][0]);
@@ -488,8 +491,9 @@ void EventNTagManager::ApplySettings()
         fIsInputSKROOT = false;
     
     // NTag parameters
-    fSettings.Get("T0TH", T0TH);
-    fSettings.Get("T0MX", T0MX);
+    float tMin = fSettings.GetFloat("TMIN");
+    float tMax = fSettings.GetFloat("TMAX");
+    T0TH = tMin * 1e3 + 1000; T0MX = tMax * 1e3 + 1000; // ns->us, add trigger time T=1000 ns
     fSettings.Get("TWIDTH", TWIDTH);
     fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
     fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
@@ -539,7 +543,7 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("N_OUTCUT", N_OUTCUT);
     
     if (fSettings.GetBool("tag_e")) 
-        fTMVATagger.SetECut(T0TH, E_N50CUT, E_TIMECUT);
+        fTMVATagger.SetECut(tMin, E_N50CUT, E_TIMECUT);
     fTMVATagger.SetNCut(N_OUTCUT);
     
     if (fSettings.GetBool("tmva")) {
@@ -663,6 +667,9 @@ void EventNTagManager::DumpEvent()
                                            "Label", "TagIndex", "TagClass"});
     fEventCandidates.DumpAllElements({"FitT",
                                       "NHits",
+                                      "dvx",
+                                      "dvy",
+                                      "dvz",
                                       "DPrompt",
                                       "DWall",
                                       "MeanDirAngleMean",
@@ -740,7 +747,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     // NHits > 4 to prevent NaN in angle variables
     if (nHits > 3 && fabs(delayedTime-firstHit.t())<TMINPEAKSEP) {
-        Candidate candidate(iHit, delayedTime);
+        Candidate candidate(iHit, delayedTime-1000); // -1000 ns is to offset the trigger time T=1000 ns
         FindFeatures(candidate);
         fEventCandidates.Append(candidate);
     }
@@ -848,8 +855,8 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
         matchTimeList.clear();
         for (unsigned int iTaggable=0; iTaggable<fEventTaggables.GetSize(); iTaggable++) {
             auto& taggable = fEventTaggables[iTaggable];
-            float tDiff = fabs(taggable.Time() - candidate["FitT"]*1e3);
-            if (tDiff < TMATCHWINDOW) {
+            float tDiff = fabs(taggable.Time() - candidate["FitT"]);
+            if (tDiff*1e3 < TMATCHWINDOW) {
                 matchTimeList.push_back(tDiff);
                 taggableIndexList.push_back(iTaggable);
             }
