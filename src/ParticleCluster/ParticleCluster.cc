@@ -26,7 +26,7 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
             g4pid = nework_.ipne[iVec];
         }
         else g4pid = gG3toG4PIDMap[g3pid];
-        Particle primary(g4pid, 0, TVector3(skvect_.pos), TVector3(skvect_.pin[iVec]));
+        Particle primary(g4pid, 0, TVector3(primaryCommon.pos), TVector3(primaryCommon.pin[iVec]));
         Append(primary);
     }
 
