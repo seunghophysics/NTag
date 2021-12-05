@@ -15,11 +15,10 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 {
     Clear();
 
-    // taggable n
     for (auto const& particle : particleCluster) {
 
         // skip particles outside tank
-        if (GetDWall(particle.Vertex()) < 0) continue;
+        //if (GetDWall(particle.Vertex()) < 0) continue;
 
         // gamma-ray produced by n-capture
         if (particle.IntID() == iNCAPTURE && particle.PID() == GAMMA) {
@@ -33,7 +32,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
                 // if a matching capture time exists,
                 // just add the gamma-ray to the matching capture
-                if (fabs((double)(particle.Time()*1e-3-capture.Time()))<1.e-4) {
+                if (fabs((double)(particle.Time()-capture.Time()))<1.e-4) {
                     isNewCapture = false;
                     capture.SetEnergy(capture.Energy()+particle.Energy());
                 }
@@ -41,7 +40,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
 
             // if this n-capture gamma-ray is new
             if (isNewCapture) {
-                Taggable capture(typeN, particle.Time()*1e-3, particle.Energy(), particle.Vertex());
+                Taggable capture(typeN, particle.Time(), particle.Energy(), particle.Vertex());
                 Append(capture);
             }
         }
@@ -62,7 +61,7 @@ void TaggableCluster::DumpAllElements() const
 {
     Printer msg;
     msg.PrintBlock("MC Taggables", pEVENT);
-    std::cout << "\033[4m No. Type Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
+    std::cout << "\033[4m No. Type     Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
 
     for (unsigned int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
         auto& taggable = fElement[iTaggable];
@@ -72,7 +71,7 @@ void TaggableCluster::DumpAllElements() const
         auto delayedIndex = taggable.GetCandidateIndex("Delayed")+1;
         auto taggedType = taggable.TaggedType();
         std::cout << std::right << std::setw(3) << iTaggable+1 << "  ";
-        std::cout << std::right << std::setw(4) << (taggable.Type() == typeE ? "e" : "n") << " ";
+        std::cout << std::right << std::setw(8) << (taggable.Type() == typeE ? "mu-e" : "nCapture") << " ";
         if (time<10)
         std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << time << " ";
         else

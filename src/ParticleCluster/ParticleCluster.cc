@@ -34,7 +34,7 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
     for (int iSec = 0; iSec < secondaryCommon.nscndprt; iSec++) {
 
         Particle secondary(secondaryCommon.iprtscnd[iSec],
-                           secondaryCommon.tscnd[iSec],
+                           secondaryCommon.tscnd[iSec]*1e-3,
                            TVector3(secondaryCommon.vtxscnd[iSec]),
                            TVector3(secondaryCommon.pscnd[iSec]),
                            secondaryCommon.iprntprt[iSec],
@@ -85,10 +85,10 @@ void ParticleCluster::DumpAllElements() const
         auto mom = particle.Momentum().Mag();
         std::cout << std::right << std::setw(3) << iParticle+1 << "  ";
         std::cout << std::right << std::setw(10) << particle.GetName() << " ";
-        if (particle.Time()*1e-3 < 10)
-        std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << particle.Time()*1e-3 << " ";
+        if (particle.Time()< 10)
+        std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << particle.Time() << " ";
         else
-        std::cout << std::right << std::setw(8) << (int)(particle.Time()*1e-3+0.5f) << "  ";
+        std::cout << std::right << std::setw(8) << (int)(particle.Time()+0.5f) << "  ";
         std::cout << std::right << std::setw(11) << particle.GetIntName() << " ";
         std::cout << std::right << std::setw(10) << (parentName=="0" ? TString("-") : parentName) << " ";
         if (mom<10)

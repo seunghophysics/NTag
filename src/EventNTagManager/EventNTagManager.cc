@@ -747,7 +747,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     // NHits > 4 to prevent NaN in angle variables
     if (nHits > 3 && fabs(delayedTime-firstHit.t())<TMINPEAKSEP) {
-        Candidate candidate(iHit, delayedTime-1000); // -1000 ns is to offset the trigger time T=1000 ns
+        Candidate candidate(iHit, (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
         FindFeatures(candidate);
         fEventCandidates.Append(candidate);
     }
@@ -790,7 +790,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     // Time
     //float fitT = hitsInTWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
-    candidate.Set("FitT", candidate.Time()*1e-3);
+    candidate.Set("FitT", candidate.Time());
     candidate.Set("TRMS", hitsInTWIDTH.Find(HitFunc::T, Calc::RMS));
 
     // Charge
