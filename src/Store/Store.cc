@@ -59,16 +59,15 @@ void Store::Print() const
 void Store::MakeBranches()
 {
     if (fIsOutputTreeSet) {
-         for (auto const& pair: storeMap) {
-            auto key = pair.first.c_str();
-            auto value = pair.second;
+         for (auto const& key: keyOrder) {
+            auto value = storeMap[key];
 
             if (Get(key, tmpNum)) {
-                fOutputTree->Branch(key, &tmpNum);
+                fOutputTree->Branch(key.c_str(), &tmpNum);
             }
             else {
                 tmpStr = value;
-                fOutputTree->Branch(key, &tmpStr);
+                fOutputTree->Branch(key.c_str(), &tmpStr);
             }
         }
     }
@@ -79,12 +78,8 @@ void Store::MakeBranches()
 void Store::FillTree()
 {
     if (fIsOutputTreeSet) {
-        for (auto const& pair: storeMap) {
-            auto key = pair.first;
-                if (!Get(key, tmpNum)) {
-                    Get(key, tmpStr);
-                }
-
+        for (auto const& key: keyOrder) {
+            if (!Get(key, tmpNum)) Get(key, tmpStr);
             fOutputTree->GetBranch(key.c_str())->Fill();
         }
 
