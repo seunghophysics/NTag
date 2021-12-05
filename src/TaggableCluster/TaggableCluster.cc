@@ -95,9 +95,9 @@ void TaggableCluster::MakeBranches()
         fOutputTree->Branch("TaggedType", &fTaggedTypeVector);
         fOutputTree->Branch("t", &fTimeVector);
         fOutputTree->Branch("E", &fEnergyVector);
-        fOutputTree->Branch("vx", &fXVector);
-        fOutputTree->Branch("vy", &fYVector);
-        fOutputTree->Branch("vz", &fZVector);
+        fOutputTree->Branch("tagvx", &fXVector);
+        fOutputTree->Branch("tagvy", &fYVector);
+        fOutputTree->Branch("tagvz", &fZVector);
         fOutputTree->Branch("DistFromPV" ,&fDistVector);
         fOutputTree->Branch("DWall" ,&fDWallVector);
         fOutputTree->Branch("EarlyIndex" ,&fEarlyIndexVector);

@@ -24,9 +24,9 @@ public :
    std::vector<int>     *TaggedType;
    std::vector<float>   *t;
    std::vector<float>   *E;
-   std::vector<float>   *vx;
-   std::vector<float>   *vy;
-   std::vector<float>   *vz;
+   std::vector<float>   *tagvx;
+   std::vector<float>   *tagvy;
+   std::vector<float>   *tagvz;
    std::vector<float>   *DistFromPV;
    std::vector<float>   *DWall;
    std::vector<int>     *EarlyIndex;
@@ -37,9 +37,9 @@ public :
    TBranch        *b_TaggedType;   //!
    TBranch        *b_t;   //!
    TBranch        *b_E;   //!
-   TBranch        *b_vx;   //!
-   TBranch        *b_vy;   //!
-   TBranch        *b_vz;   //!
+   TBranch        *b_tagvx;   //!
+   TBranch        *b_tagvy;   //!
+   TBranch        *b_tagvz;   //!
    TBranch        *b_DistFromPV;   //!
    TBranch        *b_DWall;   //!
    TBranch        *b_EarlyIndex;   //!
@@ -92,7 +92,7 @@ Int_t TaggableTree::GetEntry(Long64_t entry)
 
    for (unsigned int i=0; i<Type->size(); i++) {
      Taggable taggable(static_cast<TaggableType>(Type->at(i)),
-                       t->at(i), E->at(i), TVector3(vx->at(i), vy->at(i), vz->at(i)));
+                       t->at(i), E->at(i), TVector3(tagvx->at(i), tagvy->at(i), tagvz->at(i)));
      cluster.Append(taggable);
    }
 
@@ -128,9 +128,9 @@ void TaggableTree::Init(TTree *tree)
    TaggedType = 0;
    t = 0;
    E = 0;
-   vx = 0;
-   vy = 0;
-   vz = 0;
+   tagvx = 0;
+   tagvy = 0;
+   tagvz = 0;
    DistFromPV = 0;
    DWall = 0;
    EarlyIndex = 0;
@@ -145,9 +145,9 @@ void TaggableTree::Init(TTree *tree)
    fChain->SetBranchAddress("TaggedType", &TaggedType, &b_TaggedType);
    fChain->SetBranchAddress("t", &t, &b_t);
    fChain->SetBranchAddress("E", &E, &b_E);
-   fChain->SetBranchAddress("vx", &vx, &b_vx);
-   fChain->SetBranchAddress("vy", &vy, &b_vy);
-   fChain->SetBranchAddress("vz", &vz, &b_vz);
+   fChain->SetBranchAddress("tagvx", &tagvx, &b_tagvx);
+   fChain->SetBranchAddress("tagvy", &tagvy, &b_tagvy);
+   fChain->SetBranchAddress("tagvz", &tagvz, &b_tagvz);
    fChain->SetBranchAddress("DistFromPV", &DistFromPV, &b_DistFromPV);
    fChain->SetBranchAddress("DWall", &DWall, &b_DWall);
    fChain->SetBranchAddress("EarlyIndex", &EarlyIndex, &b_EarlyIndex);
