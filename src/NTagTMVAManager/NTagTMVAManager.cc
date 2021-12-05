@@ -29,7 +29,7 @@ void NTagTMVAManager::InitializeReader()
     }
 
     fReader->AddSpectator("Label", &(fCandidateLabel));
-    fReader->BookMVA("MLP", GetENV("NTAGPATH")+"/weights/TMVA_MLP.xml");
+    fReader->BookMVA("MLP", GetENV("NTAGLIBPATH")+"/weights/TMVA_MLP.xml");
 }
 
 void NTagTMVAManager::SetMethods(bool turnOn)
@@ -95,7 +95,7 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
 
     fFactory = new TMVA::Factory("NTagTMVAFactory", outFile, factoryOption);
 
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGPATH") + "weights/new";
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGLIBPATH") + "weights/new";
 
     std::cout << "\n" << std::endl;
     for (auto& key: gTMVAFeatures) {

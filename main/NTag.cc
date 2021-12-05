@@ -8,6 +8,7 @@
 
 #include "skparmC.h"
 #include "sktqC.h"
+#include "skheadC.h"
 
 #include "ArgParser.hh"
 #include "Printer.hh"
@@ -15,8 +16,6 @@
 #include "SKLibs.hh"
 #include "NoiseManager.hh"
 #include "EventNTagManager.hh"
-
-#include "skheadC.h"
 
 int main(int argc, char** argv)
 {
@@ -28,7 +27,7 @@ int main(int argc, char** argv)
     Printer msg("NTag", pDEFAULT);
 
     msg.Print("input file: " + inputFilePath);
-    
+
     if (!outDataFilePath.empty()) {
         SuperManager* superManager = SuperManager::GetManager();
         superManager->CreateTreeManager(mInput, inputFilePath.data(), outDataFilePath.data(), 0);

@@ -1,21 +1,20 @@
 #!/bin/bash
 
 bin=$(pwd)/bin
-pathline="export PATH=$bin:\$PATH # Install NTag"
-ntagline="export NTAGPATH=$(pwd)  # Install NTag"
+pathline="export PATH=$bin:\$PATH # Install NTagLib"
+ntagline="export NTAGLIBPATH=$(pwd) # Install NTagLib"
 
-if [ $1 == "set" ]; then
+if [ $1 = "set" ]; then
     export PATH=$bin:$PATH
-    export NTAGPATH=$(pwd)
+    export NTAGLIBPATH=$(pwd)
     echo $pathline >> ~/.bashrc
     echo $ntagline >> ~/.bashrc
-    echo "[NTag] The path to the NTag executable has been added to your \$PATH."
-    echo "[NTag] Use NTag anywhere you want!"
-elif [ $1 == "unset" ]; then
+    echo "[NTagLib] The path to the NTagLib executables has been added to your \$PATH."
+elif [ $1 = "unset" ]; then
     export PATH=${PATH//$bin:/}
-    unset NTAGPATH
-    sed -i '/Install NTag/d' ~/.bashrc
-    echo "[NTag] The path to the NTag executable has been removed from your \$PATH."
-else 
-    echo "[NTag] Unknown command $1! Please use either set or unset."
+    unset NTAGLIBPATH
+    sed -i '/Install NTagLib/d' ~/.bashrc
+    echo "[NTagLib] The path to the NTagLib executables has been removed from your \$PATH."
+else
+    echo "[NTagLib] Unknown command $1! Please use either set or unset."
 fi

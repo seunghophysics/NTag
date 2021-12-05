@@ -2,12 +2,12 @@
 #undef MAXPM
 #undef MAXPMA
 
-#include <ArgParser.hh>
-#include <Calculator.hh>
-#include <PMTHitCluster.hh>
-#include <NoiseManager.hh>
-#include <Printer.hh>
-#include <SKIO.hh>
+#include "ArgParser.hh"
+#include "Calculator.hh"
+#include "PMTHitCluster.hh"
+#include "NoiseManager.hh"
+#include "Printer.hh"
+#include "SKIO.hh"
 
 int main(int argc, char **argv)
 {
@@ -41,12 +41,12 @@ int main(int argc, char **argv)
     int nInputEvents = inputMC.GetNumberOfEvents();
     msg.Print(Form("Input file: %s", inputFilePath));
     msg.Print(Form("Number of events in input file: %d", nInputEvents));
-    
+
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
     outputMC.OpenFile();
     msg.Print(Form("Output file: %s", inputFilePath));
-    
+
     NoiseManager noiseManager(noiseType, nInputEvents, tStart, tEnd, seed);
 
     // Event loop

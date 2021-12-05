@@ -33,7 +33,7 @@ EventNTagManager::EventNTagManager(Verbosity verbose)
     fMsg = Printer("NTagManager", verbose);
 
     fSettings = Store("Settings");
-    fSettings.Initialize(GetENV("NTAGPATH")+"/NTagConfig");
+    fSettings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
     //ApplySettings();
 
     fEventVariables = Store("Variables");
