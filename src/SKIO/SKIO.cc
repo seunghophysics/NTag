@@ -4,6 +4,7 @@
 #undef MAXPM
 #undef MAXPMA
 
+#include "apscndryC.h"
 #include "nbnkC.h"
 
 #include "SKLibs.hh"
@@ -263,7 +264,7 @@ void SKIO::DumpSettings()
     std::cout << "\n";
 }
 
-void ClearTQCommon()
+void SKIO::ClearTQCommon()
 {
     for (int iHit=0; iHit<30*MAXPM; iHit++) {
         sktqz_.nqiskz = 0;
@@ -277,4 +278,50 @@ void ClearTQCommon()
         rawtqinfo_.qbuf_raw[iHit] = 0;
         rawtqinfo_.icabbf_raw[iHit] = 0;
     }
+}
+
+void SKIO::SetSecondaryCommon(FileFormat format)
+{
+    if (format==mSKROOT) {
+        int lun = 10;
+
+        TreeManager* mgr  = skroot_get_mgr(&lun);
+        SecondaryInfo* SECONDARY = mgr->GetSECONDARY();
+        mgr->GetEntry();
+
+        secndprt_.nscndprt = SECONDARY->nscndprt;
+
+        std::copy(std::begin(SECONDARY->iprtscnd), std::end(SECONDARY->iprtscnd), std::begin(secndprt_.iprtscnd));
+        std::copy(std::begin(SECONDARY->iprntprt), std::end(SECONDARY->iprntprt), std::begin(secndprt_.iprntprt));
+        std::copy(std::begin(SECONDARY->lmecscnd), std::end(SECONDARY->lmecscnd), std::begin(secndprt_.lmecscnd));
+        std::copy(std::begin(SECONDARY->tscnd), std::end(SECONDARY->tscnd), std::begin(secndprt_.tscnd));
+
+        std::copy(&SECONDARY->vtxscnd[0][0], &SECONDARY->vtxscnd[0][0] + 3*SECMAXRNG, &secndprt_.vtxscnd[0][0]);
+        std::copy(&SECONDARY->pscnd[0][0], &SECONDARY->pscnd[0][0] + 3*SECMAXRNG, &secndprt_.pscnd[0][0]);
+    }
+    else if (format==mZBS) {
+        apflscndprt_();
+    }
+}
+
+float SKIO::GetMCTriggerOffset(FileFormat format)
+{
+    float trgOffset = 0;
+
+    if (format==mSKROOT) {
+        int lun = 10;
+
+        TreeManager* mgr  = skroot_get_mgr(&lun);
+        MCInfo* MCINFO = mgr->GetMC();
+        TQReal* TQREAL = mgr->GetTQREALINFO();
+        mgr->GetEntry();
+
+        trgOffset = -MCINFO->prim_pret0[0];
+    }
+    else if (format==mZBS) {
+        trginfo_(&trgOffset);
+        trgOffset -= 1000;
+    }
+    
+    return trgOffset;
 }

@@ -159,7 +159,8 @@ class EventNTagManager
         Printer fMsg;
 
         // booleans
-        bool fIsBranchSet, fIsInputSKROOT, fIsMC;
+        bool fIsBranchSet, fIsMC;
+        FileFormat fFileFormat;
 };
 
 #include "TSysEvtHandler.h"

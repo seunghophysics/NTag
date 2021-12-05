@@ -28,13 +28,13 @@
 #include "EventNTagManager.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fOutDataFile(nullptr), fIsBranchSet(false), fIsInputSKROOT(false), fIsMC(true)
+: fOutDataFile(nullptr), fIsBranchSet(false), fIsMC(true), fFileFormat(mZBS)
 {
     fMsg = Printer("NTagManager", verbose);
 
     fSettings = Store("Settings");
     fSettings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
-    //ApplySettings();
+    ApplySettings();
 
     fEventVariables = Store("Variables");
     fEventCandidates = CandidateCluster("Delayed");
@@ -144,28 +144,12 @@ void EventNTagManager::ReadVariables()
 
     // trigger information
     int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
-    float trgOffset = 0;
     static double prevEvTime = -1;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
                         + skhead_.nt48sk[2]) * 20 * 1e-6;      // [ms]
     double tDiff = prevEvTime < 0 ? 1e6 : globalTime - prevEvTime;
-    if (fIsInputSKROOT) {
-        int lun = 10;
-
-        TreeManager* mgr  = skroot_get_mgr(&lun);
-        MCInfo* MCINFO = mgr->GetMC();
-        TQReal* TQREAL = mgr->GetTQREALINFO();
-        mgr->GetEntry();
-
-        trgOffset = -MCINFO->prim_pret0[0];
-    }
-    else {
-        trginfo_(&trgOffset);
-        trgOffset -= 1000;
-    }
     fEventVariables.Set("TrgType", trgtype);
-    fEventVariables.Set("TrgOffset", trgOffset);
     fEventVariables.Set("TDiff", tDiff);
     prevEvTime = globalTime;
 
@@ -178,12 +162,24 @@ void EventNTagManager::ReadVariables()
     // dwall
     fEventVariables.Set("DWall", GetDWall(fPromptVertex));
 
-    // mc information from NEUT
-    if (fSettings.GetBool("neut")) {
-        float posnu[3]; nerdnebk_(posnu);
-        fEventVariables.Set("NEUTMode", nework_.modene);
-        fEventVariables.Set("NeutrinoType", nework_.ipne[0]);
-        fEventVariables.Set("NeutrinoMom", TVector3(nework_.pne[0]).Mag());
+    if (fIsMC) {
+        // NEUT
+        if (fSettings.GetBool("neut")) {
+            float posnu[3]; nerdnebk_(posnu);
+            fEventVariables.Set("NEUTMode", nework_.modene);
+            fEventVariables.Set("NuType", nework_.ipne[0]);
+            fEventVariables.Set("NuMom", TVector3(nework_.pne[0]).Mag());
+        }
+    
+        // vector information (true event generation vertex)
+        skgetv_();
+        fEventVariables.Set("vecvx", skvect_.pos[0]);
+        fEventVariables.Set("vecvy", skvect_.pos[1]);
+        fEventVariables.Set("vecvz", skvect_.pos[2]);
+        fEventVariables.Set("VtxRes", (TVector3(skvect_.pos)-fPromptVertex).Mag());
+        
+        // trgOffset
+        fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat));
     }
 }
 
@@ -228,31 +224,10 @@ void EventNTagManager::AddNoise()
 void EventNTagManager::ReadParticles()
 {
     skgetv_();
-
-    if (fIsInputSKROOT) {
-        int lun = 10;
-
-        TreeManager* mgr  = skroot_get_mgr(&lun);
-        SecondaryInfo* SECONDARY = mgr->GetSECONDARY();
-        mgr->GetEntry();
-
-        secndprt_.nscndprt = SECONDARY->nscndprt;
-
-        std::copy(std::begin(SECONDARY->iprtscnd), std::end(SECONDARY->iprtscnd), std::begin(secndprt_.iprtscnd));
-        std::copy(std::begin(SECONDARY->iprntprt), std::end(SECONDARY->iprntprt), std::begin(secndprt_.iprntprt));
-        std::copy(std::begin(SECONDARY->lmecscnd), std::end(SECONDARY->lmecscnd), std::begin(secndprt_.lmecscnd));
-        std::copy(std::begin(SECONDARY->tscnd), std::end(SECONDARY->tscnd), std::begin(secndprt_.tscnd));
-
-        std::copy(&SECONDARY->vtxscnd[0][0], &SECONDARY->vtxscnd[0][0] + 3*SECMAXRNG, &secndprt_.vtxscnd[0][0]);
-        std::copy(&SECONDARY->pscnd[0][0], &SECONDARY->pscnd[0][0] + 3*SECMAXRNG, &secndprt_.pscnd[0][0]);
-    }
-    else {
-        apflscndprt_();
-    }
-
+    SKIO::SetSecondaryCommon(fFileFormat);
     fEventParticles.ReadCommonBlock(skvect_, secndprt_);
 
-    float geantT0; fEventVariables.Get("TrgOffset", geantT0);
+    float geantT0 = fEventVariables.GetFloat("MCT0", 0);
     fEventParticles.SetT0(geantT0*1e-3);
 
     fEventTaggables.ReadParticleCluster(fEventParticles);
@@ -329,7 +304,14 @@ void EventNTagManager::SearchAndFill()
 
 void EventNTagManager::ProcessEvent()
 {
-    CheckMC();
+    static bool initialized = false;
+    
+    if (!initialized) {
+        CheckMC();
+        if (fSettings.GetBool("tmva")) 
+            fTMVATagger.Initialize();
+        initialized = true;
+    }
 
     if (fIsMC || fSettings.GetBool("force_flat"))
         ProcessFlatEvent();
@@ -486,9 +468,9 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("in", inFilePath);
 
     if (inFilePath.EndsWith(".root"))
-        fIsInputSKROOT = true;
+        fFileFormat = mSKROOT;
     else
-        fIsInputSKROOT = false;
+        fFileFormat = mZBS;
     
     // NTag parameters
     float tMin = fSettings.GetFloat("TMIN");
@@ -547,7 +529,6 @@ void EventNTagManager::ApplySettings()
     fTMVATagger.SetNCut(N_OUTCUT);
     
     if (fSettings.GetBool("tmva")) {
-        fTMVATagger.Initialize();
         fTagger = &fTMVATagger;
     }
     else {

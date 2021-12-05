@@ -84,6 +84,10 @@ class SKIO
         int GetRefRunNo() { return fRefRunNo; }
         void SetRefRunNo(int refRunNo) { fRefRunNo = refRunNo; }
 
+        static void ClearTQCommon();
+        static void SetSecondaryCommon(FileFormat format=mZBS);
+        static float GetMCTriggerOffset(FileFormat format=mZBS);
+
     private:
         IOMode fIOMode;
         FileFormat fFileFormat;
@@ -104,6 +108,5 @@ class SKIO
         Printer fMsg;
 };
 
-void ClearTQCommon();
 
 #endif
