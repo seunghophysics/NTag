@@ -6,7 +6,7 @@
 #include "Taggable.hh"
 #include "ParticleCluster.hh"
 
-class TaggableCluster : public Cluster<Taggable>
+class TaggableCluster : public Cluster<Taggable>, public TreeOut
 {
     public:
         TaggableCluster();

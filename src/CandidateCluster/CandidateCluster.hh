@@ -12,7 +12,7 @@
 
 class TTree;
 
-class CandidateCluster : public Cluster<Candidate>
+class CandidateCluster : public Cluster<Candidate>, public TreeOut
 {
     public:
         CandidateCluster();

@@ -8,7 +8,7 @@
 #include "Particle.hh"
 #include "Cluster.hh"
 
-class ParticleCluster : public Cluster<Particle>
+class ParticleCluster : public Cluster<Particle>, public TreeOut
 {
     public:
         ParticleCluster() {}

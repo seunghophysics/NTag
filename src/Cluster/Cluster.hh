@@ -11,10 +11,10 @@
 #include "TreeOut.hh"
 
 template <class T>
-class Cluster : public TreeOut
+class Cluster
 {
     public:
-        Cluster(): TreeOut(), fElement() {}
+        Cluster(): fElement() {}
 
         virtual inline void Append(const T& elm) { fElement.push_back(elm); }
         virtual inline void Append(Cluster<T>& cluster)
