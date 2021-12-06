@@ -42,5 +42,14 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev", 
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
                                                  "DPrompt", "DWall", "DWallMeanDir"};
+                                                 
+static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "noise_type", "muechk", "neut", "add_noise",
+                                               "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", "tmva", "in", "out",
+                                               "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX",
+                                               "TNOISESTART", "TNOISEEND", "NOISESEED",
+                                               "TWIDTH", "NHITSTH", "NHITSMX", "N200TH", "N200MX",
+                                               "TMINPEAKSEP", "TMATCHWINDOW",
+                                               "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
+                                               "E_N50CUT", "E_TIMECUT", "N_OUTCUT"};
 
 #endif

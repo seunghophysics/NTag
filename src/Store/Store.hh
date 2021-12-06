@@ -36,15 +36,16 @@ class Store : public TreeOut
         void ReadArguments(const ArgParser& argParser);
 
         virtual void Print() const;
-        void Clear() { storeMap.clear(); keyOrder.clear(); }
-        bool HasKey(std::string key) { return (storeMap.count(key) > 0); }
-
+        void Clear() { fMap.clear(); fKeyOrder.clear(); }
+        bool HasKey(std::string key) { return (fMap.count(key) > 0); }
+        void RemoveKey(std::string key);
+        
         template <typename T>
         bool Get(std::string key, T& out)
         {
-            if (storeMap.count(key) > 0) {
+            if (fMap.count(key) > 0) {
 
-                std::stringstream stream(storeMap[key]);
+                std::stringstream stream(fMap[key]);
                 stream >> out;
                 return !stream.fail();
             }
@@ -57,18 +58,18 @@ class Store : public TreeOut
         {
             std::stringstream stream;
             stream << in;
-            if (!storeMap.count(key)) keyOrder.push_back(key);
-            storeMap[key] = stream.str();
+            if (!fMap.count(key)) fKeyOrder.push_back(key);
+            fMap[key] = stream.str();
         }
         
         bool GetBool(std::string key, bool emptyVal=false)
         {
-            if (storeMap.count(key) > 0) {
-                if (storeMap[key]=="true" || storeMap[key]=="1") return true;
-                else if (storeMap[key]=="false" || storeMap[key]=="0") return false;
+            if (fMap.count(key) > 0) {
+                if (fMap[key]=="true" || fMap[key]=="1") return true;
+                else if (fMap[key]=="false" || fMap[key]=="0") return false;
                 else {
                     std::cerr << "Key " << key << " in the Store " << name
-                              << " has a non-boolean value " << storeMap[key] << "\n";
+                              << " has a non-boolean value " << fMap[key] << "\n";
                     return emptyVal;
                 }
             }
@@ -77,19 +78,19 @@ class Store : public TreeOut
         
         int GetInt(std::string key, int emptyVal=0)
         {
-            if (storeMap.count(key) > 0)
-                return std::stoi(storeMap[key]);
+            if (fMap.count(key) > 0)
+                return std::stoi(fMap[key]);
             else return emptyVal;
         }
         
         float GetFloat(std::string key, float emptyVal=0)
         {
-            if (storeMap.count(key) > 0)
-                return std::stof(storeMap[key]);
+            if (fMap.count(key) > 0)
+                return std::stof(fMap[key]);
             else return emptyVal;
         }
 
-        const std::map<std::string, std::string>& GetMap() { return storeMap; }
+        const std::map<std::string, std::string>& GetMap() { return fMap; }
 
         // TTree access
         void MakeBranches();
@@ -98,10 +99,10 @@ class Store : public TreeOut
 
     protected:
         std::string name;
-        std::map<std::string, std::string> storeMap;
+        std::map<std::string, std::string> fMap;
 
     private:
-        std::vector<std::string> keyOrder;
+        std::vector<std::string> fKeyOrder;
 
         // temporary values for branching
         TVector3 tmpVec;

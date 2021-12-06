@@ -539,6 +539,14 @@ void EventNTagManager::ApplySettings()
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
 {
     fSettings.ReadArguments(argParser);
+    
+    for (auto const& pair: fSettings.GetMap()) {
+        auto key = pair.first;
+        if (FindIndex(gCmdOptions, key)<0) {
+            fMsg.Print(key + " is not a valid option name. Skipping...", pWARNING);
+            fSettings.RemoveKey(key);
+        }
+    }
 }
 
 void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)

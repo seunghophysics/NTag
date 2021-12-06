@@ -97,7 +97,7 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
         dummyFile->Close();
     }
 
-    if (nAddedEntries && std::find(usedFilesList.begin(), usedFilesList.end(), noiseFilePath) == usedFilesList.end()) {
+    if (nAddedEntries && FindIndex(usedFilesList, noiseFilePath)<0) {
         fMsg.Print(Form("Adding dummy file at ") + noiseFilePath + Form(": %d entries", nAddedEntries));
         chain->Add(noiseFilePath);
         fNEntries += nAddedEntries;

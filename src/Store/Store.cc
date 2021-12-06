@@ -31,6 +31,15 @@ void Store::Initialize(std::string configFilePath)
     file.close();
 }
 
+void Store::RemoveKey(std::string key)
+{
+    // map
+    fMap.erase(key);
+
+    // vector
+    fKeyOrder.erase(std::remove(fKeyOrder.begin(), fKeyOrder.end(), key), fKeyOrder.end());
+}
+
 void Store::ReadArguments(const ArgParser& argParser)
 {
     auto& optionPairs = argParser.GetOptionPairs();
@@ -46,21 +55,21 @@ void Store::Print() const
     msg.PrintBlock(name + ": Keys and values");
 
     unsigned int maxWidth = 0;
-    for (auto const& key: keyOrder) {
+    for (auto const& key: fKeyOrder) {
         if (key.length() > maxWidth)
             maxWidth = key.length();
     }
 
-    for (auto const& key: keyOrder)
-        std::cout << std::left << std::setw(maxWidth+1) << key << ": " << storeMap.at(key) << "\n";
+    for (auto const& key: fKeyOrder)
+        std::cout << std::left << std::setw(maxWidth+1) << key << ": " << fMap.at(key) << "\n";
     std::cout << std::endl;
 }
 
 void Store::MakeBranches()
 {
     if (fIsOutputTreeSet) {
-         for (auto const& key: keyOrder) {
-            auto value = storeMap[key];
+         for (auto const& key: fKeyOrder) {
+            auto value = fMap[key];
 
             if (Get(key, tmpNum)) {
                 fOutputTree->Branch(key.c_str(), &tmpNum);
@@ -78,7 +87,7 @@ void Store::MakeBranches()
 void Store::FillTree()
 {
     if (fIsOutputTreeSet) {
-        for (auto const& key: keyOrder) {
+        for (auto const& key: fKeyOrder) {
             if (!Get(key, tmpNum)) Get(key, tmpStr);
             fOutputTree->GetBranch(key.c_str())->Fill();
         }

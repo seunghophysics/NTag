@@ -149,6 +149,13 @@ float GetSkew(const std::vector<T>& vec)
     return m3 / pow(GetRMS(vec), 1.5);
 }
 
+template<typename T>
+int FindIndex(const std::vector<T>& vec, const T& value) {
+    int index = std::find(vec.begin(), vec.end(), value) - vec.begin();
+    if ((unsigned int)index == vec.size()) index = -1;
+    return index;
+}
+
 /**
  * @brief Get i-th Legendre polynomial P_i(x) evaluated at x.
  * @param i The order of Legendre polynomial.
