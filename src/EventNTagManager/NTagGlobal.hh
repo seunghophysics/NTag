@@ -47,7 +47,7 @@ static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "nois
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", "tmva", "in", "out",
                                                "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX",
                                                "TNOISESTART", "TNOISEEND", "NOISESEED",
-                                               "TWIDTH", "NHITSTH", "NHITSMX", "N200TH", "N200MX",
+                                               "TWIDTH", "NHITSTH", "NHITSMX", "N200MX",
                                                "TMINPEAKSEP", "TMATCHWINDOW",
                                                "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
                                                "E_N50CUT", "E_TIMECUT", "N_OUTCUT"};

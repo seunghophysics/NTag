@@ -689,9 +689,9 @@ void EventNTagManager::UnsetToF()
 
 void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 {
-    TVector3 delayedVertex(0, 0, 0);
-    float delayedTime = 0;
     PMTHit firstHit = fEventHits[iHit];
+    TVector3 delayedVertex = fPromptVertex;
+    float delayedTime = firstHit.t();
 
     // delayed vertex = prompt vertex
     if (fDelayedVertexMode == mPROMPT) {
@@ -701,44 +701,48 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     // delayed vertex fit
     else {
         PMTHitCluster hitsForFit;
-        //PMTHit firstHit = fEventHits[iHit];
+        bool doFit = true;
 
         if (fDelayedVertexMode == mTRMS)
-            // hitsForFit = fEventHits.Slice(iHit, TWIDTH/2.-25, TWIDTH/2.+25) - firstHit.t() + 1000;
             hitsForFit = fEventHits.Slice(iHit, (TWIDTH-TRMSTWIDTH)/2., (TWIDTH+TRMSTWIDTH)/2.) - firstHit.t() + 1000;
+
         else if (fDelayedVertexMode == mBONSAI) {
             fEventHits.RemoveVertex();
             fEventHits.Sort();
             firstHit.UnsetToFAndDirection();
             unsigned int firstHitID = fEventHits.GetIndex(firstHit);
             hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780) - firstHit.t() + 1000;
+            
+            // give up bonsai fit for N1300 larger than 2000
+            if (hitsForFit.GetSize() > 2000) {
+                fMsg.Print(Form("A possible candidate at T=%3.2f us has N1300 larger than 2000," 
+                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3), pWARNING);
+                doFit = false;
+            }
         }
-
-        // firstHit.Dump();
-        hitsForFit.Sort();
-        // hitsForFit.DumpAllElements();
-
-        fDelayedVertexManager->Fit(hitsForFit);
-
-        // std::cout << "fit time: " << fDelayedVertexManager->GetFitTime() << "\n";
-        delayedVertex = fDelayedVertexManager->GetFitVertex();
-        delayedTime   = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
-        // std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
-        //hitsForFit.SetVertex(delayedVertex);
+        
+        if (doFit) {
+            hitsForFit.Sort();
+            fDelayedVertexManager->Fit(hitsForFit);
+            delayedVertex = fDelayedVertexManager->GetFitVertex();
+            delayedTime   = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
+        }
     }
     fEventHits.SetVertex(delayedVertex);
-    // std::cout << "firstHit T: " << firstHit.t() << " firstHit ToF: " << firstHit.GetToF() << std::endl;
     firstHit.SetToFAndDirection(delayedVertex);
-    // std::cout << "firstHit T: " << firstHit.t() << " firstHit ToF: " << firstHit.GetToF() << std::endl;
-    iHit = fEventHits.GetLowerBoundIndex(delayedTime);
-    unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
-    // std::cout << "fitTime: " << delayedTime << " firstHitTime: " << firstHit.t() << " diff: " << delayedTime - firstHit.t() << std::endl;
 
-    // NHits > 4 to prevent NaN in angle variables
-    if (nHits > 3 && fabs(delayedTime-firstHit.t())<TMINPEAKSEP) {
-        Candidate candidate(iHit, (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
-        FindFeatures(candidate);
-        fEventCandidates.Append(candidate);
+    // fitted time should not be too far off from the first hit time
+    // to prevent double counting of same hits
+    if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP) {
+        iHit = fEventHits.GetLowerBoundIndex(delayedTime);
+        unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
+        
+        // NHits > 4 to prevent NaN in angle variables
+        if (nHits > 4) {
+            Candidate candidate(iHit, (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
+            FindFeatures(candidate);
+            fEventCandidates.Append(candidate);
+        }
     }
 
     SetToF(fPromptVertex);
