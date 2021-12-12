@@ -47,7 +47,6 @@ class EventNTagManager
 
         // MC taggable mapping
         void MapTaggables();
-        void ResetTaggableMapping();
 
         // settings
         void ApplySettings();
@@ -87,6 +86,8 @@ class EventNTagManager
         
         // MC taggable mapping
         static void Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow=200);
+        static void ResetTaggableMapping(TaggableCluster& taggableCluster);
+        static void ResetCandidateClass(CandidateCluster& candidateCluster);
         // tagged type for taggable
         static void SetTaggedType(Taggable& taggable, Candidate& candidate);
 

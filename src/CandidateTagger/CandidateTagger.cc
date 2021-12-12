@@ -64,17 +64,19 @@ void CandidateTagger::Apply(const char* inFilePath, const char* outFilePath, flo
         tagClassList.clear();
         taggedTypeList.clear();
 
-        //if (!inNtagTree->GetEntry(iEntry) || 
-        //    !inTaggableTree->GetEntry(iEntry)) continue;
-        
         ntagTreeReader.GetEntry(iEntry);
         taggableTreeReader.GetEntry(iEntry);
 
-        for (auto const& candidate: ntagTreeReader.cluster) {
-            tagOutList.push_back(GetLikelihood(candidate));
-            tagClassList.push_back(Classify(candidate));
+        for (auto& candidate: ntagTreeReader.cluster) {
+            float tagOut = GetLikelihood(candidate);
+            int tagClass = Classify(candidate);
+            candidate.Set("TagOut", tagOut);
+            candidate.Set("TagClass", tagClass);
+            tagOutList.push_back(tagOut);
+            tagClassList.push_back(tagClass);
         }
 
+        EventNTagManager::ResetTaggableMapping(taggableTreeReader.cluster);
         EventNTagManager::Map(taggableTreeReader.cluster, ntagTreeReader.cluster, tMatchWindow);
         
         for (auto const& taggable: taggableTreeReader.cluster) {

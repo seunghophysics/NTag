@@ -440,27 +440,21 @@ void EventNTagManager::MapTaggables()
     Map(fEventTaggables, fEventCandidates, TMATCHWINDOW);
 }
 
-void EventNTagManager::ResetTaggableMapping()
+void EventNTagManager::ResetTaggableMapping(TaggableCluster& taggableCluster)
 {
-    // taggables
-    for (auto& taggable: fEventTaggables) {
+    for (auto& taggable: taggableCluster) {
         taggable.SetCandidateIndex("Early", -1);
         taggable.SetCandidateIndex("Delayed", -1);
         taggable.SetTaggedType(typeMissed);
     }
+}
 
-    // muechk candidates
-    for (auto& candidate: fEventEarlyCandidates) {
+void EventNTagManager::ResetCandidateClass(CandidateCluster& candidateCluster)
+{
+    for (auto& candidate: candidateCluster) {
         candidate.Set("TagIndex", -1);
         candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", fTagger->Classify(candidate));
-    }
-
-    // ntag candidates
-    for (auto& candidate: fEventCandidates) {
-        candidate.Set("TagIndex", -1);
-        candidate.Set("Label", lNoise);
-        candidate.Set("TagClass", fTagger->Classify(candidate));
+        candidate.Set("TagClass", typeMissed);
     }
 }
 
@@ -843,8 +837,8 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
         std::vector<int> taggableIndexList;
         std::vector<float> matchTimeList;
 
-        taggableIndexList.clear();
-        matchTimeList.clear();
+        //taggableIndexList.clear();
+        //matchTimeList.clear();
         for (unsigned int iTaggable=0; iTaggable<taggableCluster.GetSize(); iTaggable++) {
             auto& taggable = taggableCluster[iTaggable];
             float tDiff = fabs(taggable.Time() - candidate["FitT"]);
@@ -910,6 +904,7 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
 {
     TaggableType tagClass = static_cast<TaggableType>((int)(candidate.Get("TagClass", -1)+0.5f));
     TaggableType tagType = taggable.TaggedType();
+
     // if candidate tag class undefined
     if (tagClass < 0);
     //     candidate.Set("TagClass", fTagger->Classify(candidate));
