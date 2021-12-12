@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
     outputMC.OpenFile();
-    msg.Print(Form("Output file: %s", inputFilePath));
+    msg.Print(Form("Output file: %s", outputFilePath));
 
     NoiseManager noiseManager(noiseType, nInputEvents, tStart, tEnd, seed);
 
