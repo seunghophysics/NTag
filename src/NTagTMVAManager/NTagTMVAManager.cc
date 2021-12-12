@@ -91,7 +91,7 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
     //if (isMultiClass)
     //    factoryOption += TString("AnalysisType=multiclass");
     //else
-        factoryOption += TString("AnalysisType=Classification");
+    factoryOption += TString("AnalysisType=Classification");
 
     fFactory = new TMVA::Factory("NTagTMVAFactory", outFile, factoryOption);
 

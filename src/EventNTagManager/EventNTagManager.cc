@@ -730,8 +730,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
         
-        // NHits > 3 to prevent NaN in angle variables
-        if (nHits > 3) {
+        // NHits > 4 to prevent NaN in angle variables
+        if (nHits > 4) {
             Candidate candidate(iHit, (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
             FindFeatures(candidate);
             fEventCandidates.Append(candidate);

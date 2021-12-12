@@ -23,7 +23,6 @@ void CandidateTagger::Apply(const char* inFilePath, const char* outFilePath, flo
         inNtagTree->SetBranchStatus("TagClass", 0);
     inTaggableTree->SetBranchStatus("TaggedType", 0);
 
-    fMsg.Print("Cloning trees...");
     TFile* outFile = new TFile(outFilePath, "recreate");
     fMsg.Print("Cloning ntag tree...");
     TTree* outNtagTree = inNtagTree->CloneTree(-1, "fast");
@@ -40,7 +39,6 @@ void CandidateTagger::Apply(const char* inFilePath, const char* outFilePath, flo
         fMsg.Print("Cloning muechk tree...");
         outMuechkTree = inMuechkTree->CloneTree();
     }
-    fMsg.Print("Cloning complete!");
     
     NTagTree ntagTreeReader(inNtagTree);
     TaggableTree taggableTreeReader(inTaggableTree);

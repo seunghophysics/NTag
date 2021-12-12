@@ -8,7 +8,7 @@ class CandidateTagger
 {
     public:
         CandidateTagger(const char* fitterName="", Verbosity verbose=pDEFAULT):
-        fMsg(fitterName, verbose) {}
+        fMsg(fitterName, verbose) { fName = fitterName; }
         ~CandidateTagger() {}
         
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
