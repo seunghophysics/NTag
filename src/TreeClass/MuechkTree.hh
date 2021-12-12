@@ -80,7 +80,7 @@ MuechkTree::MuechkTree(TTree *tree)
 
    }
    Init(tree);
-
+   cluster = CandidateCluster("Early");
    cluster.RegisterFeatureNames({"FitT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
                                  "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"});
 }

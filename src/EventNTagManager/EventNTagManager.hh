@@ -84,6 +84,11 @@ class EventNTagManager
         void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
         void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
         void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
+        
+        // MC taggable mapping
+        static void Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow=200);
+        // tagged type for taggable
+        static void SetTaggedType(Taggable& taggable, Candidate& candidate);
 
     private:
         // check if MC
@@ -102,14 +107,8 @@ class EventNTagManager
         // feature extraction
         void FindFeatures(Candidate& candidate);
 
-        // MC taggable mapping
-        void MapCandidateClusters(CandidateCluster& candidateCluster);
-
         // tag class for candidate
-        int FindTagClass(const Candidate& candidate);
-
-        // tagged type for taggable
-        void SetTaggedType(Taggable& taggable, Candidate& candidate);
+        //int FindTagClass(const Candidate& candidate);
 
         // prune duplicate candidates with TagClass==e and same FitT
         // among early and delayed candidates

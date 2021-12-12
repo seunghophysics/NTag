@@ -53,6 +53,7 @@ E_TIMECUT      20
 
 # n-tagging
 tmva           true
+weight         default
 N_OUTCUT       0.5
 
 # MC labeling

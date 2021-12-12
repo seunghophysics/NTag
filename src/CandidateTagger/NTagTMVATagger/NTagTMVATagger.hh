@@ -9,8 +9,8 @@ class NTagTMVATagger : public CandidateTagger
     public:
         NTagTMVATagger(Verbosity verbose=pDEFAULT);
         ~NTagTMVATagger();
-        
-        void Initialize() { fTMVAManager.InitializeReader(); }
+
+        void Initialize(std::string weightPath="");
         
         void SetECut(float tmin, float n50cut, float tcut) 
         { 
@@ -23,6 +23,7 @@ class NTagTMVATagger : public CandidateTagger
         
     private:
         NTagTMVAManager fTMVAManager;
+        std::string fWeightFilePath;
         
         bool fDoTagE;
         float TMIN, E_N50CUT, E_TIMECUT, N_OUTCUT;

@@ -13,7 +13,7 @@ class CandidateTagger
         
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
 
-        virtual void Apply(const char* inFilePath, const char* outFilePath);
+        virtual void Apply(const char* inFilePath, const char* outFilePath, float tMatchWindow=200);
 
         virtual float GetLikelihood(const Candidate& candidate) { return 0; }
         virtual int Classify(const Candidate& candidate) { return 0; }

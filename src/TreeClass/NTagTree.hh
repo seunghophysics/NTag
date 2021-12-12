@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 
+#include "NTagGlobal.hh"
 #include "CandidateCluster.hh"
 
 class NTagTree {
@@ -20,57 +21,68 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
-   std::vector<float>   *AngleMean;
-   std::vector<float>   *AngleSkew;
-   std::vector<float>   *AngleStdev;
+   std::map<std::string, std::vector<float>*> fVectorMap;
+   
+   /*
    std::vector<float>   *Beta1;
    std::vector<float>   *Beta2;
    std::vector<float>   *Beta3;
    std::vector<float>   *Beta4;
    std::vector<float>   *Beta5;
+   std::vector<float>   *DPrompt;
    std::vector<float>   *DWall;
    std::vector<float>   *DWallMeanDir;
-   std::vector<float>   *DWall_n;
+   std::vector<float>   *FitT;
    std::vector<float>   *Label;
+   std::vector<float>   *MeanDirAngleMean;
+   std::vector<float>   *MeanDirAngleRMS;
    std::vector<float>   *N1300;
    std::vector<float>   *N200;
    std::vector<float>   *N50;
    std::vector<float>   *NHits;
+   std::vector<float>   *OpeningAngleMean;
+   std::vector<float>   *OpeningAngleSkew;
+   std::vector<float>   *OpeningAngleStdev;
    std::vector<float>   *QSum;
-   std::vector<float>   *FitT;
-   std::vector<float>   *TMVAOutput;
+   std::vector<float>   *SignalRatio;
    std::vector<float>   *TRMS;
    std::vector<float>   *TagClass;
    std::vector<float>   *TagIndex;
-   std::vector<float>   *ThetaMeanDir;
-   std::vector<float>   *prompt_nfit;
+   std::vector<float>   *TagOut;
+   std::vector<float>   *dvx;
+   std::vector<float>   *dvy;
+   std::vector<float>   *dvz;
 
    // List of branches
-   TBranch        *b_AngleMean;   //!
-   TBranch        *b_AngleSkew;   //!
-   TBranch        *b_AngleStdev;   //!
    TBranch        *b_Beta1;   //!
    TBranch        *b_Beta2;   //!
    TBranch        *b_Beta3;   //!
    TBranch        *b_Beta4;   //!
    TBranch        *b_Beta5;   //!
+   TBranch        *b_DPrompt;   //!
    TBranch        *b_DWall;   //!
    TBranch        *b_DWallMeanDir;   //!
-   TBranch        *b_DWall_n;   //!
+   TBranch        *b_FitT;   //!
    TBranch        *b_Label;   //!
+   TBranch        *b_MeanDirAngleMean;   //!
+   TBranch        *b_MeanDirAngleRMS;   //!
    TBranch        *b_N1300;   //!
    TBranch        *b_N200;   //!
    TBranch        *b_N50;   //!
    TBranch        *b_NHits;   //!
+   TBranch        *b_OpeningAngleMean;   //!
+   TBranch        *b_OpeningAngleSkew;   //!
+   TBranch        *b_OpeningAngleStdev;   //!
    TBranch        *b_QSum;   //!
-   TBranch        *b_FitT;   //!
-   TBranch        *b_TMVAOutput;   //!
+   TBranch        *b_SignalRatio;   //!
    TBranch        *b_TRMS;   //!
    TBranch        *b_TagClass;   //!
    TBranch        *b_TagIndex;   //!
-   TBranch        *b_ThetaMeanDir;   //!
-   TBranch        *b_prompt_nfit;   //!
-
+   TBranch        *b_TagOut;   //!
+   TBranch        *b_dvx;   //!
+   TBranch        *b_dvy;   //!
+   TBranch        *b_dvz;   //!
+    */
    CandidateCluster cluster;
 
    NTagTree(TTree *tree=0);
@@ -89,23 +101,9 @@ public :
 #ifdef NTagTree_cxx
 NTagTree::NTagTree(TTree *tree)
 {
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../ntg.root");
-      if (!f) {
-         f = new TFile("../ntg.root");
-      }
-      tree = (TTree*)gDirectory->Get("NTagTree");
-
-   }
    Init(tree);
-
-   cluster.RegisterFeatureNames({"NHits", "N50", "N200", "N1300", "FitT", "TRMS", "QSum",
-                                 "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
-                                 "AngleMean", "AngleSkew", "AngleStdev", "Label",
-                                 "DWall", "DWallMeanDir", "ThetaMeanDir", "DWall_n", "prompt_nfit",
-                                 "TMVAOutput", "TagIndex", "TagClass"});
+   cluster = CandidateCluster("Delayed");
+   cluster.RegisterFeatureNames(gNTagFeatures);
 }
 
 NTagTree::~NTagTree()
@@ -122,36 +120,43 @@ Int_t NTagTree::GetEntry(Long64_t entry)
 
    cluster.Clear();
 
-   for (unsigned int i=0; i<NHits->size(); i++) {
-     Candidate candidate;
-     candidate.Set("AngleMean", AngleMean->at(i));
-     candidate.Set("AngleSkew", AngleSkew->at(i));
-     candidate.Set("AngleStdev", AngleStdev->at(i));
-     candidate.Set("Beta1", Beta1->at(i));
-     candidate.Set("Beta2", Beta2->at(i));
-     candidate.Set("Beta3", Beta3->at(i));
-     candidate.Set("Beta4", Beta4->at(i));
-     candidate.Set("Beta5", Beta5->at(i));
-     candidate.Set("DWall", DWall->at(i));
-     candidate.Set("DWallMeanDir", DWallMeanDir->at(i));
-     candidate.Set("DWall_n", DWall_n->at(i));
-     candidate.Set("Label", Label->at(i));
-     candidate.Set("N1300", N1300->at(i));
-     candidate.Set("N200", N200->at(i));
-     candidate.Set("N50", N50->at(i));
-     candidate.Set("NHits", NHits->at(i));
-     candidate.Set("QSum", QSum->at(i));
-     candidate.Set("FitT", FitT->at(i));
-     candidate.Set("TMVAOutput", TMVAOutput->at(i));
-     candidate.Set("TRMS", TRMS->at(i));
-     candidate.Set("TagClass", TagClass->at(i));
-     candidate.Set("TagIndex", TagIndex->at(i));
-     candidate.Set("ThetaMeanDir", ThetaMeanDir->at(i));
-     candidate.Set("prompt_nfit", prompt_nfit->at(i));
-     cluster.Append(candidate);
-   }
+   for (unsigned int i=0; i<fVectorMap["NHits"]->size(); i++) {
+        Candidate candidate;
+        for (auto const& pair: fVectorMap) {
+            candidate.Set(pair.first.c_str(), pair.second->at(i));
+        }
+        //candidate.Set("OpeningAngleMean", OpeningAngleMean->at(i));
+        //candidate.Set("OpeningAngleSkew", OpeningAngleSkew->at(i));
+        //candidate.Set("OpeningAngleStdev", OpeningAngleStdev->at(i));
+        //candidate.Set("Beta1", Beta1->at(i));
+        //candidate.Set("Beta2", Beta2->at(i));
+        //candidate.Set("Beta3", Beta3->at(i));
+        //candidate.Set("Beta4", Beta4->at(i));
+        //candidate.Set("Beta5", Beta5->at(i));
+        //candidate.Set("DWall", DWall->at(i));
+        //candidate.Set("DWallMeanDir", DWallMeanDir->at(i));
+        //candidate.Set("Label", Label->at(i));
+        //candidate.Set("N1300", N1300->at(i));
+        //candidate.Set("N200", N200->at(i));
+        //candidate.Set("N50", N50->at(i));
+        //candidate.Set("NHits", NHits->at(i));
+        //candidate.Set("QSum", QSum->at(i));
+        //candidate.Set("FitT", FitT->at(i));
+        //candidate.Set("TagOut", TagOut->at(i));
+        //candidate.Set("TRMS", TRMS->at(i));
+        //candidate.Set("TagClass", TagClass->at(i));
+        //candidate.Set("TagIndex", TagIndex->at(i));
+        //candidate.Set("dvx", dvx->at(i));
+        //candidate.Set("dvy", dvy->at(i));
+        //candidate.Set("dvz", dvz->at(i));
+        //candidate.Set("SignalRatio", SignalRatio->at(i));
+        //candidate.Set("MeanDirAngleMean", MeanDirAngleMean->at(i));
+        //candidate.Set("MeanDirAngleRMS", MeanDirAngleRMS->at(i));
+        //candidate.Set("DPrompt", DPrompt->at(i));
+        cluster.Append(candidate);
+    }
 
-   return entryExists;
+    return entryExists;
 }
 Long64_t NTagTree::LoadTree(Long64_t entry)
 {
@@ -178,61 +183,80 @@ void NTagTree::Init(TTree *tree)
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
 
-   // Set object pointer
-   AngleMean = 0;
-   AngleSkew = 0;
-   AngleStdev = 0;
+   /*
    Beta1 = 0;
    Beta2 = 0;
    Beta3 = 0;
    Beta4 = 0;
    Beta5 = 0;
+   DPrompt = 0;
    DWall = 0;
    DWallMeanDir = 0;
-   DWall_n = 0;
+   FitT = 0;
    Label = 0;
+   MeanDirAngleMean = 0;
+   MeanDirAngleRMS = 0;
    N1300 = 0;
    N200 = 0;
    N50 = 0;
    NHits = 0;
+   OpeningAngleMean = 0;
+   OpeningAngleSkew = 0;
+   OpeningAngleStdev = 0;
    QSum = 0;
-   FitT = 0;
-   TMVAOutput = 0;
+   SignalRatio = 0;
    TRMS = 0;
    TagClass = 0;
    TagIndex = 0;
-   ThetaMeanDir = 0;
-   prompt_nfit = 0;
+   TagOut = 0;
+   dvx = 0;
+   dvy = 0;
+   dvz = 0;
+   
+   */
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   fChain->SetBranchAddress("AngleMean", &AngleMean, &b_AngleMean);
-   fChain->SetBranchAddress("AngleSkew", &AngleSkew, &b_AngleSkew);
-   fChain->SetBranchAddress("AngleStdev", &AngleStdev, &b_AngleStdev);
+    // Set object pointer
+    for (auto const& key: gNTagFeatures) {
+        if (fChain->GetBranchStatus(key.c_str())) {
+            fVectorMap[key] = 0;
+            fChain->SetBranchAddress(key.c_str(), &fVectorMap[key]);
+        }
+    }
+    /*
    fChain->SetBranchAddress("Beta1", &Beta1, &b_Beta1);
    fChain->SetBranchAddress("Beta2", &Beta2, &b_Beta2);
    fChain->SetBranchAddress("Beta3", &Beta3, &b_Beta3);
    fChain->SetBranchAddress("Beta4", &Beta4, &b_Beta4);
    fChain->SetBranchAddress("Beta5", &Beta5, &b_Beta5);
+   fChain->SetBranchAddress("DPrompt", &DPrompt, &b_DPrompt);
    fChain->SetBranchAddress("DWall", &DWall, &b_DWall);
    fChain->SetBranchAddress("DWallMeanDir", &DWallMeanDir, &b_DWallMeanDir);
-   fChain->SetBranchAddress("DWall_n", &DWall_n, &b_DWall_n);
+   fChain->SetBranchAddress("FitT", &FitT, &b_FitT);
    fChain->SetBranchAddress("Label", &Label, &b_Label);
+   fChain->SetBranchAddress("MeanDirAngleMean", &MeanDirAngleMean, &b_MeanDirAngleMean);
+   fChain->SetBranchAddress("MeanDirAngleRMS", &MeanDirAngleRMS, &b_MeanDirAngleRMS);
    fChain->SetBranchAddress("N1300", &N1300, &b_N1300);
    fChain->SetBranchAddress("N200", &N200, &b_N200);
    fChain->SetBranchAddress("N50", &N50, &b_N50);
    fChain->SetBranchAddress("NHits", &NHits, &b_NHits);
+   fChain->SetBranchAddress("OpeningAngleMean", &OpeningAngleMean, &b_OpeningAngleMean);
+   fChain->SetBranchAddress("OpeningAngleSkew", &OpeningAngleSkew, &b_OpeningAngleSkew);
+   fChain->SetBranchAddress("OpeningAngleStdev", &OpeningAngleStdev, &b_OpeningAngleStdev);
    fChain->SetBranchAddress("QSum", &QSum, &b_QSum);
-   fChain->SetBranchAddress("FitT", &FitT, &b_FitT);
-   fChain->SetBranchAddress("TMVAOutput", &TMVAOutput, &b_TMVAOutput);
+   fChain->SetBranchAddress("SignalRatio", &SignalRatio, &b_SignalRatio);
    fChain->SetBranchAddress("TRMS", &TRMS, &b_TRMS);
    fChain->SetBranchAddress("TagClass", &TagClass, &b_TagClass);
    fChain->SetBranchAddress("TagIndex", &TagIndex, &b_TagIndex);
-   fChain->SetBranchAddress("ThetaMeanDir", &ThetaMeanDir, &b_ThetaMeanDir);
-   fChain->SetBranchAddress("prompt_nfit", &prompt_nfit, &b_prompt_nfit);
+   fChain->SetBranchAddress("TagOut", &TagOut, &b_TagOut);
+   fChain->SetBranchAddress("dvx", &dvx, &b_dvx);
+   fChain->SetBranchAddress("dvy", &dvy, &b_dvy);
+   fChain->SetBranchAddress("dvz", &dvz, &b_dvz);
+   */
    Notify();
 }
 

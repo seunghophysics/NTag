@@ -89,6 +89,13 @@ class Store : public TreeOut
                 return std::stof(fMap[key]);
             else return emptyVal;
         }
+        
+        std::string GetString(std::string key, std::string emptyVal="")
+        {
+            if (fMap.count(key) > 0)
+                return fMap[key];
+            else return emptyVal; 
+        }
 
         const std::map<std::string, std::string>& GetMap() { return fMap; }
 

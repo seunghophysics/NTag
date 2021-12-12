@@ -7,6 +7,13 @@ NTagTMVATagger::NTagTMVATagger(Verbosity verbose)
 fDoTagE(false), E_N50CUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
 NTagTMVATagger::~NTagTMVATagger() {}
 
+void NTagTMVATagger::Initialize(std::string weightPath)
+{
+    if (!weightPath.empty() || weightPath != "default")
+        fTMVAManager.SetWeightPath(weightPath);
+    fTMVAManager.InitializeReader();
+}
+
 int NTagTMVATagger::Classify(const Candidate& candidate)
 {
     int tagClass = 0;

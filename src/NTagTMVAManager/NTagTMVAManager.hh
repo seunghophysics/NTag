@@ -18,18 +18,23 @@ class NTagTMVAManager
     public:
         NTagTMVAManager();
         ~NTagTMVAManager();
-        
+                
+        void SetWeightPath(std::string filePath) { fWeightFilePath = filePath; }
+        std::string GetWeightPath() { return fWeightFilePath; }
+
         void InitializeReader();
         void SetMethods(bool turnOn);
-    
+
         float GetTMVAOutput(const Candidate& candidate);
 
-        void TrainWeights(const char* inFileName, const char* outFileName);
+        void TrainWeights(const char* inFileName, const char* outFileName, const char* outDirName="new");
         //void ApplyWeights(const char* inFileName, const char* outFileName);
 
     private:
         TMVA::Factory* fFactory;
         TMVA::Reader*  fReader;
+        
+        std::string fWeightFilePath;
         
         std::map<std::string, float> fFeatureContainer;
         int fCandidateLabel;

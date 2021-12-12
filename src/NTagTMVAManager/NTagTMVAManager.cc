@@ -11,7 +11,7 @@
 #include "NTagTMVAManager.hh"
 
 NTagTMVAManager::NTagTMVAManager()
-: fFactory(nullptr), fReader(nullptr)
+: fFactory(nullptr), fReader(nullptr), fWeightFilePath(GetENV("NTAGLIBPATH")+"/weights/TMVA_MLP.xml")
 {}
 NTagTMVAManager::~NTagTMVAManager()
 {
@@ -29,7 +29,7 @@ void NTagTMVAManager::InitializeReader()
     }
 
     fReader->AddSpectator("Label", &(fCandidateLabel));
-    fReader->BookMVA("MLP", GetENV("NTAGLIBPATH")+"/weights/TMVA_MLP.xml");
+    fReader->BookMVA("MLP", fWeightFilePath);
 }
 
 void NTagTMVAManager::SetMethods(bool turnOn)
@@ -78,7 +78,7 @@ float NTagTMVAManager::GetTMVAOutput(const Candidate& candidate)
     return fReader->EvaluateMVA("MLP");
 }
 
-void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileName)
+void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileName, const char* outDirName)
 {
     //TMVA::Tools::Instance();
 
@@ -95,7 +95,7 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
 
     fFactory = new TMVA::Factory("NTagTMVAFactory", outFile, factoryOption);
 
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGLIBPATH") + "weights/new";
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGLIBPATH") + "weights/" + std::string(outDirName);
 
     std::cout << "\n" << std::endl;
     for (auto& key: gTMVAFeatures) {
@@ -140,8 +140,8 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
     //    fFactory->PrepareTrainingAndTestTree( "", trainingOption );
     //}
     //else {
-    auto sigCut = Form("Label==%d||Label==%d", lnH, lnGd);
-    auto bkgCut = Form("Label=%d", lNoise);
+    auto sigCut = Form("(Label==%d||Label==%d)&&SignalRatio>0.2", lnH, lnGd);
+    auto bkgCut = Form("Label==%d&&SignalRatio==0", lNoise);
     fFactory->SetInputTrees(chain, sigCut, bkgCut);
     fFactory->PrepareTrainingAndTestTree(sigCut, bkgCut, trainingOption);
     //if (fUse["Cuts"])

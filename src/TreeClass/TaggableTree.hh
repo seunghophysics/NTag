@@ -93,6 +93,10 @@ Int_t TaggableTree::GetEntry(Long64_t entry)
    for (unsigned int i=0; i<Type->size(); i++) {
      Taggable taggable(static_cast<TaggableType>(Type->at(i)),
                        t->at(i), E->at(i), TVector3(tagvx->at(i), tagvy->at(i), tagvz->at(i)));
+     if (fChain->GetBranchStatus("TaggedType"))
+        taggable.SetTaggedType(static_cast<TaggableType>(TaggedType->at(i)));
+     taggable.SetCandidateIndex("Early", EarlyIndex->at(i));
+     taggable.SetCandidateIndex("Delayed", DelayedIndex->at(i));
      cluster.Append(taggable);
    }
 
@@ -142,7 +146,8 @@ void TaggableTree::Init(TTree *tree)
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("Type", &Type, &b_Type);
-   fChain->SetBranchAddress("TaggedType", &TaggedType, &b_TaggedType);
+   if (fChain->GetBranchStatus("TaggedType"))
+      fChain->SetBranchAddress("TaggedType", &TaggedType, &b_TaggedType);
    fChain->SetBranchAddress("t", &t, &b_t);
    fChain->SetBranchAddress("E", &E, &b_E);
    fChain->SetBranchAddress("tagvx", &tagvx, &b_tagvx);

@@ -290,8 +290,8 @@ void EventNTagManager::SearchAndFill()
         SearchCandidates();
     }
 
-    DumpEvent();
     FillTrees();
+    DumpEvent();
     if (fSettings.GetBool("write_bank"))
         FillNTAGBank();
     if (fOutDataFile) {
@@ -308,8 +308,10 @@ void EventNTagManager::ProcessEvent()
     
     if (!initialized) {
         CheckMC();
-        if (fSettings.GetBool("tmva")) 
-            fTMVATagger.Initialize();
+        if (fSettings.GetBool("tmva")) {
+            std::string weightPath = fSettings.GetString("weight");
+            fTMVATagger.Initialize(weightPath);
+        } 
         initialized = true;
     }
 
@@ -434,8 +436,8 @@ void EventNTagManager::SearchCandidates()
 
 void EventNTagManager::MapTaggables()
 {
-    MapCandidateClusters(fEventEarlyCandidates);
-    MapCandidateClusters(fEventCandidates);
+    Map(fEventTaggables, fEventEarlyCandidates, TMATCHWINDOW);
+    Map(fEventTaggables, fEventCandidates, TMATCHWINDOW);
 }
 
 void EventNTagManager::ResetTaggableMapping()
@@ -691,13 +693,10 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 {
     PMTHit firstHit = fEventHits[iHit];
     TVector3 delayedVertex = fPromptVertex;
-    float delayedTime = firstHit.t();
+    float delayedTime = fEventHits.Slice(iHit, TWIDTH).Find(HitFunc::T, Calc::Mean);
 
     // delayed vertex = prompt vertex
-    if (fDelayedVertexMode == mPROMPT) {
-        delayedVertex = fPromptVertex;
-        delayedTime = fEventHits.Slice(iHit, TWIDTH).Find(HitFunc::T, Calc::Mean);
-    }
+    if (fDelayedVertexMode == mPROMPT);
     // delayed vertex fit
     else {
         PMTHitCluster hitsForFit;
@@ -737,8 +736,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         unsigned int nHits = fEventHits.Slice(iHit, -TWIDTH/2., TWIDTH/2.).GetSize();
         
-        // NHits > 4 to prevent NaN in angle variables
-        if (nHits > 4) {
+        // NHits > 3 to prevent NaN in angle variables
+        if (nHits > 3) {
             Candidate candidate(iHit, (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
             FindFeatures(candidate);
             fEventCandidates.Append(candidate);
@@ -827,7 +826,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("TagClass", fTagger->Classify(candidate));
 }
 
-void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
+void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow)
 {
     std::string key = candidateCluster.GetName();
 
@@ -846,10 +845,10 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
 
         taggableIndexList.clear();
         matchTimeList.clear();
-        for (unsigned int iTaggable=0; iTaggable<fEventTaggables.GetSize(); iTaggable++) {
-            auto& taggable = fEventTaggables[iTaggable];
+        for (unsigned int iTaggable=0; iTaggable<taggableCluster.GetSize(); iTaggable++) {
+            auto& taggable = taggableCluster[iTaggable];
             float tDiff = fabs(taggable.Time() - candidate["FitT"]);
-            if (tDiff*1e3 < TMATCHWINDOW) {
+            if (tDiff*1e3 < tMatchWindow) {
                 matchTimeList.push_back(tDiff);
                 taggableIndexList.push_back(iTaggable);
             }
@@ -859,7 +858,7 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
 
             // closest taggable is matched to the given candidate
             int iMinMatchTimeCapture = taggableIndexList[GetMinIndex(matchTimeList)];
-            auto& taggable = fEventTaggables[iMinMatchTimeCapture];
+            auto& taggable = taggableCluster[iMinMatchTimeCapture];
 
             // candidate label determined by taggable type
             if (taggable.Type() == typeN) {
@@ -885,8 +884,8 @@ void EventNTagManager::MapCandidateClusters(CandidateCluster& candidateCluster)
             // if the taggable has previously saved candidate index,
             // save the candidate with more hits
             else {
-                auto& givenCandidate = fEventCandidates[iCandidate];
-                auto& savedCandidate = fEventCandidates[taggable.GetCandidateIndex(key)];
+                auto& givenCandidate = candidateCluster[iCandidate];
+                auto& savedCandidate = candidateCluster[taggable.GetCandidateIndex(key)];
                 int givenNHits = givenCandidate["NHits"];
                 int savedNHits = savedCandidate["NHits"];
                 if (givenNHits > savedNHits) {
@@ -912,8 +911,8 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
     TaggableType tagClass = static_cast<TaggableType>((int)(candidate.Get("TagClass", -1)+0.5f));
     TaggableType tagType = taggable.TaggedType();
     // if candidate tag class undefined
-    if (tagClass < 0)
-        candidate.Set("TagClass", fTagger->Classify(candidate));
+    if (tagClass < 0);
+    //     candidate.Set("TagClass", fTagger->Classify(candidate));
     // if candidate tag class defined
     else if (tagType != typeMissed && tagType != tagClass)
         taggable.SetTaggedType(typeEN);
