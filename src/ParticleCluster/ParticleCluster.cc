@@ -33,7 +33,12 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
     // Secondaries
     for (int iSec = 0; iSec < secondaryCommon.nscndprt; iSec++) {
 
-        Particle secondary(secondaryCommon.iprtscnd[iSec],
+        int detsimCode = secondaryCommon.iprtscnd[iSec];
+        int pdgCode = detsimCode;
+        if (detsimCode > 100000)
+            pdgCode = gG3toG4PIDMap[detsimCode];
+
+        Particle secondary(pdgCode,
                            secondaryCommon.tscnd[iSec]*1e-3,
                            TVector3(secondaryCommon.vtxscnd[iSec]),
                            TVector3(secondaryCommon.pscnd[iSec]),
@@ -76,13 +81,14 @@ void ParticleCluster::DumpAllElements() const
     }
 
     msg.PrintBlock("MC Particles", pEVENT);
-    std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent Momentum (MeV/c) \033[0m" << std::endl;
+    std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent KE (MeV) \033[0m" << std::endl;
 
     for (unsigned int iParticle = 0; iParticle < fElement.size(); iParticle++) {
         auto& particle = fElement[iParticle];
         auto vertex = particle.Vertex();
         auto parentName = GetParticleName(particle.ParentPID());
-        auto mom = particle.Momentum().Mag();
+        //auto mom = particle.Momentum().Mag();
+        auto ke = particle.Energy();
         std::cout << std::right << std::setw(3) << iParticle+1 << "  ";
         std::cout << std::right << std::setw(10) << particle.GetName() << " ";
         if (particle.Time()< 10)
@@ -91,10 +97,10 @@ void ParticleCluster::DumpAllElements() const
         std::cout << std::right << std::setw(8) << (int)(particle.Time()+0.5f) << "  ";
         std::cout << std::right << std::setw(11) << particle.GetIntName() << " ";
         std::cout << std::right << std::setw(10) << (parentName=="0" ? TString("-") : parentName) << " ";
-        if (mom<10)
-            std::cout << std::right << std::setw(15) << std::setprecision(1) << mom << "\n";
+        if (ke<10)
+            std::cout << std::right << std::setw(8) << std::setprecision(1) << ke << "\n";
         else
-            std::cout << std::right << std::setw(13) << std::fixed << (int)(mom+0.5f) << "\n";
+            std::cout << std::right << std::setw(6) << std::fixed << (int)(ke+0.5f) << "\n";
     }
 }
 
@@ -111,6 +117,7 @@ void ParticleCluster::MakeBranches()
         fOutputTree->Branch("px", &fPXVector);
         fOutputTree->Branch("py", &fPYVector);
         fOutputTree->Branch("pz", &fPZVector);
+        fOutputTree->Branch("KE", &fKEVector);
     }
 }
 
@@ -126,6 +133,7 @@ void ParticleCluster::FillTree()
     fPXVector.clear();
     fPYVector.clear();
     fPZVector.clear();
+    fKEVector.clear();
 
     for (auto const& particle: fElement) {
         auto const& vertex = particle.Vertex();
@@ -140,6 +148,7 @@ void ParticleCluster::FillTree()
         fPXVector.push_back(momentum.x());
         fPYVector.push_back(momentum.y());
         fPZVector.push_back(momentum.z());
+        fKEVector.push_back(particle.Energy());
     }
 
     if (fIsOutputTreeSet) fOutputTree->Fill();

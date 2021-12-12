@@ -1,42 +1,45 @@
 #include "ParticleTable.hh"
 
-std::map<int, TString> gPIDMap = {{11,        "e-"},
-                                  {-11,       "e+"},
-                                  {12,        "nu_e"},
+std::map<int, TString> gPIDMap = {{11,         "e-"},
+                                  {-11,        "e+"},
+                                  {12,         "nu_e"},
                                   {-12,        "anti-nu_e"},
-                                  {13,        "mu-"},
-                                  {-13,       "mu+"},
-                                  {14,        "nu_mu"},
-                                  {-14,       "anti-nu_mu"},
-                                  {15,        "tau-"},
-                                  {-15,       "tau+"},
-                                  {16,        "nu_tau"},
-                                  {-16,       "anti-nu_tau"},
-                                  {22,        "gamma"},
-                                  {111,       "pi0"},
-                                  {211,       "pi-"},
-                                  {-211,      "pi+"},
-                                  {130,       "K0L"},
-                                  {321,       "K+"},
-                                  {-321,      "K-"},
-                                  {221,       "eta"},
-                                  {2112,      "n"},
-                                  {-2112,     "anti-n"},
-                                  {2212,      "p"},
-                                  {-2212,     "anti-p"},
-                                  {3112,      "sigma-"},
-                                  {3122,      "lambda"},
-                                  {3212,      "sigma0"},
-                                  {3222,      "sigma+"},
-                                  {100010020, "d"},
-                                  // SK custom PDG code from below,
-                                  // refer to gt2pd.h in skdetsim
-                                  {100045,    "d"},
-                                  {100046,    "t"},
-                                  {100047,    "alpha"},
-                                  {100048,    "geantino"},
-                                  {100049,    "He3"},
-                                  {100069,    "O16"}};
+                                  {13,         "mu-"},
+                                  {-13,        "mu+"},
+                                  {14,         "nu_mu"},
+                                  {-14,        "anti-nu_mu"},
+                                  {15,         "tau-"},
+                                  {-15,        "tau+"},
+                                  {16,         "nu_tau"},
+                                  {-16,        "anti-nu_tau"},
+                                  {22,         "gamma"},
+                                  {111,        "pi0"},
+                                  {211,        "pi-"},
+                                  {-211,       "pi+"},
+                                  {130,        "K0L"},
+                                  {321,        "K+"},
+                                  {-321,       "K-"},
+                                  {221,        "eta"},
+                                  {2112,       "n"},
+                                  {-2112,      "anti-n"},
+                                  {2212,       "p"},
+                                  {-2212,      "anti-p"},
+                                  {3112,       "sigma-"},
+                                  {3122,       "lambda"},
+                                  {3212,       "sigma0"},
+                                  {3222,       "sigma+"},
+                                  {1000010020, "d"},
+                                  {1000010030, "t"},
+                                  {1000020030, "He3"},
+                                  {1000020040, "alpha"},
+                                  {1000080160, "16O"}};
+                                  
+std::map<int, float> gPIDMassMap = {{1000010020, 1875.613},
+                                    {1000010030, 2808.921},
+                                    {1000020030, 2809.412},
+                                    {1000020040, 3727.379},
+                                    {1000080160, 14899.16},
+                                    {0         , 0}};
 
 std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {5,  "Decay"},
@@ -50,14 +53,6 @@ std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {13, "HadElas."},
                                     {20, "HadInel."},
                                     {18, "nCapture"}};
-
-                                    // PDG code : MeV
-std::map<int, float> gPIDMassMap = {{0, 0},
-                                    {11, 0.510998},
-                                    {13, 105.658},
-                                    {22, 0},
-                                    {2112, 939.565},
-                                    {2212, 938.272}};
 
 std::map<int, int> gG3toG4PIDMap = {{1,  22},         // gamma
                                     {2,  -11},        // positron
@@ -95,7 +90,16 @@ std::map<int, int> gG3toG4PIDMap = {{1,  22},         // gamma
                                     {46, 1000010030}, // triton
                                     {47, 1000020040}, // alpha
                                     {48, 0},          // geantino
-                                    {50, 0}};         // cherenkov
+                                    {50, 0},          // cherenkov
+                                    // for skdetsim
+                                    // refer to gt2pd.h in skdetsim
+                                    {100045, 1000010020},  // deuteron
+                                    {100046, 1000010030},  // triton
+                                    {100047, 1000020040},  // alpha
+                                    {100048, 0},           // geantino
+                                    {100049, 1000020030},  // 3He
+                                    {100069, 1000080160}}; // 16O
+
 
 std::map<int, TString> gNEUTModeMap = {{1, "CCQE"},
                                        {-1, "CCQE"},

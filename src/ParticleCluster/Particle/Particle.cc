@@ -3,24 +3,28 @@
 #include "Particle.hh"
 
 Particle::Particle(int id, float time, TVector3 vtx, TVector3 mom, int parPID, unsigned int interactionID)
-: t(time), pid(id), parentPID(parPID), intID(interactionID), v(vtx), p(mom) {}
+: fT(time), fPID(id), fParentPID(parPID), fIntID(interactionID), fVertex(vtx), fMomentum(mom) {}
 
 TString Particle::GetName() const
 {
-    return GetParticleName(pid);
+    return GetParticleName(fPID);
 }
 
 TString Particle::GetIntName() const
 {
-    return GetInteractionName(intID);
+    return GetInteractionName(fIntID);
 }
 
 float GetMass(int code)
 {
-    if (gPIDMassMap.count(abs(code)))
+    TParticlePDG* pdgInfo = gPDG->GetParticle(code);
+    if (pdgInfo)
+        return pdgInfo->Mass();
+    else if (gPIDMassMap.count(abs(code))) {
         return gPIDMassMap[abs(code)];
+    }
     else {
-        std::cerr << "Code " << code << " non-existent in the PID-mass map, returning 0...\n";
+        std::cerr << "Code " << code << " does not exist in PDG nor ParticleTable, returning 0...\n";
         return 0;
     }
 }

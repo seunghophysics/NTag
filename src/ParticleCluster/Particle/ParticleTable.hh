@@ -2,13 +2,17 @@
 #define PARTICLETABLE_HH
 
 #include <map>
-#include <TString.h>
+
+#include "TString.h"
+#include "TDatabasePDG.h"
 
 extern std::map<int, TString> gPIDMap;
 extern std::map<int, float> gPIDMassMap;
 extern std::map<int, TString> gIntIDMap;
 extern std::map<int, int> gG3toG4PIDMap;
 extern std::map<int, TString> gNEUTModeMap;
+
+static TDatabasePDG* gPDG = TDatabasePDG::Instance();
 
 enum G3IntCode
 {
