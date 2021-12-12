@@ -88,7 +88,7 @@ class PMTHitCluster : public Cluster<PMTHit>
         void SetAsSignal(bool b);
         float GetSignalRatio();
         
-        void FindHitProperties();
+        //void FindHitProperties();
         PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
         void ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max);
         

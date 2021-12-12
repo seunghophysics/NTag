@@ -411,16 +411,16 @@ float PMTHitCluster::GetSignalRatio()
     return sigSum / GetSize();
 }
 
-void PMTHitCluster::FindHitProperties()
-{
-    FindMeanDirection();
-
-    for (auto& hit: fElement) {
-        hit.FindMinAngle(this);
-        hit.FindDirAngle(fMeanDirection);
-        hit.FindAcceptance();
-    }
-}
+//void PMTHitCluster::FindHitProperties()
+//{
+//    FindMeanDirection();
+//
+//    for (auto& hit: fElement) {
+//        hit.FindMinAngle(this);
+//        hit.FindDirAngle(fMeanDirection);
+//        hit.FindAcceptance();
+//    }
+//}
 
 PMTHitCluster PMTHitCluster::Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const
 {

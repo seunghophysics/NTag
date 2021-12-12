@@ -28,7 +28,7 @@ namespace NTagConstant{
 class PMTHit
 {
     public:
-        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false), fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
+        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}//, fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
         PMTHit(Float t, float q, int i, int f);
 
         inline const Float& t() const { return fT; }
@@ -62,12 +62,12 @@ class PMTHit
 
         inline bool operator<(const PMTHit &hit) const { return fT < hit.t(); }
 
-        void FindMinAngle(PMTHitCluster* cluster);
-        void FindDirAngle(TVector3 vec);
-        void FindAcceptance();
-        inline const float& GetMinAngle() const { return fMinAngle; }
-        inline const float& GetDirAngle() const { return fDirAngle; }
-        inline const float& GetAcceptance() const { return fAcceptance; }
+        //void FindMinAngle(PMTHitCluster* cluster);
+        //void FindDirAngle(TVector3 vec);
+        //void FindAcceptance();
+        //inline const float& GetMinAngle() const { return fMinAngle; }
+        //inline const float& GetDirAngle() const { return fDirAngle; }
+        //inline const float& GetAcceptance() const { return fAcceptance; }
 
         PMTHit& operator+=(const Float& time);
         PMTHit& operator-=(const Float& time);
@@ -81,9 +81,9 @@ class PMTHit
         TVector3 fPMTPosition;
         TVector3 fHitDirection;
         
-        float fMinAngle;
-        float fDirAngle;
-        float fAcceptance;
+        //float fMinAngle;
+        //float fDirAngle;
+        //float fAcceptance;
 
     //ClassDef(PMTHit, 1)
 };
@@ -96,9 +96,9 @@ namespace HitFunc
     const std::function<float(const PMTHit&)> T = [](const PMTHit& hit)->float { return hit.t(); };
     const std::function<float(const PMTHit&)> Q = [](const PMTHit& hit)->float { return hit.q(); };
     const std::function<int(const PMTHit&)> I = [](const PMTHit& hit)->int { return hit.i(); };
-    const std::function<int(const PMTHit&)> MinAngle = [](const PMTHit& hit)->int { return hit.GetMinAngle(); };
-    const std::function<int(const PMTHit&)> DirAngle = [](const PMTHit& hit)->int { return hit.GetDirAngle(); };
-    const std::function<int(const PMTHit&)> Acceptance = [](const PMTHit& hit)->int { return hit.GetAcceptance(); };
+    //const std::function<int(const PMTHit&)> MinAngle = [](const PMTHit& hit)->int { return hit.GetMinAngle(); };
+    //const std::function<int(const PMTHit&)> DirAngle = [](const PMTHit& hit)->int { return hit.GetDirAngle(); };
+    //const std::function<int(const PMTHit&)> Acceptance = [](const PMTHit& hit)->int { return hit.GetAcceptance(); };
     const std::function<TVector3(const PMTHit&)> Dir = [](const PMTHit& hit)->TVector3 { return hit.GetDirection(); };
 }
 

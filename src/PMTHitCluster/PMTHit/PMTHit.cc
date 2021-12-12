@@ -12,7 +12,7 @@ PMTHit::PMTHit(Float t, float q, int i, int f)
         fPMTPosition = TVector3();
     }
 }
-
+/*
 void PMTHit::FindMinAngle(PMTHitCluster* cluster)
 {
     float minAngle = 180;
@@ -49,7 +49,7 @@ void PMTHit::FindAcceptance()
     
     fAcceptance = coseffsk_(&cosTheta) * exp(-dist/attLenght)/dist/dist;
 }
-
+*/
 PMTHit& PMTHit::operator+=(const Float& time)
 {
     fT += time;
