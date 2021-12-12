@@ -53,7 +53,7 @@ cleanobj:
 
 MAINSRCS = $(wildcard main/*.cc)
 MAINOBJS = $(patsubst main/%.cc, main/%.o, $(MAINSRCS))
-MAINBINS = bin/AddNoise bin/NTag
+MAINBINS = $(patsubst main/%.cc, bin/%, $(MAINSRCS))
 
 main: $(MAINBINS)
 	
