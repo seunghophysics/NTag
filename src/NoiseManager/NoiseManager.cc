@@ -178,8 +178,12 @@ void NoiseManager::SetNoiseEventHits()
     fI = fTQReal->cables;
     unsigned int nRawHits = fT.size();
 
-    for (unsigned int j=0; j<=nRawHits; j++)
-        fNoiseEventHits.Append({fT[j], fQ[j], fI[j]&0x0000FFFF, 2/*in-gate flag*/});
+    for (unsigned int j=0; j<=nRawHits; j++) {
+        if (-1000e3 < fT[j] && fT[j] < 1000e3)
+            fNoiseEventHits.Append({fT[j], fQ[j], fI[j]&0x0000FFFF, 2/*in-gate flag*/});
+        else
+            fMsg.Print(Form("Skipping hit with time T=%3.2f msec which is outside of range [-1, 1] msec...", fT[j]*1e-6), pWARNING);
+    }
 
     fNoiseEventHits.Sort();
     int nHits = fNoiseEventHits.GetSize();
