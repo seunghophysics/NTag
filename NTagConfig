@@ -19,7 +19,7 @@ muechk         false
 neut           false
 
 # prompt vertex
-# available options: none, apfit, bonsai, custom, true, stmu
+# available options: none, apfit, bonsai, custom, true, stmu, fitqun
 prompt_vertex  custom 
 vx             0
 vy             0
