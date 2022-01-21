@@ -76,7 +76,7 @@ void TaggableCluster::DumpAllElements() const
         std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << time << " ";
         else
         std::cout << std::right << std::setw(6) << std::fixed << (int)(time+0.5f) << "    ";
-        std::cout << std::right << std::setw(8) << (int)((taggable.Vertex()-fPromptVertex).Mag()) << " ";
+        std::cout << std::right << std::setw(8) << (vertex.Mag()<1e-3 ? -1 : (int)((taggable.Vertex()-fPromptVertex).Mag())) << " ";
         std::cout << std::right << std::setw(10) << (int)(GetDWall(vertex)) << "  ";
         std::cout << std::right << std::setw(11) << std::setprecision(2) << taggable.Energy() << "  ";
         std::cout << std::right << std::setw(5) << (earlyIndex ? std::to_string(earlyIndex) : "-") << " ";
@@ -128,7 +128,7 @@ void TaggableCluster::FillTree()
         fXVector.push_back(vertex.x());
         fYVector.push_back(vertex.y());
         fZVector.push_back(vertex.z());
-        fDistVector.push_back((taggable.Vertex()-fPromptVertex).Mag());
+        fDistVector.push_back(vertex.Mag()<1e-3 ? -1 : (taggable.Vertex()-fPromptVertex).Mag());
         fDWallVector.push_back(GetDWall(vertex));
         fEarlyIndexVector.push_back(taggable.GetCandidateIndex("Early"));
         fDelayedIndexVector.push_back(taggable.GetCandidateIndex("Delayed"));
