@@ -26,7 +26,7 @@ class Cluster
         virtual inline void MoveAppend(T& elm) { fElement.push_back(std::move(elm)); }
         virtual void Erase(int id) { fElement.erase(fElement.begin() + id); }
         virtual void Clear() { fElement.clear(); }
-        virtual bool IsEmpty() { return fElement.empty(); }
+        virtual bool IsEmpty() const { return fElement.empty(); }
         virtual void Copy(Cluster<T>* copiedCluster)
         {
             Clear();
