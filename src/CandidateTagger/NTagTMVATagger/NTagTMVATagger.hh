@@ -12,9 +12,11 @@ class NTagTMVATagger : public CandidateTagger
 
         void Initialize(std::string weightPath="");
         
-        void SetECut(float tmin, float n50cut, float tcut) 
+        void OverrideSettings(const char* outFilePath);
+        
+        void SetECut(float n50cut, float tcut) 
         { 
-            TMIN = tmin; E_N50CUT = n50cut; E_TIMECUT = tcut; fDoTagE = true; 
+            E_N50CUT = n50cut; E_TIMECUT = tcut; fDoTagE = true; 
         }
         void SetNCut(float outcut) { N_OUTCUT = outcut; }
         
@@ -26,7 +28,7 @@ class NTagTMVATagger : public CandidateTagger
         std::string fWeightFilePath;
         
         bool fDoTagE;
-        float TMIN, E_N50CUT, E_TIMECUT, N_OUTCUT;
+        float E_N50CUT, E_TIMECUT, N_OUTCUT;
 };
 
 #endif

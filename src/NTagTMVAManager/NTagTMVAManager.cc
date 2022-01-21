@@ -1,3 +1,5 @@
+#include "sys/stat.h"
+
 #include "TFile.h"
 #include "TChain.h"
 
@@ -95,7 +97,9 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
 
     fFactory = new TMVA::Factory("NTagTMVAFactory", outFile, factoryOption);
 
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = GetENV("NTAGLIBPATH") + "weights/" + std::string(outDirName);
+    auto weightFileDir = GetENV("NTAGLIBPATH") + "weights/" + std::string(outDirName);
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = weightFileDir;
+    mkdir(weightFileDir.c_str(), S_IRWXU);
 
     std::cout << "\n" << std::endl;
     for (auto& key: gTMVAFeatures) {
