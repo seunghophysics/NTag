@@ -253,7 +253,7 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
     }
 
     std::array<Float, MAXPM> hitTime;
-    hitTime.fill(std::numeric_limits<Float>::min());
+    hitTime.fill(std::numeric_limits<Float>::lowest());
 
     std::vector<PMTHit> dtCorrectedHits;
 
@@ -276,7 +276,7 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
 
 std::array<float, 6> PMTHitCluster::GetBetaArray()
 {
-    std::array<float, 6> beta = {0., 0., 0., 0., 0., 0};
+    std::array<float, 6> beta = {0., 0., 0., 0., 0., 0.};
     int nHits = fElement.size();
 
     if (!fHasVertex) {

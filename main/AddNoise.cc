@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     auto strTEnd   = parser.GetOption("-end");   // us
     auto strSeed   = parser.GetOption("-seed");
 
-    float tStart = strTStart.empty() ?  1000 /* ns */ : std::stof(strTStart);
-    float tEnd   = strTEnd.empty()   ? 536e3 /* ns */ : std::stof(strTEnd);
+    float tStart = strTStart.empty() ?  1000 /* ns */ : std::stof(strTStart) * 1e3 + 1000;
+    float tEnd   = strTEnd.empty()   ? 536e3 /* ns */ : std::stof(strTEnd) * 1e3 + 1000;
     int   seed   = strSeed.empty()   ?     0          : std::stoi(strSeed);
 
     const char* inputFilePath  = argv[1];
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
 
-        msg.Print(Form("Event ID: %d", eventID));
+        msg.Print(Form("Event ID: %d\r", eventID));
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
