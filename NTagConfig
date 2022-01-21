@@ -38,6 +38,7 @@ N200MX         1000
 # delayed vertex
 # available options: trms, bonsai, prompt
 delayed_vertex bonsai
+TCANWIDTH      14
 
 # TRMS-fit
 TRMSTWIDTH     30
@@ -54,7 +55,7 @@ E_TIMECUT      20
 # n-tagging
 tmva           true
 weight         default
-N_OUTCUT       0.5
+N_OUTCUT       0.7
 
 # MC labeling
 TMATCHWINDOW   200

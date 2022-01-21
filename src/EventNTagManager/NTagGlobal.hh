@@ -34,7 +34,7 @@ static std::vector<std::string> gNTagFeatures = {"NHits", "N50", "N200", "N1300"
                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                                  "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev", 
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
-                                                 "dvx", "dvy", "dvz", "DPrompt", "DWall", "DWallMeanDir",
+                                                 "dvx", "dvy", "dvz", "FitGoodness", "DPrompt", "DWall", "DWallMeanDir",
                                                  "SignalRatio", "TagOut", "TagIndex", "TagClass", "Label"};
                                                  
 static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
@@ -43,11 +43,11 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
                                                  "DWall", "DWallMeanDir"};
                                                  
-static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "noise_type", "muechk", "neut", "add_noise", "weight",
+static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "noise_type", "muechk", "neut", "add_noise", "weight", "debug",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", "tmva", "in", "out",
                                                "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX",
                                                "TNOISESTART", "TNOISEEND", "NOISESEED",
-                                               "TWIDTH", "NHITSTH", "NHITSMX", "N200MX",
+                                               "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", 
                                                "TMINPEAKSEP", "TMATCHWINDOW",
                                                "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
                                                "E_N50CUT", "E_TIMECUT", "N_OUTCUT"};
