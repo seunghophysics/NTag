@@ -27,7 +27,6 @@ class BonsaiManager : public VertexFitManager
         likelihood*   fLikelihood;
 
         float    fFitEnergy;
-        float    fFitGoodness;
         float    fFitDirKS;
         float    fFitOvaQ;
 

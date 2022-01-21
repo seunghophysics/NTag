@@ -96,8 +96,9 @@ class EventNTagManager
         void CheckMC();
     
         // ToF subtraction
-        void SetToF(const TVector3& vertex);
-        void UnsetToF();
+        void PrepareEventHitsForSearch();
+        //void SetToF(const TVector3& vertex);
+        //void UnsetToF();
 
         // read vertex mode from key
         void SetVertexMode(VertexMode& mode, std::string key);
@@ -137,7 +138,7 @@ class EventNTagManager
         Store fSettings;
         VertexMode fPromptVertexMode, fDelayedVertexMode;
         float PVXRES;
-        float T0TH, T0MX, TWIDTH, TMINPEAKSEP, TMATCHWINDOW;
+        float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float TRMSTWIDTH, INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
         float E_N50CUT, E_TIMECUT, N_OUTCUT;
