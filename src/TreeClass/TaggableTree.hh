@@ -78,8 +78,8 @@ TaggableTree::TaggableTree(TTree *tree)
 
 TaggableTree::~TaggableTree()
 {
-   if (!fChain) return;
-   delete fChain->GetCurrentFile();
+   //if (!fChain) return;
+   //delete fChain->GetCurrentFile();
 }
 
 Int_t TaggableTree::GetEntry(Long64_t entry)
