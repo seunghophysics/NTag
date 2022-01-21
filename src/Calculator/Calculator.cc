@@ -221,3 +221,28 @@ std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, do
 
     return vIndex;
 }
+
+std::vector<std::pair<float, int>> Histogram(std::vector<float> vec, int nBins, float min, float max)
+{
+    std::vector<std::pair<float, int>> hist(nBins, std::pair<float, int>(0, 0));
+    const float bWidth = (max - min) / float(nBins);
+
+    std::sort(vec.begin(), vec.end());
+    
+    int index = 0;
+    auto binStartItr = vec.begin();
+    for (auto& bin: hist) {
+        const float bMin = min + index*bWidth;
+        const float bMax = min + (index+1)*bWidth;
+
+        auto start = std::lower_bound(binStartItr, vec.end(), bMin);
+        auto end = std::lower_bound(start, vec.end(), bMax*0.99999);
+        binStartItr = end;
+        
+        bin.first = (bMin+bMax)/2.; // bin center
+        bin.second = end - start;   // bin value
+        index++;
+    }
+    
+    return hist;
+}

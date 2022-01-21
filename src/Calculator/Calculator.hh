@@ -156,6 +156,7 @@ int FindIndex(const std::vector<T>& vec, const T& value) {
     return index;
 }
 
+
 /**
  * @brief Get i-th Legendre polynomial P_i(x) evaluated at x.
  * @param i The order of Legendre polynomial.
@@ -199,6 +200,8 @@ std::vector<TString> GetListOfFiles(TString dirPath, const char* extension="", b
 std::vector<TString> GetListOfSubdirectories(TString dirPath);
 
 std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, double low, double high);
+
+std::vector<std::pair<float, int>> Histogram(std::vector<float> vec, int nBins, float min, float max);
 
 template int GetSum<int>(const std::vector<int>& vec);
 template float GetSum<float>(const std::vector<float>& vec);
