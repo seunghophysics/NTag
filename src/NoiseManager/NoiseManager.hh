@@ -41,9 +41,13 @@ class NoiseManager
 
         void AddNoise(PMTHitCluster* signalHits);
 
+        void DumpSettings();
+
     private:
         TTree* fNoiseTree;
         TString fNoiseTreeName;
+        
+        const char* fNoiseType;
 
         Header* fHeader;
         TQReal* fTQReal;

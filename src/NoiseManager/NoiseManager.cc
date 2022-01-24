@@ -34,6 +34,7 @@ NoiseManager::NoiseManager()
 NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed)
 : NoiseManager()
 {
+    fNoiseType = option.Data();
     SetNoiseTimeRange(tStart, tEnd);
 
     // Read dummy (TChain)
@@ -130,10 +131,8 @@ void NoiseManager::SetNoiseTree(TTree* tree)
     fMinHitDensity = leftEdge / 1000.;
     fMaxHitDensity = rightEdge / 1000.;
 
-    fMsg.Print(Form("Noise hits per entry: %3.2f +- %3.2f hits", fitMean, fitSigma));
-    fMsg.Print(Form("3-sigma hit density range: (%3.1f , %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
-    fMsg.Print(Form("Total entries: %d", fNEntries));
-    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(DUMMYCUT)));
+    //fMsg.Print(Form("Noise hits per entry: %3.2f +- %3.2f hits", fitMean, fitSigma));
+    //fMsg.Print(Form("Total entries in noise tree: %d", fNEntries));
 }
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
@@ -221,4 +220,17 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
     signalHits->ApplyDeadtime(fPMTDeadtime);
     signalHits->Sort();
     fPartID++;
+}
+
+void NoiseManager::DumpSettings()
+{
+    fMsg.PrintBlock("NoiseManager settings");
+
+    fMsg.Print(Form("Noise type: %s", fNoiseType));
+    fMsg.Print(Form("Noise range: [%3.2f, %3.2f] usec (T_trigger=0)", fNoiseStartTime*1e-3-1, fNoiseEndTime*1e-3-1));
+    fMsg.Print(Form("Seed: %d", ranGen.GetSeed()));
+    fMsg.Print(Form("3-sigma hit density range: (%3.1f , %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
+    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(DUMMYCUT)));
+    fMsg.Print(Form("PMT deadtime: %3.2f ns", fPMTDeadtime));
+    fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
 }

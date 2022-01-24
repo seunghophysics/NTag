@@ -17,13 +17,14 @@ int main(int argc, char** argv)
 
     NTagTMVATagger tagger;
 
-    if (weightPath=="default") 
+    if (weightPath=="default")
         weightPath = settings.GetString("delayed_vertex");
     if (settings.GetBool("tag_e"))
         tagger.SetECut(settings.GetFloat("E_N50CUT"), settings.GetFloat("E_TIMECUT"));
+
     tagger.SetNCut(settings.GetFloat("N_OUTCUT"));
     tagger.Initialize(weightPath);
     tagger.Apply(inFilePath.c_str(), outFilePath.c_str(), settings.GetFloat("TMATCHWINDOW"));
-    
+
     return 0;
 }

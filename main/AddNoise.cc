@@ -7,47 +7,37 @@
 #include "PMTHitCluster.hh"
 #include "NoiseManager.hh"
 #include "Printer.hh"
+#include "Store.hh"
 #include "SKIO.hh"
 
 int main(int argc, char **argv)
 {
     ArgParser parser(argc, argv);
+    Store settings;
     Printer msg("AddNoise");
+    settings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
+    settings.ReadArguments(parser);
+    settings.Print();
 
-    // argv: (input) (output) (sk6/083920)
-    if (argc < 4) {
-        msg.Print("Usage: (input file) (output file) (noise_path)");
-        msg.Print("Option: -start (noise start time in us)");
-        msg.Print("Option: -end   (noise end time in us)");
-        msg.Print("Option: -seed  (random seed for noise file selection)");
-        return -1;
-    }
-
-    auto strTStart = parser.GetOption("-start"); // us
-    auto strTEnd   = parser.GetOption("-end");   // us
-    auto strSeed   = parser.GetOption("-seed");
-
-    float tStart = strTStart.empty() ?     0 : std::stof(strTStart);
-    float tEnd   = strTEnd.empty()   ?   535 : std::stof(strTEnd);
-    int   seed   = strSeed.empty()   ?     0 : std::stoi(strSeed); // if seed=0 seed is set based on the current time
-
-    const char* inputFilePath  = argv[1];
-    const char* outputFilePath = argv[2];
-    const char* noiseType      = argv[3];
+    auto inputFilePath = settings.GetString("in");
+    auto outputFilePath = settings.GetString("out");
 
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
     inputMC.OpenFile();
     int nInputEvents = inputMC.GetNumberOfEvents();
-    msg.Print(Form("Input file: %s", inputFilePath));
-    msg.Print(Form("Number of events in input file: %d", nInputEvents));
 
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
     outputMC.OpenFile();
-    msg.Print(Form("Output file: %s", outputFilePath));
 
-    NoiseManager noiseManager(noiseType, nInputEvents, tStart, tEnd, seed);
+    msg.Print(Form("Input file: %s", inputFilePath.c_str()));
+    msg.Print(Form("Number of events in input file: %d", nInputEvents));
+    msg.Print(Form("Output file: %s", outputFilePath.c_str()));
+
+    NoiseManager noiseManager(settings.GetString("noise_type").c_str(), nInputEvents,
+                              settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
+    noiseManager.DumpSettings();
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {

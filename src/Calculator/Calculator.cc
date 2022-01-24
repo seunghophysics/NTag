@@ -139,6 +139,7 @@ unsigned int GetMaxIndex(std::vector<float>& vec)
 
 void SetSeed(int seed)
 {
+    
     ranGen.SetSeed(seed);
 }
 
