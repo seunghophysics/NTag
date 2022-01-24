@@ -55,7 +55,9 @@ EventNTagManager::~EventNTagManager() {}
 
 void EventNTagManager::ReadPromptVertex(VertexMode mode)
 {
-    if (mode == mNONE);
+    if (mode == mNONE) {
+        fPromptVertex = TVector3(fSettings.GetFloat("vx"), fSettings.GetFloat("vy"), fSettings.GetFloat("vz"));
+    }
 
     else if (mode == mAPFIT) {
         int bank = 0; aprstbnk_(&bank);
