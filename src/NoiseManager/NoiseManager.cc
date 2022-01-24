@@ -20,7 +20,7 @@
 NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
   fNoiseEventLength(1000e3),
-  fNoiseStartTime(0), fNoiseEndTime(535e3), fNoiseWindowWidth(535e3),
+  fNoiseStartTime(0), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
   fNoiseT0(0),
   fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
   fPMTDeadtime(900),
@@ -138,9 +138,9 @@ void NoiseManager::SetNoiseTree(TTree* tree)
 
 void NoiseManager::SetNoiseTimeRange(float startTime, float endTime)
 {
-    fNoiseStartTime = startTime;
-    fNoiseEndTime = endTime;
-    fNoiseWindowWidth = endTime - startTime;
+    fNoiseStartTime = startTime*1e3 + 1000;
+    fNoiseEndTime = endTime*1e3 + 1000;
+    fNoiseWindowWidth = fNoiseEndTime - fNoiseStartTime;
     fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
 }
 

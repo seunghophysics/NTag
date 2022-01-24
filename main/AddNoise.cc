@@ -17,8 +17,8 @@ int main(int argc, char **argv)
     // argv: (input) (output) (sk6/083920)
     if (argc < 4) {
         msg.Print("Usage: (input file) (output file) (noise_path)");
-        msg.Print("Option: -start (noise start time)");
-        msg.Print("Option: -end   (noise end time)");
+        msg.Print("Option: -start (noise start time in us)");
+        msg.Print("Option: -end   (noise end time in us)");
         msg.Print("Option: -seed  (random seed for noise file selection)");
         return -1;
     }
@@ -27,9 +27,9 @@ int main(int argc, char **argv)
     auto strTEnd   = parser.GetOption("-end");   // us
     auto strSeed   = parser.GetOption("-seed");
 
-    float tStart = strTStart.empty() ?  1000 /* ns */ : std::stof(strTStart) * 1e3 + 1000;
-    float tEnd   = strTEnd.empty()   ? 536e3 /* ns */ : std::stof(strTEnd) * 1e3 + 1000;
-    int   seed   = strSeed.empty()   ?     0          : std::stoi(strSeed);
+    float tStart = strTStart.empty() ?     0 : std::stof(strTStart);
+    float tEnd   = strTEnd.empty()   ?   535 : std::stof(strTEnd);
+    int   seed   = strSeed.empty()   ?     0 : std::stoi(strSeed); // if seed=0 seed is set based on the current time
 
     const char* inputFilePath  = argv[1];
     const char* outputFilePath = argv[2];

@@ -78,8 +78,8 @@ int main(int argc, char** argv)
     NoiseManager* noiseManager = nullptr;
     if (ntagManager.GetSettings().GetBool("add_noise")) {
         std::string noiseType; ntagManager.GetSettings().Get("noise_type", noiseType);
-        float tNoiseStart = ntagManager.GetSettings().GetFloat("TNOISESTART") * 1e3 + 1000;
-        float tNoiseEnd   = ntagManager.GetSettings().GetFloat("TNOISEEND") * 1e3 + 1000;
+        float tNoiseStart = ntagManager.GetSettings().GetFloat("TNOISESTART");
+        float tNoiseEnd   = ntagManager.GetSettings().GetFloat("TNOISEEND");
         int   noiseSeed   = ntagManager.GetSettings().GetInt("NOISESEED");
         noiseManager = new NoiseManager(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
         ntagManager.SetNoiseManager(noiseManager);
