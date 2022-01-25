@@ -958,6 +958,7 @@ void EventNTagManager::PruneCandidates()
 
 void EventNTagManager::FillNTagCommon()
 {
+    int nCandidates = fEventCandidates.GetSize();
     int nTrueE = 0, nTaggedE = 0, nTrueN = 0, nTaggedN = 0;
 
     // count true
@@ -997,13 +998,14 @@ void EventNTagManager::FillNTagCommon()
     }
 
     // fill ntag bank: event variables
-    ntag_.np = fEventCandidates.GetSize();
+    ntag_.np = nCandidates;
     ntag_.trgtype = nTrueE; // temporarily save nTrueE in ntag_.trgtype for now
     ntag_.n200m = nTaggedE; // temporarily save nTaggedE ntag_.n200m for now
     ntag_.mctruth_nn = nTrueN;
     ntag_.nn = nTaggedN;
 
     // set event variables
+    fEventVariables.Set("NCandidates", nCandidates);
     fEventVariables.Set("NTrueE", nTrueE);
     fEventVariables.Set("NTaggedE", nTaggedE);
     fEventVariables.Set("NTrueN", nTrueN);
