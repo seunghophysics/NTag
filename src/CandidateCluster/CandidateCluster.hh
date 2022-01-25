@@ -42,6 +42,7 @@ class CandidateCluster : public Cluster<Candidate>, public TreeOut
         void MakeBranches();
 
     private:
+        int fNCandidates;
         std::map<std::string, std::vector<float>*> fFeatureVectorMap;
 };
 

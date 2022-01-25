@@ -10,9 +10,9 @@
 #include "Printer.hh"
 #include "CandidateCluster.hh"
 
-CandidateCluster::CandidateCluster() {}
-CandidateCluster::CandidateCluster(const char* className) { fName = className; }
-CandidateCluster::CandidateCluster(const CandidateCluster& cluster) { fElement = cluster.GetVector(); }
+CandidateCluster::CandidateCluster(): fNCandidates(0) {}
+CandidateCluster::CandidateCluster(const char* className): CandidateCluster() { fName = className; }
+CandidateCluster::CandidateCluster(const CandidateCluster& cluster): CandidateCluster() { fElement = cluster.GetVector(); }
 CandidateCluster& CandidateCluster::operator=(CandidateCluster const& rhs)
 {
     Cluster<Candidate>::operator=(rhs); return *this;
@@ -130,11 +130,14 @@ void CandidateCluster::FillVectorMap()
 
         assert(fFeatureVectorMap.begin()->second->size() == GetSize());
     }
+
+    fNCandidates = GetSize();
 }
 
 void CandidateCluster::MakeBranches()
 {
     if (fIsOutputTreeSet) {
+        fOutputTree->Branch("NCandidates", &fNCandidates);
         for (auto& pair: fFeatureVectorMap) {
             fOutputTree->Branch(pair.first.c_str(), &(pair.second));
         }

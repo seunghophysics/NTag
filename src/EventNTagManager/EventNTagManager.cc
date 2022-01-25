@@ -1005,7 +1005,7 @@ void EventNTagManager::FillNTagCommon()
     ntag_.nn = nTaggedN;
 
     // set event variables
-    fEventVariables.Set("NCandidates", nCandidates);
+    //fEventVariables.Set("NCandidates", nCandidates);
     fEventVariables.Set("NTrueE", nTrueE);
     fEventVariables.Set("NTaggedE", nTaggedE);
     fEventVariables.Set("NTrueN", nTrueN);
