@@ -745,9 +745,11 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     fEventHits.SetVertex(delayedVertex);
     firstHit.SetToFAndDirection(delayedVertex);
 
+    float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
     if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
+        fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
         T0TH < delayedTime && delayedTime < T0MX) {
         iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();

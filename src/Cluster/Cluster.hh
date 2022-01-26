@@ -60,6 +60,9 @@ class Cluster
 
         T& operator[] (int index) { return fElement[index]; }
         T& At(int index) { return fElement[index]; }
+        
+        T& First() { return fElement[0]; }
+        T& Last() { return fElement.back(); }
 
     protected:
         std::string fName;
