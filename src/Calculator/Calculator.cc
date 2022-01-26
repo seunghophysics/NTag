@@ -247,3 +247,24 @@ std::vector<std::pair<float, int>> Histogram(std::vector<float> vec, int nBins, 
     
     return hist;
 }
+
+std::vector<std::string> Split(std::string target, std::string delim)
+{
+    std::vector<std::string> v;
+
+    if (!target.empty()) {
+        while (target.size() ){
+            int index = target.find(delim);
+            if (index != std::string::npos) {
+                v.push_back(target.substr(0,index));
+                target = target.substr(index+delim.size());
+                if (target.size()==0) v.push_back(target);
+            }
+            else {
+                v.push_back(target);
+                target = "";
+            }
+        }         
+    }
+    return v;
+}

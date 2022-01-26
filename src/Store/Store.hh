@@ -62,14 +62,14 @@ class Store : public TreeOut
             fMap[key] = stream.str();
         }
         
-        bool GetBool(std::string key, bool emptyVal=false)
+        bool GetBool(std::string key, bool emptyVal=true)
         {
             if (fMap.count(key) > 0) {
                 if (fMap[key]=="true" || fMap[key]=="1") return true;
                 else if (fMap[key]=="false" || fMap[key]=="0") return false;
                 else {
-                    std::cerr << "Key " << key << " in the Store " << name
-                              << " has a non-boolean value " << fMap[key] << "\n";
+                    //std::cerr << "Key " << key << " in the Store " << name
+                    //          << " has a non-boolean value " << fMap[key] << "\n";
                     return emptyVal;
                 }
             }

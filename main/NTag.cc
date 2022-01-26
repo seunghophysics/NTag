@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     ntagManager.DumpSettings();
 
     NoiseManager* noiseManager = nullptr;
-    if (settings.GetBool("add_noise")) {
+    if (settings.GetBool("add_noise", false)) {
         std::string noiseType; settings.Get("noise_type", noiseType);
         float tNoiseStart = settings.GetFloat("TNOISESTART");
         float tNoiseEnd   = settings.GetFloat("TNOISEEND");

@@ -51,6 +51,7 @@ static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "nois
                                                "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", 
                                                "TMINPEAKSEP", "TMATCHWINDOW",
                                                "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
-                                               "E_N50CUT", "E_TIMECUT", "N_OUTCUT"};
+                                               "E_N50CUT", "E_TIMECUT", "N_OUTCUT",
+                                               "print"};
 
 #endif

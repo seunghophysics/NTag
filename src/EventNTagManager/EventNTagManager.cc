@@ -274,7 +274,7 @@ void EventNTagManager::ReadEventFromCommon()
 {
     ReadInfoFromCommon();
     AddHits();
-    if (fSettings.GetBool("add_noise")) {
+    if (fSettings.GetBool("add_noise", false)) {
         fEventHits.SetAsSignal(true);
         AddNoise();
     }
@@ -657,20 +657,9 @@ void EventNTagManager::DumpEvent()
     fEventTaggables.DumpAllElements();
     fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
                                            "Label", "TagIndex", "TagClass"});
-    fEventCandidates.DumpAllElements({"FitT",
-                                      "NHits",
-                                      "dvx",
-                                      "dvy",
-                                      "dvz",
-                                      "FitGoodness",
-                                      "DPrompt",
-                                      "DWall",
-                                      "MeanDirAngleMean",
-                                      "SignalRatio",
-                                      "TagOut",
-                                      "Label",
-                                      "TagIndex",
-                                      "TagClass"});
+    if (fSettings.GetBool("print", true)) {
+        fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","));
+    }
 }
 
 void EventNTagManager::CheckMC()

@@ -203,6 +203,8 @@ std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, do
 
 std::vector<std::pair<float, int>> Histogram(std::vector<float> vec, int nBins, float min, float max);
 
+std::vector<std::string> Split(std::string target, std::string delim);
+
 template int GetSum<int>(const std::vector<int>& vec);
 template float GetSum<float>(const std::vector<float>& vec);
 template int GetMean<int>(const std::vector<int>& vec);

@@ -14,6 +14,7 @@ TRBNWIDTH      0
 NODHITMX       100000
 
 # MC noise
+add_noise      false
 noise_type     sk6
 TNOISESTART    2
 TNOISEEND      536
@@ -64,3 +65,6 @@ N_OUTCUT       0.7
 
 # MC labeling
 TMATCHWINDOW   200
+
+# logging
+print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,TagClass
