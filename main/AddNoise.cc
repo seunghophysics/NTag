@@ -15,7 +15,8 @@ int main(int argc, char **argv)
     ArgParser parser(argc, argv);
     Store settings;
     Printer msg("AddNoise");
-    settings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
+    if (!GetENV("NTAGLIBPATH").empty())
+        settings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
     settings.ReadArguments(parser);
     settings.Print();
 
@@ -38,11 +39,13 @@ int main(int argc, char **argv)
     NoiseManager noiseManager(settings.GetString("noise_type").c_str(), nInputEvents,
                               settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
     noiseManager.DumpSettings();
+    if (settings.GetBool("debug", false))
+        noiseManager.SetVerbosity(pDEBUG);
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
 
-        msg.Print(Form("Event ID: %d\r", eventID));
+        msg.Print(Form("Processing event #%d...\x1b[A\r", eventID));
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
@@ -56,6 +59,10 @@ int main(int argc, char **argv)
 
     inputMC.CloseFile();
     outputMC.CloseFile();
+    
+    std::cout << "\n";
+    msg.Print(Form("Noise addition done!"));
+    msg.Print(Form("Output: %s", outputFilePath.c_str()));
 
     return 0;
 }

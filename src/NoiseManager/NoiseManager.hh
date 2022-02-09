@@ -38,6 +38,7 @@ class NoiseManager
         void GetNextNoiseEvent();
         void SetPMTDeadtime(float pmtDeadtime) { fPMTDeadtime = pmtDeadtime; }
         void SetRepeat(bool b) { fDoRepeat = b; }
+        void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
 
         void AddNoise(PMTHitCluster* signalHits);
 

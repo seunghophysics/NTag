@@ -202,7 +202,7 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits)
 {
     if (fCurrentEntry == -1 || fPartID == fNParts) {
         GetNextNoiseEvent();
-        fMsg.Print(Form("Current noise entry: %d", fCurrentEntry));
+        fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
     }
 
     float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
@@ -229,8 +229,9 @@ void NoiseManager::DumpSettings()
     fMsg.Print(Form("Noise type: %s", fNoiseType));
     fMsg.Print(Form("Noise range: [%3.2f, %3.2f] usec (T_trigger=0)", fNoiseStartTime*1e-3-1, fNoiseEndTime*1e-3-1));
     fMsg.Print(Form("Seed: %d", ranGen.GetSeed()));
-    fMsg.Print(Form("3-sigma hit density range: (%3.1f , %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
+    fMsg.Print(Form("3-sigma hit density range: (%3.1f, %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
     fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(DUMMYCUT)));
     fMsg.Print(Form("PMT deadtime: %3.2f ns", fPMTDeadtime));
     fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
+    std::cout << "\n";
 }
