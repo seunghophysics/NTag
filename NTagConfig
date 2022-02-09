@@ -68,3 +68,4 @@ TMATCHWINDOW   200
 
 # logging
 print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,TagClass
+debug          false
