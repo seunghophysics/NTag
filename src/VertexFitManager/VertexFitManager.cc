@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "VertexFitManager.hh"
 
 float VertexFitManager::GetGoodness(const PMTHitCluster& hitCluster, const TVector3& vertex, const float& t0)

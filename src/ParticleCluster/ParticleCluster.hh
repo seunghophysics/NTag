@@ -2,8 +2,8 @@
 #define PARTICLECLUSTER_HH
 
 #include <skvectC.h>
-#define SECMAXRNG 4000
 #include <apscndryC.h>
+#undef SECMAXRNG
 
 #include "Particle.hh"
 #include "Cluster.hh"

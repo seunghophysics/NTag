@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
+#include <cmath>
 
 #include <TRandom3.h>
 #include <TString.h>

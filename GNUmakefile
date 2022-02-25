@@ -63,7 +63,7 @@ $(MAINOBJS): main/%.o: main/%.cc lib/libNTagLib.a
 $(MAINBINS): bin/%: main/%.o
 	@mkdir -p bin
 	@echo "[NTagLib] Building executable: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
-	@LD_RUN_PATH=$(TMVASYS)/lib:$(ROOTSYS)/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)	
+	@LD_RUN_PATH=$(ROOTSYS)/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)
 
 double: CXXFLAGS+=-DUSE_DOUBLE=1
 double: cleanobj dirs inc lib/libNTagLib_double.a

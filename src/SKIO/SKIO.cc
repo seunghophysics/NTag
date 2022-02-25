@@ -3,6 +3,7 @@
 #include <fortran_interface.h>
 #undef MAXPM
 #undef MAXPMA
+#undef SECMAXRNG
 
 #include "apscndryC.h"
 #include "nbnkC.h"

@@ -5,6 +5,7 @@
 #undef MAXPM
 #undef MAXPMA
 #undef MAXHWSK
+#undef SECMAXRNG
 
 #include "skparmC.h"
 #include "sktqC.h"

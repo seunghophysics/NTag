@@ -6,14 +6,13 @@ CXXFLAGS += -std=c++11 -fPIC -g -O0 -lgfortran -Wl,-z -Wl,muldefs
 FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
 
-SKOFL_ROOT = /home/skofl/sklib_gcc4.8.5/skofl-trunk/
-ATMPD_ROOT = /home/skofl/sklib_gcc4.8.5/atmpd-trunk/
-
-TMVASYS = /disk02/usr6/han/Apps/TMVA
-TMVALIB = $(TMVASYS)/lib
+SKOFL_ROOT = /usr/local/sklib_gcc8/skofl-trunk/
+ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk/
+ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38/
+CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 
 SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I $(SKOFL_ROOT)/include/lowe -I $(SKOFL_ROOT)/lowe/bonsai
-SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llibrary -liolib -lrfa -lmon  \
+SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llibrary -liolib -L $(SKOFL_ROOT)/src/rfa_dummy -lrfa -L $(SKOFL_ROOT)/lib -lmon \
 								-lskroot -lDataDefinition -ltqrealroot -lloweroot -latmpdroot -lmcinfo -lsofttrgroot -lidod_xtlk_root \
 								-lbonsai_3.3 -lsklowe_7.0 -lwtlib_5.1 -lsollib_4.0 -lskrd -llibrary -liolib -lsklib
 ATMPDINCLUDE = -I $(ATMPD_ROOT)/include -I $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd -I $(ATMPD_ROOT)/src/recon/fitqun
@@ -22,9 +21,8 @@ ATMPDLIB = -L $(ATMPD_ROOT)/lib -lapdrlib -lhutl -laplib -lringlib -ltp -ltf -lr
 		   -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k -lNtag
 
 ROOTINCLUDE = -I $(TMVASYS)/inc -I $(ROOTSYS)/include
-ROOTLIB = -L $(TMVASYS)/lib -lTMVA.1 $(shell root-config --libs) -lMinuit -lXMLIO -lMLP -lTreePlayer -lUnuran -lEG
-#ROOTLIB = $(shell root-config --libs) -lMinuit -lXMLIO -lMLP -lTreePlayer -lTMVA
-CERNLIB = `cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CERN_ROOT)/lib -ljetset74
+ROOTLIB = -L $(ROOTSYS)/lib -lTMVA -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lMinuit -lXMLIO -lMLP -lTreePlayer -lUnuran -lEG
+CERNLIB = `$(CERN_ROOT)/bin/cernlib graflib grafX11 packlib mathlib kernlib lapack3 blas` -L $(CERN_ROOT)/lib -ljetset74
 
 ifneq "$(origin USE_DOUBLE)" "undefined"
 CXXFLAGS += -DUSE_DOUBLE=1
