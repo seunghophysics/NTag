@@ -31,8 +31,8 @@ void NTagTMVA::Constructor()
     fVariables = NTagTMVAVariables(fVerbosity);
     SetMethods(true);
 
-    SetSigCut("CaptureType > 0 & SignalRatio > 0.2");
-    SetBkgCut("CaptureType == 0 & SignalRatio == 0");
+    SetSigCut("CaptureType > 0");
+    SetBkgCut("CaptureType == 0");
 }
 
 void NTagTMVA::SetMethods(bool turnOn)
