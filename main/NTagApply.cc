@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     if (weightPath=="default")
         weightPath = settings.GetString("delayed_vertex");
     if (settings.GetBool("tag_e"))
-        tagger.SetECut(settings.GetFloat("E_N50CUT"), settings.GetFloat("E_TIMECUT"));
+        tagger.SetECut(settings.GetFloat("E_NHITSCUT"), settings.GetFloat("E_TIMECUT"));
 
     tagger.SetNCut(settings.GetFloat("N_OUTCUT"));
     tagger.Initialize(weightPath);

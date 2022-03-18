@@ -6,6 +6,7 @@ REFRUNNO       62428
 # event processing
 force_flat     0
 write_bank     0
+save_hits      0
 
 # PMT noise reduction
 TRBNWIDTH      0
@@ -55,7 +56,7 @@ VTXSRCRANGE    5000
 
 # e-tagging
 tag_e          false
-E_N50CUT       50
+E_NHITSCUT     50
 E_TIMECUT      20
 
 # n-tagging

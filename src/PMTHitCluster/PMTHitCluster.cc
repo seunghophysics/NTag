@@ -56,7 +56,13 @@ void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
 
 void PMTHitCluster::Clear()
 {
-    *this = PMTHitCluster();
+    //*this = PMTHitCluster();
+    fElement.clear();
+    fIsSorted = false;
+    fHasVertex = false;
+    fVertex = TVector3();
+    fMeanDirection = TVector3();
+    ClearBranches();
 }
 
 void PMTHitCluster::AddTQReal(TQReal* tqreal, int flag)
@@ -440,6 +446,46 @@ void PMTHitCluster::ApplyCut(std::function<float(const PMTHit&)> lambda, float m
         auto& hit = fElement[iHit];
         if (min > lambda(hit) || lambda(hit) > max)
             fElement.erase(fElement.begin()+iHit);
+    }
+}
+
+void PMTHitCluster::MakeBranches()
+{
+    if (fIsOutputTreeSet) {
+        fOutputTree->Branch("t", &fT);
+        fOutputTree->Branch("q", &fQ);
+        fOutputTree->Branch("i", &fI);
+        //fOutputTree->Branch("x", &fX);
+        //fOutputTree->Branch("y", &fY);
+        //fOutputTree->Branch("z", &fZ);
+        fOutputTree->Branch("s", &fS);
+    }
+}
+
+void PMTHitCluster::ClearBranches()
+{
+    fT.clear(); fQ.clear(); fI.clear(); fS.clear();
+    //fX.clear(); fY.clear(); fZ.clear();
+}
+
+void PMTHitCluster::FillTree()
+{
+    if (fIsOutputTreeSet) {
+        ClearBranches();
+        auto vertex = fVertex;
+        RemoveVertex();
+        for (auto const hit: fElement) {
+            auto hitPos = hit.GetPosition();
+            fT.push_back(hit.t());
+            fQ.push_back(hit.q());
+            fI.push_back(hit.i());
+            //fX.push_back(hitPos.x());
+            //fY.push_back(hitPos.y());
+            //fZ.push_back(hitPos.z());
+            fS.push_back(hit.s());
+        }
+        fOutputTree->Fill();
+        SetVertex(vertex);
     }
 }
 

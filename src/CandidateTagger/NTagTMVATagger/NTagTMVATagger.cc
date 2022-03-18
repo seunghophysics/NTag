@@ -7,7 +7,7 @@
 
 NTagTMVATagger::NTagTMVATagger(Verbosity verbose)
 : CandidateTagger("NTagTMVATagger", verbose), 
-fDoTagE(false), E_N50CUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
+fDoTagE(false), E_NHITSCUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
 NTagTMVATagger::~NTagTMVATagger() {}
 
 void NTagTMVATagger::Initialize(std::string weightPath)
@@ -25,16 +25,16 @@ void NTagTMVATagger::OverrideSettings(const char* outFilePath)
 
     TFile* f = new TFile(outFilePath, "UPDATE");
     TTree* inSettingsTree = (TTree*)f->Get("settings");
-    inSettingsTree->SetBranchStatus("E_N50CUT", 0);
+    inSettingsTree->SetBranchStatus("E_NHITSCUT", 0);
     inSettingsTree->SetBranchStatus("E_TIMECUT", 0);
     inSettingsTree->SetBranchStatus("N_OUTCUT", 0);
 
     TTree* outSettingsTree = inSettingsTree->CloneTree(-1, "fast");
-    TBranch* b_E_N50CUT = outSettingsTree->Branch("E_N50CUT", &E_N50CUT);
+    TBranch* b_E_NHITSCUT = outSettingsTree->Branch("E_NHITSCUT", &E_NHITSCUT);
     TBranch* b_E_TIMECUT = outSettingsTree->Branch("E_TIMECUT", &E_TIMECUT);
     TBranch* b_N_OUTCUT = outSettingsTree->Branch("N_OUTCUT", &N_OUTCUT);
 
-    b_E_N50CUT->Fill();
+    b_E_NHITSCUT->Fill();
     b_E_TIMECUT->Fill();
     b_N_OUTCUT->Fill();
     outSettingsTree->Write();
@@ -46,21 +46,21 @@ void NTagTMVATagger::OverrideSettings(const char* outFilePath)
 int NTagTMVATagger::Classify(const Candidate& candidate)
 {
     int tagClass = 0;
-    int n50 = candidate.Get("N50", -1); // muechk candidate has no N50 key in its map
+    bool isEarly = candidate.Get("N50", -1) < 0; // muechk flag
+    int nHits = candidate.Get("NHits");
     float fitT = candidate.Get("FitT");
-    float tmvaOut = n50 < 0 ? /* muechk */ 0 : 
+    float tmvaOut = isEarly ? /* muechk */ 1 : 
                               /* ntag */   GetLikelihood(candidate);
 
     // simple cuts mode for e/n separation
     if (fDoTagE) {
-        if (n50 < 0)                                    tagClass = typeE;      // e: muechk && before ntag
-        else if (n50 > E_N50CUT && fitT < E_TIMECUT)    tagClass = typeE;      // e: ntag && elike
-        else if (tmvaOut > N_OUTCUT)                    tagClass = typeN;      // n: ntag && !e-like && n-like
-        else                                            tagClass = typeMissed; // otherwise noise
+        if (tmvaOut < N_OUTCUT)                          tagClass = typeMissed;
+        else if (nHits > E_NHITSCUT && fitT < E_TIMECUT) tagClass = typeE;
+        else                                             tagClass = typeN;
     }
     // naive tagging mode without e/n separation
     else {
-        if (n50 < 0)                 tagClass = typeE;      // e: muechk
+        if (isEarly)                 tagClass = typeE;      // e: muechk
         else if (tmvaOut > N_OUTCUT) tagClass = typeN;      // n: ntag && out cut
         else                         tagClass = typeMissed; // otherwise noise
     }

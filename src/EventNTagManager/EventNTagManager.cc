@@ -204,14 +204,21 @@ void EventNTagManager::AddHits()
         lastHit = fEventHits[fEventHits.GetSize()-1];
     }
 
+    // getting time offset between SHE and AFT events:
+    // look for an identical hit in the two events, with the same PMT ID and the deposit charge
     if (!coincidenceFound) {
         for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
-            if (sktqz_.qiskz[iHit] == lastHit.q() && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) {
+            if (fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2 // hit charges coincide within 5% (temp)
+             && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) { // PMT ID identical
                 tOffset = lastHit.t() - sktqz_.tiskz[iHit];
                 coincidenceFound = true;
-                fMsg.Print(Form("Coincidence found: t = %f ns, (offset: %f ns)", lastHit.t(), tOffset));
+                fMsg.Print(Form("Coincidence found: t = %3.2f ns, (offset: %3.2f ns)", lastHit.t(), tOffset));
                 break;
             }
+        }
+        if (!coincidenceFound) {
+            fMsg.Print("Coincidence not found!", pWARNING);
+            fMsg.Print(Form("Last hit from the previous event: T: %3.2f ns Q: %3.9f pe, I: %d", lastHit.t(), lastHit.q(), lastHit.i()), pWARNING);
         }
     }
 
@@ -246,6 +253,7 @@ void EventNTagManager::ReadEarlyCandidates()
 
     for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
         float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE] - 1;
+        if (fitT < (T0TH-1000)*1e-3) {
             Candidate candidate;
             candidate.Set("FitT", fitT);
             candidate.Set("x", apmue_.apmuepos[iMuE][0]);
@@ -260,6 +268,7 @@ void EventNTagManager::ReadEarlyCandidates()
             candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
             candidate.Set("TagClass", fTagger->Classify(candidate));
             fEventEarlyCandidates.Append(candidate);
+        }
     }
 }
 
@@ -524,12 +533,12 @@ void EventNTagManager::ApplySettings()
 
     fTRMSFitManager.SetParameters(INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE);
 
-    fSettings.Get("E_N50CUT", E_N50CUT);
+    fSettings.Get("E_NHITSCUT", E_NHITSCUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
     fSettings.Get("N_OUTCUT", N_OUTCUT);
     
     if (fSettings.GetBool("tag_e")) 
-        fTMVATagger.SetECut(E_N50CUT, E_TIMECUT);
+        fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
     fTMVATagger.SetNCut(N_OUTCUT);
     
     if (fSettings.GetBool("tmva")) {
@@ -581,6 +590,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
 
     TTree* settingsTree = new TTree("settings", "settings");
     TTree* eventTree    = new TTree("event", "event");
+    TTree* hitTree      = new TTree("hit", "hit");
     TTree* particleTree = new TTree("particle", "particle");
     TTree* taggableTree = new TTree("taggable", "taggable");
     TTree* nTree        = new TTree("ntag", "ntag");
@@ -589,6 +599,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     if (outfile) {
         settingsTree->SetDirectory(outfile);
         eventTree->SetDirectory(outfile);
+        hitTree->SetDirectory(outfile);
         particleTree->SetDirectory(outfile);
         taggableTree->SetDirectory(outfile);
         nTree->SetDirectory(outfile);
@@ -597,10 +608,11 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     
     fSettings.SetTree(settingsTree);
     fEventVariables.SetTree(eventTree);
+    if (fSettings.GetBool("save_hits")) fEventHits.SetTree(hitTree);
     fEventParticles.SetTree(particleTree);
     fEventTaggables.SetTree(taggableTree);
     fEventCandidates.SetTree(nTree);
-    fEventEarlyCandidates.SetTree(eTree);
+    if (fSettings.GetBool("muechk")) fEventEarlyCandidates.SetTree(eTree);
 }
 
 void EventNTagManager::FillTrees()
@@ -612,6 +624,7 @@ void EventNTagManager::FillTrees()
         // make branches
         fSettings.MakeBranches();
         fEventVariables.MakeBranches();
+        fEventHits.MakeBranches();
         fEventParticles.MakeBranches();
         fEventTaggables.MakeBranches();
         fEventEarlyCandidates.MakeBranches();
@@ -624,6 +637,7 @@ void EventNTagManager::FillTrees()
 
     // fill trees
     fEventVariables.FillTree();
+    fEventHits.FillTree();
     fEventParticles.FillTree();
     fEventTaggables.FillTree();
     fEventEarlyCandidates.FillTree();
@@ -634,9 +648,10 @@ void EventNTagManager::WriteTrees(bool doCloseFile)
 {
     fSettings.WriteTree();
     fEventVariables.WriteTree();
+    fEventHits.WriteTree();
     fEventParticles.WriteTree();
     fEventTaggables.WriteTree();
-    if (fSettings.GetBool("muechk")) fEventEarlyCandidates.WriteTree();
+    fEventEarlyCandidates.WriteTree();
     fEventCandidates.WriteTree();
     if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
 }
@@ -934,18 +949,18 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
 void EventNTagManager::PruneCandidates()
 {
     std::vector<int> duplicateCandidateList;
-    for (unsigned int iCandidate=0; iCandidate<fEventCandidates.GetSize(); iCandidate++) {
-        auto& candidate = fEventCandidates[iCandidate];
-        for (auto& early: fEventEarlyCandidates) {
-            if (early["TagClass"] == typeE &&
-                fabs(early["FitT"] - candidate["FitT"])*1e3 < 2*TMATCHWINDOW) {
+    for (unsigned int iCandidate=0; iCandidate<fEventEarlyCandidates.GetSize(); iCandidate++) {
+        auto& candidate = fEventEarlyCandidates[iCandidate];
+        for (auto& delayed: fEventCandidates) {
+            if (delayed["TagClass"] == typeE &&
+                fabs(delayed["FitT"] - candidate["FitT"])*1e3 < 2*TMATCHWINDOW) {
                 duplicateCandidateList.push_back(iCandidate); break;
             }
         }
     }
 
     for (auto& duplicateIndex: duplicateCandidateList)
-        fEventCandidates.Erase(duplicateIndex);
+        fEventEarlyCandidates.Erase(duplicateIndex);
 }
 
 void EventNTagManager::FillNTagCommon()

@@ -17,7 +17,7 @@ typedef struct OpeningAngleStats {
     float mean, median, stdev, skewness;
 } OpeningAngleStats;
 
-class PMTHitCluster : public Cluster<PMTHit>
+class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 {
     public:
         PMTHitCluster();
@@ -91,10 +91,17 @@ class PMTHitCluster : public Cluster<PMTHit>
         //void FindHitProperties();
         PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
         void ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max);
+
+        void MakeBranches();
+        void ClearBranches();
+        void FillTree();
         
     private:
         bool fIsSorted, fHasVertex;
         TVector3 fVertex, fMeanDirection;
+
+        std::vector<float> fT, fQ;
+        std::vector<int> fI, fS;
 
         void SetToF(bool unset=false);
 };

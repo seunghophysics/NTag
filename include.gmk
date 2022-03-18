@@ -6,8 +6,8 @@ CXXFLAGS += -std=c++11 -fPIC -g -O0 -lgfortran -Wl,-z -Wl,muldefs
 FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
 
-SKOFL_ROOT = /usr/local/sklib_gcc8/skofl-trunk/
-ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk/
+SKOFL_ROOT = /usr/local/sklib_gcc8/skofl_21b/
+ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd_21b/
 ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38/
 CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 
