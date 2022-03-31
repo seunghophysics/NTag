@@ -71,6 +71,9 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
             fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][1]);
         else if (apcommul_.apip[0] == MUON)
             fEventVariables.Set("FirstRingMom", appatsp2_.apmsamom[0][2]);
+        fEventVariables.Set("ring_dirx", apcommul_.apdir[0][0]);
+        fEventVariables.Set("ring_diry", apcommul_.apdir[0][1]);
+        fEventVariables.Set("ring_dirz", apcommul_.apdir[0][2]);
             
         // visible energy
         fEventVariables.Set("EVis", apcomene_.apevis);
@@ -179,9 +182,14 @@ void EventNTagManager::ReadVariables()
         // NEUT
         if (fSettings.GetBool("neut")) {
             float posnu[3]; nerdnebk_(posnu);
+            auto nuMomVec = TVector3(nework_.pne[0]);
+            auto nuDirVec = nuMomVec.Unit();
             fEventVariables.Set("NEUTMode", nework_.modene);
             fEventVariables.Set("NuType", nework_.ipne[0]);
-            fEventVariables.Set("NuMom", TVector3(nework_.pne[0]).Mag());
+            fEventVariables.Set("NuMom", nuMomVec.Mag());
+            fEventVariables.Set("nu_dirx", nuDirVec.x());
+            fEventVariables.Set("nu_diry", nuDirVec.y());
+            fEventVariables.Set("nu_dirz", nuDirVec.z());
         }
     }
 }
@@ -208,8 +216,13 @@ void EventNTagManager::AddHits()
     // look for an identical hit in the two events, with the same PMT ID and the deposit charge
     if (!coincidenceFound) {
         for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
-            if (fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2 // hit charges coincide within 5% (temp)
-             && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) { // PMT ID identical
+            if (static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) {
+                fMsg.Print(Form("Same PMT T: %3.2f ns Q: %3.9f pe, I: %d", sktqz_.tiskz[iHit], sktqz_.qiskz[iHit], sktqz_.icabiz[iHit]), pWARNING);
+            }
+            // hit charges coincide within 5% (temp) or both are negative
+            if (((fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2) || (lastHit.q()<0 && sktqz_.qiskz[iHit]<0)) 
+             && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i() // PMT ID identical
+             && fabs(lastHit.t() - sktqz_.tiskz[iHit] - 35000) < 500) {       // PMT timing offset within 500 ns from 35 usec
                 tOffset = lastHit.t() - sktqz_.tiskz[iHit];
                 coincidenceFound = true;
                 fMsg.Print(Form("Coincidence found: t = %3.2f ns, (offset: %3.2f ns)", lastHit.t(), tOffset));
@@ -217,7 +230,8 @@ void EventNTagManager::AddHits()
             }
         }
         if (!coincidenceFound) {
-            fMsg.Print("Coincidence not found!", pWARNING);
+            fMsg.Print("Coincidence not found! Setting AFT tOffset to 35100 ns...", pWARNING);
+            tOffset = 35100;
             fMsg.Print(Form("Last hit from the previous event: T: %3.2f ns Q: %3.9f pe, I: %d", lastHit.t(), lastHit.q(), lastHit.i()), pWARNING);
         }
     }
@@ -997,10 +1011,12 @@ void EventNTagManager::FillNTagCommon()
         }
 
         // fill ntag bank: candidates
+        ntag_.n10[i] = candidate["NHits"];
         ntag_.ntime[i] = candidate["FitT"] * 1e3;
         ntag_.mctruth_neutron[i] = ntag_.np > MAXNP ? -1 : (label == lnH || label == lnGd ? 1 : 0);
         ntag_.goodness[i] = candidate["TagOut"];
-        ntag_.tag[i] = isTaggedOrNot;
+        //ntag_.tag[i] = isTaggedOrNot;
+        ntag_.tag[i] = candidate["TagClass"];
         i++;
     }
 
