@@ -43,7 +43,7 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
                                                  "DWall", "DWallMeanDir"};
                                                  
-static std::vector<std::string> gCmdOptions = {"force_flat", "write_bank", "noise_type", "save_hits",
+static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_bank", "noise_type", "save_hits",
                                                "muechk", "neut", "add_noise", "weight", "debug",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", "tmva", "in", "out",
                                                "SKOPTN", "SKBADOPT", "REFRUNNO",
