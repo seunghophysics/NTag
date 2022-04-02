@@ -139,7 +139,6 @@ unsigned int GetMaxIndex(std::vector<float>& vec)
 
 void SetSeed(int seed)
 {
-    
     ranGen.SetSeed(seed);
 }
 
@@ -212,7 +211,7 @@ std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, do
     //std::cout << "low: " << low << " high: " << high << std::endl;
 
     auto start = std::lower_bound(sortedVec.begin(), sortedVec.end(), low);
-    auto end = std::upper_bound(sortedVec.begin(), sortedVec.end(), high);
+    auto end   = std::upper_bound(sortedVec.begin(), sortedVec.end(), high);
 
     //std::cout << "start_i: " << start-sortedVec.begin() << " end_i: " << end-sortedVec.begin() << std::endl;
 

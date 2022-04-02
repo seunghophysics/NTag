@@ -1,3 +1,12 @@
+
+/*******************************************
+*
+* @file CandidateCluster.hh
+*
+* @brief Defines CandidateCluster.
+*
+********************************************/
+
 #ifndef CANDIDATECLUSTER_HH
 #define CANDIDATECLUSTER_HH
 
@@ -11,6 +20,27 @@
 #include "PMTHitCluster.hh"
 
 class TTree;
+
+/*******************************************
+*
+* @brief The Cluster of Candidate objects.
+*
+* @details This class inherits from 
+*
+* Values can be set and retrieved using
+* Candidate::Set and Candidate::Get functions.
+*
+* One can pass an unsigned integer index that
+* may be useful in positioning the candidate
+* among hits.
+*
+* @see EventNTagManager::FindFeatures for the
+* use of Candidate::Set functions and how the
+* passed hit index in the constructor could be
+* used to position the candidate among PMT hits
+* and fetch relevant features.
+*
+********************************************/
 
 class CandidateCluster : public Cluster<Candidate>, public TreeOut
 {

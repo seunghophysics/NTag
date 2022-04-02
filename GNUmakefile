@@ -4,7 +4,7 @@ include include.gmk
 
 .PHONY: all float dirs inc clean cleanobj main
 
-all: float dirs inc main
+all: float inc main
 	@echo "[NTagLib] Done!"
 
 float:
@@ -13,7 +13,7 @@ ifneq "$(origin USE_DOUBLE)" "undefined"
 endif
 
 dirs:
-	@mkdir -p lib include bin
+	@mkdir -p lib include bin obj
 
 inc: dirs
 	@cp `find src/ -name '*.hh'` include
@@ -21,17 +21,19 @@ inc: dirs
 include/%.hh:
 	@:
 
-SRCS = $(wildcard src/*.cc) $(wildcard src/*/*.cc) $(wildcard src/*/*/*.cc)
-OBJS = $(patsubst src/%.cc, src/%.o, $(SRCS))
-FORTRANSRCS = $(wildcard src/*.F) $(wildcard src/*/*.F) $(wildcard src/*/*/*.F)
-FORTRANOBJS = $(patsubst src/%.F, src/%.o, $(FORTRANSRCS))
+SRCS = $(sort $(shell find src -name '*.cc'))
+OBJS = $(patsubst src/%, obj/%.o, $(basename $(SRCS)))
+FORTRANSRCS = $(sort $(shell find src -name '*.F'))
+FORTRANOBJS = $(patsubst src/%, obj/%.o, $(basename $(FORTRANSRCS)))
 INC := $(addprefix -I , $(sort $(dir $(shell find src -name '*.hh'))))
 
-$(OBJS): src/%.o: src/%.cc src/%.hh
+$(OBJS): obj/%.o: src/%.cc src/%.hh
+	@mkdir -p $(@D)
 	@echo "[NTagLib] Building library: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 
-$(FORTRANOBJS): src/%.o: src/%.F
+$(FORTRANOBJS): obj/%.o: src/%.F
+	@mkdir -p $(@D)
 	@echo "[NTagLib] Building FORTRAN code: $*..."
 	@$(FC) $(FCFLAGS) -c $< -o $@ -I $(SKOFL_ROOT)/inc -I $(SKOFL_ROOT)/inc/lowe -I $(ATMPD_ROOT)/inc
 
@@ -44,23 +46,24 @@ lib/libNTagLib_double.a: $(OBJS) $(FORTRANOBJS)
 	@ar crf $@ $^
 
 clean:
-	@rm -rf src/*.o src/*/*.o src/*/*/*.o lib include bin
+	@rm -rf obj lib include bin
 
 cleanobj:
-	@rm -rf src/*.o src/*/*.o src/*/*/*.o
+	@rm -rf obj
 
 # main
 
 MAINSRCS = $(wildcard main/*.cc)
-MAINOBJS = $(patsubst main/%.cc, main/%.o, $(MAINSRCS))
+MAINOBJS = $(patsubst main/%.cc, obj/main/%.o, $(MAINSRCS))
 MAINBINS = $(patsubst main/%.cc, bin/%, $(MAINSRCS))
 
 main: $(MAINBINS)
 	
-$(MAINOBJS): main/%.o: main/%.cc lib/libNTagLib.a
+$(MAINOBJS): obj/main/%.o: main/%.cc lib/libNTagLib.a
+	@mkdir -p obj/main
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 	
-$(MAINBINS): bin/%: main/%.o
+$(MAINBINS): bin/%: obj/main/%.o
 	@mkdir -p bin
 	@echo "[NTagLib] Building executable: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@LD_RUN_PATH=$(ROOTSYS)/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)

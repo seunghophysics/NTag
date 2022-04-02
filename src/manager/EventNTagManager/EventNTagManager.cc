@@ -721,23 +721,28 @@ void EventNTagManager::PrepareEventHitsForSearch()
 void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 {
     PMTHit firstHit = fEventHits[iHit];
-    TVector3 delayedVertex = fPromptVertex;
     auto trgHits = fEventHits.Slice(iHit, TWIDTH);
-    float delayedTime = trgHits.Find(HitFunc::T, Calc::Mean);
+    
+    // set default values for delayed candidate properties
+    TVector3 delayedVertex = fPromptVertex;
+    float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
 
-    // delayed vertex = prompt vertex
+    // prompt mode: delayed vertex = prompt vertex
     if (fDelayedVertexMode == mPROMPT) {
         delayedGoodness = fDelayedVertexManager->GetGoodness(trgHits, fPromptVertex, delayedTime);
     }
-    // delayed vertex fit
+
+    // delayed mode: apply delayed vertex fit
     else {
         PMTHitCluster hitsForFit;
         bool doFit = true;
 
+        // TRMS-fit
         if (fDelayedVertexMode == mTRMS)
             hitsForFit = fEventHits.Slice(iHit, (TWIDTH-TRMSTWIDTH)/2., (TWIDTH+TRMSTWIDTH)/2.) - firstHit.t() + 1000;
 
+        // BONSAI
         else if (fDelayedVertexMode == mBONSAI) {
             fEventHits.RemoveVertex();
             fEventHits.Sort();
@@ -770,9 +775,10 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
         fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
         T0TH < delayedTime && delayedTime < T0MX) {
-        iHit = fEventHits.GetLowerBoundIndex(delayedTime);
-        unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
-        
+        //iHit = fEventHits.GetLowerBoundIndex(delayedTime);
+        //unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
+        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.01, TCANWIDTH/2.).GetSize();
+
         // NHits > 4 to prevent NaN in angle variables
         if (nHits > 4) {
             Candidate candidate(iHit);
@@ -788,11 +794,12 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
 void EventNTagManager::FindFeatures(Candidate& candidate)
 {
-    unsigned int firstHitID = candidate.HitID();
-    auto hitsInTCANWIDTH = fEventHits.Slice(firstHitID, -TCANWIDTH/2., TCANWIDTH/2.);
-    auto hitsIn50ns   = fEventHits.Slice(firstHitID, -25, 25);
-    auto hitsIn200ns  = fEventHits.Slice(firstHitID, -100, +100);
-    auto hitsIn1300ns = fEventHits.Slice(firstHitID, -520, +780);
+    //unsigned int firstHitID = candidate.HitID();
+    float fitTime = candidate.Get("FitT")*1e3 + 1000;
+    auto hitsInTCANWIDTH = fEventHits.SliceRange(fitTime, -TCANWIDTH/2., TCANWIDTH/2.);
+    auto hitsIn50ns      = fEventHits.SliceRange(fitTime,           -25,          +25);
+    auto hitsIn200ns     = fEventHits.SliceRange(fitTime,          -100,         +100);
+    auto hitsIn1300ns    = fEventHits.SliceRange(fitTime,          -520,         +780);
     //auto hitsInTCANWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
     //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
     //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);

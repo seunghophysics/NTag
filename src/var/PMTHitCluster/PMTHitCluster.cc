@@ -174,6 +174,8 @@ void PMTHitCluster::FillCommon()
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
 {
+    return SliceRange(fElement[startIndex].t(), 0, tWidth);
+    /*
     if (!fIsSorted) Sort();
 
     PMTHitCluster selectedHits;
@@ -189,6 +191,7 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
     }
 
     return selectedHits;
+    */
 }
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float lowT, Float upT)
@@ -205,7 +208,7 @@ PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
 
     PMTHit startHit(startT, 0, 1, 1);
     unsigned int low = GetLowerBoundIndex(startT + lowT);
-    unsigned int up = GetUpperBoundIndex(startT + upT);
+    unsigned int up  = GetUpperBoundIndex(startT + upT);
 
     PMTHitCluster selectedHits;
     if (fHasVertex)

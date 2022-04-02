@@ -21,6 +21,7 @@ class CandidateTagger
         
     protected:
         float TMATCHWINDOW;
+
     private:
         std::string fName;
         Printer fMsg;

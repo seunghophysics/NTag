@@ -61,10 +61,23 @@ class ArgParser{
             return *this;
         }
 
-        void SetOptionPairs();
+        /**
+         * @brief Get the vector of option-value pairs.
+         * @return A vector of pairs, whose first string is an input option
+         * and the second string is the option's value.
+         */
         const std::vector<std::pair<std::string, std::string>>& GetOptionPairs() const { return fOptionPairs; }
 
+        /**
+         * @brief Override the saved tokens with an input vector of tokens.
+         * @param token An input vector of strings (tokens).
+         */
         void SetTokens(std::vector<std::string>& token) { fTokens = token; }
+
+        /**
+         * @brief Get the vector of saved tokens.
+         * @return A vector of tokens (strings).
+         */
         std::vector<std::string>& GetTokens() { return fTokens; }
 
         /**
@@ -93,6 +106,8 @@ class ArgParser{
         }
 
     private:
+        void SetOptionPairs();
+
         std::vector<std::string> fTokens;
         std::vector<std::pair<std::string, std::string>> fOptionPairs;
 };

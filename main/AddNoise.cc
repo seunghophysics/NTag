@@ -13,8 +13,9 @@
 int main(int argc, char **argv)
 {
     ArgParser parser(argc, argv);
-    Store settings;
     Printer msg("AddNoise");
+    Store settings;
+
     if (!GetENV("NTAGLIBPATH").empty())
         settings.Initialize(GetENV("NTAGLIBPATH")+"/NTagConfig");
     settings.ReadArguments(parser);
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
     inputMC.OpenFile();
-    int nInputEvents = inputMC.GetNumberOfEvents();
+    auto nInputEvents = inputMC.GetNumberOfEvents();
 
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
@@ -44,7 +45,6 @@ int main(int argc, char **argv)
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
-
         msg.Print(Form("Processing event #%d...\x1b[A\r", eventID));
 
         // Get input MC hits
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
     inputMC.CloseFile();
     outputMC.CloseFile();
-    
+
     std::cout << "\n";
     msg.Print(Form("Noise addition done!"));
     msg.Print(Form("Output: %s", outputFilePath.c_str()));

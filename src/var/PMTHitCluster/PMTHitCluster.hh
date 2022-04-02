@@ -50,8 +50,15 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         PMTHitCluster SliceRange(Float minusT, Float plusT);
 
         unsigned int GetIndex(PMTHit hit);
-        unsigned int GetLowerBoundIndex(Float t) { return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
-        unsigned int GetUpperBoundIndex(Float t) { return std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();}
+        unsigned int GetLowerBoundIndex(Float t) 
+        { 
+            return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();
+        }
+        unsigned int GetUpperBoundIndex(Float t) 
+        {
+            auto index = std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();
+            return index? --index : index;
+        }
 
         inline const TVector3& GetMeanDirection() const { return fMeanDirection; }
 

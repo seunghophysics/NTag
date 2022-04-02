@@ -125,7 +125,8 @@ void CandidateCluster::FillVectorMap()
         }
 
         if (!areFeaturesIdentical) {
-            std::cerr << "Make sure all candidates share the same set of features specified by CandidateCluster::RegisterFeatureNames!" << std::endl;
+            std::cerr << "Make sure all candidates share the same set of features"
+                         " specified by CandidateCluster::RegisterFeatureNames!" << std::endl;
         }
 
         assert(fFeatureVectorMap.begin()->second->size() == GetSize());

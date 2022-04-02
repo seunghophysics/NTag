@@ -39,7 +39,7 @@ TMAX           535
 TWIDTH         14
 TMINPEAKSEP    200
 NHITSTH        7
-NHITSMX        300
+NHITSMX        400
 N200MX         1000
 
 # delayed vertex

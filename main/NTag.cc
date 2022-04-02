@@ -66,6 +66,7 @@ int main(int argc, char** argv)
     ntagManager.ApplySettings();
     ntagManager.DumpSettings();
 
+    // read noise settings
     NoiseManager* noiseManager = nullptr;
     if (settings.GetBool("add_noise", false)) {
         std::string noiseType; settings.Get("noise_type", noiseType);
@@ -77,8 +78,8 @@ int main(int argc, char** argv)
         ntagManager.SetNoiseManager(noiseManager);
     }
 
-    TFile* ntagOutFile = nullptr;
     // set output file and trees
+    TFile* ntagOutFile = nullptr;
     if (output.GetFileFormat()==mSKROOT && output.GetFilePath()!="") {
         int lun = 10;
         TreeManager* mgr = skroot_get_mgr(&lun);
@@ -98,6 +99,8 @@ int main(int argc, char** argv)
         input.ReadEvent(eventID);
         ntagManager.ProcessEvent();
     }
+
+    // save output and exit
     ntagManager.WriteTrees();
     if (ntagOutFile)  ntagOutFile->Close();
     if (noiseManager) delete noiseManager;
