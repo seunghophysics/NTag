@@ -28,16 +28,11 @@ var NAVTREE =
     [ "Getting Started", "index.html#autotoc_md1", [
       [ "Dependencies", "index.html#autotoc_md2", null ],
       [ "How to install", "index.html#autotoc_md3", null ],
-      [ "How to run executables", "index.html#autotoc_md4", [
-        [ "NTag", "index.html#autotoc_md5", null ],
-        [ "AddNoise", "index.html#autotoc_md6", null ],
-        [ "NTagApply", "index.html#autotoc_md7", null ],
-        [ "NTagTrain", "index.html#autotoc_md8", null ]
-      ] ],
+      [ "How to run executables", "index.html#autotoc_md4", null ],
       [ "Command line options", "index.html#command-line-options", null ]
     ] ],
     [ "Output tree structure", "index.html#output-tree-structure", null ],
-    [ "Contact", "index.html#autotoc_md9", null ],
+    [ "Contact", "index.html#autotoc_md5", null ],
     [ "Structure of the program", "md_structure.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
@@ -63,7 +58,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"index.html#autotoc_md8"
+"md_structure.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

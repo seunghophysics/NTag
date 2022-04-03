@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     if (settings.GetBool("tag_e"))
         tagger.SetECut(settings.GetFloat("E_NHITSCUT"), settings.GetFloat("E_TIMECUT"));
 
-    tagger.SetNCut(settings.GetFloat("N_OUTCUT"));
+    tagger.SetNCut(settings.GetFloat("TAGOUTCUT"));
     tagger.Initialize(weightPath);
     tagger.Apply(inFilePath.c_str(), outFilePath.c_str(), settings.GetFloat("TMATCHWINDOW"));
 

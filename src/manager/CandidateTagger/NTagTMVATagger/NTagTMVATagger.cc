@@ -7,7 +7,7 @@
 
 NTagTMVATagger::NTagTMVATagger(Verbosity verbose)
 : CandidateTagger("NTagTMVATagger", verbose), 
-fDoTagE(false), E_NHITSCUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}
+fDoTagE(false), E_NHITSCUT(50), E_TIMECUT(20), TAGOUTCUT(0.7) {}
 NTagTMVATagger::~NTagTMVATagger() {}
 
 void NTagTMVATagger::Initialize(std::string weightPath)
@@ -27,12 +27,12 @@ void NTagTMVATagger::OverrideSettings(const char* outFilePath)
     TTree* inSettingsTree = (TTree*)f->Get("settings");
     inSettingsTree->SetBranchStatus("E_NHITSCUT", 0);
     inSettingsTree->SetBranchStatus("E_TIMECUT", 0);
-    inSettingsTree->SetBranchStatus("N_OUTCUT", 0);
+    inSettingsTree->SetBranchStatus("TAGOUTCUT", 0);
 
     TTree* outSettingsTree = inSettingsTree->CloneTree(-1, "fast");
     TBranch* b_E_NHITSCUT = outSettingsTree->Branch("E_NHITSCUT", &E_NHITSCUT);
     TBranch* b_E_TIMECUT = outSettingsTree->Branch("E_TIMECUT", &E_TIMECUT);
-    TBranch* b_N_OUTCUT = outSettingsTree->Branch("N_OUTCUT", &N_OUTCUT);
+    TBranch* b_N_OUTCUT = outSettingsTree->Branch("TAGOUTCUT", &TAGOUTCUT);
 
     b_E_NHITSCUT->Fill();
     b_E_TIMECUT->Fill();
@@ -54,14 +54,14 @@ int NTagTMVATagger::Classify(const Candidate& candidate)
 
     // simple cuts mode for e/n separation
     if (fDoTagE) {
-        if (tmvaOut < N_OUTCUT)                          tagClass = typeMissed;
+        if (tmvaOut < TAGOUTCUT)                          tagClass = typeMissed;
         else if (nHits > E_NHITSCUT && fitT < E_TIMECUT) tagClass = typeE;
         else                                             tagClass = typeN;
     }
     // naive tagging mode without e/n separation
     else {
         if (isEarly)                 tagClass = typeE;      // e: muechk
-        else if (tmvaOut > N_OUTCUT) tagClass = typeN;      // n: ntag && out cut
+        else if (tmvaOut > TAGOUTCUT) tagClass = typeN;      // n: ntag && out cut
         else                         tagClass = typeMissed; // otherwise noise
     }
 

@@ -1,9 +1,5 @@
 var NAVTREEINDEX1 =
 {
-"index.html#autotoc_md8":[0,2,3],
-"index.html#autotoc_md9":[2],
-"index.html#command-line-options":[0,3],
-"index.html#output-tree-structure":[1],
 "md_structure.html":[3],
 "nbnk_8h_source.html":[5,0,1,1,3,0],
 "pages.html":[],

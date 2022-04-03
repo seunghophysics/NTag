@@ -52,7 +52,7 @@ static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_b
                                                "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", 
                                                "TMINPEAKSEP", "TMATCHWINDOW",
                                                "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
-                                               "E_NHITSCUT", "E_TIMECUT", "N_OUTCUT",
+                                               "E_NHITSCUT", "E_TIMECUT", "TAGOUTCUT",
                                                "print"};
 
 #endif

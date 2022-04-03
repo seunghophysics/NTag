@@ -549,11 +549,11 @@ void EventNTagManager::ApplySettings()
 
     fSettings.Get("E_NHITSCUT", E_NHITSCUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
-    fSettings.Get("N_OUTCUT", N_OUTCUT);
+    fSettings.Get("TAGOUTCUT", TAGOUTCUT);
     
     if (fSettings.GetBool("tag_e")) 
         fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
-    fTMVATagger.SetNCut(N_OUTCUT);
+    fTMVATagger.SetNCut(TAGOUTCUT);
     
     if (fSettings.GetBool("tmva")) {
         fTagger = &fTMVATagger;

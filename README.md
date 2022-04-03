@@ -41,7 +41,7 @@ Set the environment variables $PATH and $NTAGLIBPATH automatically by typing in 
 
  For available command line options, see [here](#command-line-options).
 
-#### NTag
+* NTag
 
 NTag is the main program of this library. It can read any Super-K data/MC file and output a ROOT file with the [neutron search results](#output-tree-structure). 
 
@@ -49,7 +49,7 @@ NTag is the main program of this library. It can read any Super-K data/MC file a
 NTag -in <input SK data/MC> -out <output NTag ROOT> <command line options>
 ```
 
-#### AddNoise
+* AddNoise
 
 AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK 0` in <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim>SKDETSIM</a> card or `/SKG4/DarkNoise/Mode 0` in <a href=https://github.com/SKG4/SKG4>SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb>mccomb</a> on the ATMPD library.
 
@@ -57,7 +57,7 @@ AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK
 AddNoise -in <input SK MC signal> -out <output SK MC> <command line options>
 ```
 
-#### NTagApply
+* NTagApply
 
 NTagApply can apply a different neutrong tagging conditions to an NTag ROOT file. 
 It can re-generate NTag ROOT file much faster than re-running NTag with different options.
@@ -66,7 +66,7 @@ It can re-generate NTag ROOT file much faster than re-running NTag with differen
 NTagApply -in <input NTag ROOT> -out <output NTag ROOT> <command line options>
 ```
 
-#### NTagTrain
+* NTagTrain
 
 NTagTrain trains neural network weights on NTag ROOT file(s) using CERN ROOT's TMVA.
 
@@ -88,12 +88,57 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 
 | Option          |                               Argument                                 |
 |:----------------|------------------------------------------------------------------------|
-|`-prompt_vertex` |One of `none`, `apfit`, `bonsai`, `custom`, `true`, `stmu`, `fitqun`    |
+|`-prompt_vertex` | One of `none`, `apfit`, `bonsai`, `custom`, `true`, `stmu`, `fitqun`   |
 |`-vx`            |`<SK x coordinate [cm]>` (`custom` mode only)                           |
 |`-vy`            |`<SK y coordinate [cm]>` (`custom` mode only)                           |
 |`-vz`            |`<SK z coordinate [cm]>` (`custom` mode only)                           |
 |`-PVXRES`        |`<prompt vertex resolution [cm]>` (`true` mode only)                    |
-|`-delayed_vertex`|One of `trms`, `bonsai`, `prompt`                                       |
+|`-delayed_vertex`| One of `trms`, `bonsai`, `prompt`                                      |
+
+* Signal search parameters
+
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-TMIN`          |`<search start time relative to event trigger [µs]>`                    |
+|`-TMAX`          |`<search end time relative to event trigger [µs]>`                      |
+|`-TWIDTH`        |`<time window width of signal trigger [ns]>`                            |
+|`-NHITSTH`       |`<threshold number of hits within time window>`                         |
+|`-NHITSMX`       |`<maximum number of hits within time window>`                           |
+|`-N200MX`        |`<maximum number of hits within 200 ns>`                                |
+|`-TCANWIDTH`     |`<time window width to calculate features>`                             |
+|`-TMINPEAKSEP`   |`<minimum time separation between two signal triggers [ns]>`            |
+
+* Tagging conditions
+
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-tag_e`         |`true` or `false`                                                       |
+|`-E_NHITSCUT`    |`<threshold number of hits to classify candidate as decay-e>`           |
+|`-E_TIMECUT`     |`<threshold time to classify candidate as decay-e [µs]>`                |
+|`-TAGOUTCUT`     |`<threshold TMVA signal likelihood to classify candidate as signal>`    |
+|`-TMATCHWINDOW`  |`<maximum time window to match candidate with true taggable [ns]>`      |
+
+* Dark noise
+
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-add_noise`     |`true` or `false`                                                       |
+|`-noise_type`    | One of `sk5`, `sk6`, `ambe`                                            |
+|`-TNOISESTART`   |`<noise addition start time from event trigger [µs]>`                   |
+|`-TNOISEEND`     |`<noise addition end time from event trigger [µs]>`                     |
+|`-NOISESEED`     |`<random seed>`                                                         |
+
+* PMT noise reduction
+
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-TRBNWIDTH`     |`<PMT deadtime [µs]>`                                                   |
+
+* Event cut
+
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-NHITSMX`       |`<maximum # of OD hits to allow>`                                       |
 
 * SK I/O
 
@@ -110,86 +155,32 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 |`-force_flat`    |`true` or `false`                                                       |
 |`-write_bank`    |`true` or `false`                                                       |
 |`-save_hits`     |`true` or `false`                                                       |
+|`-muechk`        |`true` or `false`                                                       |
+|`-neut`          |`true` or `false`                                                       |
 
-* Event cut
+* TRMS-fit
 
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-TRMSTWIDTH`    |`<PMT deadtime [µs]>`                                                   |
+|`-INITGRIDWIDTH` |`<PMT deadtime [µs]>`                                                   |
+|`-MINGRIDWIDTH`  |`<PMT deadtime [µs]>`                                                   |
+|`-GRIDSHRINKRATE`|`<PMT deadtime [µs]>`                                                   |
+|`-VTXSRCRANGE`   |`<PMT deadtime [µs]>`                                                   |
 
-"force_flat", , "write_bank", "noise_type", "save_hits",
-"muechk", "neut", "add_noise", "weight", "debug",
-, "vx", "vy", "vz", "tag_e", "tmva", 
-"SKOPTN", "SKBADOPT", "REFRUNNO",
-"TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX",
-"TNOISESTART", "TNOISEEND", "NOISESEED",
-"TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", 
-"TMINPEAKSEP", "TMATCHWINDOW",
-"TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE",
-"E_NHITSCUT", "E_TIMECUT", "N_OUTCUT",
-"print"
+* TMVA
 
-| Option  |           Argument            |          
-|:--------|-------------------------------|
-|-in      | (input file path)             |
-|-out     | (output file path)            |
-|-prompt_vertex  | (weight filename)             |
-|-delayed_vertex  | (MVA training method name)    |
-|-method  | (MVA training method name)    |
-|-macro   | (macro filename)              |
-|-vx(y,z) | (custom vertex position) [cm] |
-|-NHITSTH/MX| (NHits threshold / maximum) |
-|-TWIDTH  | (Sliding T window width) [ns] |
-|-T0TH/MX | (T0 threshold / maximum) [ns] |
-|-TRBNWIDTH | (PMT deadtime width) [&mus] |
-|-PVXRES | (Prompt vertex resolution) [cm] |
-|-VTXSRCRANGE | (Neut-fit search range) [cm] |
-|-MINGRIDWIDTH | (Neut-fit minimum grid width) [cm] |
-|-sigTQpath | (output from `-readTQ` option) |
-|-addSKOPTN | (SK option to add)          |
-|-removeSKOPTN | (SK option to remove)    |
-|-SKOPTN  | (SK option to set)            |
-|-SKBADOPT | (SK bad channel option to set)     |
-|-REFRUNNO | (Reference run for dark-noise, etc.) |
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-tmva`          |`true` or `false`                                                       |
+|`-weight`        |`<TMVA weight file (xml)>`                                              |
 
+* Logging
 
-| Option  |           Argument            |                      Example usage              |   Use     |
-|:--------|-------------------------------|-------------------------------------------------|-----------|
-|-in      | (input filename)              | `NTag -in in.dat`                               | mandatory |
-|-out     | (output filename)             | `NTag -in in.dat -out out.root`                 | optional  |
-|-weight  | (weight filename)             | `NTag -in in.dat -weight weight.xml`            | optional  |
-|-method  | (MVA training method name)    | `NTag -in in.dat -method MLP -weight weight.xml`| optional  |
-|-method  | (MVA training method name)    | `NTag -in in*.root -method MLP,GradBDT -train`  | optional  |
-|-macro   | (macro filename)              | `NTag -macro macro.xyz`                         | optional  |
-|-vx(y,z) | (custom vertex position) [cm] | `NTag -in in.dat -vx -400 -vy 0 -vz -1200`      | optional  |
-|-NHITSTH/MX| (NHits threshold / maximum) | `NTag -in in.dat -NHITSTH 5 -NHITSMX 70`        | optional  |
-|-TWIDTH  | (Sliding T window width) [ns] | `NTag -in in.dat -TWIDTH 13`                    | optional  |
-|-T0TH/MX | (T0 threshold / maximum) [ns] | `NTag -in in.dat -T0TH 18 -NHITSMX 835`         | optional  |
-|-TRBNWIDTH | (PMT deadtime width) [&mus] | `NTag -in in.dat -TRBNWIDTH 6`                  | optional  |
-|-PVXRES | (Prompt vertex resolution) [cm] | `NTag -in in.dat -PVXRES 10`                   | optional  |
-|-VTXSRCRANGE | (Neut-fit search range) [cm] | `NTag -in in.dat -VTXSRCRANGE 1000`          | optional  |
-|-MINGRIDWIDTH | (Neut-fit minimum grid width) [cm] | `NTag -in in.dat -MINGRIDWIDTH 10`    | optional  |
-|-sigTQpath | (output from `-readTQ` option) | `NTag -in in.dat -sigTQpath sigtq.root`      | optional  |
-|-addSKOPTN | (SK option to add)          | `NTag -in in.dat -addSKOPTN 23,24`              | optional  |
-|-removeSKOPTN | (SK option to remove)    | `NTag -in in.dat -removeSKOPTN 25,26`           | optional  |
-|-SKOPTN  | (SK option to set)            | `NTag -in in.dat -SKOPTN 25,26,16`              | optional  |
-|-SKBADOPT | (SK bad channel option to set)     | `NTag -in in.dat  -SKBADOPT 55`                 | optional  |
-|-REFRUNNO | (Reference run for dark-noise, etc.) | `NTag -in in.dat -REFRUNNO 85619`   | optional  |
-
-* Run options
-
-|Option|                      Example usage                                | Description |
-|:-----|-------------------------------------------------------------------|-------------|
-|-apply|`NTag -in NTagOut.root -apply -method MLP -weight weight.xml`|Apply specific MVA weight/method to an existing NTag output (with ntvar & truth trees) to replace the existing TMVAoutput with given weight/method. |
-|-train|`NTag -in NTagOut00\*.root -train` |Train with NTag output from MC (with ntvar & truth trees) to generate weight files. Wildcard `\*` usable. |
-|-multiclass|`NTag (...) -train -multiclass`  |Start multiclass (Gd/H/Noise) classification instead of binary.|
-|-debug|`NTag (...) -debug` |Show debug messages on output stream.|
-|-noMVA|`NTag (...) -noMVA` |Only search for candidates, without applying TMVA to get classifer output. The branch `TMVAOutput` is not generated. |
-|-noFit|`NTag (...) -noFit` |Neut-fit is not used and no related variables are saved to save time. `-noMVA` is automatically called. |
-|-noBONSAI|`NTag (...) -noBONSAI` |Skip extracting BONSAI-related candidate variables. |
-|-noTOF|`NTag (...) -noTOF` |Disable subtracting ToF from raw hit times. This option removes prompt vertex dependency. |
-|-readTQ|`NTag (...) -readTQ`  |Extract raw TQ from input file and save to a flat ROOT tree `rawtq`. Applicable to ZBS only. |
-|-saveTQ|`NTag (...) -saveTQ`  |Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree `restq`.|
-|-forceFlat|`NTag (...) -forceFlat`  |Force flat (MC-like flat event) mode for data files. |
-|-usetruevertex|`NTag (...) -usetruevertex` |Use true vector vertex from common `skvect` as a prompt vertex. |
-|-usestmuvertex|`NTag (...) -usestmuvertex`  |Use muon stopping position as a prompt vertex. |
+| Option          |                               Argument                                 |
+|:----------------|------------------------------------------------------------------------|
+|`-print`         |`true` or `false`                                                       |
+|`-debug`         |`true` or `false`                                                       |
 
 * Macro rules:
 

@@ -645,11 +645,11 @@ $(document).ready(function(){initNavTree('EventNTagManager_8cc_source.html','');
 <div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span> </div>
 <div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>    fSettings.Get(<span class="stringliteral">&quot;E_NHITSCUT&quot;</span>, E_NHITSCUT);</div>
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>    fSettings.Get(<span class="stringliteral">&quot;E_TIMECUT&quot;</span>, E_TIMECUT);</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>    fSettings.Get(<span class="stringliteral">&quot;N_OUTCUT&quot;</span>, N_OUTCUT);</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>    fSettings.Get(<span class="stringliteral">&quot;TAGOUTCUT&quot;</span>, TAGOUTCUT);</div>
 <div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>    </div>
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>    <span class="keywordflow">if</span> (fSettings.GetBool(<span class="stringliteral">&quot;tag_e&quot;</span>)) </div>
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>        fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>    fTMVATagger.SetNCut(N_OUTCUT);</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>    fTMVATagger.SetNCut(TAGOUTCUT);</div>
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>    </div>
 <div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    <span class="keywordflow">if</span> (fSettings.GetBool(<span class="stringliteral">&quot;tmva&quot;</span>)) {</div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>        fTagger = &amp;fTMVATagger;</div>

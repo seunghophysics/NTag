@@ -62,7 +62,7 @@ E_TIMECUT      20
 # n-tagging
 tmva           true
 weight         default
-N_OUTCUT       0.7
+TAGOUTCUT       0.7
 
 # MC labeling
 TMATCHWINDOW   200

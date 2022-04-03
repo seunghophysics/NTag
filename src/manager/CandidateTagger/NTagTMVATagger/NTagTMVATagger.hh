@@ -18,7 +18,7 @@ class NTagTMVATagger : public CandidateTagger
         { 
             E_NHITSCUT = n50cut; E_TIMECUT = tcut; fDoTagE = true; 
         }
-        void SetNCut(float outcut) { N_OUTCUT = outcut; }
+        void SetNCut(float outcut) { TAGOUTCUT = outcut; }
         
         float GetLikelihood(const Candidate& candidate) { return fTMVAManager.GetTMVAOutput(candidate); }
         int Classify(const Candidate& candidate);
@@ -28,7 +28,7 @@ class NTagTMVATagger : public CandidateTagger
         std::string fWeightFilePath;
         
         bool fDoTagE;
-        float E_NHITSCUT, E_TIMECUT, N_OUTCUT;
+        float E_NHITSCUT, E_TIMECUT, TAGOUTCUT;
 };
 
 #endif

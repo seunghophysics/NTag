@@ -97,17 +97,12 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#autotoc_md1">Getting Started</a><ul><li class="level2"><a href="#autotoc_md2">Dependencies</a></li>
 <li class="level2"><a href="#autotoc_md3">How to install</a></li>
-<li class="level2"><a href="#autotoc_md4">How to run executables</a><ul><li class="level3"><a href="#autotoc_md5">NTag</a></li>
-<li class="level3"><a href="#autotoc_md6">AddNoise</a></li>
-<li class="level3"><a href="#autotoc_md7">NTagApply</a></li>
-<li class="level3"><a href="#autotoc_md8">NTagTrain</a></li>
-</ul>
-</li>
+<li class="level2"><a href="#autotoc_md4">How to run executables</a></li>
 <li class="level2"><a href="#command-line-options">Command line options</a></li>
 </ul>
 </li>
 <li class="level1"><a href="#output-tree-structure">Output tree structure</a></li>
-<li class="level1"><a href="#autotoc_md9">Contact</a></li>
+<li class="level1"><a href="#autotoc_md5">Contact</a></li>
 </ul>
 </div>
 <div class="textblock"><p ><a class="anchor" id="md__disk1_disk02_usr6_han_phd_utillib_README"></a> NTag is a C++ library that helps users search for neutron capture signals from all kinds of Super-Kamiokande data and simulation. Users can directly run the main executable NTag on any Super-K data/MC file to get an output ROOT file with the <a class="el" href="index.html#output-tree-structure">ntag tree</a> that has all the features extracted by the signal candidates, or utilize the NTag <a href="annotated.html">classes</a> and <a href="include_2Calculator_8hh.html">calculator functions</a> in their own program by linking to the library.</p>
@@ -140,26 +135,32 @@ How to run executables</h2>
 <p >All executables can be run with a command of the form:</p>
 <div class="fragment"><div class="line">&lt;executable&gt; -in &lt;input file path&gt; -out &lt;output file path&gt; &lt;command line options&gt;</div>
 </div><!-- fragment --><p >For available command line options, see <a class="el" href="index.html#command-line-options">here</a>.</p>
-<h3><a class="anchor" id="autotoc_md5"></a>
-NTag</h3>
+<ul>
+<li>NTag</li>
+</ul>
 <p >NTag is the main program of this library. It can read any Super-K data/MC file and output a ROOT file with the <a class="el" href="index.html#output-tree-structure">neutron search results</a>.</p>
 <div class="fragment"><div class="line">NTag -in &lt;input SK data/MC&gt; -out &lt;output NTag ROOT&gt; &lt;command line options&gt;</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md6"></a>
-AddNoise</h3>
+</div><!-- fragment --><ul>
+<li>AddNoise</li>
+</ul>
 <p >AddNoise reads in an Super-K MC file with signal simulation only (i.e., <code>DS-DARK 0</code> in <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim">SKDETSIM</a> card or <code>/SKG4/DarkNoise/Mode 0</code> in <a href="https://github.com/SKG4/SKG4">SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb">mccomb</a> on the ATMPD library.</p>
 <div class="fragment"><div class="line">AddNoise -in &lt;input SK MC signal&gt; -out &lt;output SK MC&gt; &lt;command line options&gt;</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md7"></a>
-NTagApply</h3>
+</div><!-- fragment --><ul>
+<li>NTagApply</li>
+</ul>
 <p >NTagApply can apply a different neutrong tagging conditions to an NTag ROOT file. It can re-generate NTag ROOT file much faster than re-running NTag with different options.</p>
 <div class="fragment"><div class="line">NTagApply -in &lt;input NTag ROOT&gt; -out &lt;output NTag ROOT&gt; &lt;command line options&gt;</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md8"></a>
-NTagTrain</h3>
+</div><!-- fragment --><ul>
+<li>NTagTrain</li>
+</ul>
 <p >NTagTrain trains neural network weights on NTag ROOT file(s) using CERN ROOT's TMVA.</p>
 <div class="fragment"><div class="line">NTagTrain -in &lt;input NTag ROOT&gt; -out &lt;output TMVA result&gt; &lt;command line options&gt;</div>
 </div><!-- fragment --><h2><a class="anchor" id="command-line-options"></a>
 Command line options</h2>
 <ul>
-<li>File I/O <table class="markdownTable">
+<li>File I/O</li>
+</ul>
+<table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
@@ -169,8 +170,10 @@ Command line options</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft"><code>-outdata</code>   </td><td class="markdownTableBodyNone"><code>&lt;output SK data/MC with NTAG bank filled&gt;</code>   </td></tr>
 </table>
-</li>
-<li>Vertex <table class="markdownTable">
+<ul>
+<li>Vertex</li>
+</ul>
+<table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
@@ -186,8 +189,85 @@ Command line options</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyLeft"><code>-delayed_vertex</code>   </td><td class="markdownTableBodyNone">One of <code>trms</code>, <code>bonsai</code>, <code>prompt</code>   </td></tr>
 </table>
-</li>
-<li>SK I/O <table class="markdownTable">
+<ul>
+<li>Signal search parameters</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TMIN</code>   </td><td class="markdownTableBodyNone"><code>&lt;search start time relative to event trigger [µs]&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-TMAX</code>   </td><td class="markdownTableBodyNone"><code>&lt;search end time relative to event trigger [µs]&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;time window width of signal trigger [ns]&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-NHITSTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;threshold number of hits within time window&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-NHITSMX</code>   </td><td class="markdownTableBodyNone"><code>&lt;maximum number of hits within time window&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-N200MX</code>   </td><td class="markdownTableBodyNone"><code>&lt;maximum number of hits within 200 ns&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TCANWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;time window width to calculate features&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-TMINPEAKSEP</code>   </td><td class="markdownTableBodyNone"><code>&lt;minimum time separation between two signal triggers [ns]&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>Tagging conditions</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-tag_e</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-E_NHITSCUT</code>   </td><td class="markdownTableBodyNone"><code>&lt;threshold number of hits to classify candidate as decay-e&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-E_TIMECUT</code>   </td><td class="markdownTableBodyNone"><code>&lt;threshold time to classify candidate as decay-e [µs]&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-TAGOUTCUT</code>   </td><td class="markdownTableBodyNone"><code>&lt;threshold TMVA signal likelihood to classify candidate as signal&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TMATCHWINDOW</code>   </td><td class="markdownTableBodyNone"><code>&lt;maximum time window to match candidate with true taggable [ns]&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>Dark noise</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-add_noise</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-noise_type</code>   </td><td class="markdownTableBodyNone">One of <code>sk5</code>, <code>sk6</code>, <code>ambe</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TNOISESTART</code>   </td><td class="markdownTableBodyNone"><code>&lt;noise addition start time from event trigger [µs]&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-TNOISEEND</code>   </td><td class="markdownTableBodyNone"><code>&lt;noise addition end time from event trigger [µs]&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-NOISESEED</code>   </td><td class="markdownTableBodyNone"><code>&lt;random seed&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>PMT noise reduction</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-TRBNWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>Event cut</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-NHITSMX</code>   </td><td class="markdownTableBodyNone"><code>&lt;maximum # of OD hits to allow&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>SK I/O</li>
+</ul>
+<table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
@@ -197,8 +277,10 @@ Command line options</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft"><code>-REFRUNNO</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK reference run number&gt;</code>   </td></tr>
 </table>
-</li>
-<li>Write options <table class="markdownTable">
+<ul>
+<li>Write options</li>
+</ul>
+<table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
@@ -206,132 +288,50 @@ Command line options</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyLeft"><code>-write_bank</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft"><code>-save_hits</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td></tr>
+<td class="markdownTableBodyLeft"><code>-save_hits</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-muechk</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-neut</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td></tr>
 </table>
-</li>
-<li>Event cut</li>
+<ul>
+<li>TRMS-fit</li>
 </ul>
-<p >"force_flat", , "write_bank", "noise_type", "save_hits", "muechk", "neut", "add_noise", "weight", "debug", , "vx", "vy", "vz", "tag_e", "tmva", "SKOPTN", "SKBADOPT", "REFRUNNO", "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX", "TNOISESTART", "TNOISEEND", "NOISESEED", "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", "TMINPEAKSEP", "TMATCHWINDOW", "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE", "E_NHITSCUT", "E_TIMECUT", "N_OUTCUT", "print"</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-in   </td><td class="markdownTableBodyNone">(input file path)    </td></tr>
+<td class="markdownTableBodyLeft"><code>-TRMSTWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-out   </td><td class="markdownTableBodyNone">(output file path)    </td></tr>
+<td class="markdownTableBodyLeft"><code>-INITGRIDWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-prompt_vertex   </td><td class="markdownTableBodyNone">(weight filename)    </td></tr>
+<td class="markdownTableBodyLeft"><code>-MINGRIDWIDTH</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-delayed_vertex   </td><td class="markdownTableBodyNone">(MVA training method name)    </td></tr>
+<td class="markdownTableBodyLeft"><code>-GRIDSHRINKRATE</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-method   </td><td class="markdownTableBodyNone">(MVA training method name)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-macro   </td><td class="markdownTableBodyNone">(macro filename)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-vx(y,z)   </td><td class="markdownTableBodyNone">(custom vertex position) [cm]    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-NHITSTH/MX   </td><td class="markdownTableBodyNone">(NHits threshold / maximum)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-TWIDTH   </td><td class="markdownTableBodyNone">(Sliding T window width) [ns]    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-T0TH/MX   </td><td class="markdownTableBodyNone">(T0 threshold / maximum) [ns]    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-TRBNWIDTH   </td><td class="markdownTableBodyNone">(PMT deadtime width) [&amp;mus]    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-PVXRES   </td><td class="markdownTableBodyNone">(Prompt vertex resolution) [cm]    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-VTXSRCRANGE   </td><td class="markdownTableBodyNone">(Neut-fit search range) [cm]    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-MINGRIDWIDTH   </td><td class="markdownTableBodyNone">(Neut-fit minimum grid width) [cm]    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-sigTQpath   </td><td class="markdownTableBodyNone">(output from <code>-readTQ</code> option)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-addSKOPTN   </td><td class="markdownTableBodyNone">(SK option to add)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-removeSKOPTN   </td><td class="markdownTableBodyNone">(SK option to remove)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-SKOPTN   </td><td class="markdownTableBodyNone">(SK option to set)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-SKBADOPT   </td><td class="markdownTableBodyNone">(SK bad channel option to set)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-REFRUNNO   </td><td class="markdownTableBodyNone">(Reference run for dark-noise, etc.)   </td></tr>
-</table>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadNone">Example usage   </th><th class="markdownTableHeadNone">Use    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-in   </td><td class="markdownTableBodyNone">(input filename)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat</code>   </td><td class="markdownTableBodyNone">mandatory    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-out   </td><td class="markdownTableBodyNone">(output filename)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -out out.root</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-weight   </td><td class="markdownTableBodyNone">(weight filename)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -weight weight.xml</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-method   </td><td class="markdownTableBodyNone">(MVA training method name)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -method MLP -weight weight.xml</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-method   </td><td class="markdownTableBodyNone">(MVA training method name)   </td><td class="markdownTableBodyNone"><code>NTag -in in*.root -method MLP,GradBDT -train</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-macro   </td><td class="markdownTableBodyNone">(macro filename)   </td><td class="markdownTableBodyNone"><code>NTag -macro macro.xyz</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-vx(y,z)   </td><td class="markdownTableBodyNone">(custom vertex position) [cm]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -vx -400 -vy 0 -vz -1200</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-NHITSTH/MX   </td><td class="markdownTableBodyNone">(NHits threshold / maximum)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -NHITSTH 5 -NHITSMX 70</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-TWIDTH   </td><td class="markdownTableBodyNone">(Sliding T window width) [ns]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -TWIDTH 13</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-T0TH/MX   </td><td class="markdownTableBodyNone">(T0 threshold / maximum) [ns]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -T0TH 18 -NHITSMX 835</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-TRBNWIDTH   </td><td class="markdownTableBodyNone">(PMT deadtime width) [&amp;mus]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -TRBNWIDTH 6</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-PVXRES   </td><td class="markdownTableBodyNone">(Prompt vertex resolution) [cm]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -PVXRES 10</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-VTXSRCRANGE   </td><td class="markdownTableBodyNone">(Neut-fit search range) [cm]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -VTXSRCRANGE 1000</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-MINGRIDWIDTH   </td><td class="markdownTableBodyNone">(Neut-fit minimum grid width) [cm]   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -MINGRIDWIDTH 10</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-sigTQpath   </td><td class="markdownTableBodyNone">(output from <code>-readTQ</code> option)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -sigTQpath sigtq.root</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-addSKOPTN   </td><td class="markdownTableBodyNone">(SK option to add)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -addSKOPTN 23,24</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-removeSKOPTN   </td><td class="markdownTableBodyNone">(SK option to remove)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -removeSKOPTN 25,26</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-SKOPTN   </td><td class="markdownTableBodyNone">(SK option to set)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -SKOPTN 25,26,16</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-SKBADOPT   </td><td class="markdownTableBodyNone">(SK bad channel option to set)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -SKBADOPT 55</code>   </td><td class="markdownTableBodyNone">optional    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-REFRUNNO   </td><td class="markdownTableBodyNone">(Reference run for dark-noise, etc.)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -REFRUNNO 85619</code>   </td><td class="markdownTableBodyNone">optional   </td></tr>
+<td class="markdownTableBodyLeft"><code>-VTXSRCRANGE</code>   </td><td class="markdownTableBodyNone"><code>&lt;PMT deadtime [µs]&gt;</code>   </td></tr>
 </table>
 <ul>
-<li>Run options</li>
+<li>TMVA</li>
 </ul>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Example usage   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-apply   </td><td class="markdownTableBodyNone"><code>NTag -in NTagOut.root -apply -method MLP -weight weight.xml</code>   </td><td class="markdownTableBodyNone">Apply specific MVA weight/method to an existing NTag output (with ntvar &amp; truth trees) to replace the existing TMVAoutput with given weight/method.    </td></tr>
+<td class="markdownTableBodyLeft"><code>-tmva</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-train   </td><td class="markdownTableBodyNone"><code>NTag -in NTagOut00\*.root -train</code>   </td><td class="markdownTableBodyNone">Train with NTag output from MC (with ntvar &amp; truth trees) to generate weight files. Wildcard <code>\*</code> usable.    </td></tr>
+<td class="markdownTableBodyLeft"><code>-weight</code>   </td><td class="markdownTableBodyNone"><code>&lt;TMVA weight file (xml)&gt;</code>   </td></tr>
+</table>
+<ul>
+<li>Logging</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-multiclass   </td><td class="markdownTableBodyNone"><code>NTag (...) -train -multiclass</code>   </td><td class="markdownTableBodyNone">Start multiclass (Gd/H/Noise) classification instead of binary.    </td></tr>
+<td class="markdownTableBodyLeft"><code>-print</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-debug   </td><td class="markdownTableBodyNone"><code>NTag (...) -debug</code>   </td><td class="markdownTableBodyNone">Show debug messages on output stream.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-noMVA   </td><td class="markdownTableBodyNone"><code>NTag (...) -noMVA</code>   </td><td class="markdownTableBodyNone">Only search for candidates, without applying TMVA to get classifer output. The branch <code>TMVAOutput</code> is not generated.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-noFit   </td><td class="markdownTableBodyNone"><code>NTag (...) -noFit</code>   </td><td class="markdownTableBodyNone">Neut-fit is not used and no related variables are saved to save time. <code>-noMVA</code> is automatically called.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-noBONSAI   </td><td class="markdownTableBodyNone"><code>NTag (...) -noBONSAI</code>   </td><td class="markdownTableBodyNone">Skip extracting BONSAI-related candidate variables.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-noTOF   </td><td class="markdownTableBodyNone"><code>NTag (...) -noTOF</code>   </td><td class="markdownTableBodyNone">Disable subtracting ToF from raw hit times. This option removes prompt vertex dependency.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-readTQ   </td><td class="markdownTableBodyNone"><code>NTag (...) -readTQ</code>   </td><td class="markdownTableBodyNone">Extract raw TQ from input file and save to a flat ROOT tree <code>rawtq</code>. Applicable to ZBS only.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-saveTQ   </td><td class="markdownTableBodyNone"><code>NTag (...) -saveTQ</code>   </td><td class="markdownTableBodyNone">Save ToF-subtracted TQ hit vectors used in capture candidate search in a tree <code>restq</code>.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-forceFlat   </td><td class="markdownTableBodyNone"><code>NTag (...) -forceFlat</code>   </td><td class="markdownTableBodyNone">Force flat (MC-like flat event) mode for data files.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft">-usetruevertex   </td><td class="markdownTableBodyNone"><code>NTag (...) -usetruevertex</code>   </td><td class="markdownTableBodyNone">Use true vector vertex from common <code>skvect</code> as a prompt vertex.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft">-usestmuvertex   </td><td class="markdownTableBodyNone"><code>NTag (...) -usestmuvertex</code>   </td><td class="markdownTableBodyNone">Use muon stopping position as a prompt vertex.   </td></tr>
+<td class="markdownTableBodyLeft"><code>-debug</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td></tr>
 </table>
 <ul>
 <li>Macro rules:</li>
@@ -570,7 +570,7 @@ Output tree structure</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">I   </td><td class="markdownTableBodyNone"># of in-gate hits   </td><td class="markdownTableBodyNone">PMT cable ID of each hit in T   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md5"></a>
 Contact</h1>
 <p >Seungho Han (ICRR) <a href="#" onclick="location.href='mai'+'lto:'+'han'+'@i'+'crr'+'.u'+'-to'+'ky'+'o.a'+'c.'+'jp'; return false;">han@i<span class="obfuscator">.nosp@m.</span>crr.<span class="obfuscator">.nosp@m.</span>u-tok<span class="obfuscator">.nosp@m.</span>yo.a<span class="obfuscator">.nosp@m.</span>c.jp</a> </p>
 </div></div><!-- PageDoc -->

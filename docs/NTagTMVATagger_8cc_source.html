@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('NTagTMVATagger_8cc_source.html',''); i
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>NTagTMVATagger::NTagTMVATagger(Verbosity verbose)</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>: <a class="code hl_class" href="classCandidateTagger.html">CandidateTagger</a>(<span class="stringliteral">&quot;NTagTMVATagger&quot;</span>, verbose), </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>fDoTagE(false), E_NHITSCUT(50), E_TIMECUT(20), N_OUTCUT(0.7) {}</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>fDoTagE(false), E_NHITSCUT(50), E_TIMECUT(20), TAGOUTCUT(0.7) {}</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>NTagTMVATagger::~NTagTMVATagger() {}</div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">void</span> NTagTMVATagger::Initialize(std::string weightPath)</div>
@@ -123,12 +123,12 @@ $(document).ready(function(){initNavTree('NTagTMVATagger_8cc_source.html',''); i
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    TTree* inSettingsTree = (TTree*)f-&gt;Get(<span class="stringliteral">&quot;settings&quot;</span>);</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    inSettingsTree-&gt;SetBranchStatus(<span class="stringliteral">&quot;E_NHITSCUT&quot;</span>, 0);</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    inSettingsTree-&gt;SetBranchStatus(<span class="stringliteral">&quot;E_TIMECUT&quot;</span>, 0);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    inSettingsTree-&gt;SetBranchStatus(<span class="stringliteral">&quot;N_OUTCUT&quot;</span>, 0);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    inSettingsTree-&gt;SetBranchStatus(<span class="stringliteral">&quot;TAGOUTCUT&quot;</span>, 0);</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    TTree* outSettingsTree = inSettingsTree-&gt;CloneTree(-1, <span class="stringliteral">&quot;fast&quot;</span>);</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    TBranch* b_E_NHITSCUT = outSettingsTree-&gt;Branch(<span class="stringliteral">&quot;E_NHITSCUT&quot;</span>, &amp;E_NHITSCUT);</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    TBranch* b_E_TIMECUT = outSettingsTree-&gt;Branch(<span class="stringliteral">&quot;E_TIMECUT&quot;</span>, &amp;E_TIMECUT);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    TBranch* b_N_OUTCUT = outSettingsTree-&gt;Branch(<span class="stringliteral">&quot;N_OUTCUT&quot;</span>, &amp;N_OUTCUT);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    TBranch* b_N_OUTCUT = outSettingsTree-&gt;Branch(<span class="stringliteral">&quot;TAGOUTCUT&quot;</span>, &amp;TAGOUTCUT);</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    b_E_NHITSCUT-&gt;Fill();</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    b_E_TIMECUT-&gt;Fill();</div>
@@ -150,14 +150,14 @@ $(document).ready(function(){initNavTree('NTagTMVATagger_8cc_source.html',''); i
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="comment">// simple cuts mode for e/n separation</span></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">if</span> (fDoTagE) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">if</span> (tmvaOut &lt; N_OUTCUT)                          tagClass = typeMissed;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">if</span> (tmvaOut &lt; TAGOUTCUT)                          tagClass = typeMissed;</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (nHits &gt; E_NHITSCUT &amp;&amp; fitT &lt; E_TIMECUT) tagClass = typeE;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keywordflow">else</span>                                             tagClass = typeN;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="comment">// naive tagging mode without e/n separation</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <span class="keywordflow">if</span> (isEarly)                 tagClass = typeE;      <span class="comment">// e: muechk</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (tmvaOut &gt; N_OUTCUT) tagClass = typeN;      <span class="comment">// n: ntag &amp;&amp; out cut</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (tmvaOut &gt; TAGOUTCUT) tagClass = typeN;      <span class="comment">// n: ntag &amp;&amp; out cut</span></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordflow">else</span>                         tagClass = typeMissed; <span class="comment">// otherwise noise</span></div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    }</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
