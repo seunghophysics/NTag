@@ -1,4 +1,4 @@
-## Structure of the program
+# Program description {#program-description}
 
 ![Structure](docs/doxygen/NTag.png)
 

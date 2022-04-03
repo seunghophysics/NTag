@@ -28,12 +28,35 @@ var NAVTREE =
     [ "Getting Started", "index.html#autotoc_md1", [
       [ "Dependencies", "index.html#autotoc_md2", null ],
       [ "How to install", "index.html#autotoc_md3", null ],
-      [ "How to run executables", "index.html#autotoc_md4", null ],
-      [ "Command line options", "index.html#command-line-options", null ]
+      [ "How to run executables", "index.html#autotoc_md4", [
+        [ "NTag", "index.html#autotoc_md5", null ],
+        [ "AddNoise", "index.html#autotoc_md6", null ],
+        [ "NTagApply", "index.html#autotoc_md7", null ],
+        [ "NTagTrain", "index.html#autotoc_md8", null ]
+      ] ],
+      [ "Contact", "index.html#autotoc_md9", null ]
     ] ],
-    [ "Output tree structure", "index.html#output-tree-structure", null ],
-    [ "Contact", "index.html#autotoc_md5", null ],
-    [ "Structure of the program", "md_structure.html", null ],
+    [ "Command line options", "command-line-options.html", [
+      [ "File I/O", "command-line-options.html#autotoc_md10", null ],
+      [ "Vertex", "command-line-options.html#autotoc_md11", null ],
+      [ "Signal search parameters", "command-line-options.html#autotoc_md12", null ],
+      [ "Tagging conditions", "command-line-options.html#autotoc_md13", null ],
+      [ "Dark noise", "command-line-options.html#autotoc_md14", null ],
+      [ "PMT noise reduction", "command-line-options.html#autotoc_md15", null ],
+      [ "Event cut", "command-line-options.html#autotoc_md16", null ],
+      [ "SK I/O", "command-line-options.html#autotoc_md17", null ],
+      [ "Output", "command-line-options.html#autotoc_md18", null ],
+      [ "TRMS-fit", "command-line-options.html#autotoc_md19", null ],
+      [ "TMVA", "command-line-options.html#autotoc_md20", null ],
+      [ "Logging", "command-line-options.html#autotoc_md21", null ],
+      [ "Macro rules", "command-line-options.html#autotoc_md22", null ]
+    ] ],
+    [ "Output tree structure", "output-tree-structure.html", [
+      [ "ntvar", "output-tree-structure.html#autotoc_md23", null ],
+      [ "truth", "output-tree-structure.html#autotoc_md24", null ],
+      [ "restq", "output-tree-structure.html#autotoc_md25", null ]
+    ] ],
+    [ "Program description", "program-description.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -58,7 +81,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"md_structure.html"
+"include_2TRMSFitManager_8hh_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -4,7 +4,7 @@
 
 TRMSFitManager::TRMSFitManager(Verbosity verbose)
 : VertexFitManager("TRMSFitManager", verbose),
-INITGRIDWIDTH(800), MINGRIDWIDTH(50), GRIDSHRINKRATE(0.5), VTXSRCRANGE(5000) {}
+INITGRIDWIDTH(800), MINGRIDWIDTH(50), GRIDSHRINKRATE(0.5), VTXMAXRADIUS(5000) {}
 TRMSFitManager::~TRMSFitManager() {}
 
 void TRMSFitManager::Fit(const PMTHitCluster& hitCluster)
@@ -36,7 +36,7 @@ void TRMSFitManager::Fit(const PMTHitCluster& hitCluster)
                     if (gridPoint.Perp() > RINTK || abs(gridPoint.z()) > ZPINTK) continue;
 
                     // skip grid point further away from the maximum search range
-                    if (gridPoint.Mag() > VTXSRCRANGE) continue;
+                    if (gridPoint.Mag() > VTXMAXRADIUS) continue;
 
                     // subtract ToF from the search vertex
                     cluster.SetVertex(gridPoint);

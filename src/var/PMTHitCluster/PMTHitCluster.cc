@@ -343,7 +343,7 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
 }
 
 /*
-TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXSRCRANGE)
+TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXMAXRADIUS)
 {
     TVector3 originalVertex = vertex;
 
@@ -374,7 +374,7 @@ TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MING
                     if (gridPoint.Perp() > RINTK || abs(gridPoint.z()) > ZPINTK) continue;
 
                     // Skip grid point further away from the maximum search range
-                    if (gridPoint.Mag() > VTXSRCRANGE) continue;
+                    if (gridPoint.Mag() > VTXMAXRADIUS) continue;
 
                     // Subtract ToF from the search vertex
                     SetVertex(gridPoint);

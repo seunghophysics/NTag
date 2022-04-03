@@ -52,20 +52,20 @@ TRMSTWIDTH     30
 INITGRIDWIDTH  800
 MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
-VTXSRCRANGE    5000
+VTXMAXRADIUS   5000
 
 # e-tagging
-tag_e          false
+tag_e          true
 E_NHITSCUT     50
 E_TIMECUT      20
 
 # n-tagging
 tmva           true
 weight         default
-TAGOUTCUT       0.7
+TAGOUTCUT      0.7
 
 # MC labeling
-TMATCHWINDOW   200
+TMATCHWINDOW   50
 
 # logging
 print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,TagClass

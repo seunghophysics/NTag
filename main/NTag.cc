@@ -22,12 +22,20 @@ int main(int argc, char** argv)
 {
     ArgParser parser(argc, argv);
     EventNTagManager ntagManager;
-    ntagManager.ReadArguments(parser);
-    Store& settings = ntagManager.GetSettings();
 
     const std::string inputFilePath = parser.GetOption("-in");
     const std::string outputFilePath = parser.GetOption("-out");
     const std::string outDataFilePath = parser.GetOption("-outdata");
+    const std::string macroPath = parser.GetOption("-macro");
+
+    // read macro and override by arguments
+    if (parser.OptionExists("-macro")) {
+        std::ifstream macro(parser.GetOption("-macro"));
+        ArgParser fparser(macro);
+        parser += fparser;
+    }
+    ntagManager.ReadArguments(parser);
+    Store& settings = ntagManager.GetSettings();
 
     Printer msg("NTag", pDEFAULT);
 

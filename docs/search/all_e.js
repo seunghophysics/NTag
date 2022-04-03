@@ -7,6 +7,5 @@ var searchData=
   ['skio_4',['SKIO',['../classSKIO.html',1,'']]],
   ['sklibs_2ehh_5',['SKLibs.hh',['../include_2SKLibs_8hh.html',1,'(Global Namespace)'],['../src_2tool_2SKIO_2SKLibs_8hh.html',1,'(Global Namespace)']]],
   ['split_6',['Split',['../include_2Calculator_8hh.html#a97548c9dd5632d3d921dc8e73916fcab',1,'Split(std::string target, std::string delim):&#160;Calculator.cc'],['../src_2tool_2Calculator_2Calculator_8hh.html#a97548c9dd5632d3d921dc8e73916fcab',1,'Split(std::string target, std::string delim):&#160;Calculator.cc']]],
-  ['store_7',['Store',['../classStore.html',1,'']]],
-  ['structure_20of_20the_20program_8',['Structure of the program',['../md_structure.html',1,'']]]
+  ['store_7',['Store',['../classStore.html',1,'']]]
 ];

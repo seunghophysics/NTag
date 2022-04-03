@@ -439,7 +439,7 @@ $(document).ready(function(){initNavTree('PMTHitCluster_8cc_source.html',''); in
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>}</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="comment">TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXSRCRANGE)</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="comment">TVector3 PMTHitCluster::FindTRMSMinimizingVertex(float INITGRIDWIDTH, float MINGRIDWIDTH, float GRIDSHRINKRATE, float VTXMAXRADIUS)</span></div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span><span class="comment">{</span></div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span><span class="comment">    TVector3 originalVertex = vertex;</span></div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="comment"></span> </div>
@@ -470,7 +470,7 @@ $(document).ready(function(){initNavTree('PMTHitCluster_8cc_source.html',''); in
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="comment">                    if (gridPoint.Perp() &gt; RINTK || abs(gridPoint.z()) &gt; ZPINTK) continue;</span></div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span><span class="comment"></span> </div>
 <div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span><span class="comment">                    // Skip grid point further away from the maximum search range</span></div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="comment">                    if (gridPoint.Mag() &gt; VTXSRCRANGE) continue;</span></div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="comment">                    if (gridPoint.Mag() &gt; VTXMAXRADIUS) continue;</span></div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="comment"></span> </div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span><span class="comment">                    // Subtract ToF from the search vertex</span></div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span><span class="comment">                    SetVertex(gridPoint);</span></div>

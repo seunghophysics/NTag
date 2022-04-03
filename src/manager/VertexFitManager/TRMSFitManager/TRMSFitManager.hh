@@ -14,13 +14,13 @@ class TRMSFitManager : public VertexFitManager
             INITGRIDWIDTH = initgridwidth;
             MINGRIDWIDTH = mingridwidth;
             GRIDSHRINKRATE = gridshrinkrate;
-            VTXSRCRANGE = vtxsrcrange;
+            VTXMAXRADIUS = vtxsrcrange;
         }
 
         void Fit(const PMTHitCluster& hitCluster);
 
     private:
-        float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXSRCRANGE;
+        float INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXMAXRADIUS;
 };
 
 #endif

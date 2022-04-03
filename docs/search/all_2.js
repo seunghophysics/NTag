@@ -13,5 +13,6 @@ var searchData=
   ['cluster_3c_20particle_20_3e_10',['Cluster&lt; Particle &gt;',['../classCluster.html',1,'']]],
   ['cluster_3c_20pmthit_20_3e_11',['Cluster&lt; PMTHit &gt;',['../classCluster.html',1,'']]],
   ['cluster_3c_20taggable_20_3e_12',['Cluster&lt; Taggable &gt;',['../classCluster.html',1,'']]],
-  ['copy_13',['Copy',['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)'],['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)']]]
+  ['command_20line_20options_13',['Command line options',['../command-line-options.html',1,'']]],
+  ['copy_14',['Copy',['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)'],['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)']]]
 ];
