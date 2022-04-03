@@ -117,7 +117,7 @@ Getting Started</h1>
 <h2><a class="anchor" id="autotoc_md2"></a>
 Dependencies</h2>
 <blockquote class="doxtable">
-<p >&zwj;SKOFL: <code>skofl-21a</code> or newer</p>
+<p >&zwj;SKOFL: <code>skofl_21a</code> or newer</p>
 <p >ATMPD: <code>ATMPD_21a</code> or newer</p>
 <p >ROOT: <code>v5.38.34</code> </p>
 </blockquote>
@@ -146,7 +146,7 @@ NTag</h3>
 <div class="fragment"><div class="line">NTag -in &lt;input SK data/MC&gt; -out &lt;output NTag ROOT&gt; &lt;command line options&gt;</div>
 </div><!-- fragment --><h3><a class="anchor" id="autotoc_md6"></a>
 AddNoise</h3>
-<p >AddNoise reads in an Super-K MC file with signal simulation only (i.e., <code>DS-DARK 0</code> in <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim">SKDETSIM</a>] card or <code>/SKG4/DarkNoise/Mode 0</code> in <a href="https://github.com/SKG4/SKG4">SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb">mccomb</a> on the ATMPD library.</p>
+<p >AddNoise reads in an Super-K MC file with signal simulation only (i.e., <code>DS-DARK 0</code> in <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim">SKDETSIM</a> card or <code>/SKG4/DarkNoise/Mode 0</code> in <a href="https://github.com/SKG4/SKG4">SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href="http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb">mccomb</a> on the ATMPD library.</p>
 <div class="fragment"><div class="line">AddNoise -in &lt;input SK MC signal&gt; -out &lt;output SK MC&gt; &lt;command line options&gt;</div>
 </div><!-- fragment --><h3><a class="anchor" id="autotoc_md7"></a>
 NTagApply</h3>
@@ -159,8 +159,103 @@ NTagTrain</h3>
 </div><!-- fragment --><h2><a class="anchor" id="command-line-options"></a>
 Command line options</h2>
 <ul>
-<li>Argument options</li>
+<li>File I/O <table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-in</code>   </td><td class="markdownTableBodyNone"><code>&lt;input SK data/MC&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-out</code>   </td><td class="markdownTableBodyNone"><code>&lt;output NTag ROOT&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-outdata</code>   </td><td class="markdownTableBodyNone"><code>&lt;output SK data/MC with NTAG bank filled&gt;</code>   </td></tr>
+</table>
+</li>
+<li>Vertex <table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-prompt_vertex</code>   </td><td class="markdownTableBodyNone">One of <code>none</code>, <code>apfit</code>, <code>bonsai</code>, <code>custom</code>, <code>true</code>, <code>stmu</code>, <code>fitqun</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-vx</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK x coordinate [cm]&gt;</code> (<code>custom</code> mode only)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-vy</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK y coordinate [cm]&gt;</code> (<code>custom</code> mode only)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-vz</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK z coordinate [cm]&gt;</code> (<code>custom</code> mode only)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-PVXRES</code>   </td><td class="markdownTableBodyNone"><code>&lt;prompt vertex resolution [cm]&gt;</code> (<code>true</code> mode only)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-delayed_vertex</code>   </td><td class="markdownTableBodyNone">One of <code>trms</code>, <code>bonsai</code>, <code>prompt</code>   </td></tr>
+</table>
+</li>
+<li>SK I/O <table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-SKOPTN</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK read option&gt;</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-SKBADOPT</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK bad channel option&gt;</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-REFRUNNO</code>   </td><td class="markdownTableBodyNone"><code>&lt;SK reference run number&gt;</code>   </td></tr>
+</table>
+</li>
+<li>Write options <table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-force_flat</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>-write_bank</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>-save_hits</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td></tr>
+</table>
+</li>
+<li>Event cut</li>
 </ul>
+<p >"force_flat", , "write_bank", "noise_type", "save_hits", "muechk", "neut", "add_noise", "weight", "debug", , "vx", "vy", "vz", "tag_e", "tmva", "SKOPTN", "SKBADOPT", "REFRUNNO", "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX", "TNOISESTART", "TNOISEEND", "NOISESEED", "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", "TMINPEAKSEP", "TMATCHWINDOW", "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXSRCRANGE", "E_NHITSCUT", "E_TIMECUT", "N_OUTCUT", "print"</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-in   </td><td class="markdownTableBodyNone">(input file path)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-out   </td><td class="markdownTableBodyNone">(output file path)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-prompt_vertex   </td><td class="markdownTableBodyNone">(weight filename)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-delayed_vertex   </td><td class="markdownTableBodyNone">(MVA training method name)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-method   </td><td class="markdownTableBodyNone">(MVA training method name)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-macro   </td><td class="markdownTableBodyNone">(macro filename)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-vx(y,z)   </td><td class="markdownTableBodyNone">(custom vertex position) [cm]    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-NHITSTH/MX   </td><td class="markdownTableBodyNone">(NHits threshold / maximum)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-TWIDTH   </td><td class="markdownTableBodyNone">(Sliding T window width) [ns]    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-T0TH/MX   </td><td class="markdownTableBodyNone">(T0 threshold / maximum) [ns]    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-TRBNWIDTH   </td><td class="markdownTableBodyNone">(PMT deadtime width) [&amp;mus]    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-PVXRES   </td><td class="markdownTableBodyNone">(Prompt vertex resolution) [cm]    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-VTXSRCRANGE   </td><td class="markdownTableBodyNone">(Neut-fit search range) [cm]    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-MINGRIDWIDTH   </td><td class="markdownTableBodyNone">(Neut-fit minimum grid width) [cm]    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-sigTQpath   </td><td class="markdownTableBodyNone">(output from <code>-readTQ</code> option)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-addSKOPTN   </td><td class="markdownTableBodyNone">(SK option to add)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-removeSKOPTN   </td><td class="markdownTableBodyNone">(SK option to remove)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-SKOPTN   </td><td class="markdownTableBodyNone">(SK option to set)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">-SKBADOPT   </td><td class="markdownTableBodyNone">(SK bad channel option to set)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">-REFRUNNO   </td><td class="markdownTableBodyNone">(Reference run for dark-noise, etc.)   </td></tr>
+</table>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadNone">Example usage   </th><th class="markdownTableHeadNone">Use    </th></tr>
@@ -206,20 +301,6 @@ Command line options</h2>
 <td class="markdownTableBodyLeft">-REFRUNNO   </td><td class="markdownTableBodyNone">(Reference run for dark-noise, etc.)   </td><td class="markdownTableBodyNone"><code>NTag -in in.dat -REFRUNNO 85619</code>   </td><td class="markdownTableBodyNone">optional   </td></tr>
 </table>
 <ul>
-<li>Macro rules:</li>
-</ul>
-<p >Use <code>#</code> as the first character in a line to make the entire line a comment.</p>
-<p >Arguments must be space-delimited, for example: <code>-(option) (argument)</code></p>
-<p >A macro can be used with command line arguments, for example: <code>NTag -in input.zbs -macro macro.txt</code></p>
-<p >Example: </p><div class="fragment"><div class="line"># input file</div>
-<div class="line">-in somepath/input.zbs</div>
-<div class="line"> </div>
-<div class="line"># ouptut file</div>
-<div class="line">-out otherpath/output.root</div>
-<div class="line"> </div>
-<div class="line"># options</div>
-<div class="line">-usetruevertex</div>
-</div><!-- fragment --><ul>
 <li>Run options</li>
 </ul>
 <table class="markdownTable">
@@ -252,7 +333,21 @@ Command line options</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft">-usestmuvertex   </td><td class="markdownTableBodyNone"><code>NTag (...) -usestmuvertex</code>   </td><td class="markdownTableBodyNone">Use muon stopping position as a prompt vertex.   </td></tr>
 </table>
-<h1><a class="anchor" id="output-tree-structure"></a>
+<ul>
+<li>Macro rules:</li>
+</ul>
+<p >Use <code>#</code> as the first character in a line to make the entire line a comment.</p>
+<p >Arguments must be space-delimited, for example: <code>-(option) (argument)</code></p>
+<p >A macro can be used with command line arguments, for example: <code>NTag -in input.zbs -macro macro.txt</code></p>
+<p >Example: </p><div class="fragment"><div class="line"># input file</div>
+<div class="line">-in somepath/input.zbs</div>
+<div class="line"> </div>
+<div class="line"># ouptut file</div>
+<div class="line">-out otherpath/output.root</div>
+<div class="line"> </div>
+<div class="line"># options</div>
+<div class="line">-usetruevertex</div>
+</div><!-- fragment --><h1><a class="anchor" id="output-tree-structure"></a>
 Output tree structure</h1>
 <ul>
 <li>TTree <code>ntvar</code></li>
