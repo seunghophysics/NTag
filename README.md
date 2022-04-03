@@ -77,6 +77,7 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 ### Command line options {#command-line-options}
 
 * File I/O
+
 | Option          |                               Argument                                 |
 |:--------------- |------------------------------------------------------------------------|
 |`-in`            |`<input SK data/MC>`                                                    |
@@ -84,6 +85,7 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 |`-outdata`       |`<output SK data/MC with NTAG bank filled>`                             |
 
 * Vertex
+
 | Option          |                               Argument                                 |
 |:----------------|------------------------------------------------------------------------|
 |`-prompt_vertex` |One of `none`, `apfit`, `bonsai`, `custom`, `true`, `stmu`, `fitqun`    |
@@ -94,6 +96,7 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 |`-delayed_vertex`|One of `trms`, `bonsai`, `prompt`                                       |
 
 * SK I/O
+
 | Option          |                               Argument                                 |
 |:----------------|------------------------------------------------------------------------|
 |`-SKOPTN`        |`<SK read option>`                                                      |
@@ -101,6 +104,7 @@ NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
 |`-REFRUNNO`      |`<SK reference run number>`                                             |
 
 * Write options
+
 | Option          |                               Argument                                 |
 |:----------------|------------------------------------------------------------------------|
 |`-force_flat`    |`true` or `false`                                                       |
