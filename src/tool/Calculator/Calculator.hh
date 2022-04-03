@@ -182,10 +182,10 @@ int FindIndex(const std::vector<T>& vec, const T& value) {
 }
 
 /**
- * @brief Get i-th Legendre polynomial P_i(x) evaluated at x.
+ * @brief Get i-th Legendre polynomial \f$P_i (x)\f$ evaluated at x.
  * @param i The order of Legendre polynomial.
  * @param x The x value to evaluate the polynomial.
- * @return The i-th Legendre polynomial P_i(x) evaluated at x.
+ * @return The i-th Legendre polynomial \f$P_i (x)\f$ evaluated at x.
  */
 float GetLegendreP(int i, float& x);
 

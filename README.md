@@ -1,73 +1,79 @@
 # NTag
 
-NTag is a C++-based program to search for neutron capture candidates in SK data/MC events and tag with multivariate analysis (MVA) tool provided by CERN's ROOT. Any SK data/MC file can be fed to NTag to get an output root file that comes with the `ntvar` tree filled with relevant variables to the neutron tagging algorithm.
+NTag is a C++ library that helps users search for neutron capture signals from all kinds of Super-Kamiokande data and simulation. Users can directly run the main executable NTag on any Super-K data/MC file to get an output ROOT file with the [ntag tree](#output-tree-structure) that has all the features extracted by the signal candidates, or utilize the NTag <a href=annotated.html>classes</a> and <a href=include_2Calculator_8hh.html>calculator functions</a> in their own program by linking to the library.
 
-## Structure of the program
-
-![Structure](docs/doxygen/NTag.png)
-
-All neutron tagging in one event is steered by the mainframe class named `NTagEventInfo`, shown as the orange box in the above figure. This class holds information that can be classified into three main categories: raw TQ hits, event variables, and the TMVA variables which are grouped by a class named `NTagTMVAVariables` and eventually fed into the neural network of the MVA tool. The class `NTagEventInfo` also has a bunch of functions that manipulate the information from the input data to form the aforementioned three categories of information that we need in our search for neutron capture candidates. All manipulation of information and variables are handled by the member functions of `NTagEventInfo`.
-
-`NTagIO`shown as the blue box in the above figure is a subclass of `NTagEventInfo`, and it deals with the I/O of SK data fies. It reads the SK data files with `skread`, and uses the member functions of its base class `NTagEventInfo` to set its member variables, i.e., the raw TQ hits, event variables, and the TMVA variables. At the end of an event, `NTagIO` will fill its trees with the above member variables, and will clear all member variables to move on to the next event and loop again. At the end of the input file (EOF), the data trees will be written to an output file.
-
-In detail, the data flow and the search process in one event progresses as follows:
-
-1. An SK data file with TQREAL filled can be read by `NTagIO` via `skread`, and the SK common blocks will be filled by `NTagIO::ReadFile`, which initiates the event loop. The instructions for each event is given by `NTagIO::ReadMCEvent` in case the event is from an MC, otherwise by `NTagIO::ReadDataEvent` which again splits into either of `NTagIO::ReadSHEEvent` for SHE-triggered events or `NTagIO::ReadAFTEvent` for AFT-triggered events. Each "ReadEvent" functions include a set of "Set" functions from `NTagEventInfo`, so that event variables can be read from the SK common blocks.
-
-2. The "ReadEvent" functions mentioned above also call `NTagEventInfo::AppendRawHitInfo` to append the raw TQ hit information from the common block `sktqz` to the private member vectors of `NTagEventInfo`: `vTISKZ`, `vQISKZ`, and `vCABIZ`. The neutron capture candidates will be searched for within these raw TQ vectors.
-
-3. If the raw TQ vectors are set, `NTagEventInfo::SearchNeutronCaptures` will search for neutron capture candidates, looking for NHits peaks within the ToF-subtracted `vTISKZ`. Each selected peak will be saved as an instance of the class `NTagCandidate`, and `NTagEventInfo::vCandidates` is a STL vector that stores all `NTagCandidate` instances from the event.
-
-4. Via function `NTagCandidate::SetNNVariables` The properties of the found capture candidates will be passed on to the class `NTagTMVAVariables`, which holds the variables to be fed to the neural network.
-
-5. The class `NTagTMVA` will feed variables from `NTagTMVAVariables` to ROOT::TMVA, and the TMVA reader will evaluate the weights and the input variables to find the classifier output. The classifier output is set for each `NTagCandidate` instance.
-
-6. Finally, `NTagIO` will fill its trees with the member variables of `NTagEventInfo`, and clear all variables for the next event. If the file hits the end, the trees will be written to an output file.
-
-For the details of each class, visit this [link](https://www-sk.icrr.u-tokyo.ac.jp/~han/NTag/annotated.html).
-(VPN to Kamioka is required.)
+[TOC]
 
 ## Getting Started
 
+The following instruction assumes you're working on sukap.
+
 ### Dependencies
 
-> SKOFL: `skofl-trunk` (As of Sep 30, 2020: required if you're using SecondaryInfo for SKROOT)
+> SKOFL: `skofl-21a` or newer
 >
-> ATMPD: `ATMPD_19b`
+> ATMPD: `ATMPD_21a` or newer
 >
-> ROOT: `v5.28.00h`
->
-> TMVA: `v.4.2.0` (At the moment, the default path for TMVA is `/disk02/usr6/han/Apps/TMVA`.)
+> ROOT: `v5.38.34`
 
 ### How to install
-```
-git clone https://github.com/seunghophysics/NTag.git
-```
-```
-cd NTag; make
-```
 
-### How to install $PATH
+```bash
+git clone --branch library https://github.com/seunghophysics/NTag.git
+cd NTag && make
+```
+Set the environment variables $PATH and $NTAGLIBPATH automatically by typing in the following commands.
 
 | Shell type | Install command       | Uninstall command       |
 |------------|-----------------------|-------------------------|
 | bash       | `. path/bash set`     | `. path/bash unset`     |
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
-Executing NTag binary becomes path-independent after installing the binary path in $PATH.
+### How to run executables
 
-To use NTag, just type in, for example,
-```
-NTag -in (input file)
-```
-in any directory you're in.
+ Once you install NTag, there will be executables created in a directory named `bin`. 
+ 
+ All executables can be run with a command of the form:
 
-### How to run
+ ```
+ <executable> -in <input file path> -out <output file path> <command line options>
+ ```
+
+ For available command line options, see [here](#command-line-options).
+
+#### NTag
+
+NTag is the main program of this library. It can read any Super-K data/MC file and output a ROOT file with the [neutron search results](#output-tree-structure). 
+
 ```
-NTag -in (input filename) -out (output filename)
+NTag -in <input SK data/MC> -out <output NTag ROOT> <command line options>
 ```
 
-### Command line options
+#### AddNoise
+
+AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK 0` in <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim>SKDETSIM</a> card or `/SKG4/DarkNoise/Mode 0` in <a href=https://github.com/SKG4/SKG4>SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb>mccomb</a> on the ATMPD library.
+
+```
+AddNoise -in <input SK MC signal> -out <output SK MC> <command line options>
+```
+
+#### NTagApply
+
+NTagApply can apply a different neutrong tagging conditions to an NTag ROOT file. It can re-generate NTag ROOT file much faster than re-running NTag with different options.
+
+```
+NTagApply -in <input NTag ROOT> -out <output NTag ROOT> <command line options>
+```
+
+#### NTagTrain
+
+NTagTrain trains neural network weights on NTag ROOT file(s) using CERN ROOT's TMVA.
+
+```
+NTagTrain -in <input NTag ROOT> -out <output TMVA result> <command line options>
+```
+
+### Command line options {#command-line-options}
 
 * Argument options
 
@@ -132,7 +138,7 @@ Example:
 |-usetruevertex|`NTag (...) -usetruevertex` |Use true vector vertex from common `skvect` as a prompt vertex. |
 |-usestmuvertex|`NTag (...) -usestmuvertex`  |Use muon stopping position as a prompt vertex. |
 
-## Output tree structure
+## Output tree structure {#output-tree-structure}
 
 * TTree `ntvar`
 
@@ -221,7 +227,7 @@ All variables with suffix `_n` are variables calculated using the Neut-fit verte
 | secpy         | NSavedSec     | Y-direction momentum of the secondary creation vertex         |
 | secpz         | NSavedSec     | Z-direction momentum of the secondary creation vertex         |
 | SecMom        | NSavedSec     | Momentum of the secondary particle                            |
-| SecPID        | NSavedSec     | Particle code of the secondary particle                       |
+| SecPID        | NSavedSec     | PDG code of the secondary particle                       |
 | SecT          | NSavedSec     | Generated time of the secondary particle                      |
 | ParentPID     | NSavedSec     | Parent particle code of the secondary particle                |
 | SecIntID      | NSavedSec     | Interaction code (GEANT3) that produced the secondary         |
@@ -231,7 +237,7 @@ All variables with suffix `_n` are variables calculated using the Neut-fit verte
 | NeutIntMode   | 1             | Interaction mode of neutrino, see NEUT/nemodsel.F             |
 | NeutIntMom    | 1             | Momentum at neutrino interaction (GeV/c)                      |
 | NnInNeutVec	| 1             | # of neutron in input vector                                  |
-| NeutVecPID    | NVecInNeut    | Particle code at neutrino interaction (PDG code)              |
+| NeutVecPID    | NVecInNeut    | PDG code at neutrino interaction (PDG code)              |
 | NVec          | 1             | # of particle of primary vectors in MC                        |
 | vecx          | 1             | X coordinate of primary vector vertex                         |
 | vecy          | 1             | X coordinate of primary vector vertex                         |

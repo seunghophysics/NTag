@@ -2,7 +2,7 @@ include include.gmk
 
 ##### Rules #####
 
-.PHONY: all float dirs inc clean cleanobj main
+.PHONY: all float dirs inc clean cleanobj main docs
 
 all: float inc main
 	@echo "[NTagLib] Done!"
@@ -70,3 +70,6 @@ $(MAINBINS): bin/%: obj/main/%.o
 
 double: CXXFLAGS+=-DUSE_DOUBLE=1
 double: cleanobj dirs inc lib/libNTagLib_double.a
+
+docs:
+	@cd docs/doxygen && doxygen Doxyfile

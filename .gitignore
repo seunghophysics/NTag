@@ -3,4 +3,3 @@ include
 *.o
 bin
 *.root
-docs/doxygen/build
