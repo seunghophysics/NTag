@@ -6,7 +6,7 @@ NTag is a C++ library that helps users search for neutron capture signals from a
 
 ## Getting Started
 
-The following instruction assumes you're working on sukap.
+The following instruction assumes you are working on sukap.
 
 ### Dependencies
 
@@ -41,7 +41,7 @@ Set the environment variables $PATH and $NTAGLIBPATH automatically by typing in 
 
  For available command line options, see [here](#command-line-options).
 
-#### NTag
+#### NTag {#ntag-exe}
 
 NTag is the main program of this library. It can read any Super-K data/MC file and output a ROOT file with the [neutron search results](#output-tree-structure). 
 
@@ -49,24 +49,28 @@ NTag is the main program of this library. It can read any Super-K data/MC file a
 NTag -in <input SK data/MC> -out <output NTag ROOT> <command line options>
 ```
 
-#### AddNoise
+#### AddNoise {#addnoise-exe}
 
 AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK 0` in <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/skdetsim>SKDETSIM</a> card or `/SKG4/DarkNoise/Mode 0` in <a href=https://github.com/SKG4/SKG4>SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href=http://kmcvs.icrr.u-tokyo.ac.jp/viewvc/svnrepos/atmpd/trunk/src/analysis/neutron/mccomb>mccomb</a> on the ATMPD library.
 
+For available options in AddNoise, see [options for Dark Noise](#dark-noise-option).
+
 ```
-AddNoise -in <input SK MC signal> -out <output SK MC> <command line options>
+AddNoise -in <input SK signal MC> -out <output SK MC> <command line options>
 ```
 
-#### NTagApply
+#### NTagApply {#ntagapply-exe}
 
-NTagApply can apply a different neutrong tagging conditions to an NTag ROOT file. 
+NTagApply can apply a different neutron tagging conditions to an NTag ROOT file. 
 It can re-generate NTag ROOT file much faster than re-running NTag with different options.
+
+For available options in NTagApply, see [options for Tagging Conditions](#tag-cond-option).
 
 ```
 NTagApply -in <input NTag ROOT> -out <output NTag ROOT> <command line options>
 ```
 
-#### NTagTrain
+#### NTagTrain {#ntagtrain-exe}
 
 NTagTrain trains neural network weights on NTag ROOT file(s) using CERN ROOT's TMVA.
 

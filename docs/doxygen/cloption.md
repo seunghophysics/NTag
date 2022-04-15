@@ -50,7 +50,9 @@ Delayed vertex options:
 |`-TCANWIDTH`     | Time window width to calculate features                                | 14      |
 |`-TMINPEAKSEP`   | Minimum time separation between two signal triggers (ns)               | 200     |
 
-## Tagging conditions
+## Tagging conditions {#tag-cond-option}
+
+The following are also valid options for [NTagApply](#ntagapply-exe).
 
 | Option          |                               Argument                                 | Default |
 |-----------------|------------------------------------------------------------------------|:-------:|
@@ -60,9 +62,11 @@ Delayed vertex options:
 |`-TAGOUTCUT`     | Threshold TMVA signal likelihood to classify candidate as signal       | 0.7     |
 |`-TMATCHWINDOW`  | Maximum time window to match candidate with true taggable (ns)         | 50      |
 
-## Dark noise
+ ## Dark noise {#dark-noise-option}
 
-| Option          |                               Argument                                 | Default |
+The following are also valid options for [AddNoise](#addnoise-exe), where `-add_noise true` option is automatically turned on.
+
+| Option          |Argument                                 | Default |
 |-----------------|------------------------------------------------------------------------|:-------:|
 |`-add_noise`     | `true` or `false`                                                      | `false` |
 |`-noise_type`    | One of `sk5`, `sk6`, `ambe`                                            | `sk6`   |
@@ -70,7 +74,7 @@ Delayed vertex options:
 |`-TNOISEEND`     | Noise addition end time from event trigger (µs)                        | 536     |
 |`-NOISESEED`     | Random seed                                                            | 0       |
 
-When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in `/disk02/calib3/usr/han/dummy` are appended to the input SK MC before signal search starts.
+When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in `/disk02/calib3/usr/han/dummy` are appended to the input SK MC before signal search starts. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
 
 ## PMT noise reduction
 
