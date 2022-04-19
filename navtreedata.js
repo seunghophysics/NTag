@@ -85,7 +85,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"include_2SKLibs_8hh.html"
+"include_2SKIO_8hh_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
