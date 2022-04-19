@@ -1,6 +1,0 @@
-var searchData=
-[
-  ['candidate_0',['Candidate',['../classCandidate.html#aeb1d337db855b2d8fe8c76d6c3c310e8',1,'Candidate::Candidate(unsigned int iHit=0)'],['../classCandidate.html#aeb1d337db855b2d8fe8c76d6c3c310e8',1,'Candidate::Candidate(unsigned int iHit=0)']]],
-  ['clear_1',['Clear',['../classCandidate.html#a416856b73bc46722127d778f18624cdc',1,'Candidate::Clear()'],['../classCandidateCluster.html#a3052dabfba72ba823dbf39ea26d166c7',1,'CandidateCluster::Clear()'],['../classCluster.html#a227f7aa6d9ac4573e40d0999169f1057',1,'Cluster::Clear()'],['../classPMTHitCluster.html#a05c437ab9ad691bb68f7aa9f620f19ff',1,'PMTHitCluster::Clear()'],['../classCandidate.html#a416856b73bc46722127d778f18624cdc',1,'Candidate::Clear()'],['../classCandidateCluster.html#a3052dabfba72ba823dbf39ea26d166c7',1,'CandidateCluster::Clear()'],['../classCluster.html#a227f7aa6d9ac4573e40d0999169f1057',1,'Cluster::Clear()'],['../classPMTHitCluster.html#a05c437ab9ad691bb68f7aa9f620f19ff',1,'PMTHitCluster::Clear()']]],
-  ['copy_2',['Copy',['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)'],['../classCluster.html#abfeccd83b7080e4fb970a0a1c7467bbe',1,'Cluster::Copy(Cluster&lt; T &gt; *copiedCluster)']]]
-];
