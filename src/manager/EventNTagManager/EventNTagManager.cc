@@ -63,7 +63,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
     else if (mode == mAPFIT) {
         int bank = 0; aprstbnk_(&bank);
         fPromptVertex = TVector3(apcommul_.appos);
-        
+
         // ring
         fEventVariables.Set("NRing", apcommul_.apnring);
         fEventVariables.Set("FirstRingType", apcommul_.apip[0]);
@@ -74,7 +74,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         fEventVariables.Set("ring_dirx", apcommul_.apdir[0][0]);
         fEventVariables.Set("ring_diry", apcommul_.apdir[0][1]);
         fEventVariables.Set("ring_dirz", apcommul_.apdir[0][2]);
-            
+
         // visible energy
         fEventVariables.Set("EVis", apcomene_.apevis);
     }
@@ -85,11 +85,11 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         LoweInfo* LOWE = mgr->GetLOWE();
         mgr->GetEntry();
         fPromptVertex = TVector3(LOWE->bsvertex);
-        
+
         // visible energy
         fEventVariables.Set("EVis", LOWE->bsenergy);
     }
-    
+
     else if (mode == mFITQUN) {
         int fqbank = 0;
         readfqzbsbank_(&fqbank);
@@ -175,7 +175,7 @@ void EventNTagManager::ReadVariables()
         fEventVariables.Set("vecvy", skvect_.pos[1]);
         fEventVariables.Set("vecvz", skvect_.pos[2]);
         fEventVariables.Set("VtxRes", (TVector3(skvect_.pos)-fPromptVertex).Mag());
-        
+
         // trgOffset
         fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat));
 
@@ -221,7 +221,7 @@ void EventNTagManager::AddHits()
                 fMsg.Print(Form("Same PMT T: %3.2f ns Q: %3.9f pe, I: %d", sktqz_.tiskz[iHit], sktqz_.qiskz[iHit], sktqz_.icabiz[iHit]), pWARNING);
             }
             // hit charges coincide within 5% (temp) or both are negative
-            if (((fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2) || (lastHit.q()<0 && sktqz_.qiskz[iHit]<0)) 
+            if (((fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2) || (lastHit.q()<0 && sktqz_.qiskz[iHit]<0))
              && static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i() // PMT ID identical
              && fabs(lastHit.t() - sktqz_.tiskz[iHit] - 35000) < 500) {       // PMT timing offset within 500 ns from 35 usec
                 tOffset = lastHit.t() - sktqz_.tiskz[iHit];
@@ -328,22 +328,22 @@ void EventNTagManager::SearchAndFill()
         fOutDataFile->FillTQREAL(fEventHits);
         fOutDataFile->Write();
     }
-        
+
     ClearData();
 }
 
 void EventNTagManager::ProcessEvent()
 {
     static bool initialized = false;
-    
+
     if (!initialized) {
         CheckMC();
         if (fSettings.GetBool("tmva")) {
             std::string weightPath = fSettings.GetString("weight");
-            if (weightPath=="default") 
+            if (weightPath=="default")
                 weightPath = fSettings.GetString("delayed_vertex");
             fTMVATagger.Initialize(weightPath);
-        } 
+        }
         initialized = true;
     }
 
@@ -499,9 +499,9 @@ void EventNTagManager::ApplySettings()
         fFileFormat = mSKROOT;
     else
         fFileFormat = mZBS;
-        
+
     if (fSettings.GetBool("debug")) fMsg.SetVerbosity(pDEBUG);
-    
+
     // NTag parameters
     float tMin = fSettings.GetFloat("TMIN");
     float tMax = fSettings.GetFloat("TMAX");
@@ -554,11 +554,11 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("E_NHITSCUT", E_NHITSCUT);
     fSettings.Get("E_TIMECUT", E_TIMECUT);
     fSettings.Get("TAGOUTCUT", TAGOUTCUT);
-    
-    if (fSettings.GetBool("tag_e")) 
+
+    if (fSettings.GetBool("tag_e"))
         fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
     fTMVATagger.SetNCut(TAGOUTCUT);
-    
+
     if (fSettings.GetBool("tmva")) {
         fTagger = &fTMVATagger;
     }
@@ -570,7 +570,7 @@ void EventNTagManager::ApplySettings()
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
 {
     fSettings.ReadArguments(argParser);
-    
+
     for (auto const& pair: fSettings.GetMap()) {
         auto key = pair.first;
         if (FindIndex(gCmdOptions, key)<0) {
@@ -613,7 +613,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     TTree* taggableTree = new TTree("taggable", "taggable");
     TTree* nTree        = new TTree("ntag", "ntag");
     TTree* eTree        = new TTree("mue", "mue");
-    
+
     if (outfile) {
         settingsTree->SetDirectory(outfile);
         eventTree->SetDirectory(outfile);
@@ -623,7 +623,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
         nTree->SetDirectory(outfile);
         eTree->SetDirectory(outfile);
     }
-    
+
     fSettings.SetTree(settingsTree);
     fEventVariables.SetTree(eventTree);
     if (fSettings.GetBool("save_hits")) fEventHits.SetTree(hitTree);
@@ -726,21 +726,25 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 {
     PMTHit firstHit = fEventHits[iHit];
     auto trgHits = fEventHits.Slice(iHit, TWIDTH);
-    
+
     // set default values for delayed candidate properties
     TVector3 delayedVertex = fPromptVertex;
     float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
 
+    bool doFit = true;
+
     // prompt mode: delayed vertex = prompt vertex
     if (fDelayedVertexMode == mPROMPT) {
-        delayedGoodness = fDelayedVertexManager->GetGoodness(trgHits, fPromptVertex, delayedTime);
+        if (fPromptVertexMode != mNONE)
+            delayedGoodness = fDelayedVertexManager->GetGoodness(trgHits, fPromptVertex, delayedTime);
+        else
+            fMsg.Print("MODE ERROR: Prompt vertex mode is NONE while delayed vertex mode is PROMPT!", pERROR);
     }
 
     // delayed mode: apply delayed vertex fit
     else {
         PMTHitCluster hitsForFit;
-        bool doFit = true;
 
         // TRMS-fit
         if (fDelayedVertexMode == mTRMS)
@@ -753,15 +757,16 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             firstHit.UnsetToFAndDirection();
             unsigned int firstHitID = fEventHits.GetIndex(firstHit);
             hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.-500, TWIDTH/2.+1000) - firstHit.t() + 1000;
-            
+
             // give up bonsai fit for N1300 larger than 2000
-            if (hitsForFit.GetSize() > 2000) {
-                fMsg.Print(Form("A possible candidate at T=%3.2f us has N1300 larger than 2000," 
-                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3), pWARNING);
+            auto nHitsForFit = hitsForFit.GetSize();
+            if (nHitsForFit > 2000) {
+                fMsg.Print(Form("A possible candidate at T=%3.2f us has N1300=%d that is larger than 2000,"
+                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3, nHitsForFit), pWARNING);
                 doFit = false;
             }
         }
-        
+
         if (doFit) {
             hitsForFit.Sort();
             fDelayedVertexManager->Fit(hitsForFit);
@@ -770,8 +775,11 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             delayedGoodness = fDelayedVertexManager->GetFitGoodness();
         }
     }
-    fEventHits.SetVertex(delayedVertex);
-    firstHit.SetToFAndDirection(delayedVertex);
+
+    if (doFit) {
+        fEventHits.SetVertex(delayedVertex);
+        firstHit.SetToFAndDirection(delayedVertex);
+    }
 
     float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
@@ -808,7 +816,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
     //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
     //auto hitsIn1300ns = fEventHits.Slice(firstHitID, TWIDTH/2.-520, TWIDTH/2.+780);
-    
+
     //hitsInTCANWIDTH.FindHitProperties();
     //hitsInTCANWIDTH.DumpAllElements();
     //float deg = 3.141592/180.;
@@ -868,7 +876,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("OpeningAngleSkew",  openingAngleStats.skewness);
 
     candidate.Set("DPrompt", fPromptVertexMode==mNONE? -1 : (fPromptVertex-delayedVertex).Mag());
-    
+
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
 
     float likelihood = fTagger->GetLikelihood(candidate);
