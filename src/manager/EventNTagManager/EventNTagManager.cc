@@ -94,6 +94,17 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         int fqbank = 0;
         readfqzbsbank_(&fqbank);
         fPromptVertex = TVector3(fitqunmr_.fqmrpos[0][0]);
+
+        // ring
+        fEventVariables.Set("NRing", fitqunmr_.fqmrnring[0]);
+        fEventVariables.Set("FirstRingType", fitqunmr_.fqmrpid[0][0]);
+        fEventVariables.Set("FirstRingMom", fitqunmr_.fqmrmom[0][0]);
+        fEventVariables.Set("ring_dirx", fitqunmr_.fqmrdir[0][0][0]);
+        fEventVariables.Set("ring_diry", fitqunmr_.fqmrdir[0][0][1]);
+        fEventVariables.Set("ring_dirz", fitqunmr_.fqmrdir[0][0][2]);
+
+        // visible energy
+        fEventVariables.Set("EVis", fitqunmr_.fqmreloss[0][0]);
     }
 
     else if (mode == mCUSTOM) {
@@ -108,14 +119,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
 
     else if (mode == mTRUE) {
         skgetv_();
-        float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
-        float maxDist = 150.;
-        while (Norm(dx, dy, dz) > maxDist) {
-            dx = gRandom->BreitWigner(0, PVXRES);
-            dy = gRandom->BreitWigner(0, PVXRES);
-            dz = gRandom->BreitWigner(0, PVXRES);
-        }
-        fPromptVertex = TVector3(skvect_.pos) + TVector3(dx, dy, dz);
+        fPromptVertex = TVector3(skvect_.pos);
     }
 
     else if (mode == mSTMU) {
@@ -126,6 +130,23 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         fMsg.Print("Invalid prompt vertex mode, setting vertex mode to NONE...", pWARNING);
         fPromptVertexMode = mNONE;
     }
+
+    // vertex smearing
+    float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
+    float maxDist = 150.;
+    while (Norm(dx, dy, dz) > maxDist) {
+        dx = gRandom->BreitWigner(0, PVXRES);
+        dy = gRandom->BreitWigner(0, PVXRES);
+        dz = gRandom->BreitWigner(0, PVXRES);
+    }
+    
+    auto biasDir= TVector3(gRandom->Uniform(), gRandom->Uniform(), gRandom->Uniform()).Unit();
+    if (fPromptVertexMode == mAPFIT || fPromptVertexMode == mFITQUN)
+        biasDir = TVector3(fEventVariables.GetFloat("ring_dirx"),
+                           fEventVariables.GetFloat("ring_diry"),
+                           fEventVariables.GetFloat("ring_dirz"));
+
+    fPromptVertex = fPromptVertex + TVector3(dx, dy, dz) + PVXBIAS*biasDir;
 }
 
 void EventNTagManager::ReadVariables()
@@ -515,6 +536,7 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("N200TH", N200TH);
     fSettings.Get("N200MX", N200MX);
     fSettings.Get("PVXRES", PVXRES);
+    fSettings.Get("PVXBIAS", PVXBIAS);
 
     // vertex mode
     std::string promptVertexMode, delayedVertexMode;

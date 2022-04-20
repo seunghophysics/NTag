@@ -47,7 +47,7 @@ static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_b
                                                "add_noise", "weight", "debug", "tmva", "in", "out",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", 
                                                "SKOPTN", "SKBADOPT", "REFRUNNO",
-                                               "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "NODHITMX",
+                                               "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "PVXBIAS", "NODHITMX",
                                                "TNOISESTART", "TNOISEEND", "NOISESEED",
                                                "TWIDTH", "NHITSTH", "NHITSMX", "N200MX", "TCANWIDTH", 
                                                "TMINPEAKSEP", "TMATCHWINDOW",

@@ -137,7 +137,7 @@ class EventNTagManager
         // NTag settings
         Store fSettings;
         VertexMode fPromptVertexMode, fDelayedVertexMode;
-        float PVXRES;
+        float PVXRES, PVXBIAS;
         float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW;
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float TRMSTWIDTH, INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXMAXRADIUS;

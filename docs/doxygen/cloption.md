@@ -21,6 +21,7 @@ Use of `-outdata` option automatically invokes option `-write_bank true`. See [o
 |`-vy`            | SK y coordinate (cm) (for `custom` mode only)                          | 0        |
 |`-vz`            | SK z coordinate (cm) (for `custom` mode only)                          | 0        |
 |`-PVXRES`        | Prompt vertex resolution (cm) (for `true` mode only)                   | 0        |
+|`-PVXBIAS`       | Prompt vertex bias (cm) (for `true` mode only)                         | 0        |
 |`-delayed_vertex`| One of `trms`, `bonsai`, `prompt`                                      | `bonsai` |
 
 Prompt vertex options:

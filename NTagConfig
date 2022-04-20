@@ -28,6 +28,7 @@ vx             0
 vy             0
 vz             0
 PVXRES         0
+PVXBIAS        0
 
 # candidate search
 TCANWIDTH      14
