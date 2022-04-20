@@ -446,7 +446,11 @@ void EventNTagManager::SearchCandidates()
         int NHits_iHit = hitsInTCANWIDTH.GetSize();
 
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
-        if (NHits_iHit < NHITSTH || NHits_iHit > NHITSMX) continue;
+        if (NHits_iHit < NHITSTH) continue;
+        if (NHits_iHit > NHITSMX) {
+            fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...", 
+                            NHits_iHit, firstHitTime, NHITSMX), pWARNING);
+        }
 
         // We've found a new peak.
         NHitsNew = NHits_iHit;
