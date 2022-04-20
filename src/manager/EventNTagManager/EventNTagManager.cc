@@ -149,7 +149,7 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("NHITAC", nhitac);
 
     // trigger information
-    int trgtype = skhead_.idtgsk & 1<<29 ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
+    int trgtype = (fIsMC || skhead_.idtgsk & 1<<29) ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
     static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
@@ -180,8 +180,9 @@ void EventNTagManager::ReadVariables()
         fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat));
 
         // NEUT
-        if (fSettings.GetBool("neut")) {
-            float posnu[3]; nerdnebk_(posnu);
+        float posnu[3]{0., 0., 1e5+1}; nerdnebk_(posnu);
+        if (posnu[3] < 1e5) {
+            fSettings.Set("neut", true);
             auto nuMomVec = TVector3(nework_.pne[0]);
             auto nuDirVec = nuMomVec.Unit();
             fEventVariables.Set("NEUTMode", nework_.modene);
@@ -265,23 +266,26 @@ void EventNTagManager::ReadEarlyCandidates()
     muechk_gate_(apcommul_.appos, parentPeakTime, silence);
     int bank = 0; apclrmue_(); apgetmue_(&bank);
 
-    for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
-        float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE] - 1;
-        if (fitT < (T0TH-1000)*1e-3) {
-            Candidate candidate;
-            candidate.Set("FitT", fitT);
-            candidate.Set("x", apmue_.apmuepos[iMuE][0]);
-            candidate.Set("y", apmue_.apmuepos[iMuE][1]);
-            candidate.Set("z", apmue_.apmuepos[iMuE][2]);
-            candidate.Set("dirx", apmue_.apmuedir[iMuE][0]);
-            candidate.Set("diry", apmue_.apmuedir[iMuE][1]);
-            candidate.Set("dirz", apmue_.apmuedir[iMuE][2]);
-            candidate.Set("DWall", wallsk_(apmue_.apmuepos[iMuE]));
-            candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
-            candidate.Set("GateType", apmue_.apmuetype[iMuE]);
-            candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
-            candidate.Set("TagClass", fTagger->Classify(candidate));
-            fEventEarlyCandidates.Append(candidate);
+    // check if mue bank exists
+    if (apmue_.apmuever) {
+        for (int iMuE=0; apmue_.apmuenhit[iMuE]>0; iMuE++) {
+            float fitT = parentPeakTime*1e-3 + apmue_.apmuetime[iMuE] - 1;
+            if (fitT < (T0TH-1000)*1e-3) {
+                Candidate candidate;
+                candidate.Set("FitT", fitT);
+                candidate.Set("x", apmue_.apmuepos[iMuE][0]);
+                candidate.Set("y", apmue_.apmuepos[iMuE][1]);
+                candidate.Set("z", apmue_.apmuepos[iMuE][2]);
+                candidate.Set("dirx", apmue_.apmuedir[iMuE][0]);
+                candidate.Set("diry", apmue_.apmuedir[iMuE][1]);
+                candidate.Set("dirz", apmue_.apmuedir[iMuE][2]);
+                candidate.Set("DWall", wallsk_(apmue_.apmuepos[iMuE]));
+                candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
+                candidate.Set("GateType", apmue_.apmuetype[iMuE]);
+                candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
+                candidate.Set("TagClass", fTagger->Classify(candidate));
+                fEventEarlyCandidates.Append(candidate);
+            }
         }
     }
 }
@@ -291,7 +295,7 @@ void EventNTagManager::ReadInfoFromCommon()
     ReadVariables();
 
     if (fIsMC) ReadParticles();
-    if (fSettings.GetBool("muechk")) ReadEarlyCandidates();
+    ReadEarlyCandidates();
 }
 
 void EventNTagManager::ReadEventFromCommon()
@@ -608,7 +612,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     TTree* particleTree = new TTree("particle", "particle");
     TTree* taggableTree = new TTree("taggable", "taggable");
     TTree* nTree        = new TTree("ntag", "ntag");
-    TTree* eTree        = new TTree("muechk", "muechk");
+    TTree* eTree        = new TTree("mue", "mue");
     
     if (outfile) {
         settingsTree->SetDirectory(outfile);
@@ -626,7 +630,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
     fEventParticles.SetTree(particleTree);
     fEventTaggables.SetTree(taggableTree);
     fEventCandidates.SetTree(nTree);
-    if (fSettings.GetBool("muechk")) fEventEarlyCandidates.SetTree(eTree);
+    fEventEarlyCandidates.SetTree(eTree);
 }
 
 void EventNTagManager::FillTrees()
@@ -990,9 +994,13 @@ void EventNTagManager::FillNTagCommon()
     int nTrueE = 0, nTaggedE = 0, nTrueN = 0, nTaggedN = 0;
 
     // count true
-    for (auto const& taggable: fEventTaggables) {
-        if      (taggable.Type() == typeE) nTrueE++;
-        else if (taggable.Type() == typeN) nTrueN++;
+    if (fIsMC) {
+        for (auto const& taggable: fEventTaggables) {
+            if      (taggable.Type() == typeE) nTrueE++;
+            else if (taggable.Type() == typeN) nTrueN++;
+        }
+        fEventVariables.Set("NTrueE", nTrueE);
+        fEventVariables.Set("NTrueN", nTrueN);
     }
 
     // muechk: count tagged
@@ -1035,9 +1043,6 @@ void EventNTagManager::FillNTagCommon()
     ntag_.nn = nTaggedN;
 
     // set event variables
-    //fEventVariables.Set("NCandidates", nCandidates);
-    fEventVariables.Set("NTrueE", nTrueE);
     fEventVariables.Set("NTaggedE", nTaggedE);
-    fEventVariables.Set("NTrueN", nTrueN);
     fEventVariables.Set("NTaggedN", nTaggedN);
 }

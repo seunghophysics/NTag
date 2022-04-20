@@ -1,3 +1,7 @@
+/**
+ * @file ParticleTable.cc
+ */
+
 #include "ParticleTable.hh"
 
 std::map<int, TString> gPIDMap = {{11,         "e-"},
@@ -41,6 +45,7 @@ std::map<int, float> gPIDMassMap = {{1000010020, 1875.613},
                                     {1000080160, 14899.16},
                                     {0         , 0}};
 
+//! [Geant3 interaction code]
 std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {5,  "Decay"},
                                     {6,  "PairProd"},
@@ -53,6 +58,7 @@ std::map<int, TString> gIntIDMap = {{0,  "-"},
                                     {13, "HadElas."},
                                     {20, "HadInel."},
                                     {18, "nCapture"}};
+//! [Geant3 interaction code]
 
 std::map<int, int> gG3toG4PIDMap = {{1,  22},         // gamma
                                     {2,  -11},        // positron

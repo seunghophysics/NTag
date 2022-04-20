@@ -97,6 +97,8 @@ void PMTHitCluster::RemoveVertex()
 
         fVertex = TVector3();
         fHasVertex = false;
+
+        fIsSorted = false;
     }
 }
 
@@ -477,6 +479,7 @@ void PMTHitCluster::FillTree()
         ClearBranches();
         auto vertex = fVertex;
         RemoveVertex();
+        Sort();
         for (auto const hit: fElement) {
             auto hitPos = hit.GetPosition();
             fT.push_back(hit.t());

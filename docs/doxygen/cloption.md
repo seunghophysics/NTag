@@ -1,6 +1,6 @@
 # Command line options {#command-line-options}
 
-Default option values are defined in <a href=https://github.com/seunghophysics/NTag/blob/library/NTagConfig#L1>NTagConfig</a>.
+Default option values are defined in <a href=NTagConfig_source.html>NTagConfig</a>.
 
 ## File I/O
 
@@ -37,7 +37,7 @@ Delayed vertex options:
 - `trms`:
 - `prompt`:
 
-## Signal search parameters
+## Signal search parameters {#signal-search-parameters}
 
 | Option          |                               Argument                                 | Default |
 |-----------------|------------------------------------------------------------------------|:-------:|
@@ -98,13 +98,13 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 
 ## Output {#cl-output}
 
-| Option          | Argument          |                   Description                      | Default |
-|-----------------|-------------------|----------------------------------------------------|:-------:|
-|`-force_flat`    | `true` or `false` |                                                     | `false` |
-|`-write_bank`    | `true` or `false` |                                                     | `false` |
-|`-save_hits`     | `true` or `false` |                                                     | `false` |
-|`-muechk`        | `true` or `false` |                                                     | `false` |
-|`-neut`          | `true` or `false` |                                                     | `false` |
+| Option          | Argument          |                   Description                                 | Default |
+|-----------------|-------------------|---------------------------------------------------------------|:-------:|
+|`-force_flat`    | `true` or `false` | Turn off automatic AFT merging and force flat event structure | `false` |
+|`-write_bank`    | `true` or `false` | Fill NTAG common block                                        | `false` |
+|`-save_hits`     | `true` or `false` | Save raw PMT hit information to output and create `hit` tree  | `false` |
+
+When reading data (not MC) files, NTag automatically merges PMT hits from an SHE-triggered event with those from the subsequent AFT-triggered events. This automatic AFT merging can be turned off by passing `-force_flat true` to keep each event separate as in MC.
 
 ## TRMS-fit
 
@@ -150,4 +150,4 @@ Arguments must be space-delimited, for example: `-(option) (argument)`
 ```
 
 A macro can be used in conjunction with command line arguments, for example: `NTag -in input.zbs -macro macro.txt`
-The priority order is command line arguments > macro > <a href=https://github.com/seunghophysics/NTag/blob/library/NTagConfig#L1>NTagConfig</a>.
+The priority order is command line arguments > macro > <a href=NTagConfig_source.html>NTagConfig</a>.

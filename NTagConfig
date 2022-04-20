@@ -21,10 +21,6 @@ TNOISESTART    2
 TNOISEEND      536
 NOISESEED      0
 
-# read variables
-muechk         false
-neut           false
-
 # prompt vertex
 # available options: none, apfit, bonsai, custom, true, stmu, fitqun
 prompt_vertex  custom 

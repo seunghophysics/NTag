@@ -1,3 +1,7 @@
+/**
+ * @file VertexFitManager.hh 
+ */
+
 #ifndef VERTEXFITMANAGER_HH
 #define VERTEXFITMANAGER_HH
 
@@ -5,6 +9,9 @@
 #include "PMTHitCluster.hh"
 #include "Printer.hh"
 
+/**
+ * @brief Manager class for all delayed vertex fitters.
+ */
 class VertexFitManager
 {
     public:
@@ -17,6 +24,9 @@ class VertexFitManager
         float GetFitGoodness() { return fFitGoodness; }
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
         
+        /**
+         * @brief Calculate ad-hoc vertex fit goodness.
+         */
         static float GetGoodness(const PMTHitCluster& hitCluster, const TVector3& vertex, const float& t0);
 
     protected:

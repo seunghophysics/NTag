@@ -51,7 +51,7 @@ NTag -in <input SK data/MC> -out <output NTag ROOT> <command line options>
 
 #### AddNoise {#addnoise-exe}
 
-AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK 0` in <a href=https://kmcvs.icrr.u-tokyo.ac.jp/websvn/listing.php?repname=kmcvs.icrr.u-tokyo.ac.jp&path=%2Fskdetsim%2Ftrunk%2F&#a4ecf9b1e0f9901f57b968ad20b655046>SKDETSIM</a> card or `/SKG4/DarkNoise/Mode 0` in <a href=https://github.com/SKG4/SKG4>SKG4</a> macro) and produce an output MC file with dark noise hits extracted from data files on sukap disks attached. This program is based on <a href=https://kmcvs.icrr.u-tokyo.ac.jp/websvn/listing.php?repname=kmcvs.icrr.u-tokyo.ac.jp&path=%2Fatmpd%2Ftrunk%2Fsrc%2Fanalysis%2Fneutron%2Fmccomb%2F&#abf8532438ad2c1a0a613dbac4e652f79>mccomb</a> on the ATMPD library.
+AddNoise reads in an Super-K MC file with signal simulation only (i.e., `DS-DARK 0` in <a href=https://kmcvs.icrr.u-tokyo.ac.jp/websvn/listing.php?repname=kmcvs.icrr.u-tokyo.ac.jp&path=%2Fskdetsim%2Ftrunk%2F&#a4ecf9b1e0f9901f57b968ad20b655046>SKDETSIM</a> card or `/SKG4/DarkNoise/Mode 0` in <a href=https://github.com/SKG4/SKG4>SKG4</a> macro) and attach dark noise hits extracted from data files on sukap disks to produce an output MC file. This program is based on <a href=https://kmcvs.icrr.u-tokyo.ac.jp/websvn/listing.php?repname=kmcvs.icrr.u-tokyo.ac.jp&path=%2Fatmpd%2Ftrunk%2Fsrc%2Fanalysis%2Fneutron%2Fmccomb%2F&#abf8532438ad2c1a0a613dbac4e652f79>mccomb</a> on the ATMPD library.
 
 For available options in AddNoise, see [options for Dark Noise](#dark-noise-option).
 

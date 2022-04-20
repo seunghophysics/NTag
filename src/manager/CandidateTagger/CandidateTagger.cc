@@ -16,7 +16,7 @@ void CandidateTagger::Apply(const char* inFilePath, const char* outFilePath, flo
     TTree* inEventTree = (TTree*)inFile->Get("event");
     TTree* inParticleTree = (TTree*)inFile->Get("particle");
     TTree* inTaggableTree = (TTree*)inFile->Get("taggable");
-    TTree* inMuechkTree = (TTree*)inFile->Get("muechk");
+    TTree* inMuechkTree = (TTree*)inFile->Get("mue");
     TTree* inNtagTree = (TTree*)inFile->Get("ntag");
 
     // disable copying of each branch that is to be reevaluated
