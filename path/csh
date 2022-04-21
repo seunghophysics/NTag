@@ -1,10 +1,10 @@
 #!/bin/csh
 
-set bin = "$PWD/bin"
-setenv PATH=$bin:$PATH
-setenv NTAGLIBPATH=$(pwd)
+set bin = `pwd`/bin
+setenv PATH "$bin\:$PATH"
+setenv NTAGLIBPATH `pwd`
 set pathline = "setenv PATH $bin\:\$PATH # Install NTagLib"
-set ntagline = "setenv NTAGLIBPATH $PWD # Install NTagLib"
+set ntagline = "setenv NTAGLIBPATH $NTAGLIBPATH # Install NTagLib"
 
 if ($1 == "set") then
     setenv PATH $bin\:$PATH
