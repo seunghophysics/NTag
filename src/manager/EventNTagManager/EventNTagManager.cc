@@ -554,7 +554,7 @@ void EventNTagManager::ApplySettings()
     if (fSettings.GetBool("tag_e"))
         fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
     fTMVATagger.SetNCut(TAGOUTCUT);
-    fBonsaiTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT);
+    fCutTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT);
 
     auto taggerType = fSettings.GetString("tagger");
     if (taggerType == "tmva")

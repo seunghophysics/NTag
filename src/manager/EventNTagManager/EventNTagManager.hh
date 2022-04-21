@@ -143,6 +143,7 @@ class EventNTagManager
         int NHITSTH, NHITSMX, N200TH, N200MX;
         float TRMSTWIDTH, INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXMAXRADIUS;
         float E_NHITSCUT, E_TIMECUT, TAGOUTCUT;
+        float SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT;
 
         // delayed vertex fitters
         VertexFitManager* fDelayedVertexManager;
