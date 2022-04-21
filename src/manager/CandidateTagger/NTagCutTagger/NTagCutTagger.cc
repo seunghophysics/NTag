@@ -52,7 +52,8 @@ int NTagCutTagger::Classify(const Candidate& candidate)
     else if (   scintLikeliness              < SCINTCUT
              && candidate.Get("FitGoodness") > GOODNESSCUT
              && candidate.Get("BSDirKS")     < DIRKSCUT
-             && candidate.Get("DPrompt")     < DISTCUT)
+             && candidate.Get("DPrompt")     < DISTCUT
+             && candidate.Get("BSenergy")    > 0) // reject failed fit
         tagClass = typeN;
     
     else

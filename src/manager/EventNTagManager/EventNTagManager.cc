@@ -542,6 +542,35 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("PVXRES", PVXRES);
     fSettings.Get("PVXBIAS", PVXBIAS);
 
+    // tagging conditions
+    fSettings.Get("E_NHITSCUT", E_NHITSCUT);
+    fSettings.Get("E_TIMECUT", E_TIMECUT);
+    fSettings.Get("TAGOUTCUT", TAGOUTCUT);
+    fSettings.Get("SCINTCUT", SCINTCUT);
+    fSettings.Get("GOODNESSCUT", GOODNESSCUT);
+    fSettings.Get("DIRKSCUT", DIRKSCUT);
+    fSettings.Get("DISTCUT", DISTCUT);
+
+    if (fSettings.GetBool("tag_e"))
+        fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
+    fTMVATagger.SetNCut(TAGOUTCUT);
+    fBonsaiTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT);
+
+    auto taggerType = fSettings.GetString("tagger");
+    if (taggerType == "tmva")
+        fTagger = &fTMVATagger;
+    else if (taggerType == "cuts") {
+        fTagger = &fCutTagger;
+        if (fDelayedVertexMode != mLOWFIT) {
+            fMsg.Print("CUTS tagger used with delayed vertex mode other than LOWFIT!"
+                       " Changing delayed vertex mode to LOWFIT...", pWARNING);
+            fSettings.Set("delayed_vertex", "lowfit");
+            fDelayedVertexMode = mLOWFIT;
+        }
+    }
+    else
+        fTagger = &fVoidTagger;
+
     // vertex mode
     std::string promptVertexMode, delayedVertexMode;
     fSettings.Get("prompt_vertex", promptVertexMode);
@@ -555,7 +584,7 @@ void EventNTagManager::ApplySettings()
     else if (fDelayedVertexMode == mBONSAI)
         fDelayedVertexManager = &fBonsaiManager;
     else if (fDelayedVertexMode == mLOWFIT) {
-        fBonsaiManager.UseLOWFIT(true, 62428);
+        fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
     }
     else if (fPromptVertexMode == mNONE) {
@@ -580,30 +609,6 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("VTXMAXRADIUS", VTXMAXRADIUS);
 
     fTRMSFitManager.SetParameters(INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXMAXRADIUS);
-
-    fSettings.Get("E_NHITSCUT", E_NHITSCUT);
-    fSettings.Get("E_TIMECUT", E_TIMECUT);
-    fSettings.Get("TAGOUTCUT", TAGOUTCUT);
-
-    if (fSettings.GetBool("tag_e"))
-        fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
-    fTMVATagger.SetNCut(TAGOUTCUT);
-
-    auto taggerType = fSettings.GetString("tagger");
-    if (taggerType == "tmva")
-        fTagger = &fTMVATagger;
-    else if (taggerType == "cuts") {
-        fTagger = &fCutTagger;
-        if (fDelayedVertexMode != mLOWFIT) {
-            fMsg.Print("CUTS tagger used with delayed vertex mode other than LOWFIT!"
-                       " Changing delayed vertex mode to LOWFIT...", pWARNING);
-            fSettings.Set("delayed_vertex", "lowfit");
-            fDelayedVertexMode = mLOWFIT;
-            fBonsaiManager.UseLOWFIT(true, 62428);
-        }
-    }
-    else
-        fTagger = &fVoidTagger;
 }
 
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
