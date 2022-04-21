@@ -550,11 +550,12 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("GOODNESSCUT", GOODNESSCUT);
     fSettings.Get("DIRKSCUT", DIRKSCUT);
     fSettings.Get("DISTCUT", DISTCUT);
+    fSettings.Get("ECUT", ECUT);
 
     if (fSettings.GetBool("tag_e"))
         fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
     fTMVATagger.SetNCut(TAGOUTCUT);
-    fCutTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT);
+    fCutTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT, ECUT);
 
     auto taggerType = fSettings.GetString("tagger");
     if (taggerType == "tmva")

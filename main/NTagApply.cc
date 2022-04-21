@@ -32,7 +32,8 @@ int main(int argc, char** argv)
         tagger.SetCuts(settings.GetFloat("SCINTCUT"),
                        settings.GetFloat("GOODNESSCUT"),
                        settings.GetFloat("DIRKSCUT"),
-                       settings.GetFloat("DISTCUT"));
+                       settings.GetFloat("DISTCUT"),
+                       settings.GetFloat("ECUT"));
         tagger.Apply(inFilePath.c_str(), outFilePath.c_str(), settings.GetFloat("TMATCHWINDOW"));
     }
 

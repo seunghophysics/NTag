@@ -6,7 +6,7 @@
 
 NTagCutTagger::NTagCutTagger(Verbosity verbose)
 : CandidateTagger("NTagCutTagger", verbose), 
-SCINTCUT(1.0), GOODNESSCUT(0.4), DIRKSCUT(0.4), DISTCUT(300) {}
+SCINTCUT(1000), GOODNESSCUT(0.4), DIRKSCUT(0.4), DISTCUT(300), ECUT(3) {}
 NTagCutTagger::~NTagCutTagger() {}
 
 void NTagCutTagger::OverrideSettings(const char* outFilePath)
@@ -19,17 +19,20 @@ void NTagCutTagger::OverrideSettings(const char* outFilePath)
     inSettingsTree->SetBranchStatus("GOODNESSCUT", 0);
     inSettingsTree->SetBranchStatus("DIRKSCUT", 0);
     inSettingsTree->SetBranchStatus("DISTCUT", 0);
+    inSettingsTree->SetBranchStatus("ECUT", 0);
 
     TTree* outSettingsTree = inSettingsTree->CloneTree(-1, "fast");
     TBranch* b_SCINTCUT = outSettingsTree->Branch("SCINTCUT", &SCINTCUT);
     TBranch* b_GOODNESSCUT = outSettingsTree->Branch("GOODNESSCUT", &GOODNESSCUT);
     TBranch* b_DIRKSCUT = outSettingsTree->Branch("DIRKSCUT", &DIRKSCUT);
     TBranch* b_DISTCUT = outSettingsTree->Branch("DISTCUT", &DISTCUT);
+    TBranch* b_ECUT = outSettingsTree->Branch("ECUT", &ECUT);
 
     b_SCINTCUT->Fill();
     b_GOODNESSCUT->Fill();
     b_DIRKSCUT->Fill();
     b_DISTCUT->Fill();
+    b_ECUT->Fill();
     outSettingsTree->Write();
     //f->Delete(inSettingsTree);
     
@@ -43,17 +46,17 @@ int NTagCutTagger::Classify(const Candidate& candidate)
 
     float n30  = candidate.Get("N30");
     float n200 = candidate.Get("N200");
-    float scintLikeliness = (n200-27)/(1.3*n30);
+    float scintLikelihood = (n200-27)/(1.3*n30);
 
     if (isEarly)
         tagClass = typeE;
 
     // neutron selection cuts
-    else if (   scintLikeliness              < SCINTCUT
+    else if (   scintLikelihood              < SCINTCUT
              && candidate.Get("FitGoodness") > GOODNESSCUT
              && candidate.Get("BSDirKS")     < DIRKSCUT
              && candidate.Get("DPrompt")     < DISTCUT
-             && candidate.Get("BSenergy")    > 0) // reject failed fit
+             && candidate.Get("BSenergy")    > ECUT)
         tagClass = typeN;
     
     else

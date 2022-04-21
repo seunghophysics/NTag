@@ -36,10 +36,11 @@ E_NHITSCUT     50
 E_TIMECUT      20
 
 # CUTS tagger options
-SCINTCUT       1
+SCINTCUT       1000
 GOODNESSCUT    0.4
 DIRKSCUT       0.4
 DISTCUT        300
+ECUT           3
 
 # MC noise
 add_noise      false
