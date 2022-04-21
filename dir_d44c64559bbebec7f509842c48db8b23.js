@@ -12,6 +12,7 @@ var dir_d44c64559bbebec7f509842c48db8b23 =
     [ "MuechkTree.hh", "include_2MuechkTree_8hh_source.html", null ],
     [ "NoiseManager.hh", "include_2NoiseManager_8hh_source.html", null ],
     [ "NTagBankIO.hh", "include_2NTagBankIO_8hh_source.html", null ],
+    [ "NTagCutTagger.hh", "include_2NTagCutTagger_8hh_source.html", null ],
     [ "NTagGlobal.hh", "include_2NTagGlobal_8hh_source.html", null ],
     [ "NTagTMVAManager.hh", "include_2NTagTMVAManager_8hh_source.html", null ],
     [ "NTagTMVATagger.hh", "include_2NTagTMVATagger_8hh_source.html", null ],
@@ -30,5 +31,5 @@ var dir_d44c64559bbebec7f509842c48db8b23 =
     [ "TaggableTree.hh", "include_2TaggableTree_8hh_source.html", null ],
     [ "TreeOut.hh", "include_2TreeOut_8hh_source.html", null ],
     [ "TRMSFitManager.hh", "include_2TRMSFitManager_8hh_source.html", null ],
-    [ "VertexFitManager.hh", "include_2VertexFitManager_8hh_source.html", null ]
+    [ "VertexFitManager.hh", "include_2VertexFitManager_8hh.html", "include_2VertexFitManager_8hh" ]
 ];

@@ -9,6 +9,7 @@ var annotated_dup =
     [ "EventNTagManager", "classEventNTagManager.html", null ],
     [ "MuechkTree", "classMuechkTree.html", "classMuechkTree" ],
     [ "NoiseManager", "classNoiseManager.html", null ],
+    [ "NTagCutTagger", "classNTagCutTagger.html", null ],
     [ "NTagTMVAManager", "classNTagTMVAManager.html", null ],
     [ "NTagTMVATagger", "classNTagTMVATagger.html", null ],
     [ "NTagTree", "classNTagTree.html", "classNTagTree" ],

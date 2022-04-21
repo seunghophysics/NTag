@@ -47,18 +47,17 @@ var NAVTREE =
       [ "SK I/O", "command-line-options.html#autotoc_md10", null ],
       [ "Output", "command-line-options.html#cl-output", null ],
       [ "TRMS-fit", "command-line-options.html#autotoc_md11", null ],
-      [ "TMVA", "command-line-options.html#autotoc_md12", null ],
-      [ "Logging", "command-line-options.html#autotoc_md13", null ],
-      [ "Macro rules", "command-line-options.html#autotoc_md14", null ]
+      [ "Logging", "command-line-options.html#autotoc_md12", null ],
+      [ "Macro rules", "command-line-options.html#autotoc_md13", null ]
     ] ],
     [ "Output tree structure", "output-tree-structure.html", [
-      [ "settings", "output-tree-structure.html#autotoc_md15", null ],
-      [ "event", "output-tree-structure.html#autotoc_md16", null ],
-      [ "hit", "output-tree-structure.html#autotoc_md17", null ],
-      [ "particle", "output-tree-structure.html#autotoc_md18", null ],
-      [ "taggable", "output-tree-structure.html#autotoc_md19", null ],
-      [ "mue", "output-tree-structure.html#autotoc_md20", null ],
-      [ "ntag", "output-tree-structure.html#autotoc_md21", null ]
+      [ "settings", "output-tree-structure.html#autotoc_md14", null ],
+      [ "event", "output-tree-structure.html#autotoc_md15", null ],
+      [ "hit", "output-tree-structure.html#autotoc_md16", null ],
+      [ "particle", "output-tree-structure.html#autotoc_md17", null ],
+      [ "taggable", "output-tree-structure.html#autotoc_md18", null ],
+      [ "mue", "output-tree-structure.html#autotoc_md19", null ],
+      [ "ntag", "output-tree-structure.html#autotoc_md20", null ]
     ] ],
     [ "Program description", "program-description.html", null ],
     [ "Classes", "annotated.html", [
@@ -85,7 +84,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"include_2SKIO_8hh_source.html"
+"include_2ParticleTable_8hh_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -3,6 +3,8 @@ var hierarchy =
     [ "ArgParser", "classArgParser.html", null ],
     [ "Candidate", "classCandidate.html", null ],
     [ "CandidateTagger", "classCandidateTagger.html", [
+      [ "NTagCutTagger", "classNTagCutTagger.html", null ],
+      [ "NTagCutTagger", "classNTagCutTagger.html", null ],
       [ "NTagTMVATagger", "classNTagTMVATagger.html", null ],
       [ "NTagTMVATagger", "classNTagTMVATagger.html", null ]
     ] ],

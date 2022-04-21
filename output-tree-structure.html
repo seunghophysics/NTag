@@ -95,11 +95,11 @@ $(document).ready(function(){initNavTree('output-tree-structure.html',''); initR
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p ><a class="anchor" id="md_output"></a> </p>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md14"></a>
 settings</h1>
 <p >This tree contains all options applied when running the program.</p>
 <p >See the list of command line options for details.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md15"></a>
 event</h1>
 <ul>
 <li>Event ID</li>
@@ -196,7 +196,7 @@ event</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">nu_dirz   </td><td class="markdownTableBodyNone">Neutrino Z direction   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 hit</h1>
 <p >This tree is generated if <code>-save_hits true</code> option is passed to <a class="el" href="index.html#ntag-exe">NTag</a>.</p>
 <p >Each entry in each branch is an array sorted in time in ascending order, with a size of the number of PMT hits in each event.</p>
@@ -212,7 +212,7 @@ hit</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">s   </td><td class="markdownTableBodyNone">Event PMT hit signal flag (signal hits: 1 if <code>-add_noise true</code>)   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md18"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 particle</h1>
 <p >This tree contains information of simulated particles in MC.</p>
 <p >Each entry in each branch is an array with a size of the number of simulated particles in each event.</p>
@@ -242,7 +242,7 @@ particle</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">KE   </td><td class="markdownTableBodyNone">Kinetic energy (MeV)   </td></tr>
 </table>
-<p >Below is the list of Geant3 interaction code used in IntID branch: </p><div class="fragment"></div><!-- fragment --><h1><a class="anchor" id="autotoc_md19"></a>
+<p >Below is the list of Geant3 interaction code used in IntID branch: </p><div class="fragment"></div><!-- fragment --><h1><a class="anchor" id="autotoc_md18"></a>
 taggable</h1>
 <p >This tree contains the MC true information of the two taggable signals in NTag: decay electrons and neutron captures.</p>
 <p >Each entry in each branch is an array with a size of the number of taggable signals in each event.</p>
@@ -272,7 +272,7 @@ taggable</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">DelayedIndex   </td><td class="markdownTableBodyNone">Array index of corresponding signal candidate in <code>ntag</code> tree   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md19"></a>
 mue</h1>
 <p >This tree contains the information of signal candidates retrieved from the <a href="https://kmcvs.icrr.u-tokyo.ac.jp/websvn/listing.php?repname=kmcvs.icrr.u-tokyo.ac.jp&amp;path=%2Fskdetsim%2Ftrunk%2F&amp;#a4ecf9b1e0f9901f57b968ad20b655046">MUE</a> bank. This tree will be filled only if the input file (ZEBRA file) has a MUE bank, which can be created if the ATMPD decay-e search routine <code>muechk</code> (or <code>APFit</code>) is applied before feeding it to NTag. MUE candidates with time (FitT) overlapping with the neutron search time interval specified by <code>-TMIN</code> and <code>-TMAX</code> commands (see <a class="el" href="command-line-options.html#signal-search-parameters">here</a> for details) will be pruned automatically to prevent double-counting a single signal by MUE and NTag.</p>
 <table class="markdownTable">
@@ -314,7 +314,7 @@ mue</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">z   </td><td class="markdownTableBodyNone">Z coordinate of fitted vertex (cm)   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 ntag</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -335,7 +335,7 @@ ntag</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">DWallMeanDir   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Distance from fitted vertex to wall in mean hit direction (cm)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">FitGoodness   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Ad-hoc vertex fit goodness (see VertexFitManager::GetGoodness)    </td></tr>
+<td class="markdownTableBodyNone">FitGoodness   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Ad-hoc vertex fit goodness (see <a class="el" href="classVertexFitManager.html#aa6a46f308ed353ead0b77aab9d875186" title="Calculate ad-hoc vertex fit goodness.">VertexFitManager::GetGoodness</a>)    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">FitT   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Fitted time relative to trigger (µs)    </td></tr>
 <tr class="markdownTableRowOdd">
