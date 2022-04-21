@@ -151,7 +151,7 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
 
         // mxqisk: ID of PMT with max Q
         if (skq_.qisk[iPMT] > maxQ)
-            skq_.mxqisk = iPMT;
+            skq_.mxqisk = hit.i();
     }
     // nqisk: total number of hit PMTs
     skq_.nqisk = iHit+1;
