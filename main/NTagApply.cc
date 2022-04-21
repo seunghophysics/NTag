@@ -29,6 +29,10 @@ int main(int argc, char** argv)
     }
     else if (taggerType=="cuts") {
         NTagCutTagger tagger;
+        tagger.SetCuts(settings.GetFloat("SCINTCUT"),
+                       settings.GetFloat("GOODNESSCUT"),
+                       settings.GetFloat("DIRKSCUT"),
+                       settings.GetFloat("DISTCUT"));
         tagger.Apply(inFilePath.c_str(), outFilePath.c_str(), settings.GetFloat("TMATCHWINDOW"));
     }
 
