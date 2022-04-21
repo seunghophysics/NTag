@@ -139,7 +139,7 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         dy = gRandom->BreitWigner(0, PVXRES);
         dz = gRandom->BreitWigner(0, PVXRES);
     }
-    
+
     auto biasDir= TVector3(gRandom->Uniform(), gRandom->Uniform(), gRandom->Uniform()).Unit();
     if (fPromptVertexMode == mAPFIT || fPromptVertexMode == mFITQUN)
         biasDir = TVector3(fEventVariables.GetFloat("ring_dirx"),
@@ -448,7 +448,7 @@ void EventNTagManager::SearchCandidates()
         // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
         if (NHits_iHit < NHITSTH) continue;
         if (NHits_iHit > NHITSMX) {
-            fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...", 
+            fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...",
                             NHits_iHit, firstHitTime, NHITSMX), pWARNING);
         }
 
@@ -554,8 +554,8 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexManager = &fTRMSFitManager;
     else if (fDelayedVertexMode == mBONSAI)
         fDelayedVertexManager = &fBonsaiManager;
-    else if (fDelayedVertexMode == mLOWFIT) {   
-        fBonsaiManager.UseLOWFIT(true, 62428); 
+    else if (fDelayedVertexMode == mLOWFIT) {
+        fBonsaiManager.UseLOWFIT(true, 62428);
         fDelayedVertexManager = &fBonsaiManager;
     }
     else if (fPromptVertexMode == mNONE) {
@@ -593,12 +593,13 @@ void EventNTagManager::ApplySettings()
     if (taggerType == "tmva")
         fTagger = &fTMVATagger;
     else if (taggerType == "cuts") {
-        if (fDelayedVertexMode == mLOWFIT) 
-            fTagger = &fCutTagger;
-        else {
+        fTagger = &fCutTagger;
+        if (fDelayedVertexMode != mLOWFIT) {
             fMsg.Print("CUTS tagger used with delayed vertex mode other than LOWFIT!"
                        " Changing delayed vertex mode to LOWFIT...", pWARNING);
+            fSettings.Set("delayed_vertex", "lowfit");
             fDelayedVertexMode = mLOWFIT;
+            fBonsaiManager.UseLOWFIT(true, 62428);
         }
     }
     else
