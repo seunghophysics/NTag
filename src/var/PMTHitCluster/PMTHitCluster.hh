@@ -77,12 +77,11 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         {
             std::vector<T> output;
             for_each(fElement.begin(), fElement.end(), [&](PMTHit hit){ output.push_back(lambda(hit)); });
-
             return output;
         }
 
         template<typename T>
-        std::vector<T> operator[](std::function<T(const PMTHit&)> lambda) { return GetProjection(lambda); }
+        std::vector<T> operator[](std::function<T(const PMTHit&)> lambda) const { return GetProjection(lambda); }
 
         PMTHit GetLastHit() { return fElement.back(); }
 

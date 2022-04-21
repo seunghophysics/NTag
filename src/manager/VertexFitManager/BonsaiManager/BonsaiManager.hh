@@ -15,10 +15,15 @@ class BonsaiManager : public VertexFitManager
         ~BonsaiManager();
 
         void Initialize();
-        void InitializeSKLOWE(int refRunNo=62428);
+        void InitializeLOWFIT(int refRunNo=62428);
 
+        void UseLOWFIT(bool turnOn=true, int refRunNo=62428);
         void Fit(const PMTHitCluster& hitCluster);
-        void FitSKLOWE(const PMTHitCluster& hitCluster);
+        void FitLOWFIT(const PMTHitCluster& hitCluster);
+
+        inline float GetFitEnergy() { return fFitEnergy; }
+        inline float GetFitDirKS() { return fFitDirKS; }
+        inline float GetFitOvaQ() { return fFitOvaQ; }
 
         void DumpFitResult();
 
@@ -31,6 +36,7 @@ class BonsaiManager : public VertexFitManager
         float    fFitOvaQ;
 
         bool fIsInitialized;
+        bool fUseLOWFIT;
 };
 
 #endif

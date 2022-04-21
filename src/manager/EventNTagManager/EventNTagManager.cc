@@ -554,6 +554,10 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexManager = &fTRMSFitManager;
     else if (fDelayedVertexMode == mBONSAI)
         fDelayedVertexManager = &fBonsaiManager;
+    else if (fDelayedVertexMode == mLOWFIT) {   
+        fBonsaiManager.UseLOWFIT(true, 62428); 
+        fDelayedVertexManager = &fBonsaiManager;
+    }
     else if (fPromptVertexMode == mNONE) {
         fMsg.Print("Prompt vertex mode is set to \"none\". TWIDTH > 100 ns and NHITSTH > 10 recommended.", pWARNING);
         if (fDelayedVertexMode == mPROMPT) {
@@ -626,6 +630,10 @@ void EventNTagManager::SetVertexMode(VertexMode& mode, std::string key)
         mode = mTRMS;
     else if (key == "prompt")
         mode = mPROMPT;
+    else if (key == "lowfit")
+        mode = mLOWFIT;
+    else
+        fMsg.Print("Vertex mode " + key + " is not a proper mode name!", pERROR);
 }
 
 void EventNTagManager::MakeTrees(TFile* outfile)
@@ -777,18 +785,20 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             hitsForFit = fEventHits.Slice(iHit, (TWIDTH-TRMSTWIDTH)/2., (TWIDTH+TRMSTWIDTH)/2.) - firstHit.t() + 1000;
 
         // BONSAI
-        else if (fDelayedVertexMode == mBONSAI) {
+        else if (fDelayedVertexMode == mBONSAI || fDelayedVertexMode == mLOWFIT) {
             fEventHits.RemoveVertex();
             fEventHits.Sort();
             firstHit.UnsetToFAndDirection();
             unsigned int firstHitID = fEventHits.GetIndex(firstHit);
-            hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.-500, TWIDTH/2.+1000) - firstHit.t() + 1000;
+            float tLeft  = fDelayedVertexMode == mLOWFIT ? -520 : -500;
+            float tRight = fDelayedVertexMode == mLOWFIT ?  780 : 1000;
+            hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.+tLeft, TWIDTH/2.+tRight) - firstHit.t() + 1000;
 
             // give up bonsai fit for N1300 larger than 2000
             auto nHitsForFit = hitsForFit.GetSize();
             if (nHitsForFit > 2000) {
-                fMsg.Print(Form("A possible candidate at T=%3.2f us has N1300=%d that is larger than 2000,"
-                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3, nHitsForFit), pWARNING);
+                fMsg.Print(Form("A possible candidate at T=%3.2f us has N%d=%d that is larger than 2000,"
+                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3, int(tRight-tLeft), nHitsForFit), pWARNING);
                 doFit = false;
             }
         }
@@ -822,6 +832,9 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             Candidate candidate(iHit);
             candidate.Set("FitT", (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
             candidate.Set("FitGoodness", delayedGoodness);
+            candidate.Set("BSenergy", fBonsaiManager.GetFitEnergy());
+            candidate.Set("BSdirks", fBonsaiManager.GetFitDirKS());
+            candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
             FindFeatures(candidate);
             fEventCandidates.Append(candidate);
         }

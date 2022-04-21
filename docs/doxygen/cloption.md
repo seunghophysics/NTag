@@ -35,6 +35,7 @@ Prompt vertex options:
 
 Delayed vertex options:
 - `bonsai`:
+- `lowfit`:
 - `trms`:
 - `prompt`:
 

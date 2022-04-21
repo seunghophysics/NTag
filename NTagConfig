@@ -31,17 +31,17 @@ PVXRES         0
 PVXBIAS        0
 
 # candidate search
-TCANWIDTH      14
 TMIN           3
 TMAX           535
 TWIDTH         14
+TCANWIDTH      14
 TMINPEAKSEP    200
 NHITSTH        7
 NHITSMX        400
 N200MX         1000
 
 # delayed vertex
-# available options: trms, bonsai, prompt
+# available options: trms, bonsai, lowfit, prompt
 delayed_vertex bonsai
 
 # TRMS-fit

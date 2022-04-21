@@ -6,7 +6,7 @@
 
 enum VertexMode
 {
-    mNONE, mAPFIT, mBONSAI, mFITQUN, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT
+    mNONE, mAPFIT, mBONSAI, mFITQUN, mCUSTOM, mTRUE, mSTMU, mTRMS, mPROMPT, mLOWFIT
 };
 
 enum TriggerType
@@ -32,6 +32,7 @@ static std::vector<std::string> gMuechkFeatures =  {"FitT", "x", "y", "z", "DWal
 
 static std::vector<std::string> gNTagFeatures = {"NHits", "N50", "N200", "N1300", "FitT", "TRMS", "QSum",
                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
+                                                 "BSenergy", "BSdirks", "BSovaq",
                                                  "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev", 
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
                                                  "dvx", "dvy", "dvz", "FitGoodness", "DPrompt", "DWall", "DWallMeanDir",

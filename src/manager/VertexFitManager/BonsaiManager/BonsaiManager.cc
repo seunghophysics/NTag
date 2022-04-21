@@ -29,8 +29,8 @@ float* GetPMTPositionArray()
 
 BonsaiManager::BonsaiManager(Verbosity verbose):
 VertexFitManager("BonsaiManager", verbose), fPMTGeometry(nullptr), fLikelihood(nullptr),
-fFitEnergy(0), fFitDirKS(0), fFitOvaQ(0),
-fIsInitialized(false)
+fFitEnergy(-1), fFitDirKS(-1), fFitOvaQ(-1),
+fIsInitialized(false), fUseLOWFIT(false)
 {}
 
 BonsaiManager::~BonsaiManager()
@@ -52,7 +52,7 @@ void BonsaiManager::Initialize()
     fLikelihood->set_hits(NULL);
 }
 
-void BonsaiManager::InitializeSKLOWE(int refRunNo)
+void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
     kzinit_(); skrunday_(); skwt_();
     darklf_(&refRunNo);
@@ -65,53 +65,69 @@ void BonsaiManager::InitializeSKLOWE(int refRunNo)
     fIsInitialized = true;
 }
 
-void BonsaiManager::Fit(const PMTHitCluster& hitCluster)
+void BonsaiManager::UseLOWFIT(bool turnOn, int refRunNo)
 {
-    auto t = hitCluster.GetProjection(HitFunc::T);
-    auto q = hitCluster.GetProjection(HitFunc::Q);
-    auto i = hitCluster.GetProjection(HitFunc::I);
-
-    goodness hits(fLikelihood->sets(), fLikelihood->chargebins(),
-                  fPMTGeometry, hitCluster.GetSize(),
-                  i.data(), t.data(), q.data());
-
-    if (hits.nselected() >= 4) {
-        fourhitgrid grid(fPMTGeometry->cylinder_radius(), fPMTGeometry->cylinder_height(), &hits);
-        bonsaifit fitter(fLikelihood);
-        fLikelihood->set_hits(&hits);
-        fLikelihood->maximize(&fitter, &grid);
-
-        // successful fit
-        if (fLikelihood->nfit()) {
-            float vertex[3] = {fitter.xfit(), fitter.yfit(), fitter.zfit()};
-            float likelihood0, likelihood1, likelihood2, goodness[1], result[6];
-            fFitVertex = TVector3(vertex);
-            likelihood2 = fLikelihood->goodness(likelihood0, vertex, goodness);
-
-            fLikelihood->tgood(vertex, 0, likelihood1);
-            likelihood0 = fitter.maxq();
-
-            fitter.fitresult();
-            fFitTime = fLikelihood->get_zero();
-            fLikelihood->get_dir(result);
-            result[5] = fLikelihood->get_ll0();
-
-            fFitGoodness = likelihood1;
-
-            // direction
-            // dirks
-            // energy
-            fFitEnergy = 0;
-            fFitDirKS = 0;
-            fFitOvaQ = 0;
-        }
-    }
-
-    fLikelihood->set_hits(NULL);
-    fFitGoodness = GetGoodness(hitCluster, fFitVertex, fFitTime);
+    fUseLOWFIT = turnOn;
+    if (fUseLOWFIT && !fIsInitialized)
+        InitializeLOWFIT(refRunNo);
 }
 
-void BonsaiManager::FitSKLOWE(const PMTHitCluster& hitCluster)
+void BonsaiManager::Fit(const PMTHitCluster& hitCluster)
+{
+    if (fUseLOWFIT) {
+        FitLOWFIT(hitCluster);
+    }
+    else {
+        auto t = hitCluster[HitFunc::T];
+        auto q = hitCluster[HitFunc::Q];
+        //auto i = hitCluster.GetProjection(HitFunc::I);
+
+        std::vector<int> i;
+        for (auto const& hit: hitCluster)
+            i.push_back(hit.i());
+
+        goodness hits(fLikelihood->sets(), fLikelihood->chargebins(),
+                      fPMTGeometry, hitCluster.GetSize(),
+                      i.data(), t.data(), q.data());
+
+        if (hits.nselected() >= 4) {
+            fourhitgrid grid(fPMTGeometry->cylinder_radius(), fPMTGeometry->cylinder_height(), &hits);
+            bonsaifit fitter(fLikelihood);
+            fLikelihood->set_hits(&hits);
+            fLikelihood->maximize(&fitter, &grid);
+
+            // successful fit
+            if (fLikelihood->nfit()) {
+                float vertex[3] = {fitter.xfit(), fitter.yfit(), fitter.zfit()};
+                float likelihood0, likelihood1, likelihood2, goodness[1], result[6];
+                fFitVertex = TVector3(vertex);
+                likelihood2 = fLikelihood->goodness(likelihood0, vertex, goodness);
+
+                fLikelihood->tgood(vertex, 0, likelihood1);
+                likelihood0 = fitter.maxq();
+
+                fitter.fitresult();
+                fFitTime = fLikelihood->get_zero();
+                fLikelihood->get_dir(result);
+                result[5] = fLikelihood->get_ll0();
+
+                fFitGoodness = likelihood1;
+
+                // direction
+                // dirks
+                // energy
+                fFitEnergy = 0;
+                fFitDirKS = 0;
+                fFitOvaQ = 0;
+            }
+        }
+
+        fLikelihood->set_hits(NULL);
+        fFitGoodness = GetGoodness(hitCluster, fFitVertex, fFitTime);
+    }
+}
+
+void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
 {
     // clear sktq
     for (int iPMT=0; iPMT<MAXPM; iPMT++) {
@@ -154,10 +170,16 @@ void BonsaiManager::FitSKLOWE(const PMTHitCluster& hitCluster)
     // retreive common block
     fFitVertex = TVector3(skroot_lowe_.bsvertex[0], skroot_lowe_.bsvertex[1], skroot_lowe_.bsvertex[2]);
     fFitTime = skroot_lowe_.bsvertex[3];
-    fFitEnergy = skroot_lowe_.bsenergy;
+
     fFitGoodness = skroot_lowe_.bsgood[1];
-    fFitDirKS = skroot_lowe_.bsdirks;
-    fFitOvaQ = fFitGoodness*fFitGoodness - fFitDirKS*fFitDirKS;
+    if (skroot_lowe_.bsenergy<9998) {
+        fFitEnergy = skroot_lowe_.bsenergy;
+        fFitDirKS = skroot_lowe_.bsdirks;
+        fFitOvaQ = fFitGoodness*fFitGoodness - fFitDirKS*fFitDirKS;
+    }
+    else {
+        fFitEnergy = -1; fFitDirKS = -1; fFitOvaQ = -1;
+    }
 }
 
 void BonsaiManager::DumpFitResult()

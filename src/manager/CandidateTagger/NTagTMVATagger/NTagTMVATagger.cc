@@ -12,6 +12,8 @@ NTagTMVATagger::~NTagTMVATagger() {}
 
 void NTagTMVATagger::Initialize(std::string weightPath)
 {
+    // use same weight for bonsai and lowfit
+    if (weightPath == "lowfit") weightPath = "bonsai";
     if (weightPath == "bonsai" || weightPath == "trms" || weightPath == "prompt")
         fTMVAManager.SetWeightPath(GetENV("NTAGLIBPATH")+ "weights/" + weightPath + "/NTagTMVAFactory_MLP.weights.xml");
     else if (!weightPath.empty())
