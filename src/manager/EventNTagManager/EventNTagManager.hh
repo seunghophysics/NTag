@@ -10,6 +10,7 @@
 #include "TRMSFitManager.hh"
 #include "BonsaiManager.hh"
 #include "NTagTMVATagger.hh"
+#include "NTagCutTagger.hh"
 #include "Printer.hh"
 #include "Store.hh"
 #include "NTagGlobal.hh"
@@ -152,6 +153,7 @@ class EventNTagManager
         CandidateTagger* fTagger;
         CandidateTagger fVoidTagger;
         NTagTMVATagger  fTMVATagger;
+        NTagCutTagger  fCutTagger;
 
         // ROOT
         std::string fOutFilePath;

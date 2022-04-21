@@ -589,12 +589,20 @@ void EventNTagManager::ApplySettings()
         fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
     fTMVATagger.SetNCut(TAGOUTCUT);
 
-    if (fSettings.GetBool("tmva")) {
+    auto taggerType = fSettings.GetString("tagger");
+    if (taggerType == "tmva")
         fTagger = &fTMVATagger;
+    else if (taggerType == "cuts") {
+        if (fDelayedVertexMode == mLOWFIT) 
+            fTagger = &fCutTagger;
+        else {
+            fMsg.Print("CUTS tagger used with delayed vertex mode other than LOWFIT!"
+                       " Changing delayed vertex mode to LOWFIT...", pWARNING);
+            fDelayedVertexMode = mLOWFIT;
+        }
     }
-    else {
+    else
         fTagger = &fVoidTagger;
-    }
 }
 
 void EventNTagManager::ReadArguments(const ArgParser& argParser)
@@ -848,6 +856,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     //unsigned int firstHitID = candidate.HitID();
     float fitTime = candidate.Get("FitT")*1e3 + 1000;
     auto hitsInTCANWIDTH = fEventHits.SliceRange(fitTime, -TCANWIDTH/2., TCANWIDTH/2.);
+    auto hitsIn30ns      = fEventHits.SliceRange(fitTime,           -15,          +15);
     auto hitsIn50ns      = fEventHits.SliceRange(fitTime,           -25,          +25);
     auto hitsIn200ns     = fEventHits.SliceRange(fitTime,          -100,         +100);
     auto hitsIn1300ns    = fEventHits.SliceRange(fitTime,          -520,         +780);
@@ -873,6 +882,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     // Number of hits
     candidate.Set("NHits", hitsInTCANWIDTH.GetSize());
+    candidate.Set("N30",   hitsIn30ns.GetSize());
     candidate.Set("N50",   hitsIn50ns.GetSize());
     candidate.Set("N200",  hitsIn200ns.GetSize());
     candidate.Set("N1300", hitsIn1300ns.GetSize());

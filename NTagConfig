@@ -51,15 +51,22 @@ MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
-# e-tagging
+# tagger
+# available options, trms, cuts, none
+tagger         tmva
+
+# TMVA tagger options
+TAGOUTCUT      0.7
+weight         default
 tag_e          true
 E_NHITSCUT     50
 E_TIMECUT      20
 
-# n-tagging
-tmva           true
-weight         default
-TAGOUTCUT      0.7
+# CUTS tagger options
+SCINTCUT       1
+GOODNESSCUT    0.4
+DIRKSCUT       0.4
+DISTCUT        300
 
 # MC labeling
 TMATCHWINDOW   50

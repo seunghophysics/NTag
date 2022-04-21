@@ -30,7 +30,7 @@ enum TaggableType
 static std::vector<std::string> gMuechkFeatures =  {"FitT", "x", "y", "z", "DWall", "dirx", "diry", "dirz",
                                                     "NHits", "GateType", "Goodness", "Label", "TagIndex", "TagClass"};
 
-static std::vector<std::string> gNTagFeatures = {"NHits", "N50", "N200", "N1300", "FitT", "TRMS", "QSum",
+static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", "N1300", "FitT", "TRMS", "QSum",
                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                                  "BSenergy", "BSdirks", "BSovaq",
                                                  "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev", 
@@ -45,7 +45,7 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "DWall", "DWallMeanDir"};
                                                  
 static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_bank", "noise_type", "save_hits",
-                                               "add_noise", "weight", "debug", "tmva", "in", "out",
+                                               "add_noise", "weight", "debug", "tagger", "in", "out",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", 
                                                "SKOPTN", "SKBADOPT", "REFRUNNO",
                                                "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "PVXBIAS", "NODHITMX",
@@ -54,6 +54,7 @@ static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_b
                                                "TMINPEAKSEP", "TMATCHWINDOW",
                                                "TRMSTWIDTH", "INITGRIDWIDTH", "MINGRIDWIDTH", "GRIDSHRINKRATE", "VTXMAXRADIUS",
                                                "E_NHITSCUT", "E_TIMECUT", "TAGOUTCUT",
+                                               "SCINTCUT", "GOODNESSCUT", "DIRKSCUT", "DISTCUT",
                                                "print"};
 
 #endif

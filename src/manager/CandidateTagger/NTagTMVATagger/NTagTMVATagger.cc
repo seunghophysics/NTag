@@ -47,7 +47,7 @@ void NTagTMVATagger::OverrideSettings(const char* outFilePath)
 
 int NTagTMVATagger::Classify(const Candidate& candidate)
 {
-    int tagClass = 0;
+    int tagClass = typeMissed;
     bool isEarly = candidate.Get("N50", -1) < 0; // muechk flag
     int nHits = candidate.Get("NHits");
     float fitT = candidate.Get("FitT");
@@ -56,15 +56,15 @@ int NTagTMVATagger::Classify(const Candidate& candidate)
 
     // simple cuts mode for e/n separation
     if (fDoTagE) {
-        if (tmvaOut < TAGOUTCUT)                          tagClass = typeMissed;
+        if (tmvaOut < TAGOUTCUT)                         tagClass = typeMissed;
         else if (nHits > E_NHITSCUT && fitT < E_TIMECUT) tagClass = typeE;
         else                                             tagClass = typeN;
     }
     // naive tagging mode without e/n separation
     else {
-        if (isEarly)                 tagClass = typeE;      // e: muechk
+        if (isEarly)                  tagClass = typeE;      // e: muechk
         else if (tmvaOut > TAGOUTCUT) tagClass = typeN;      // n: ntag && out cut
-        else                         tagClass = typeMissed; // otherwise noise
+        else                          tagClass = typeMissed; // otherwise noise
     }
 
     return tagClass;
