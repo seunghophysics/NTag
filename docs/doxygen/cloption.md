@@ -67,6 +67,10 @@ The following are also valid options for [NTagApply](#ntagapply-exe).
 |`-tag_e`         |  TMVA  |`true` or `false`                                                 | `true`   |
 |`-E_NHITSCUT`    |  TMVA  | Threshold number of hits to classify candidate as decay-e        | 50       |
 |`-E_TIMECUT`     |  TMVA  | Threshold time to classify candidate as decay-e (µs)             | 20       |
+|`-SCINTCUT`      |  CUTS  | Maximum scintillation likelihood (N200-27)/(1.3*N30)             | 1        |
+|`-GOODNESSCUT`   |  CUTS  | Minimum timing goodness                                          | 0.4      |
+|`-DIRKSCUT`      |  CUTS  | Maximum KS-test statistic (dirKS)                                | 0.4      |
+|`-DISTCUT`       |  CUTS  | Maximum distance from prompt vertex                              | 300      |
 
 
  ## Dark noise {#dark-noise-option}
