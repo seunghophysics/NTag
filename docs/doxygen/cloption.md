@@ -39,6 +39,7 @@ Delayed vertex options:
 - `trms`:
 - `prompt`:
 
+
 ## Signal search parameters {#signal-search-parameters}
 
 | Option          |                               Argument                                 | Default |
@@ -49,20 +50,24 @@ Delayed vertex options:
 |`-NHITSTH`       | Threshold number of hits within trigger time window                    | 7       |
 |`-NHITSMX`       | Maximum number of hits within trigger time window                      | 400     |
 |`-N200MX`        | Maximum number of hits within 200 ns                                   | 1000    |
-|`-TCANWIDTH`     | Time window width to calculate features                                | 14      |
 |`-TMINPEAKSEP`   | Minimum time separation between two signal triggers (ns)               | 200     |
+|`-TCANWIDTH`     | Time window width to calculate features                                | 14      |
+
 
 ## Tagging conditions {#tag-cond-option}
 
 The following are also valid options for [NTagApply](#ntagapply-exe).
 
-| Option          |                               Argument                                 | Default |
-|-----------------|------------------------------------------------------------------------|:-------:|
-|`-tag_e`         | `true` or `false`                                                      | `true`  |
-|`-E_NHITSCUT`    | Threshold number of hits to classify candidate as decay-e              | 50      |
-|`-E_TIMECUT`     | Threshold time to classify candidate as decay-e (µs)                   | 20      |
-|`-TAGOUTCUT`     | Threshold TMVA signal likelihood to classify candidate as signal       | 0.7     |
-|`-TMATCHWINDOW`  | Maximum time window to match candidate with true taggable (ns)         | 50      |
+| Option          | Tagger |                          Argument                                | Default  |
+|-----------------|:------:|------------------------------------------------------------------|:--------:|
+|`-tagger`        |   -    | One of `tmva`, `cuts`, `none`                                    | `tmva`   |
+|`-TMATCHWINDOW`  |   -    | Maximum time window to match candidate with true taggable (ns)   | 50       |
+|`-TAGOUTCUT`     |  TMVA  | Threshold TMVA signal likelihood to classify candidate as signal | 0.7      |
+|`-weight`        |  TMVA  | TMVA weight file (.xml)                                          | `default`|
+|`-tag_e`         |  TMVA  |`true` or `false`                                                 | `true`   |
+|`-E_NHITSCUT`    |  TMVA  | Threshold number of hits to classify candidate as decay-e        | 50       |
+|`-E_TIMECUT`     |  TMVA  | Threshold time to classify candidate as decay-e (µs)             | 20       |
+
 
  ## Dark noise {#dark-noise-option}
 
@@ -88,7 +93,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 
 | Option          |                               Argument                                 | Default |
 |-----------------|------------------------------------------------------------------------|:-------:|
-|`-NHITSMX`       | Maximum # of OD hits to allow                                          | 100000  |
+|`-NODHITSMX`     | Maximum # of OD hits to allow                                          | 100000  |
 
 ## SK I/O
 
@@ -118,12 +123,6 @@ When reading data (not MC) files, NTag automatically merges PMT hits from an SHE
 |`-GRIDSHRINKRATE`| Grid shrink rate per full grid search loop                             | 0.5     |
 |`-VTXMAXRADIUS`  | Maximum radius of fit vertex from tank center (cm)                     | 5000    |
 
-## TMVA
-
-| Option          |                               Argument                                 | Default  |
-|-----------------|------------------------------------------------------------------------|:--------:|
-|`-tmva`          | `true` or `false`                                                      | `true`   |
-|`-weight`        | TMVA weight file (.xml)                                                | `default`|
 
 ## Logging
 

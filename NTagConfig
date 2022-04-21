@@ -1,26 +1,3 @@
-# SK I/O options
-SKOPTN         31,30,26,25
-SKBADOPT       0
-REFRUNNO       62428
-
-# event processing
-force_flat     0
-write_bank     0
-save_hits      0
-
-# PMT noise reduction
-TRBNWIDTH      0
-
-# OD event cut
-NODHITMX       100000
-
-# MC noise
-add_noise      false
-noise_type     sk6
-TNOISESTART    2
-TNOISEEND      536
-NOISESEED      0
-
 # prompt vertex
 # available options: none, apfit, bonsai, custom, true, stmu, fitqun
 prompt_vertex  custom 
@@ -30,30 +7,26 @@ vz             0
 PVXRES         0
 PVXBIAS        0
 
-# candidate search
-TMIN           3
-TMAX           535
-TWIDTH         14
-TCANWIDTH      14
-TMINPEAKSEP    200
-NHITSTH        7
-NHITSMX        400
-N200MX         1000
-
 # delayed vertex
 # available options: trms, bonsai, lowfit, prompt
 delayed_vertex bonsai
 
-# TRMS-fit
-TRMSTWIDTH     30
-INITGRIDWIDTH  800
-MINGRIDWIDTH   50
-GRIDSHRINKRATE 0.5
-VTXMAXRADIUS   5000
+# candidate search
+TMIN           3
+TMAX           535
+TWIDTH         14
+NHITSTH        7
+NHITSMX        400
+N200MX         1000
+TMINPEAKSEP    200
+TCANWIDTH      14
 
 # tagger
 # available options, trms, cuts, none
 tagger         tmva
+
+# MC labeling
+TMATCHWINDOW   50
 
 # TMVA tagger options
 TAGOUTCUT      0.7
@@ -68,8 +41,35 @@ GOODNESSCUT    0.4
 DIRKSCUT       0.4
 DISTCUT        300
 
-# MC labeling
-TMATCHWINDOW   50
+# MC noise
+add_noise      false
+noise_type     sk6
+TNOISESTART    2
+TNOISEEND      536
+NOISESEED      0
+
+# PMT noise reduction
+TRBNWIDTH      0
+
+# OD event cut
+NODHITMX       100000
+
+# SK I/O options
+SKOPTN         31,30,26,25
+SKBADOPT       0
+REFRUNNO       62428
+
+# event processing
+force_flat     0
+write_bank     0
+save_hits      0
+
+# TRMS-fit
+TRMSTWIDTH     30
+INITGRIDWIDTH  800
+MINGRIDWIDTH   50
+GRIDSHRINKRATE 0.5
+VTXMAXRADIUS   5000
 
 # logging
 print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,TagClass
