@@ -66,8 +66,13 @@ extern "C" {
     void  cfbsexit_();
     void  lfwater_(int*, float*);
     void  lfallfit_sk4_data_(float*, int*, int*);
+    void  lfallfit_sk5_final_qe43_(float*, int*, int*, int*, int*);
+    void  lfallfit_sk5_data_(float*, int*, int*, int*, int*);
     void  lfallfit_sk6_data_(float*, int*, int*, int*, int*);
     void  lfallfit_sk4_mc_(float*, int*, int*);
+    void  lfallfit_sk5_final_qe43_mc_(float*, int*, int*, int*, int*);
+    void  lfallfit_sk5_mc_(float*, int*, int*, int*, int*);
+    void  lfallfit_sk6_mc_(float*, int*, int*, int*, int*);
     //void effwallf_(int*, float*, float*, float*);
 }
 

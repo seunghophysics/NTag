@@ -159,13 +159,21 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     // lfallfit_sk4_data / mc
     float waterTransparency = 12431.3;
     int NHITCUT = 1100;
-    int fitFlag; //int flagSkip=0; int flagLog=1;
+    int fitFlag=0; int flagSkip=0; int flagLog=1;
     //skheadg_.sk_geometry = 6;
     //lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-    if (skhead_.nrunsk == 999999)
-        lfallfit_sk4_mc_(&waterTransparency, &NHITCUT, &fitFlag);
-    else
-        lfallfit_sk4_data_(&waterTransparency, &NHITCUT, &fitFlag);
+    if (skhead_.nrunsk == 999999) {
+        if (skheadg_.sk_geometry >= 5) 
+          lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        else 
+          lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+    }
+    else {
+        if (skheadg_.sk_geometry >= 5)  
+          lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        else 
+          lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+    }
 
     // retreive common block
     fFitVertex = TVector3(skroot_lowe_.bsvertex[0], skroot_lowe_.bsvertex[1], skroot_lowe_.bsvertex[2]);
