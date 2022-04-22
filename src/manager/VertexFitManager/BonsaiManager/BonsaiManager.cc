@@ -12,6 +12,7 @@
 #include "fourhitgrid.h"
 #include "bonsaifit.h"
 
+#include "SKIO.hh"
 #include "SKLibs.hh"
 
 #include "BonsaiManager.hh"
@@ -27,17 +28,19 @@ float* GetPMTPositionArray()
     return pmtPosition;
 }
 
+bool BonsaiManager::fIsLOWFITInitialized = false;
+
 BonsaiManager::BonsaiManager(Verbosity verbose):
 VertexFitManager("BonsaiManager", verbose), fPMTGeometry(nullptr), fLikelihood(nullptr),
 fFitEnergy(-1), fFitDirKS(-1), fFitOvaQ(-1),
-fIsInitialized(false), fUseLOWFIT(false)
+fUseLOWFIT(false)
 {}
 
 BonsaiManager::~BonsaiManager()
 {
     if (fPMTGeometry) delete fPMTGeometry;
     if (fLikelihood) delete fLikelihood;
-    if (fIsInitialized) cfbsexit_();
+    if (fIsLOWFITInitialized) cfbsexit_();
 }
 
 void BonsaiManager::Initialize()
@@ -54,7 +57,8 @@ void BonsaiManager::Initialize()
 
 void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
-    kzinit_(); skrunday_(); skwt_();
+    if (!SKIO::IsZEBRAInitialized()) kzinit_(); 
+    skrunday_(); skwt_();
     darklf_(&refRunNo);
 
     int maxpm = MAXPM;
@@ -62,13 +66,13 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     int elapsedDays = skday_data_.relapse[refRunNo-1]; float waterTransparency;
     lfwater_(&elapsedDays, &waterTransparency);
 
-    fIsInitialized = true;
+    fIsLOWFITInitialized = true;
 }
 
 void BonsaiManager::UseLOWFIT(bool turnOn, int refRunNo)
 {
     fUseLOWFIT = turnOn;
-    if (fUseLOWFIT && !fIsInitialized)
+    if (fUseLOWFIT && !fIsLOWFITInitialized)
         InitializeLOWFIT(refRunNo);
 }
 

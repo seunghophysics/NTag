@@ -26,6 +26,7 @@ class BonsaiManager : public VertexFitManager
         inline float GetFitOvaQ() { return fFitOvaQ; }
 
         void DumpFitResult();
+        static bool IsLOWFITInitialized() { return fIsLOWFITInitialized; }
 
     private:
         pmt_geometry* fPMTGeometry;
@@ -35,8 +36,8 @@ class BonsaiManager : public VertexFitManager
         float    fFitDirKS;
         float    fFitOvaQ;
 
-        bool fIsInitialized;
         bool fUseLOWFIT;
+        static bool fIsLOWFITInitialized;
 };
 
 #endif
