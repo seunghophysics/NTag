@@ -88,6 +88,8 @@ class SKIO
         static void SetSecondaryCommon(FileFormat format=mZBS);
         static float GetMCTriggerOffset(FileFormat format=mZBS);
 
+        static bool IsZEBRAInitialized() { return fIsZEBRAInitialized; }
+
     private:
         IOMode fIOMode;
         FileFormat fFileFormat;
@@ -101,9 +103,9 @@ class SKIO
 
         bool fIsFileOpen;
 
-        static bool fIsZEBRAInitialized;
         static TString fInFilePath;
         static TString fOutFilePath;
+        static bool fIsZEBRAInitialized;
 
         Printer fMsg;
 };
