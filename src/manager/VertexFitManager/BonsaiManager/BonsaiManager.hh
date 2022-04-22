@@ -35,6 +35,7 @@ class BonsaiManager : public VertexFitManager
         float    fFitDirKS;
         float    fFitOvaQ;
 
+        int fRefRunNo;
         bool fIsInitialized;
         bool fUseLOWFIT;
 };

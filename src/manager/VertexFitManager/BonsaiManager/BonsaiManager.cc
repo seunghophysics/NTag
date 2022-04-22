@@ -54,6 +54,7 @@ void BonsaiManager::Initialize()
 
 void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
+    fRefRunNo = refRunNo;
     kzinit_(); skrunday_(); skwt_();
     darklf_(&refRunNo);
 
@@ -163,10 +164,12 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     //skheadg_.sk_geometry = 6;
     //lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
     if (skhead_.nrunsk == 999999) {
+        skhead_.nrunsk = fRefRunNo;
         if (skheadg_.sk_geometry >= 5) 
           lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else 
           lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        skhead_.nrunsk = 999999;
     }
     else {
         if (skheadg_.sk_geometry >= 5)  
