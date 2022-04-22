@@ -202,7 +202,7 @@ void EventNTagManager::ReadVariables()
 
         // NEUT
         float posnu[3]{0., 0., 1e5+1}; nerdnebk_(posnu);
-        if (posnu[3] < 1e5) {
+        if (posnu[2] < 1e5) {
             fSettings.Set("neut", true);
             auto nuMomVec = TVector3(nework_.pne[0]);
             auto nuDirVec = nuMomVec.Unit();
