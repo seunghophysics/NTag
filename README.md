@@ -10,7 +10,9 @@ The following instruction assumes you are working on sukap.
 
 ### Dependencies
 
-> SKOFL: `skofl_21a` or newer
+> CERNLIB 2005
+>
+> SKOFL: `skofl_trunk` or newer
 >
 > ATMPD: `ATMPD_21a` or newer
 >
