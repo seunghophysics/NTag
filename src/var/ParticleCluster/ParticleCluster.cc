@@ -37,6 +37,8 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
         int pdgCode = detsimCode;
         if (detsimCode > 100000)
             pdgCode = gG3toG4PIDMap[detsimCode];
+        if (detsimCode > 1e9) // nucleus code straight from skg4
+            pdgCode = detsimCode;
 
         Particle secondary(pdgCode,
                            secondaryCommon.tscnd[iSec]*1e-3,

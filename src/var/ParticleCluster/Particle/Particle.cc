@@ -19,7 +19,7 @@ float GetMass(int code)
 {
     TParticlePDG* pdgInfo = gPDG->GetParticle(code);
     if (pdgInfo)
-        return pdgInfo->Mass();
+        return pdgInfo->Mass()*1e-3; // MeV
     else if (gPIDMassMap.count(abs(code))) {
         return gPIDMassMap[abs(code)];
     }
