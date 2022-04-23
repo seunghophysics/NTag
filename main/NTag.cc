@@ -102,13 +102,15 @@ int main(int argc, char** argv)
     }
 
     // event loop
-    for (int eventID=1; eventID<=nInputEvents; eventID++) {
+    for (int eventID=1; eventID<=10; eventID++) {
+    //for (int eventID=1; eventID<=nInputEvents; eventID++) {
         std::cout << "\n"; msg.Print(Form("Processing Event #%d / %d...", eventID, nInputEvents));
         input.ReadEvent(eventID);
         ntagManager.ProcessEvent();
     }
 
     // save output and exit
+    ntagOutFile->cd();
     ntagManager.WriteTrees();
     if (ntagOutFile)  ntagOutFile->Close();
     if (noiseManager) delete noiseManager;
