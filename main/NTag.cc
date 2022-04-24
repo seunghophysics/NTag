@@ -98,7 +98,7 @@ int main(int argc, char** argv)
         if (outputFilePath.empty())
             msg.Print("Output file path is empty! Please specify it with -out option.", pERROR);
         ntagOutFile = new TFile(outputFilePath.c_str(), "recreate");
-        ntagManager.MakeTrees();
+        ntagManager.MakeTrees(ntagOutFile);
     }
 
     // event loop

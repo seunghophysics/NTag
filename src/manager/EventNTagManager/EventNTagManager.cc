@@ -239,7 +239,7 @@ void EventNTagManager::AddHits()
     if (!coincidenceFound) {
         for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
             if (static_cast<unsigned int>(sktqz_.icabiz[iHit]) == lastHit.i()) {
-                fMsg.Print(Form("Same PMT T: %3.2f ns Q: %3.9f pe, I: %d", sktqz_.tiskz[iHit], sktqz_.qiskz[iHit], sktqz_.icabiz[iHit]), pWARNING);
+                fMsg.Print(Form("Same PMT T: %3.2f ns Q: %3.9f pe, I: %d", sktqz_.tiskz[iHit], sktqz_.qiskz[iHit], sktqz_.icabiz[iHit]), pDEBUG);
             }
             // hit charges coincide within 5% (temp) or both are negative
             if (((fabs(sktqz_.qiskz[iHit]-lastHit.q()) < lastHit.q() * 5e-2) || (lastHit.q()<0 && sktqz_.qiskz[iHit]<0))
@@ -449,7 +449,7 @@ void EventNTagManager::SearchCandidates()
         if (NHits_iHit < NHITSTH) continue;
         if (NHits_iHit > NHITSMX) {
             fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...",
-                            NHits_iHit, firstHitTime, NHITSMX), pWARNING);
+                            NHits_iHit, firstHitTime, NHITSMX), pDEBUG);
         }
 
         // We've found a new peak.
@@ -713,6 +713,8 @@ void EventNTagManager::FillTrees()
 
 void EventNTagManager::WriteTrees(bool doCloseFile)
 {
+    auto outFile = fEventCandidates.GetTree()->GetCurrentFile();
+    outFile->cd();
     fSettings.WriteTree();
     fEventVariables.WriteTree();
     fEventHits.WriteTree();
@@ -720,7 +722,7 @@ void EventNTagManager::WriteTrees(bool doCloseFile)
     fEventTaggables.WriteTree();
     fEventEarlyCandidates.WriteTree();
     fEventCandidates.WriteTree();
-    if (doCloseFile) fEventCandidates.GetTree()->GetCurrentFile()->Close();
+    if (doCloseFile) outFile->Close();
 }
 
 void EventNTagManager::ClearData()
@@ -931,7 +933,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("OpeningAngleStdev", openingAngleStats.stdev);
     candidate.Set("OpeningAngleSkew",  openingAngleStats.skewness);
 
-    candidate.Set("DPrompt", fPromptVertexMode==mNONE? -1 : (fPromptVertex-delayedVertex).Mag());
+    candidate.Set("DPrompt", fPromptVertexMode==mNONE && fPromptVertex==TVector3() ?
+                             -1 : (fPromptVertex-delayedVertex).Mag());
 
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
 
