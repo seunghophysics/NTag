@@ -39,12 +39,7 @@ class BonsaiManager : public VertexFitManager
         float    fFitDirKS;
         float    fFitOvaQ;
 
-<<<<<<< HEAD
-        int fRefRunNo;
-        bool fIsInitialized;
-=======
         unsigned int fRefRunNo;
->>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
         bool fUseLOWFIT;
         static bool fIsLOWFITInitialized;
 };

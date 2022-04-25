@@ -57,15 +57,10 @@ void BonsaiManager::Initialize()
 
 void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
-<<<<<<< HEAD
-    fRefRunNo = refRunNo;
-    kzinit_(); skrunday_(); skwt_();
-=======
     SetRefRunNo(refRunNo);
 
     if (!SKIO::IsZEBRAInitialized()) kzinit_();
     skrunday_(); skwt_();
->>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
     darklf_(&refRunNo);
 
     int maxpm = MAXPM;
@@ -175,13 +170,6 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     int fitFlag=0; int flagSkip=0; int flagLog=1;
 
     if (skhead_.nrunsk == 999999) {
-<<<<<<< HEAD
-        skhead_.nrunsk = fRefRunNo;
-        if (skheadg_.sk_geometry >= 5) 
-          lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-        else 
-          lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-=======
         // for mc, switch nrunsk to reference run number temporarily
         skhead_.nrunsk = fRefRunNo;
 
@@ -191,7 +179,6 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
             lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
     
         // ...and switch back
->>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
         skhead_.nrunsk = 999999;
     }
     else {
