@@ -22,7 +22,7 @@ class NTagTMVAManager
         void SetWeightPath(std::string filePath) { fWeightFilePath = filePath; }
         std::string GetWeightPath() { return fWeightFilePath; }
 
-        void InitializeReader();
+        void InitializeReader(std::string weightPath);
         void SetMethods(bool turnOn);
 
         float GetTMVAOutput(const Candidate& candidate);

@@ -304,7 +304,7 @@ void EventNTagManager::ReadEarlyCandidates()
                 candidate.Set("NHits", apmue_.apmuenhit[iMuE]);
                 candidate.Set("GateType", apmue_.apmuetype[iMuE]);
                 candidate.Set("Goodness", apmue_.apmuegood[iMuE]);
-                candidate.Set("TagClass", fTagger->Classify(candidate));
+                candidate.Set("TagClass", fTagger.Classify(candidate));
                 fEventEarlyCandidates.Append(candidate);
             }
         }
@@ -363,7 +363,7 @@ void EventNTagManager::ProcessEvent()
             std::string weightPath = fSettings.GetString("weight");
             if (weightPath=="default")
                 weightPath = fSettings.GetString("delayed_vertex");
-            fTMVATagger.Initialize(weightPath);
+            fTMVAManager.InitializeReader(weightPath);
         }
         initialized = true;
     }
@@ -543,34 +543,8 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("PVXBIAS", PVXBIAS);
 
     // tagging conditions
-    fSettings.Get("E_NHITSCUT", E_NHITSCUT);
-    fSettings.Get("E_TIMECUT", E_TIMECUT);
-    fSettings.Get("TAGOUTCUT", TAGOUTCUT);
-    fSettings.Get("SCINTCUT", SCINTCUT);
-    fSettings.Get("GOODNESSCUT", GOODNESSCUT);
-    fSettings.Get("DIRKSCUT", DIRKSCUT);
-    fSettings.Get("DISTCUT", DISTCUT);
-    fSettings.Get("ECUT", ECUT);
-
-    if (fSettings.GetBool("tag_e"))
-        fTMVATagger.SetECut(E_NHITSCUT, E_TIMECUT);
-    fTMVATagger.SetNCut(TAGOUTCUT);
-    fCutTagger.SetCuts(SCINTCUT, GOODNESSCUT, DIRKSCUT, DISTCUT, ECUT);
-
-    auto taggerType = fSettings.GetString("tagger");
-    if (taggerType == "tmva")
-        fTagger = &fTMVATagger;
-    else if (taggerType == "cuts") {
-        fTagger = &fCutTagger;
-        if (fDelayedVertexMode != mLOWFIT) {
-            fMsg.Print("CUTS tagger used with delayed vertex mode other than LOWFIT!"
-                       " Changing delayed vertex mode to LOWFIT...", pWARNING);
-            fSettings.Set("delayed_vertex", "lowfit");
-            fDelayedVertexMode = mLOWFIT;
-        }
-    }
-    else
-        fTagger = &fVoidTagger;
+    fTagger.SetECuts(fSettings.GetString("E_CUTS"));
+    fTagger.SetNCuts(fSettings.GetString("N_CUTS"));
 
     // vertex mode
     std::string promptVertexMode, delayedVertexMode;
@@ -829,7 +803,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         }
     }
 
-    if (doFit) {
+    if (doFit || fPromptVertexMode != mNONE) {
         fEventHits.SetVertex(delayedVertex);
         firstHit.SetToFAndDirection(delayedVertex);
     }
@@ -938,9 +912,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
 
-    float likelihood = fTagger->GetLikelihood(candidate);
-    candidate.Set("TagOut", likelihood);
-    candidate.Set("TagClass", fTagger->Classify(candidate));
+    candidate.Set("TagOut", fTMVAManager.GetTMVAOutput(candidate));
+    candidate.Set("TagClass", fTagger.Classify(candidate));
 }
 
 void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow)
@@ -1030,7 +1003,7 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
 
     // if candidate tag class undefined
     if (tagClass < 0);
-    //     candidate.Set("TagClass", fTagger->Classify(candidate));
+    //     candidate.Set("TagClass", fTagger.Classify(candidate));
     // if candidate tag class defined
     else if (tagType != typeMissed && tagType != tagClass)
         taggable.SetTaggedType(typeEN);
