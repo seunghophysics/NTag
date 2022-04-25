@@ -21,26 +21,16 @@ N200MX         1000
 TMINPEAKSEP    200
 TCANWIDTH      14
 
-# tagger
-# available options, trms, cuts, none
-tagger         tmva
-
 # MC labeling
 TMATCHWINDOW   50
 
-# TMVA tagger options
-TAGOUTCUT      0.7
-weight         default
-tag_e          true
-E_NHITSCUT     50
-E_TIMECUT      20
+# Tagging conditions
+E_CUTS (TagOut>0.7)&&(NHits>50)&&(FitT<20)
+N_CUTS (TagOut>0.7)&&((NHits<50)||(FitT>20))
 
-# CUTS tagger options
-SCINTCUT       1000
-GOODNESSCUT    0.4
-DIRKSCUT       0.4
-DISTCUT        300
-ECUT           3
+# TMVA options
+tmva   true
+weight default
 
 # MC noise
 add_noise      false

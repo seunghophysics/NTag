@@ -12,6 +12,7 @@
 #include "fourhitgrid.h"
 #include "bonsaifit.h"
 
+#include "SKIO.hh"
 #include "SKLibs.hh"
 
 #include "BonsaiManager.hh"
@@ -27,17 +28,19 @@ float* GetPMTPositionArray()
     return pmtPosition;
 }
 
+bool BonsaiManager::fIsLOWFITInitialized = false;
+
 BonsaiManager::BonsaiManager(Verbosity verbose):
 VertexFitManager("BonsaiManager", verbose), fPMTGeometry(nullptr), fLikelihood(nullptr),
 fFitEnergy(-1), fFitDirKS(-1), fFitOvaQ(-1),
-fIsInitialized(false), fUseLOWFIT(false)
+fRefRunNo(62428), fUseLOWFIT(false)
 {}
 
 BonsaiManager::~BonsaiManager()
 {
     if (fPMTGeometry) delete fPMTGeometry;
     if (fLikelihood) delete fLikelihood;
-    if (fIsInitialized) cfbsexit_();
+    if (fIsLOWFITInitialized) cfbsexit_();
 }
 
 void BonsaiManager::Initialize()
@@ -54,8 +57,15 @@ void BonsaiManager::Initialize()
 
 void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
+<<<<<<< HEAD
     fRefRunNo = refRunNo;
     kzinit_(); skrunday_(); skwt_();
+=======
+    SetRefRunNo(refRunNo);
+
+    if (!SKIO::IsZEBRAInitialized()) kzinit_();
+    skrunday_(); skwt_();
+>>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
     darklf_(&refRunNo);
 
     int maxpm = MAXPM;
@@ -63,13 +73,15 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     int elapsedDays = skday_data_.relapse[refRunNo-1]; float waterTransparency;
     lfwater_(&elapsedDays, &waterTransparency);
 
-    fIsInitialized = true;
+    fIsLOWFITInitialized = true;
 }
 
 void BonsaiManager::UseLOWFIT(bool turnOn, int refRunNo)
 {
+    SetRefRunNo(refRunNo);
+
     fUseLOWFIT = turnOn;
-    if (fUseLOWFIT && !fIsInitialized)
+    if (fUseLOWFIT && !fIsLOWFITInitialized)
         InitializeLOWFIT(refRunNo);
 }
 
@@ -161,21 +173,32 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     float waterTransparency = 12431.3;
     int NHITCUT = 1100;
     int fitFlag=0; int flagSkip=0; int flagLog=1;
-    //skheadg_.sk_geometry = 6;
-    //lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+
     if (skhead_.nrunsk == 999999) {
+<<<<<<< HEAD
         skhead_.nrunsk = fRefRunNo;
         if (skheadg_.sk_geometry >= 5) 
           lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else 
           lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+=======
+        // for mc, switch nrunsk to reference run number temporarily
+        skhead_.nrunsk = fRefRunNo;
+
+        if (skheadg_.sk_geometry >= 5)
+            lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        else
+            lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+    
+        // ...and switch back
+>>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
         skhead_.nrunsk = 999999;
     }
     else {
-        if (skheadg_.sk_geometry >= 5)  
-          lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-        else 
-          lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        if (skheadg_.sk_geometry >= 5)
+            lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        else
+            lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
     }
 
     // retreive common block

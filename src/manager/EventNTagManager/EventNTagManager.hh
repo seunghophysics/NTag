@@ -9,8 +9,7 @@
 #include "CandidateCluster.hh"
 #include "TRMSFitManager.hh"
 #include "BonsaiManager.hh"
-#include "NTagTMVATagger.hh"
-#include "NTagCutTagger.hh"
+#include "NTagTMVAManager.hh"
 #include "Printer.hh"
 #include "Store.hh"
 #include "NTagGlobal.hh"
@@ -150,11 +149,11 @@ class EventNTagManager
         TRMSFitManager fTRMSFitManager;
         BonsaiManager fBonsaiManager;
 
+        // TMVA
+        NTagTMVAManager fTMVAManager;
+
         // Tagger
-        CandidateTagger* fTagger;
-        CandidateTagger fVoidTagger;
-        NTagTMVATagger  fTMVATagger;
-        NTagCutTagger  fCutTagger;
+        CandidateTagger fTagger;
 
         // ROOT
         std::string fOutFilePath;

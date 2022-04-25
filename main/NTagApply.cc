@@ -1,8 +1,8 @@
 #include "ArgParser.hh"
 #include "Store.hh"
 #include "Calculator.hh"
-#include "NTagTMVATagger.hh"
-#include "NTagCutTagger.hh"
+#include "NTagTMVAManager.hh"
+#include "CandidateTagger.hh"
 
 int main(int argc, char** argv)
 {
@@ -16,6 +16,22 @@ int main(int argc, char** argv)
     auto outFilePath = settings.GetString("out");
     auto weightPath = settings.GetString("weight");
 
+    NTagTMVAManager* tmvaManager = 0;
+    if (settings.GetBool("tmva")) {
+        tmvaManager = new NTagTMVAManager();
+        std::string weightPath = settings.GetString("weight");
+        if (weightPath=="default") weightPath = settings.GetString("delayed_vertex");
+        tmvaManager->InitializeReader(weightPath);
+    }
+
+    CandidateTagger tagger("NTagApply");
+    tagger.SetTMATCHWINDOW(settings.GetFloat("TMATCHWINDOW"));
+    tagger.SetECuts(settings.GetString("E_CUTS"));
+    tagger.SetNCuts(settings.GetString("N_CUTS"));
+    tagger.Apply(inFilePath, outFilePath, tmvaManager);
+
+    if (tmvaManager) delete tmvaManager;
+/*
     auto taggerType = settings.GetString("tagger");
     if (taggerType=="tmva") {
         NTagTMVATagger tagger;
@@ -36,6 +52,6 @@ int main(int argc, char** argv)
                        settings.GetFloat("ECUT"));
         tagger.Apply(inFilePath.c_str(), outFilePath.c_str(), settings.GetFloat("TMATCHWINDOW"));
     }
-
+*/
     return 0;
 }

@@ -21,11 +21,15 @@ class BonsaiManager : public VertexFitManager
         void Fit(const PMTHitCluster& hitCluster);
         void FitLOWFIT(const PMTHitCluster& hitCluster);
 
+        inline unsigned int GetRefRunNo() { return fRefRunNo; }
+        inline void SetRefRunNo(unsigned int no) { fRefRunNo = no; } 
+
         inline float GetFitEnergy() { return fFitEnergy; }
         inline float GetFitDirKS() { return fFitDirKS; }
         inline float GetFitOvaQ() { return fFitOvaQ; }
 
         void DumpFitResult();
+        static bool IsLOWFITInitialized() { return fIsLOWFITInitialized; }
 
     private:
         pmt_geometry* fPMTGeometry;
@@ -35,9 +39,14 @@ class BonsaiManager : public VertexFitManager
         float    fFitDirKS;
         float    fFitOvaQ;
 
+<<<<<<< HEAD
         int fRefRunNo;
         bool fIsInitialized;
+=======
+        unsigned int fRefRunNo;
+>>>>>>> f56b2ca1c541831cd3204d18e7c87b9ad6d95632
         bool fUseLOWFIT;
+        static bool fIsLOWFITInitialized;
 };
 
 #endif

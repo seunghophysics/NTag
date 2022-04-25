@@ -23,7 +23,7 @@ class Particle
         inline float Time() const { return fT; }
         inline TVector3 Vertex() const { return fVertex; }
         inline TVector3 Momentum() const { return fMomentum; }
-        inline float Energy() const { float m = GetMass(fPID); return std::sqrt(fMomentum.Mag2() + m*m); }
+        inline float Energy() const { float m = GetMass(fPID); return std::sqrt(fMomentum.Mag2() + m*m) - m; }
         inline unsigned int IntID() const { return fIntID; }
         inline int ParentPID() const { return fParentPID; }
 

@@ -11,6 +11,7 @@ class TreeOut
         // TTree access
         virtual void SetTree(TTree* tree) { fOutputTree = tree; fIsOutputTreeSet = true; }
         TTree* GetTree() { return fOutputTree; }
+        virtual void ClearTree() { if (fIsOutputTreeSet) fOutputTree->Reset(); }
         virtual void FillTree() { if (fIsOutputTreeSet) fOutputTree->Fill(); }
         virtual void WriteTree() { if (fIsOutputTreeSet) fOutputTree->Write(); }
         virtual void MakeBranches() {}
