@@ -2,12 +2,6 @@ var hierarchy =
 [
     [ "ArgParser", "classArgParser.html", null ],
     [ "Candidate", "classCandidate.html", null ],
-    [ "CandidateTagger", "classCandidateTagger.html", [
-      [ "NTagCutTagger", "classNTagCutTagger.html", null ],
-      [ "NTagCutTagger", "classNTagCutTagger.html", null ],
-      [ "NTagTMVATagger", "classNTagTMVATagger.html", null ],
-      [ "NTagTMVATagger", "classNTagTMVATagger.html", null ]
-    ] ],
     [ "Cluster< T >", "classCluster.html", null ],
     [ "Cluster< Candidate >", "classCluster.html", [
       [ "CandidateCluster", "classCandidateCluster.html", null ],
@@ -40,6 +34,8 @@ var hierarchy =
     [ "TreeOut", "classTreeOut.html", [
       [ "CandidateCluster", "classCandidateCluster.html", null ],
       [ "CandidateCluster", "classCandidateCluster.html", null ],
+      [ "CandidateTagger", "classCandidateTagger.html", null ],
+      [ "CandidateTagger", "classCandidateTagger.html", null ],
       [ "PMTHitCluster", "classPMTHitCluster.html", null ],
       [ "PMTHitCluster", "classPMTHitCluster.html", null ],
       [ "ParticleCluster", "classParticleCluster.html", null ],

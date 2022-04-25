@@ -84,7 +84,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"include_2ParticleTable_8hh_source.html"
+"include_2TaggableCluster_8hh_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -170,29 +170,15 @@ Tagging conditions</h1>
 <p >The following are also valid options for <a class="el" href="index.html#ntagapply-exe">NTagApply</a>.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Option   </th><th class="markdownTableHeadCenter">Tagger   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadCenter">Default    </th></tr>
+<th class="markdownTableHeadNone">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadCenter">Default    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-tagger</code>   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">One of <code>tmva</code>, <code>cuts</code>, <code>none</code>   </td><td class="markdownTableBodyCenter"><code>tmva</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>-TMATCHWINDOW</code>   </td><td class="markdownTableBodyNone">Maximum time window to match candidate with true taggable (ns)   </td><td class="markdownTableBodyCenter">50    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-TMATCHWINDOW</code>   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Maximum time window to match candidate with true taggable (ns)   </td><td class="markdownTableBodyCenter">50    </td></tr>
+<td class="markdownTableBodyNone"><code>-weight</code>   </td><td class="markdownTableBodyNone">TMVA weight file (.xml)   </td><td class="markdownTableBodyCenter"><code>default</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-TAGOUTCUT</code>   </td><td class="markdownTableBodyCenter">TMVA   </td><td class="markdownTableBodyNone">Threshold TMVA signal likelihood to classify candidate as signal   </td><td class="markdownTableBodyCenter">0.7    </td></tr>
+<td class="markdownTableBodyNone"><code>-E_CUTS</code>   </td><td class="markdownTableBodyNone">Cuts for decay-e selection   </td><td class="markdownTableBodyCenter"><code>(TagOut&gt;0.7)&amp;&amp;(NHits&gt;50)&amp;&amp;(FitT&lt;20)</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-weight</code>   </td><td class="markdownTableBodyCenter">TMVA   </td><td class="markdownTableBodyNone">TMVA weight file (.xml)   </td><td class="markdownTableBodyCenter"><code>default</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-tag_e</code>   </td><td class="markdownTableBodyCenter">TMVA   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyCenter"><code>true</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-E_NHITSCUT</code>   </td><td class="markdownTableBodyCenter">TMVA   </td><td class="markdownTableBodyNone">Threshold number of hits to classify candidate as decay-e   </td><td class="markdownTableBodyCenter">50    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-E_TIMECUT</code>   </td><td class="markdownTableBodyCenter">TMVA   </td><td class="markdownTableBodyNone">Threshold time to classify candidate as decay-e (µs)   </td><td class="markdownTableBodyCenter">20    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-SCINTCUT</code>   </td><td class="markdownTableBodyCenter">CUTS   </td><td class="markdownTableBodyNone">Maximum scintillation likelihood (N200-27)/(1.3*N30)   </td><td class="markdownTableBodyCenter">1    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-GOODNESSCUT</code>   </td><td class="markdownTableBodyCenter">CUTS   </td><td class="markdownTableBodyNone">Minimum timing goodness   </td><td class="markdownTableBodyCenter">0.4    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-DIRKSCUT</code>   </td><td class="markdownTableBodyCenter">CUTS   </td><td class="markdownTableBodyNone">Maximum KS-test statistic (dirKS)   </td><td class="markdownTableBodyCenter">0.4    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-DISTCUT</code>   </td><td class="markdownTableBodyCenter">CUTS   </td><td class="markdownTableBodyNone">Maximum distance from prompt vertex   </td><td class="markdownTableBodyCenter">300   </td></tr>
+<td class="markdownTableBodyNone"><code>-N_CUTS</code>   </td><td class="markdownTableBodyNone">Cuts for neutron capture selection   </td><td class="markdownTableBodyCenter"><code>(TagOut&gt;0.7)</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="dark-noise-option"></a>
 Dark noise</h1>

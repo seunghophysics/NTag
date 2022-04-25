@@ -1,19 +1,11 @@
 var NAVTREEINDEX1 =
 {
-"include_2ParticleTable_8hh_source.html":[5,0,0,19],
-"include_2Particle_8hh_source.html":[5,0,0,17],
-"include_2Printer_8hh_source.html":[5,0,0,22],
-"include_2SKIO_8hh_source.html":[5,0,0,23],
-"include_2SKLibs_8hh.html":[5,0,0,24],
-"include_2SKLibs_8hh_source.html":[5,0,0,24],
-"include_2Store_8hh_source.html":[5,0,0,25],
-"include_2TRMSFitManager_8hh_source.html":[5,0,0,30],
-"include_2TaggableCluster_8hh_source.html":[5,0,0,27],
-"include_2TaggableTree_8hh_source.html":[5,0,0,28],
-"include_2Taggable_8hh_source.html":[5,0,0,26],
-"include_2TreeOut_8hh_source.html":[5,0,0,29],
-"include_2VertexFitManager_8hh.html":[5,0,0,31],
-"include_2VertexFitManager_8hh_source.html":[5,0,0,31],
+"include_2TaggableCluster_8hh_source.html":[5,0,0,25],
+"include_2TaggableTree_8hh_source.html":[5,0,0,26],
+"include_2Taggable_8hh_source.html":[5,0,0,24],
+"include_2TreeOut_8hh_source.html":[5,0,0,27],
+"include_2VertexFitManager_8hh.html":[5,0,0,29],
+"include_2VertexFitManager_8hh_source.html":[5,0,0,29],
 "index.html":[],
 "index.html#addnoise-exe":[0,2,1],
 "index.html#autotoc_md1":[0],
@@ -35,9 +27,7 @@ var NAVTREEINDEX1 =
 "output-tree-structure.html#autotoc_md20":[2,6],
 "pages.html":[],
 "program-description.html":[3],
-"src_2manager_2CandidateTagger_2CandidateTagger_8hh_source.html":[5,0,1,0,0,3],
-"src_2manager_2CandidateTagger_2NTagCutTagger_2NTagCutTagger_8hh_source.html":[5,0,1,0,0,0,1],
-"src_2manager_2CandidateTagger_2NTagTMVATagger_2NTagTMVATagger_8hh_source.html":[5,0,1,0,0,1,1],
+"src_2manager_2CandidateTagger_2CandidateTagger_8hh_source.html":[5,0,1,0,0,1],
 "src_2manager_2EventNTagManager_2EventNTagManager_8hh_source.html":[5,0,1,0,1,1],
 "src_2manager_2EventNTagManager_2GetStopMuVertex_8hh_source.html":[5,0,1,0,1,3],
 "src_2manager_2EventNTagManager_2NTagBankIO_8hh_source.html":[5,0,1,0,1,5],
@@ -101,5 +91,5 @@ var NAVTREEINDEX1 =
 "src_2var_2TreeClass_2NTagTree_8hh_source.html":[5,0,1,2,5,3],
 "src_2var_2TreeClass_2TaggableTree_8hh_source.html":[5,0,1,2,5,5],
 "src_2var_2TreeOut_2TreeOut_8hh_source.html":[5,0,1,2,6,1],
-"structOpeningAngleStats.html":[4,0,13]
+"structOpeningAngleStats.html":[4,0,11]
 };

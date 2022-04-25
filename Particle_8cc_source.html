@@ -115,7 +115,7 @@ $(document).ready(function(){initNavTree('Particle_8cc_source.html',''); initRes
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>{</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    TParticlePDG* pdgInfo = gPDG-&gt;GetParticle(code);</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordflow">if</span> (pdgInfo)</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordflow">return</span> pdgInfo-&gt;Mass();</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordflow">return</span> pdgInfo-&gt;Mass()*1e-3; <span class="comment">// MeV</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (gPIDMassMap.count(abs(code))) {</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keywordflow">return</span> gPIDMassMap[abs(code)];</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    }</div>
@@ -148,7 +148,7 @@ $(document).ready(function(){initNavTree('Particle_8cc_source.html',''); initRes
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordflow">return</span> TString(std::to_string(code));</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}</div>
-<div class="ttc" id="aParticleTable_8cc_html_a8f980c0427242c16d9a321d7a9deef1c"><div class="ttname"><a href="ParticleTable_8cc.html#a8f980c0427242c16d9a321d7a9deef1c">gIntIDMap</a></div><div class="ttdeci">std::map&lt; int, TString &gt; gIntIDMap</div><div class="ttdoc">[Geant3 interaction code]</div><div class="ttdef"><b>Definition:</b> <a href="ParticleTable_8cc_source.html#l00049">ParticleTable.cc:49</a></div></div>
+<div class="ttc" id="aParticleTable_8cc_html_a8f980c0427242c16d9a321d7a9deef1c"><div class="ttname"><a href="ParticleTable_8cc.html#a8f980c0427242c16d9a321d7a9deef1c">gIntIDMap</a></div><div class="ttdeci">std::map&lt; int, TString &gt; gIntIDMap</div><div class="ttdoc">[Geant3 interaction code]</div><div class="ttdef"><b>Definition:</b> <a href="ParticleTable_8cc_source.html#l00053">ParticleTable.cc:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
