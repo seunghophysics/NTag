@@ -73,7 +73,8 @@ extern "C" {
     void  lfallfit_sk4_final_qe43_mc_(float*, int*, int*, int*, int*);
     void  lfallfit_sk5_mc_(float*, int*, int*, int*, int*);
     void  lfallfit_sk6_mc_(float*, int*, int*, int*, int*);
-    //void effwallf_(int*, float*, float*, float*);
+    void  lowbs3get_();
+    float effwallf_(int*, float*, float*, float*);
 }
 
 // stopmu fit

@@ -13,6 +13,7 @@
 #include "apmsfitC.h"
 #include "appatspC.h"
 #include "apringspC.h"
+#include "skroot_loweC.h"
 #include "spliTChanOutC.h"
 #include "fitqunoutC.h"
 #include "geotnkC.h"
@@ -79,15 +80,31 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
         fEventVariables.Set("EVis", apcomene_.apevis);
     }
 
-    else if (mode == mBONSAI) {
+    else if (mode == mBONSAI && fFileFormat == mZBS) {
+        lowbs3get_();
+        fPromptVertex = TVector3(skroot_lowe_.bsvertex[0], skroot_lowe_.bsvertex[1], skroot_lowe_.bsvertex[2]);
+        fEventVariables.Set("ring_dirx", skroot_lowe_.bsdir[0]);
+        fEventVariables.Set("ring_diry", skroot_lowe_.bsdir[1]);
+        fEventVariables.Set("ring_dirz", skroot_lowe_.bsdir[2]);
+        fEventVariables.Set("BSgoodness", skroot_lowe_.bsgood[1]);
+        fEventVariables.Set("BSdirks", skroot_lowe_.bsdirks);
+        fEventVariables.Set("BSenergy", skroot_lowe_.bsenergy);
+        fEventVariables.Set("BSn50", skroot_lowe_.bsn50);
+        fEventVariables.Set("BSovaq", skroot_lowe_.bsgood[1]*skroot_lowe_.bsgood[1]-skroot_lowe_.bsdirks*skroot_lowe_.bsdirks);
+
+        int isFromIDWall = 1;
+        float vertex[3] = {skroot_lowe_.bsvertex[0], skroot_lowe_.bsvertex[1], skroot_lowe_.bsvertex[2]};
+        float pointOnWall[3] = {0, 0, 0};
+        fEventVariables.Set("EffWall", effwallf_(&isFromIDWall, vertex, skroot_lowe_.bsdir, pointOnWall));
+    }
+
+    else if (mode == mBONSAI && fFileFormat == mSKROOT) {
         int lun = 10;
         TreeManager* mgr = skroot_get_mgr(&lun);
         LoweInfo* LOWE = mgr->GetLOWE();
         mgr->GetEntry();
         fPromptVertex = TVector3(LOWE->bsvertex);
-
-        // visible energy
-        fEventVariables.Set("EVis", LOWE->bsenergy);
+        fEventVariables.Set("Energy", LOWE->bsenergy);
     }
 
     else if (mode == mFITQUN) {
