@@ -48,7 +48,7 @@ class NoiseManager
         TTree* fNoiseTree;
         TString fNoiseTreeName;
         
-        const char* fNoiseType;
+        TString fNoiseType;
 
         Header* fHeader;
         TQReal* fTQReal;

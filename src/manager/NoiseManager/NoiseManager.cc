@@ -34,25 +34,34 @@ NoiseManager::NoiseManager()
 NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed)
 : NoiseManager()
 {
-    fNoiseType = option.Data();
+    fNoiseType = option;
     SetNoiseTimeRange(tStart, tEnd);
 
     // Read dummy (TChain)
     TChain* dummyChain = new TChain(fNoiseTreeName);
 
-    TObjArray* opt = option.Tokenize('/');
+    TObjArray* opt = option.Tokenize(':');
     TString base = ((TObjString*)(opt->At(0)))->GetString();
     TString run = "";
-    if (option.Contains("/"))
-        run = ((TObjString*)(opt->At(1)))->GetString();
+    int minRun = -1;
+    int maxRun = 1000000;
+    if (option.Contains(":")) {
+        run = "0" + ((TObjString*)(opt->At(1)))->GetString();
+        if (run.Contains("-")) {
+            TObjArray* runRange = run.Tokenize('-');
+            minRun = ((TObjString*)(runRange->At(0)))->GetString().Atoi();
+            maxRun = ((TObjString*)(runRange->At(1)))->GetString().Atoi();
+            run = "";
+        }
+    }
 
     SetSeed(seed);
     TString dummyRunPath = DUMMYDIR + option;
     int nRequiredEvents = nInputEvents / fNParts;
 
-    std::vector<TString> runDirs = GetListOfSubdirectories(DUMMYDIR+base);
+    std::vector<TString> runDirs = GetListOfSubdirectories(DUMMYDIR + base);
     std::vector<TString> fileList;
-    if (run != "") fileList = GetListOfFiles(DUMMYDIR + option);
+    if (run != "") fileList = GetListOfFiles(DUMMYDIR + base + "/" + run);
 
     TString dummyFilePath;
 
@@ -61,6 +70,8 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
     while (fNEntries <= 2*nRequiredEvents) {
         if (run == "") {
             dummyRunPath = PickRandom(runDirs);
+            int dummyRunNo = ((TObjString*)((dummyRunPath.Tokenize('/'))->Last()))->GetString().Atoi();
+            if (dummyRunNo < minRun || maxRun < dummyRunNo ) continue;
             fileList = GetListOfFiles(dummyRunPath, ".root");
         }
         if (!fileList.empty())
@@ -226,7 +237,7 @@ void NoiseManager::DumpSettings()
 {
     fMsg.PrintBlock("NoiseManager settings");
 
-    fMsg.Print(Form("Noise type: %s", fNoiseType));
+    fMsg.Print(Form("Noise type: " + fNoiseType));
     fMsg.Print(Form("Noise range: [%3.2f, %3.2f] usec (T_trigger=0)", fNoiseStartTime*1e-3-1, fNoiseEndTime*1e-3-1));
     fMsg.Print(Form("Seed: %d", ranGen.GetSeed()));
     fMsg.Print(Form("3-sigma hit density range: (%3.1f, %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
