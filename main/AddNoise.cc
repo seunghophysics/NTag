@@ -1,3 +1,5 @@
+#include <skheadC.h>
+#undef MAXHWSK
 #include "SuperManager.h"
 #undef MAXPM
 #undef MAXPMA
@@ -49,6 +51,7 @@ int main(int argc, char **argv)
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
+        if (!(skhead_.idtgsk & (1<<28))) continue;
         PMTHitCluster inputMCHits(sktqz_);
 
         // Append dummy hits
