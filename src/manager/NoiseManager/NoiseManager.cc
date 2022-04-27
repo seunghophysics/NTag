@@ -65,6 +65,9 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
         }
         if (!fileList.empty())
             dummyFilePath = PickRandom(fileList);
+
+        if (!dummyFilePath.Contains("t2k")) 
+          continue;
         AddNoiseFileToChain(dummyChain, dummyFilePath);
     }
 
