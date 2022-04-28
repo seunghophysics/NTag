@@ -194,7 +194,7 @@ void EventNTagManager::ReadVariables()
                         + skhead_.nt48sk[2]) * 20 * 1e-6;      // [ms]
     double tDiff = globalTime - prevEvTime;
     fEventVariables.Set("TrgType", trgtype);
-    fEventVariables.Set("TDiff", tDiff);
+    fEventVariables.Set("TDiff", fIsMC? 0 : tDiff);
     prevEvTime = globalTime;
 
     // reconstructed information
