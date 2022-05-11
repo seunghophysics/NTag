@@ -6,6 +6,7 @@ vy             0
 vz             0
 PVXRES         0
 PVXBIAS        0
+correct_tof    true
 
 # delayed vertex
 # available options: trms, bonsai, lowfit, prompt
@@ -63,5 +64,5 @@ GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
 # logging
-print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,TagClass
+print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,DTaggable,TagClass
 debug          false

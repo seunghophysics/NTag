@@ -182,6 +182,6 @@ Each entry in the following branches is an array with a size of the number of NT
 | TagClass          |   -   | Tag result (0: noise, 1: decay-e, 2: n-capture)                                     |
 | TagIndex          |   -   | Array index of corresponding taggable signal in `taggable` tree                     |
 | TagOut            |   -   | Neural-network output signal likelihood in range (0, 1)                             |
-| dvx               |   -   | X coordinate of fitted vertex (cm)                                                  |
-| dvy               |   -   | Y coordinate of fitted vertex (cm)                                                  |
-| dvz               |   -   | Z coordinate of fitted vertex (cm)                                                  |
+| fvx               |   -   | X coordinate of fitted vertex (cm)                                                  |
+| fvy               |   -   | Y coordinate of fitted vertex (cm)                                                  |
+| fvz               |   -   | Z coordinate of fitted vertex (cm)                                                  |

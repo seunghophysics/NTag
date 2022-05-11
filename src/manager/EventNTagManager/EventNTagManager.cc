@@ -311,9 +311,9 @@ void EventNTagManager::ReadEarlyCandidates()
             if (fitT < (T0TH-1000)*1e-3) {
                 Candidate candidate;
                 candidate.Set("FitT", fitT);
-                candidate.Set("x", apmue_.apmuepos[iMuE][0]);
-                candidate.Set("y", apmue_.apmuepos[iMuE][1]);
-                candidate.Set("z", apmue_.apmuepos[iMuE][2]);
+                candidate.Set("fvx", apmue_.apmuepos[iMuE][0]);
+                candidate.Set("fvy", apmue_.apmuepos[iMuE][1]);
+                candidate.Set("fvz", apmue_.apmuepos[iMuE][2]);
                 candidate.Set("dirx", apmue_.apmuedir[iMuE][0]);
                 candidate.Set("diry", apmue_.apmuedir[iMuE][1]);
                 candidate.Set("dirz", apmue_.apmuedir[iMuE][2]);
@@ -501,7 +501,7 @@ void EventNTagManager::SearchCandidates()
     if (NHitsPrevious >= NHITSTH)
         FindDelayedCandidate(iHitPrevious);
 
-    if (fSettings.GetBool("tag_e")) PruneCandidates();
+    if (!fEventEarlyCandidates.IsEmpty()) PruneCandidates();
     /*if (fIsMC)*/  MapTaggables();
 
     fEventEarlyCandidates.FillVectorMap();
@@ -581,11 +581,13 @@ void EventNTagManager::ApplySettings()
     }
     else if (fPromptVertexMode == mNONE) {
         fMsg.Print("Prompt vertex mode is set to \"none\". TWIDTH > 100 ns and NHITSTH > 10 recommended.", pWARNING);
+        fMsg.Print("The correct_tof option is set to false.", pWARNING);
+        fSettings.Set("correct_tof", false);
         if (fDelayedVertexMode == mPROMPT) {
-        fMsg.Print("Delayed vertex mode is \"prompt\", but no prompt vertex is specified.", pWARNING);
-        fMsg.Print("Setting delayed vertex mode as \"bonsai\"...", pWARNING);
-        fDelayedVertexMode = mBONSAI;
-        fDelayedVertexManager = &fBonsaiManager;
+            fMsg.Print("Delayed vertex mode is \"prompt\", but no prompt vertex is specified.", pWARNING);
+            fMsg.Print("Setting delayed vertex mode as \"bonsai\"...", pWARNING);
+            fDelayedVertexMode = mBONSAI;
+            fDelayedVertexManager = &fBonsaiManager;
         }
     }
     else if (fDelayedVertexMode != mPROMPT){
@@ -732,7 +734,7 @@ void EventNTagManager::DumpEvent()
     fEventParticles.DumpAllElements();
     fEventTaggables.DumpAllElements();
     fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
-                                           "Label", "TagIndex", "TagClass"});
+                                           "Label", "TagIndex", "fvx", "fvy", "fvz", "DTaggable", "TagClass"});
     if (fSettings.GetBool("print", true)) {
         fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","));
     }
@@ -748,7 +750,7 @@ void EventNTagManager::CheckMC()
 
 void EventNTagManager::PrepareEventHitsForSearch()
 {
-    if (fPromptVertexMode != mNONE)
+    if (!fSettings.GetBool("correct_tof"))
         fEventHits.SetVertex(fPromptVertex);
     else
         fEventHits.RemoveVertex();
@@ -820,7 +822,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         }
     }
 
-    if (doFit || fPromptVertexMode != mNONE) {
+    if (doFit || fSettings.GetBool("correct_tof")) {
         fEventHits.SetVertex(delayedVertex);
         firstHit.SetToFAndDirection(delayedVertex);
     }
@@ -876,9 +878,9 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
 
     // Delayed vertex
     auto delayedVertex = fEventHits.GetVertex();
-    candidate.Set("dvx", delayedVertex.x());
-    candidate.Set("dvy", delayedVertex.y());
-    candidate.Set("dvz", delayedVertex.z());
+    candidate.Set("fvx", delayedVertex.x());
+    candidate.Set("fvy", delayedVertex.y());
+    candidate.Set("fvz", delayedVertex.z());
 
     // Number of hits
     candidate.Set("NHits", hitsInTCANWIDTH.GetSize());
@@ -941,6 +943,7 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
 
         auto& candidate = candidateCluster[iCandidate];
         candidate.Set("TagIndex", -1);
+        candidate.Set("DTaggable", -1);
 
         // default label: noise
         TrueLabel label = lNoise;
@@ -980,6 +983,9 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
 
             // set candidate tagindex as the index of the closest taggable
             candidate.Set("TagIndex", iMinMatchTimeCapture);
+            TVector3 fitVertex = TVector3(candidate.Get("fvx"), candidate.Get("fvy"), candidate.Get("fvz"));
+            float dTaggable = (taggable.Vertex() - fitVertex).Mag();
+            candidate.Set("DTaggable", fitVertex==TVector3()? -1: dTaggable);
 
             // set two taggable candidate indices:
             // one from early (muechk) and another from delayed (ntag) candidates

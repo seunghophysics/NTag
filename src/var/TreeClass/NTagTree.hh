@@ -49,9 +49,9 @@ public :
    std::vector<float>   *TagClass;
    std::vector<float>   *TagIndex;
    std::vector<float>   *TagOut;
-   std::vector<float>   *dvx;
-   std::vector<float>   *dvy;
-   std::vector<float>   *dvz;
+   std::vector<float>   *fvx;
+   std::vector<float>   *fvy;
+   std::vector<float>   *fvz;
 
    // List of branches
    TBranch        *b_Beta1;   //!
@@ -79,9 +79,9 @@ public :
    TBranch        *b_TagClass;   //!
    TBranch        *b_TagIndex;   //!
    TBranch        *b_TagOut;   //!
-   TBranch        *b_dvx;   //!
-   TBranch        *b_dvy;   //!
-   TBranch        *b_dvz;   //!
+   TBranch        *b_fvx;   //!
+   TBranch        *b_fvy;   //!
+   TBranch        *b_fvz;   //!
     */
    CandidateCluster cluster;
 
@@ -146,9 +146,9 @@ Int_t NTagTree::GetEntry(Long64_t entry)
         //candidate.Set("TRMS", TRMS->at(i));
         //candidate.Set("TagClass", TagClass->at(i));
         //candidate.Set("TagIndex", TagIndex->at(i));
-        //candidate.Set("dvx", dvx->at(i));
-        //candidate.Set("dvy", dvy->at(i));
-        //candidate.Set("dvz", dvz->at(i));
+        //candidate.Set("fvx", fvx->at(i));
+        //candidate.Set("fvy", fvy->at(i));
+        //candidate.Set("fvz", fvz->at(i));
         //candidate.Set("SignalRatio", SignalRatio->at(i));
         //candidate.Set("MeanDirAngleMean", MeanDirAngleMean->at(i));
         //candidate.Set("MeanDirAngleRMS", MeanDirAngleRMS->at(i));
@@ -209,9 +209,9 @@ void NTagTree::Init(TTree *tree)
    TagClass = 0;
    TagIndex = 0;
    TagOut = 0;
-   dvx = 0;
-   dvy = 0;
-   dvz = 0;
+   fvx = 0;
+   fvy = 0;
+   fvz = 0;
    
    */
    // Set branch addresses and branch pointers
@@ -253,9 +253,9 @@ void NTagTree::Init(TTree *tree)
    fChain->SetBranchAddress("TagClass", &TagClass, &b_TagClass);
    fChain->SetBranchAddress("TagIndex", &TagIndex, &b_TagIndex);
    fChain->SetBranchAddress("TagOut", &TagOut, &b_TagOut);
-   fChain->SetBranchAddress("dvx", &dvx, &b_dvx);
-   fChain->SetBranchAddress("dvy", &dvy, &b_dvy);
-   fChain->SetBranchAddress("dvz", &dvz, &b_dvz);
+   fChain->SetBranchAddress("fvx", &fvx, &b_fvx);
+   fChain->SetBranchAddress("fvy", &fvy, &b_fvy);
+   fChain->SetBranchAddress("fvz", &fvz, &b_fvz);
    */
    Notify();
 }
