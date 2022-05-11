@@ -71,6 +71,7 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
         if (run == "") {
             dummyRunPath = PickRandom(runDirs);
             int dummyRunNo = ((TObjString*)((dummyRunPath.Tokenize('/'))->Last()))->GetString().Atoi();
+            if (!dummyRunNo) continue; // skip any non-numeric run directory name
             if (dummyRunNo < minRun || maxRun < dummyRunNo ) continue;
             fileList = GetListOfFiles(dummyRunPath, ".root");
         }
