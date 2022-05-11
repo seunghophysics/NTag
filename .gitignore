@@ -4,3 +4,4 @@ include
 bin
 *.root
 docs/doxygen/build
+core.*
