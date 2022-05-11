@@ -21,7 +21,7 @@ The following instruction assumes you are working on sukap.
 ### How to install
 
 ```bash
-git clone --branch library https://github.com/seunghophysics/NTag.git
+git clone https://github.com/seunghophysics/NTag.git
 cd NTag && make
 ```
 Set the environment variables $PATH and $NTAGLIBPATH automatically by typing in the following commands.
