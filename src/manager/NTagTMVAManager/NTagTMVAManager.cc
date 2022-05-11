@@ -130,8 +130,8 @@ void NTagTMVAManager::TrainWeights(const char* inFileName, const char* outFileNa
 
     TString trainingOption = TString(Form("nTrain_Signal=%d:", 0))
                            + TString(Form("nTrain_Background=%d:", 0))
-                           + TString("nTest_Signal=0:")
-                           + TString("nTest_Background=0:")
+                           + TString("nTest_Signal=1:")
+                           + TString("nTest_Background=1:")
                            + TString("SplitMode=Random:")
                            + TString("NormMode=None:")
                            + TString("V:");
