@@ -481,7 +481,10 @@ void EventNTagManager::SearchCandidates()
     }
 
     // Save the last peak
-    if (NHitsPrevious >= NHITSTH)
+    // 
+    // NHitsPrevious < NHITSMX to avoid segmentation fault at valuables calculation (M.Harada)
+    //if (NHitsPrevious >= NHITSTH)
+    if (NHitsPrevious >= NHITSTH && NHitsPrevious < NHITSMX)
         FindDelayedCandidate(iHitPrevious);
 
     if (fSettings.GetBool("tag_e")) PruneCandidates();
@@ -819,7 +822,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.01, TCANWIDTH/2.).GetSize();
 
         // NHits > 4 to prevent NaN in angle variables
-        // NHIts < 4 to avoid segmentation fault at valuables calculation (M.Harada)
+        // NHIts < 2000 to avoid segmentation fault at valuables calculation (M.Harada)
         if (nHits > 4 && nHits < 2000) {
             Candidate candidate(iHit);
             candidate.Set("FitT", (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
