@@ -73,10 +73,11 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     // SK custom bad channel masking (M. Harada)
     // (SK option 25: mask bad channel)
     // (SK option 26: read bad channel from input file)
-    if ( !fSKOption.Contains("25") && !fSKOption.Contains("26") ) {
+    if ( fSKOption.Contains("25") && !fSKOption.Contains("26") ) { // M.Harada
+    //if ( !fSKOption.Contains("25") && !fSKOption.Contains("26") ) {
         int refSubRunNo = 0; int outputErrorStatus = 0;
-        skbadch_(&fRefRunNo, &refSubRunNo, &outputErrorStatus);
         skbadopt_(&fSKBadChOption);
+        skbadch_(&fRefRunNo, &refSubRunNo, &outputErrorStatus);
     }
 
     //int logicalUnit = fFileFormat==mZBS ? fIOMode : mInput;

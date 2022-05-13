@@ -28,11 +28,17 @@ int main(int argc, char **argv)
 
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
+    inputMC.SetSKOption(settings.GetString("SKOPTN").c_str()); // M.Harada
+    inputMC.SetSKBadChOption(settings.GetInt("SKBADOPT"));// M.Harada
+    inputMC.SetRefRunNo(settings.GetInt("REFRUNNO"));// M.Harada
     inputMC.OpenFile();
     auto nInputEvents = inputMC.GetNumberOfEvents();
 
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
+    outputMC.SetSKOption(settings.GetString("SKOPTN").c_str()); // M.Harada
+    outputMC.SetSKBadChOption(settings.GetInt("SKBADOPT"));// M.Harada
+    outputMC.SetRefRunNo(settings.GetInt("REFRUNNO"));// M.Harada
     outputMC.OpenFile();
 
     msg.Print(Form("Input file: %s", inputFilePath.c_str()));
@@ -51,7 +57,8 @@ int main(int argc, char **argv)
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
-        if (!(skhead_.idtgsk & (1<<28))) continue;
+        if (!(skhead_.idtgsk & (1<<28))) continue;// Added by M.Harada
+        std::cout << sktqz_.nqiskz<<std::endl;
         PMTHitCluster inputMCHits(sktqz_);
 
         // Append dummy hits
