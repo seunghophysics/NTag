@@ -113,7 +113,8 @@ class Store : public TreeOut
 
         // temporary values for branching
         TVector3 tmpVec;
-        float tmpNum;
+        int tmpInt;
+        float tmpFloat;
         std::string tmpStr;
         int fillCounter;
 };

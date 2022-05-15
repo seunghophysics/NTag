@@ -70,9 +70,12 @@ void Store::MakeBranches()
     if (fIsOutputTreeSet) {
          for (auto const& key: fKeyOrder) {
             auto value = fMap[key];
-
-            if (Get(key, tmpNum)) {
-                fOutputTree->Branch(key.c_str(), &tmpNum);
+            if (Get(key, tmpFloat)) {
+                std::size_t readSize; tmpInt = std::stoi(value, &readSize);
+                if (readSize==value.size())
+                    fOutputTree->Branch(key.c_str(), &tmpInt);
+                else
+                    fOutputTree->Branch(key.c_str(), &tmpFloat);
             }
             else {
                 tmpStr = value;
@@ -88,7 +91,7 @@ void Store::FillTree()
 {
     if (fIsOutputTreeSet) {
         for (auto const& key: fKeyOrder) {
-            if (!Get(key, tmpNum)) Get(key, tmpStr);
+            if (!Get(key, tmpFloat)) Get(key, tmpStr);
             fOutputTree->GetBranch(key.c_str())->Fill();
         }
 
