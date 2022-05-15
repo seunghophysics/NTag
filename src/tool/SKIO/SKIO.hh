@@ -72,7 +72,7 @@ class SKIO
         FileFormat GetFileFormat() { return fFileFormat; }
 
         const char* GetSKOption() { return fSKOption.Data(); }
-        void SetSKOption(const char* skOption) { fSKOption = skOption; }
+        void SetSKOption(std::string skOption) { fSKOption = skOption; }
         void AddSKOption(int opt) { fSKOption += ("," + std::to_string(opt)); }
 
         int GetSKGeometry() { return fSKGeometry; }

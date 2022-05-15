@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     if (parser.GetOption("-prompt_vertex")=="stmu")
         input.AddSKOption(23);
 
-    input.SetSKOption(settings.GetString("SKOPTN").c_str());
+    input.SetSKOption(settings.GetString("SKOPTN"));
     input.SetSKBadChOption(settings.GetInt("SKBADOPT"));
     input.SetRefRunNo(settings.GetInt("REFRUNNO"));
 
@@ -84,6 +84,7 @@ int main(int argc, char** argv)
         noiseManager = new NoiseManager(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
         noiseManager->DumpSettings();
         ntagManager.SetNoiseManager(noiseManager);
+        noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
     }
 
     // set output file and trees
