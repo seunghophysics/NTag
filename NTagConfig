@@ -35,6 +35,7 @@ weight default
 
 # MC noise
 add_noise      false
+repeat_noise   false
 noise_type     sk6
 TNOISESTART    2
 TNOISEEND      536

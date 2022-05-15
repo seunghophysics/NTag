@@ -42,6 +42,7 @@ int main(int argc, char **argv)
     noiseManager.DumpSettings();
     if (settings.GetBool("debug", false))
         noiseManager.SetVerbosity(pDEBUG);
+    noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
