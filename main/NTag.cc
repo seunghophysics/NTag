@@ -50,6 +50,7 @@ int main(int argc, char** argv)
     if (parser.GetOption("-prompt_vertex")=="stmu")
         input.AddSKOption(23);
 
+    input.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
     input.SetSKOption(settings.GetString("SKOPTN"));
     input.SetSKBadChOption(settings.GetInt("SKBADOPT"));
     input.SetRefRunNo(settings.GetInt("REFRUNNO"));

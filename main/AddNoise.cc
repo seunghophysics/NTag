@@ -26,12 +26,19 @@ int main(int argc, char **argv)
 
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
+
+    inputMC.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    inputMC.SetSKOption(settings.GetString("SKOPTN"));
+    inputMC.SetSKBadChOption(settings.GetInt("SKBADOPT"));
+    inputMC.SetRefRunNo(settings.GetInt("REFRUNNO"));
+
     inputMC.OpenFile();
     auto nInputEvents = inputMC.GetNumberOfEvents();
 
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
     outputMC.OpenFile();
+    outputMC.DumpSettings();
 
     msg.Print(Form("Input file: %s", inputFilePath.c_str()));
     msg.Print(Form("Number of events in input file: %d", nInputEvents));
@@ -39,10 +46,10 @@ int main(int argc, char **argv)
 
     NoiseManager noiseManager(settings.GetString("noise_type").c_str(), nInputEvents,
                               settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
-    noiseManager.DumpSettings();
     if (settings.GetBool("debug", false))
         noiseManager.SetVerbosity(pDEBUG);
     noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
+    noiseManager.DumpSettings();
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {

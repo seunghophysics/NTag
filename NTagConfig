@@ -48,9 +48,10 @@ TRBNWIDTH      0
 NODHITMX       100000
 
 # SK I/O options
-SKOPTN         31,30,26,25
-SKBADOPT       0
-REFRUNNO       62428
+SKGEOMETRY     5
+SKOPTN         31,30,25
+SKBADOPT       55
+REFRUNNO       85619
 
 # event processing
 force_flat     0

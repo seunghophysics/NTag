@@ -15,9 +15,14 @@ bool SKIO::fIsZEBRAInitialized = false;
 TString SKIO::fInFilePath = "";
 TString SKIO::fOutFilePath = "";
 
+TString SKIO::fSKOption = "31,30,25";
+int SKIO::fSKGeometry = 5;
+int SKIO::fSKBadChOption = 0;
+int SKIO::fRefRunNo = 85619;
+
 SKIO::SKIO()
-: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""), fSKOption("31,30,26,25"), fSKGeometry(5), fSKBadChOption(0), fRefRunNo(62428),
-fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
+: fIOMode(mInput), fFileFormat(mZBS), fFilePath(""),
+  fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
 {}
 
 SKIO::SKIO(std::string fileName, IOMode mode)
@@ -73,10 +78,10 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     // SK custom bad channel masking (M. Harada)
     // (SK option 25: mask bad channel)
     // (SK option 26: read bad channel from input file)
-    if ( !fSKOption.Contains("25") && !fSKOption.Contains("26") ) {
+    if ( fSKOption.Contains("25") ) {
         int refSubRunNo = 0; int outputErrorStatus = 0;
-        skbadch_(&fRefRunNo, &refSubRunNo, &outputErrorStatus);
         skbadopt_(&fSKBadChOption);
+        skbadch_(&fRefRunNo, &refSubRunNo, &outputErrorStatus);
     }
 
     //int logicalUnit = fFileFormat==mZBS ? fIOMode : mInput;
@@ -260,7 +265,7 @@ void SKIO::DumpSettings()
     fMsg.Print(Form("%s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
     fMsg.Print(Form("SK geometry: %d", fSKGeometry));
     fMsg.Print("SK option: " + fSKOption);
-    fMsg.Print("SK bad channel option: " + fSKBadChOption);
+    fMsg.Print("SK bad channel option: " + std::to_string(fSKBadChOption));
     fMsg.Print(Form("SK reference run number: %d", fRefRunNo));
     std::cout << "\n";
 }

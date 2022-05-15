@@ -94,10 +94,6 @@ class SKIO
         IOMode fIOMode;
         FileFormat fFileFormat;
         TString fFilePath;
-        TString fSKOption;
-        int fSKGeometry;
-        int fSKBadChOption;
-        int fRefRunNo;
 
         int fNEvents, fCurrentEventID;
 
@@ -106,6 +102,11 @@ class SKIO
         static TString fInFilePath;
         static TString fOutFilePath;
         static bool fIsZEBRAInitialized;
+
+        static TString fSKOption;
+        static int fSKGeometry;
+        static int fSKBadChOption;
+        static int fRefRunNo;
 
         Printer fMsg;
 };
