@@ -83,8 +83,8 @@ int main(int argc, char** argv)
         int   noiseSeed   = settings.GetInt("NOISESEED");
         noiseManager = new NoiseManager(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
         noiseManager->DumpSettings();
+        noiseManager->SetRepeat(settings.GetBool("repeat_noise", false));
         ntagManager.SetNoiseManager(noiseManager);
-        noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
     }
 
     // set output file and trees
