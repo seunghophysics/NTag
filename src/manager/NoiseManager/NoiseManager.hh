@@ -17,22 +17,18 @@ enum NoiseTriggerType
     mT2KDummy = -2147483648
 };
 
-static const float MINDUMMYHITS = 50e3;
-static const float MAXDUMMYHITS = 100e3;
-
-static TString DUMMYDIR = "/disk02/calib3/usr/han/dummy/";
-static TString DUMMYCUT = Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy);
-
 class NoiseManager
 {
     public:
         NoiseManager();
-        NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed=0);
         NoiseManager(TTree* tree);
         ~NoiseManager();
 
+        void GenerateNoiseTree(TString option, int nInputEvents, float tStart, float tEnd, int seed=0);
         void AddNoiseFileToChain(TChain* chain, TString noiseFilePath);
         void SetNoiseTree(TTree* tree);
+        void SetNoiseTreeName(TString treename) { fNoiseTreeName = treename; }
+        void SetNoisePath(TString dirpath) { fNoisePath = dirpath; }
         void SetNoiseTimeRange(float startTime, float endTime);
         void SetNoiseEventHits();
         void GetNextNoiseEvent();
@@ -48,7 +44,9 @@ class NoiseManager
         TTree* fNoiseTree;
         TString fNoiseTreeName;
         
+        TString fNoisePath;
         TString fNoiseType;
+        TString fNoiseCut;
 
         Header* fHeader;
         TQReal* fTQReal;
@@ -57,6 +55,7 @@ class NoiseManager
         float fNoiseStartTime, fNoiseEndTime, fNoiseWindowWidth;
         float fNoiseT0;
 
+        float fMinHitsLimit, fMaxHitsLimit;
         float fMinHitDensity, fMaxHitDensity;
 
         float fPMTDeadtime;

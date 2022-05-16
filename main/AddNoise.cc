@@ -44,8 +44,10 @@ int main(int argc, char **argv)
     msg.Print(Form("Number of events in input file: %d", nInputEvents));
     msg.Print(Form("Output file: %s", outputFilePath.c_str()));
 
-    NoiseManager noiseManager(settings.GetString("noise_type").c_str(), nInputEvents,
-                              settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
+    NoiseManager noiseManager;
+    noiseManager.SetNoisePath(settings.GetString("noise_path"));
+    noiseManager.GenerateNoiseTree(settings.GetString("noise_type").c_str(), nInputEvents,
+                                   settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
     if (settings.GetBool("debug", false))
         noiseManager.SetVerbosity(pDEBUG);
     noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));

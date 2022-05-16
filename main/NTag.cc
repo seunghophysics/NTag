@@ -82,7 +82,9 @@ int main(int argc, char** argv)
         float tNoiseStart = settings.GetFloat("TNOISESTART");
         float tNoiseEnd   = settings.GetFloat("TNOISEEND");
         int   noiseSeed   = settings.GetInt("NOISESEED");
-        noiseManager = new NoiseManager(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
+        noiseManager = new NoiseManager;
+        noiseManager->SetNoisePath(settings.GetString("noise_path"));
+        noiseManager->GenerateNoiseTree(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
         noiseManager->DumpSettings();
         noiseManager->SetRepeat(settings.GetBool("repeat_noise", false));
         ntagManager.SetNoiseManager(noiseManager);

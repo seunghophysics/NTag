@@ -19,9 +19,12 @@
 
 NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
+  fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"), 
+  fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy)),
   fNoiseEventLength(1000e3),
   fNoiseStartTime(0), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
   fNoiseT0(0),
+  fMinHitsLimit(50e3), fMaxHitsLimit(100e3),
   fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
   fPMTDeadtime(900),
   fCurrentHitID(0),
@@ -31,8 +34,7 @@ NoiseManager::NoiseManager()
   fMsg("NoiseManager")
 {}
 
-NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float tEnd, int seed)
-: NoiseManager()
+void NoiseManager::GenerateNoiseTree(TString option, int nInputEvents, float tStart, float tEnd, int seed)
 {
     fNoiseType = option;
     SetNoiseTimeRange(tStart, tEnd);
@@ -56,12 +58,12 @@ NoiseManager::NoiseManager(TString option, int nInputEvents, float tStart, float
     }
 
     SetSeed(seed);
-    TString dummyRunPath = DUMMYDIR + option;
+    TString dummyRunPath = fNoisePath + "/" + option;
     int nRequiredEvents = nInputEvents / fNParts;
 
-    std::vector<TString> runDirs = GetListOfSubdirectories(DUMMYDIR + base);
+    std::vector<TString> runDirs = GetListOfSubdirectories(fNoisePath + "/" + base);
     std::vector<TString> fileList;
-    if (run != "") fileList = GetListOfFiles(DUMMYDIR + base + "/" + run);
+    if (run != "") fileList = GetListOfFiles(fNoisePath + "/" + base + "/" + run);
 
     TString dummyFilePath;
 
@@ -106,7 +108,7 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
     tree = (TTree*)(dummyFile->Get(fNoiseTreeName));
 
     if (tree) {
-        nAddedEntries = tree->GetEntries(DUMMYCUT);
+        nAddedEntries = tree->GetEntries(fNoiseCut);
         dummyFile->Close();
     }
 
@@ -121,18 +123,18 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
 void NoiseManager::SetNoiseTree(TTree* tree)
 {
     fNoiseTree = tree;
-    fHeader = 0;
-    fTQReal = 0;
-    fNoiseTree->SetBranchAddress("HEADER", &fHeader);
-    fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
+    fTQReal = 0; fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
+    fHeader = 0; fNoiseTree->SetBranchAddress("HEADER", &fHeader);
     fNEntries = fNoiseTree->GetEntries();
 
-    tree->Draw(Form("TQREAL.nhits>>hNHits(500, %f, %f)", MINDUMMYHITS, MAXDUMMYHITS), DUMMYCUT, "", 1000);
+    fNoiseTree->GetEntry();
+
+    tree->Draw(Form("TQREAL.nhits>>hNHits(500, %f, %f)", fMinHitsLimit, fMaxHitsLimit), fNoiseCut, "", 1000);
     TH1F* hNHits = (TH1F*)gROOT->Get("hNHits");
-    TF1* gausFunc = new TF1("gaus", "gaus", MINDUMMYHITS, MAXDUMMYHITS);
+    TF1* gausFunc = new TF1("gaus", "gaus", fMinHitsLimit, fMaxHitsLimit);
     gausFunc->SetParLimits(0, 0, 1000);
-    gausFunc->SetParLimits(1, MINDUMMYHITS, MAXDUMMYHITS);
-    gausFunc->SetParLimits(2, 0, (MAXDUMMYHITS-MINDUMMYHITS)/2.);
+    gausFunc->SetParLimits(1, fMinHitsLimit, fMaxHitsLimit);
+    gausFunc->SetParLimits(2, 0, (fMaxHitsLimit-fMinHitsLimit)/2.);
     TFitResultPtr gausFit = hNHits->Fit(gausFunc, "S", "goff");
     const double* fitParams = gausFit->GetParams();
     double fitMean = fitParams[1]; double fitSigma = fitParams[2];
@@ -162,10 +164,10 @@ void NoiseManager::GetNextNoiseEvent()
     fCurrentEntry++; fNoiseEventHits.Clear();
     if (fCurrentEntry < fNEntries) {
         fNoiseTree->GetEntry(fCurrentEntry);
-        if (fHeader->idtgsk != mT2KDummy && (fHeader->idtgsk & mRandomWide) != mRandomWide)
-            GetNextNoiseEvent();
-        else
+        if (fHeader->idtgsk)
             SetNoiseEventHits();
+        else
+            GetNextNoiseEvent();
     }
     else {
         fMsg.Print("Noise tree reached its end!", pWARNING);
@@ -242,7 +244,7 @@ void NoiseManager::DumpSettings()
     fMsg.Print(Form("Noise range: [%3.2f, %3.2f] usec (T_trigger=0)", fNoiseStartTime*1e-3-1, fNoiseEndTime*1e-3-1));
     fMsg.Print(Form("Seed: %d", ranGen.GetSeed()));
     fMsg.Print(Form("3-sigma hit density range: (%3.1f, %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
-    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(DUMMYCUT)));
+    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(fNoiseCut)));
     fMsg.Print(Form("PMT deadtime: %3.2f ns", fPMTDeadtime));
     fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
     std::cout << "\n";
