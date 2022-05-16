@@ -162,7 +162,7 @@ void NoiseManager::GetNextNoiseEvent()
     fCurrentEntry++; fNoiseEventHits.Clear();
     if (fCurrentEntry < fNEntries) {
         fNoiseTree->GetEntry(fCurrentEntry);
-        if (fHeader->idtgsk != mT2KDummy && fHeader->idtgsk != mRandomWide)
+        if (fHeader->idtgsk != mT2KDummy && (fHeader->idtgsk & mRandomWide) != mRandomWide)
             GetNextNoiseEvent();
         else
             SetNoiseEventHits();
