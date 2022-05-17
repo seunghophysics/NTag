@@ -61,7 +61,7 @@ void Store::Print() const
     }
 
     for (auto const& key: fKeyOrder)
-        std::cout << std::left << std::setw(maxWidth+1) << key << ": " << fMap.at(key) << "\n";
+        std::cout << std::left << std::setw(maxWidth+1) << key << ": " << fMap.at(key).second << "\n";
     std::cout << std::endl;
 }
 
@@ -69,18 +69,15 @@ void Store::MakeBranches()
 {
     if (fIsOutputTreeSet) {
          for (auto const& key: fKeyOrder) {
-            auto value = fMap[key];
-            if (Get(key, tmpFloat)) {
-                std::size_t readSize; tmpInt = std::stoi(value, &readSize);
-                if (readSize==value.size())
-                    fOutputTree->Branch(key.c_str(), &tmpInt);
-                else
-                    fOutputTree->Branch(key.c_str(), &tmpFloat);
-            }
-            else {
-                tmpStr = value;
+            auto valType = fMap[key].first;
+            if (valType==tINT)
+                fOutputTree->Branch(key.c_str(), &tmpInt);
+            
+            else if (valType==tFLOAT)
+                fOutputTree->Branch(key.c_str(), &tmpFloat);
+
+            else if (valType==tSTRING)
                 fOutputTree->Branch(key.c_str(), &tmpStr);
-            }
         }
     }
 
@@ -91,8 +88,19 @@ void Store::FillTree()
 {
     if (fIsOutputTreeSet) {
         for (auto const& key: fKeyOrder) {
-            if (!Get(key, tmpFloat)) Get(key, tmpStr);
-            fOutputTree->GetBranch(key.c_str())->Fill();
+            auto pair = fMap[key];
+            if (pair.first==tINT) {
+                tmpInt = std::stoi(pair.second);
+                fOutputTree->GetBranch(key.c_str())->Fill();
+            }
+            else if (pair.first==tFLOAT) {
+                tmpFloat = std::stof(pair.second);
+                fOutputTree->GetBranch(key.c_str())->Fill();
+            }
+            else if (pair.first==tSTRING) {
+                tmpStr = pair.second;
+                fOutputTree->GetBranch(key.c_str())->Fill();
+            }
         }
 
         fillCounter++;

@@ -16,6 +16,11 @@
 std::istream& operator>>(std::istream& istr, TVector3& vec);
 std::ostream& operator<<(std::ostream& ostr, TVector3 vec);
 
+enum ValueType
+{
+    tINT, tFLOAT, tSTRING
+};
+
 //template<typename T>
 //bool CheckType(const std::string& str)
 //{
@@ -45,7 +50,7 @@ class Store : public TreeOut
         {
             if (fMap.count(key) > 0) {
 
-                std::stringstream stream(fMap[key]);
+                std::stringstream stream(fMap[key].second);
                 stream >> out;
                 return !stream.fail();
             }
@@ -59,17 +64,19 @@ class Store : public TreeOut
             std::stringstream stream;
             stream << in;
             if (!fMap.count(key)) fKeyOrder.push_back(key);
-            fMap[key] = stream.str();
+            
+            ValueType vtype = std::is_floating_point<T>::value? tFLOAT : (std::is_integral<T>::value? tINT: tSTRING);
+            fMap[key] = std::pair<ValueType, std::string>(vtype, stream.str());
         }
         
         bool GetBool(std::string key, bool emptyVal=true)
         {
             if (fMap.count(key) > 0) {
-                if (fMap[key]=="true" || fMap[key]=="1") return true;
-                else if (fMap[key]=="false" || fMap[key]=="0") return false;
+                if (fMap[key].second=="true" || fMap[key].second=="1") return true;
+                else if (fMap[key].second=="false" || fMap[key].second=="0") return false;
                 else {
                     //std::cerr << "Key " << key << " in the Store " << name
-                    //          << " has a non-boolean value " << fMap[key] << "\n";
+                    //          << " has a non-boolean value " << fMap[key].second << "\n";
                     return emptyVal;
                 }
             }
@@ -79,25 +86,25 @@ class Store : public TreeOut
         int GetInt(std::string key, int emptyVal=0)
         {
             if (fMap.count(key) > 0)
-                return std::stoi(fMap[key]);
+                return std::stoi(fMap[key].second);
             else return emptyVal;
         }
         
         float GetFloat(std::string key, float emptyVal=0)
         {
             if (fMap.count(key) > 0)
-                return std::stof(fMap[key]);
+                return std::stof(fMap[key].second);
             else return emptyVal;
         }
         
         std::string GetString(std::string key, std::string emptyVal="")
         {
             if (fMap.count(key) > 0)
-                return fMap[key];
+                return fMap[key].second;
             else return emptyVal; 
         }
 
-        const std::map<std::string, std::string>& GetMap() { return fMap; }
+        const std::map<std::string, std::pair<ValueType, std::string>>& GetMap() { return fMap; }
 
         // TTree access
         void MakeBranches();
@@ -106,7 +113,7 @@ class Store : public TreeOut
 
     protected:
         std::string name;
-        std::map<std::string, std::string> fMap;
+        std::map<std::string, std::pair<ValueType, std::string>> fMap;
 
     private:
         std::vector<std::string> fKeyOrder;
