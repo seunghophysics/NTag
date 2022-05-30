@@ -15,7 +15,7 @@ bool SKIO::fIsZEBRAInitialized = false;
 TString SKIO::fInFilePath = "";
 TString SKIO::fOutFilePath = "";
 
-TString SKIO::fSKOption = "31,30,25";
+TString SKIO::fSKOption = "31,30";
 int SKIO::fSKGeometry = 5;
 int SKIO::fSKBadChOption = 0;
 int SKIO::fRefRunNo = 85619;
