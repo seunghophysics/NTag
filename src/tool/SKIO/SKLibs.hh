@@ -43,9 +43,9 @@ extern "C" {
 // Software trigger
 extern "C" {
     int softtrg_inittrgtbl_(int*, int*, int*, int*);
-//    void softtrg_get_cond_(int*, int*, int*, int*, int*);
+    void softtrg_get_cond_(int*, int*, int*, int*, int*);
     void get_run_softtrg_(int*, int*, int*, int*, int*, int*);
-//    void softtrg_set_cond_(int*, int*, int*, int*, int*);
+    void softtrg_set_cond_(int*, int*, int*, int*, int*);
 }
 
 // atmpd data control

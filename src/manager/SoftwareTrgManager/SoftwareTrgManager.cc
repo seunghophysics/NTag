@@ -17,12 +17,6 @@
 #undef MAXPMA
 #include <tqrealroot.h>
 #include <skheadC.h>
-#include <skonl/softtrg_buf.h>
-extern "C" {
-  //#include <softtrg_ofldata.h>
-  //#include <skonl/softtrg_cond.h>
-  //#include <skonl/softtrg_tbl.h>
-}
 
 #include <Calculator.hh>
 #include <SKIO.hh>
@@ -34,9 +28,9 @@ const float SoftwareTrgManager::CNT2PC_S = 0.100;
 const float SoftwareTrgManager::CNT2PC_M = 0.732;
 const float SoftwareTrgManager::CNT2PC_L = 5.141;
 
-const int SoftwareTrgManager::QBEE_QTC_SMALL      = 0;
-const int SoftwareTrgManager::QBEE_QTC_MEDIUM     = 1;
-const int SoftwareTrgManager::QBEE_QTC_LARGE      = 2;
+const int SoftwareTrgManager::QBEE_QTC_SMALL  = 0;
+const int SoftwareTrgManager::QBEE_QTC_MEDIUM = 1;
+const int SoftwareTrgManager::QBEE_QTC_LARGE  = 2;
 const int SoftwareTrgManager::IQ_INGATE_FLAG = 2048;
 
 SoftwareTrgManager::SoftwareTrgManager(int refRunNo=0)
