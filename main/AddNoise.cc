@@ -7,6 +7,7 @@
 #include "PMTHitCluster.hh"
 #include "NoiseManager.hh"
 #include "Printer.hh"
+#include "SoftwareTrgManager.hh"
 #include "Store.hh"
 #include "SKIO.hh"
 
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
     noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
     noiseManager.DumpSettings();
 
-    SoftwareTrigManager softwareTrg(settings.GetInt("REFRUNNO"));
+    SoftwareTrgManager softwareTrg(settings.GetInt("REFRUNNO"));
   
 
     // Event loop
@@ -74,7 +75,6 @@ int main(int argc, char **argv)
         }
 
         outputMC.FillTQREAL(inputMCHits);
-        outputMC.FillTree(inputMCHits);
         outputMC.Write();
     }
 

@@ -12,11 +12,11 @@
 // Software trigger include
 #include <skparmC.h>
 #include <skruninfC.h>
-#include <sktqC.h>
+#include <skheadC.h>
 #undef MAXPM
 #undef MAXPMA
 #include <tqrealroot.h>
-#include <skheadC.h>
+#include <sktqC.h>
 
 #include <Calculator.hh>
 #include <SKIO.hh>

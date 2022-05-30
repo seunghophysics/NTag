@@ -11,7 +11,7 @@ class SoftwareTrgManager
     public:
         SoftwareTrgManager();
         SoftwareTrgManager(int runNo);
-        ~SoftwareTrgManager();
+        ~SoftwareTrgManager(){};
 
         void ApplyTrigger(PMTHitCluster* signalHits);
         void MakeTQRAW(int pmtID, float t, float q);

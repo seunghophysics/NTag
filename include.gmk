@@ -14,7 +14,7 @@ CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I $(SKOFL_ROOT)/include/lowe -I $(SKOFL_ROOT)/lowe/bonsai
 SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llibrary -liolib -L $(SKOFL_ROOT)/src/rfa_dummy -lrfa -L $(SKOFL_ROOT)/lib -lmon \
 								-lskroot -lDataDefinition -ltqrealroot -lloweroot -latmpdroot -lmcinfo -lsofttrgroot -lidod_xtlk_root -lsnevtinfo\
-								-lbonsai_3.3 -lsklowe_7.0 -lwtlib_5.1 -lsollib_4.0 -lskrd -llibrary -liolib -lsklib
+								-lbonsai_3.3 -lsklowe_7.0 -lwtlib_5.1 -lsollib_4.0 -lskrd -llibrary -liolib -lsklib -lsofttrg
 ATMPDINCLUDE = -I $(ATMPD_ROOT)/include -I $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd -I $(ATMPD_ROOT)/src/recon/fitqun
 ATMPDLIB = -L $(ATMPD_ROOT)/lib -lapdrlib -lhutl -laplib -lringlib -ltp -ltf -lringlib \
 		   -laplib -lmsfit -lseplib -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
