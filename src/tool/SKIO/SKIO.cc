@@ -15,7 +15,7 @@ bool SKIO::fIsZEBRAInitialized = false;
 TString SKIO::fInFilePath = "";
 TString SKIO::fOutFilePath = "";
 
-TString SKIO::fSKOption = "31,30,25";
+TString SKIO::fSKOption = "31,30";
 int SKIO::fSKGeometry = 5;
 int SKIO::fSKBadChOption = 0;
 int SKIO::fRefRunNo = 85619;
@@ -186,6 +186,23 @@ int SKIO::ReadEvent(int eventID)
     }
 
     return readStatus;
+}
+
+void SKIO::FillHEADER(SoftwareTrgManager& softTrg)
+{
+    if (fFileFormat == mZBS) {
+        softTrg.FillCommon();
+        //filltqreal_();
+        //WriteZBS();
+    }
+    else if (fFileFormat == mSKROOT) {
+        int logicalUnit = mInput;
+        skroot_get_entry_(&logicalUnit); // get tree entry from input ROOT
+        softTrg.FillCommon();
+        //skroot_set_tree_(&logicalUnit);  // common header, tqreal, tqareal to ROOT
+        //skroot_fill_tree_(&logicalUnit);
+        //skroot_clear_(&logicalUnit);
+    }
 }
 
 void SKIO::FillTQREAL(PMTHitCluster& hitCluster)

@@ -5,6 +5,7 @@
 
 #include <Printer.hh>
 #include <PMTHitCluster.hh>
+#include <SoftwareTrgManager.hh>
 
 #include "stdlib.h"
 
@@ -59,6 +60,7 @@ class SKIO
         int ReadNextEvent();
         int ReadEvent(int eventID);
 
+        void FillHEADER(SoftwareTrgManager& softTrg);
         void FillTQREAL(PMTHitCluster& hitCluster);
         void Write();
 

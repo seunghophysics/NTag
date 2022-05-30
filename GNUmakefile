@@ -27,7 +27,7 @@ FORTRANSRCS = $(sort $(shell find src -name '*.F'))
 FORTRANOBJS = $(patsubst src/%, obj/%.o, $(basename $(FORTRANSRCS)))
 INC := $(addprefix -I , $(sort $(dir $(shell find src -name '*.hh'))))
 
-$(OBJS): obj/%.o: src/%.cc src/%.hh
+$(OBJS): obj/%.o: src/%.cc
 	@mkdir -p $(@D)
 	@echo "[NTagLib] Building library: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
@@ -64,6 +64,7 @@ $(MAINOBJS): obj/main/%.o: main/%.cc lib/libNTagLib.a
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 	
 $(MAINBINS): bin/%: obj/main/%.o
+	@echo " $(words $(subst /, , $*))  $(subst /, ,$*) $* $@ $^"
 	@mkdir -p bin
 	@echo "[NTagLib] Building executable: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@LD_RUN_PATH=$(ROOTSYS)/lib:$(SKOFL_ROOT)/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)

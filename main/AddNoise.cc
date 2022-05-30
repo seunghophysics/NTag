@@ -53,6 +53,9 @@ int main(int argc, char **argv)
     noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
     noiseManager.DumpSettings();
 
+    SoftwareTrigManager softwareTrg(settings.GetInt("REFRUNNO"));
+  
+
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
         msg.Print(Form("Processing event #%d...\x1b[A\r", eventID));
@@ -63,7 +66,15 @@ int main(int argc, char **argv)
 
         // Append dummy hits
         noiseManager.AddNoise(&inputMCHits);
+
+        // Apply software trigger, if needed
+        if (settings.GetBool("apply_softwaretrig", false)) {
+          softwareTrg.ApplyTrigger(&inputMCHits);
+          outputMC.FillHEADER(softwareTrg);
+        }
+
         outputMC.FillTQREAL(inputMCHits);
+        outputMC.FillTree(inputMCHits);
         outputMC.Write();
     }
 
