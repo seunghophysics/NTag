@@ -27,10 +27,10 @@ int main(int argc, char **argv)
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
 
-    inputMC.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
-    inputMC.SetSKOption(settings.GetString("SKOPTN"));
-    inputMC.SetSKBadChOption(settings.GetInt("SKBADOPT"));
-    inputMC.SetRefRunNo(settings.GetInt("REFRUNNO"));
+    SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    SKIO::SetSKOption("31,30");
+    SKIO::SetSKBadChOption(0);
+    SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
 
     inputMC.OpenFile();
     auto nInputEvents = inputMC.GetNumberOfEvents();

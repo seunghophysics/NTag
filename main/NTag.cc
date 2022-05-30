@@ -50,10 +50,10 @@ int main(int argc, char** argv)
     if (parser.GetOption("-prompt_vertex")=="stmu")
         input.AddSKOption(23);
 
-    input.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
-    input.SetSKOption(settings.GetString("SKOPTN"));
-    input.SetSKBadChOption(settings.GetInt("SKBADOPT"));
-    input.SetRefRunNo(settings.GetInt("REFRUNNO"));
+    SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    SKIO::SetSKOption(settings.GetString("SKOPTN"));
+    SKIO::SetSKBadChOption(settings.GetInt("SKBADOPT"));
+    SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
 
     // output MC
     if (!outDataFilePath.empty()) {
