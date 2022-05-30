@@ -31,8 +31,10 @@ int main(int argc, char **argv)
 
     // Open output MC
     SKIO outputMC = SKIO(outputFilePath, mOutput);
-    outputMC.SetSKOption("31, 30");
-    outputMC.SetSKBadChOption(0);
+    output.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    output.SetSKOption(settings.GetString("SKOPTN"));
+    output.SetSKBadChOption(settings.GetInt("SKBADOPT"));
+    output.SetRefRunNo(settings.GetInt("REFRUNNO"));
     outputMC.OpenFile();
     outputMC.DumpSettings();
 
