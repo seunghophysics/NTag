@@ -11,7 +11,7 @@ ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk/
 ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38/
 CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 
-SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I $(SKOFL_ROOT)/include/lowe -I $(SKOFL_ROOT)/lowe/bonsai
+SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I $(SKOFL_ROOT)/include/lowe -I $(SKOFL_ROOT)/lowe/bonsai -I $(SKOFL_ROOT)/include/skonl -I $(SKOFL_ROOT)/src/softtrg 
 SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llibrary -liolib -L $(SKOFL_ROOT)/src/rfa_dummy -lrfa -L $(SKOFL_ROOT)/lib -lmon \
 								-lskroot -lDataDefinition -ltqrealroot -lloweroot -latmpdroot -lmcinfo -lsofttrgroot -lidod_xtlk_root -lsnevtinfo\
 								-lbonsai_3.3 -lsklowe_7.0 -lwtlib_5.1 -lsollib_4.0 -lskrd -llibrary -liolib -lsklib -lsofttrg

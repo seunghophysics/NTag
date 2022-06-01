@@ -10,13 +10,15 @@
 #include <TRandom3.h>
 
 // Software trigger include
+#include <skheadC.h>
 #include <skparmC.h>
 #include <skruninfC.h>
-#include <skheadC.h>
+#include <skonl/softtrg_tbl.h>
 #undef MAXPM
 #undef MAXPMA
 #include <tqrealroot.h>
 #include <sktqC.h>
+#include <softtrg_cond.h>
 
 #include <Calculator.hh>
 #include <SKIO.hh>
@@ -51,8 +53,10 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
   // Make tqrawinfo_ struct
   fRawGate = 0;
   int currentHitID = 0;
+  float minGate = -5.0e3; 
+  float maxGate = 35.0e3; 
   for (auto itr = signalHits->begin(); itr != signalHits->end(); ++itr) {
-    if (1) {
+    if (itr->t() > minGate && itr->t() < maxGate) {
       PMTHit hit = signalHits->At(currentHitID);
       this->MakeTQRAW(hit.i(), hit.t(), hit.q());
     }
@@ -64,9 +68,32 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
   int iInGateOnly = 1;
   int iMaxQBeeTBL = 1280;
 
-  Int_t iCandidates = softtrg_inittrgtbl_(&iRunSK, &iFirstHWCtr, &iInGateOnly, &iMaxQBeeTBL);
-  this->FindMainTrigger(iCandidates);
+  int iCandidates = softtrg_inittrgtbl_(&iRunSK, &iFirstHWCtr, &iInGateOnly, &iMaxQBeeTBL);
+  for (int iTrig=0; iTrig<iCandidates; iTrig++) {
+   // std::cout << iTrig << " " 
+	 //      << swtrgtbl_.swtrgtype[iTrig] << " " 
+	 //      << (1 << swtrgtbl_.swtrgtype[iTrig]) << " " 
+	 //      << swtrgtbl_.swtrgidx[iTrig] << " " 
+	 //      << swtrgtbl_.swtrgt0hwctr[iTrig] << " " 
+	 //      << swtrgtbl_.swtrgt0loc[iTrig] << " " 
+	 //      << swtrgtbl_.swtrgt0ctr[iTrig] << " " 
+	 //      << swtrgtbl_.swtrggsctr[iTrig] << std::endl;
+  }
+  int iPrimaryTrigger = this->FindMainTrigger(iCandidates);
+  int iGateStart = -1000 + swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
+  int iGateEnd   =  1496 + swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
 
+  // Turn on the flag for 1.3 us around T0
+  for (auto itr = signalHits->begin(); itr != signalHits->end(); ++itr) {
+    PMTHit hit = signalHits->At(currentHitID);
+    hit.ModifyFlag(hit.f() & 0xFFFE);
+  //  uint64_t iT_64 = (uint64_t)(hit.t() * COUNT_PER_NSEC);
+  //  int iT = (int)(iT_64 & 0x7FFF);
+  //  if (iT > iGateStart && iT < iGateEnd) {
+  //    hit.ModifyFlag(hit.f() | 1);
+  //  }    
+  //  currentHitID++;
+  }
 }
 
 void SoftwareTrgManager::MakeTQRAW(int pmtID, float t, float q)
@@ -118,15 +145,69 @@ void SoftwareTrgManager::MakeTQRAW(int pmtID, float t, float q)
   rawtqinfo_.nqisk_raw = fRawGate;
 }
 
-void SoftwareTrgManager::FindMainTrigger(int numTriggers)
+int SoftwareTrgManager::FindMainTrigger(int numTriggers)
 {
-  //for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
-  //  if (  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_LE && skruninf_.softtrg_mask&(1<<TRGID_SW_LE)) ||
-  //      (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_HE && skruninf_.softtrg_mask&(1<<TRGID_SW_HE)) ||
-  //      (swtrgtbl_.swtrgtype[iTrig] == TRGID_SHE   && skruninf_.softtrg_mask&(1<<TRGID_SHE))   ||
-  //      (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_OD && skruninf_.softtrg_mask&(1<<TRGID_SW_OD))) {
-  //  }
-  //}
+  int isT0Found = 0;
+	int iPrimaryTrigger = -1;
+  int it0sk_tmp = 0;
+  int idtgsk_tmp = 0;
+  for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
+    if ( (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_LE && skruninf_.softtrg_mask&(1<<TRGID_SW_LE)) ||
+         (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_HE && skruninf_.softtrg_mask&(1<<TRGID_SW_HE)) ||
+         (swtrgtbl_.swtrgtype[iTrig] == TRGID_SHE   && skruninf_.softtrg_mask&(1<<TRGID_SHE))   ||
+         (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_OD && skruninf_.softtrg_mask&(1<<TRGID_SW_OD))) {
+
+			if ( isT0Found == 0 ) {
+				//If this is the first trigger, then store and set flag
+				isT0Found       = 1;
+				iPrimaryTrigger = iTrig;
+
+				it0sk_tmp  = swtrgtbl_.swtrgt0ctr[iTrig];
+				idtgsk_tmp = (1 << swtrgtbl_.swtrgtype[iTrig]);
+			}
+			else if ( swtrgtbl_.swtrgt0ctr[iTrig] <= it0sk_tmp ) {
+				// Trigger time is earlier, change primary trigger
+				iPrimaryTrigger = iTrig;
+
+				it0sk_tmp  = swtrgtbl_.swtrgt0ctr[iTrig];
+				idtgsk_tmp = (1 << swtrgtbl_.swtrgtype[iTrig]);
+			}
+		}
+	}
+
+	for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
+		if (  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_LE  && skruninf_.softtrg_mask&(1<< TRGID_SW_LE))  || 
+				  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_HE  && skruninf_.softtrg_mask&(1<< TRGID_SW_HE))  ||
+				  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_SLE && skruninf_.softtrg_mask&(1<< TRGID_SW_SLE)) ||
+				  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SHE    && skruninf_.softtrg_mask&(1<< TRGID_SHE))    ||
+				  (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_OD  && skruninf_.softtrg_mask&(1<< TRGID_SW_OD)) ) {
+			if ( isT0Found == 0 ) {
+				//If this is the first trigger, then store and set flag
+				isT0Found       = 1;
+				iPrimaryTrigger = iTrig;
+
+				it0sk_tmp  = swtrgtbl_.swtrgt0ctr[iTrig];
+				idtgsk_tmp = (1 << swtrgtbl_.swtrgtype[iTrig]);
+			}
+
+			// 1.92 count/ns -> 200ns = 384 count
+			if ( abs( swtrgtbl_.swtrgt0ctr[iTrig] - it0sk_tmp ) < 384 ) {
+				idtgsk_tmp |= (1 << swtrgtbl_.swtrgtype[iTrig]);
+			}
+    }
+  }
+
+  // no LE/HE/SLE/OD trigger, t0 is set to GEANT t0 (in units of hardware clock position)	
+	if ( isT0Found == 0 ) {
+		it0sk_tmp   &= 0x00000000L;
+		//fIT0SK   |= ( ( int(fTrgTimeOffset / SKP::TDC_UNIT_SK4)        )      ); // Lower bin is time in count
+		//fIT0SK   |= ( ( (fDummyTrg+2)				& 0xFFFF ) <<15 ); // Upper 17 bin is TRG number
+		idtgsk_tmp  = 0;
+	}
+
+  // overwrite trigger ID of primary trigger
+  swtrgtbl_.swtrgtype[iPrimaryTrigger] = idtgsk_tmp;
+  return iPrimaryTrigger;
 }
 
 

@@ -15,7 +15,7 @@ class SoftwareTrgManager
 
         void ApplyTrigger(PMTHitCluster* signalHits);
         void MakeTQRAW(int pmtID, float t, float q);
-        void FindMainTrigger(int numTriggers);
+        int FindMainTrigger(int numTriggers);
 
         void FillCommon();
 

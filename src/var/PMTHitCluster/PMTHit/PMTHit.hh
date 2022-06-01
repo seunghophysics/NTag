@@ -36,6 +36,8 @@ class PMTHit
         inline const unsigned int& i() const { return fPMTID; }
         inline const int& f() const { return fFlag; }
         inline const bool& s() const { return fIsSignal; }
+        
+        inline void ModifyFlag(int i) { fFlag = i; }
 
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
