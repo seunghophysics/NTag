@@ -192,7 +192,7 @@ void SKIO::FillHEADER(SoftwareTrgManager& softTrg)
 {
     if (fFileFormat == mZBS) {
         softTrg.FillCommon();
-        //filltqreal_();
+        //fillheader_(); // NOT implemented yet(2022. 06. 02; M.Harara)
         //WriteZBS();
     }
     else if (fFileFormat == mSKROOT) {

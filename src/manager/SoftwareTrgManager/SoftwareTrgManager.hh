@@ -33,6 +33,9 @@ class SoftwareTrgManager
 
       static const int IQ_INGATE_FLAG;
 
+      int fIT0SK;
+      int fIDTGSK;
+
 };
 
 #endif

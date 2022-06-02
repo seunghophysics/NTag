@@ -50,6 +50,10 @@ SoftwareTrgManager::SoftwareTrgManager(int refRunNo=0)
 
 void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
 {
+  // initialize it0sk;
+  fIT0SK  = skheadqb_.it0sk;
+  fIDTGSK = skhead_.idtgsk;
+
   // Make tqrawinfo_ struct
   skruninf_.softtrg_mask = -1;
   fRawGate = 0;
@@ -71,14 +75,14 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
   int iMaxQBeeTBL = 1280;
 
   int iCandidates = softtrg_inittrgtbl_(&iRunSK, &iFirstHWCtr, &iInGateOnly, &iMaxQBeeTBL);
-  std::cout <<" N cand: "<<iCandidates<<std::endl;
+  //std::cout <<" N cand: "<<iCandidates<<std::endl;
   int iPrimaryTrigger = this->FindMainTrigger(iCandidates);
-  int it0sk = swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
-  int idtgsk = swtrgtbl_.swtrgtype[iPrimaryTrigger];
-  int iGateStart = -1000 + it0sk;
-  int iGateEnd   =  1496 + it0sk;
-  std::cout <<"main trigger: "<<"\n"
-            <<"\t TRGID: "<<idtgsk<<", t0: "<<it0sk<<", min: "<<iGateStart<<", max: "<<iGateEnd<<std::endl;
+  fIT0SK  = swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
+  fIDTGSK = swtrgtbl_.swtrgtype[iPrimaryTrigger];
+  int iGateStart = -1000 + fIT0SK;
+  int iGateEnd   =  1496 + fIT0SK;
+  //std::cout <<"main trigger: "<<"\n"
+  //          <<"\t TRGID: "<<idtgsk<<", t0: "<<it0sk<<", min: "<<iGateStart<<", max: "<<iGateEnd<<std::endl;
 
   // Turn on the flag for 1.3 us around T0
   for (auto& hit: *signalHits) {
@@ -88,7 +92,7 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
     if (iT > iGateStart && iT < iGateEnd) {
       hit.SetFlag(hit.f() | 1);
     }    
-    int iT_diff = -it0sk;
+    int iT_diff = -fIT0SK;
     hit.SetT(hit.t() + (float)(iT_diff/COUNT_PER_NSEC) + tmpTOffset + 1000.);
   }
 }
@@ -96,14 +100,8 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
 void SoftwareTrgManager::MakeTQRAW(int pmtID, float t, float q, float tOffset)
 {
   // T digitization
-  //uint64_t iT_64 = (uint64_t)(t*COUNT_PER_NSEC);
   uint64_t iT_64 = (uint64_t)((t + tOffset)*COUNT_PER_NSEC);
-  //int iBlock = (int)(iT_64 >> 15); // original is uint, but int is OK for this simulation
-  //iBlock = (int)(iT_64 >> 15); // original is uint, but int is OK for this simulation
-  //int iT_low = (int)(iT_64 & 0x7fff);
-  //int iT_high = (int)(iT_64>>15);
   int iT = int(iT_64); 
-
 
   // Q digitization.
   // This is a very simple approximation.
@@ -152,14 +150,14 @@ int SoftwareTrgManager::FindMainTrigger(int numTriggers)
   int it0sk_tmp = 0;
   int idtgsk_tmp = 0;
   for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
-    std::cout <<"\t"<< iTrig << " " 
-	       << swtrgtbl_.swtrgtype[iTrig] << " " 
-	       << (1 << swtrgtbl_.swtrgtype[iTrig]) << " " 
-	       << swtrgtbl_.swtrgidx[iTrig] << " " 
-	       << swtrgtbl_.swtrgt0hwctr[iTrig] << " " 
-	       << swtrgtbl_.swtrgt0loc[iTrig] << " " 
-	       << swtrgtbl_.swtrgt0ctr[iTrig] << " " 
-	       << swtrgtbl_.swtrggsctr[iTrig] << std::endl;
+    //std::cout <<"\t"<< iTrig << " " 
+	  //     << swtrgtbl_.swtrgtype[iTrig] << " " 
+	  //     << (1 << swtrgtbl_.swtrgtype[iTrig]) << " " 
+	  //     << swtrgtbl_.swtrgidx[iTrig] << " " 
+	  //     << swtrgtbl_.swtrgt0hwctr[iTrig] << " " 
+	  //     << swtrgtbl_.swtrgt0loc[iTrig] << " " 
+	  //     << swtrgtbl_.swtrgt0ctr[iTrig] << " " 
+	  //     << swtrgtbl_.swtrggsctr[iTrig] << std::endl;
     if ( (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_LE && skruninf_.softtrg_mask&(1<<TRGID_SW_LE)) ||
          (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_HE && skruninf_.softtrg_mask&(1<<TRGID_SW_HE)) ||
          (swtrgtbl_.swtrgtype[iTrig] == TRGID_SHE   && skruninf_.softtrg_mask&(1<<TRGID_SHE))   ||
@@ -219,9 +217,12 @@ int SoftwareTrgManager::FindMainTrigger(int numTriggers)
 }
 
 
-
 void SoftwareTrgManager::FillCommon()
 {
-  skhead_.idtgsk =0; 
+  skheadqb_.it0sk  = fIT0SK; 
+  skheadqb_.it0xsk  = fIT0SK; 
+  skhead_.idtgsk = fIDTGSK; 
+
+  //Many other items in skhead are NOT implemented yet
 }
 
