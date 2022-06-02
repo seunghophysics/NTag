@@ -14,7 +14,7 @@ class SoftwareTrgManager
         ~SoftwareTrgManager(){};
 
         void ApplyTrigger(PMTHitCluster* signalHits);
-        void MakeTQRAW(int pmtID, float t, float q);
+        void MakeTQRAW(int pmtID, float t, float q, float tOffset);
         int FindMainTrigger(int numTriggers);
 
         void FillCommon();
@@ -32,6 +32,7 @@ class SoftwareTrgManager
       static const int QBEE_QTC_LARGE;
 
       static const int IQ_INGATE_FLAG;
+
 };
 
 #endif
