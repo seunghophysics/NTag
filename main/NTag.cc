@@ -78,15 +78,8 @@ int main(int argc, char** argv)
     // read noise settings
     NoiseManager* noiseManager = nullptr;
     if (settings.GetBool("add_noise", false)) {
-        std::string noiseType; settings.Get("noise_type", noiseType);
-        float tNoiseStart = settings.GetFloat("TNOISESTART");
-        float tNoiseEnd   = settings.GetFloat("TNOISEEND");
-        int   noiseSeed   = settings.GetInt("NOISESEED");
         noiseManager = new NoiseManager;
-        noiseManager->SetNoisePath(settings.GetString("noise_path"));
-        noiseManager->GenerateNoiseTree(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
-        noiseManager->DumpSettings();
-        noiseManager->SetRepeat(settings.GetBool("repeat_noise", false));
+        noiseManager->ApplySettings(settings, nInputEvents);
         ntagManager.SetNoiseManager(noiseManager);
     }
 

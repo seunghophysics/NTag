@@ -45,13 +45,7 @@ int main(int argc, char **argv)
     msg.Print(Form("Output file: %s", outputFilePath.c_str()));
 
     NoiseManager noiseManager;
-    noiseManager.SetNoisePath(settings.GetString("noise_path"));
-    noiseManager.GenerateNoiseTree(settings.GetString("noise_type").c_str(), nInputEvents,
-                                   settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
-    if (settings.GetBool("debug", false))
-        noiseManager.SetVerbosity(pDEBUG);
-    noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
-    noiseManager.DumpSettings();
+    noiseManager.ApplySettings(settings, nInputEvents);
 
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {

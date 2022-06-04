@@ -35,7 +35,7 @@ weight default
 
 # MC noise
 add_noise      false
-repeat_noise   false
+repeat_noise   true
 noise_path     /disk02/calib3/usr/han/dummy
 noise_type     sk6
 TNOISESTART    2
