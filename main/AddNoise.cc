@@ -53,11 +53,17 @@ int main(int argc, char **argv)
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
-        PMTHitCluster inputMCHits(sktqz_);
+        PMTHitCluster inputMCIDHits(sktqz_);
+        PMTHitCluster inputMCODHits(sktqaz_);
 
         // Append dummy hits
-        noiseManager.AddNoise(&inputMCHits);
-        outputMC.FillTQREAL(inputMCHits);
+        noiseManager.AddIDNoise(&inputMCIDHits);
+        noiseManager.AddODNoise(&inputMCODHits);
+
+        inputMCIDHits.Append(inputMCODHits);
+        auto& outputHits = inputMCIDHits;
+
+        outputMC.FillTQREAL(outputHits);
         outputMC.Write();
     }
 

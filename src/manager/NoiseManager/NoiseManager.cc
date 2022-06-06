@@ -24,16 +24,19 @@ NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
   fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"), 
   fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy)),
+  fNoiseSeed(0),
   fNoiseEventLength(1000e3),
   fNoiseStartTime(1e3), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
   fNoiseT0(0),
-  fMinHitsLimit(50e3), fMaxHitsLimit(100e3),
-  fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
-  fPMTDeadtime(900),
-  fCurrentHitID(0),
+  fIDMaxN200(60), fODMaxN200(20
+  ),
+  //fMinHitsLimit(50e3), fMaxHitsLimit(100e3),
+  //fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
+  fPMTDeadtime(900), fIDDarkRatekHz(7.5), fODDarkRatekHz(4.0),
+  fCurrentIDHitIndex(0), fCurrentODHitIndex(0),
   fCurrentEntry(-1), fNEntries(0),
   fPartID(0), fNParts(2),
-  fDoRepeat(true),
+  fDoRepeat(true), fDoN200Cut(false),
   fMsg("NoiseManager")
 {}
 
@@ -60,13 +63,19 @@ void NoiseManager::DumpSettings()
 {
     fMsg.PrintBlock("NoiseManager settings");
 
-    fMsg.Print(Form("Noise type: " + fNoiseType));
+    if (fNoiseTree) {
+        fMsg.Print(Form("Noise type: " + fNoiseType));
+        fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(fNoiseCut)));
+        fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
+        if (fDoN200Cut) fMsg.Print(Form("Noise MaxN200: %d (ID), %d (OD)", fIDMaxN200, fODMaxN200));
+    }
+    else {
+        fMsg.Print(Form("ID dark rate: %3.2f kHz", fIDDarkRatekHz));
+        fMsg.Print(Form("OD dark rate: %3.2f kHz", fODDarkRatekHz));
+    }
     fMsg.Print(Form("Noise range: [%3.2f, %3.2f] usec (T_trigger=0)", fNoiseStartTime*1e-3-1, fNoiseEndTime*1e-3-1));
-    //fMsg.Print(Form("Seed: %d", ranGen.GetSeed()));
-    fMsg.Print(Form("3-sigma hit density range: (%3.1f, %3.1f) hits/us", fMinHitDensity, fMaxHitDensity));
-    fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(fNoiseCut)));
+    fMsg.Print(Form("Seed: %d", fNoiseSeed));
     fMsg.Print(Form("PMT deadtime: %3.2f ns", fPMTDeadtime));
-    fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
     std::cout << "\n";
 }
 
@@ -97,31 +106,12 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
 void NoiseManager::SetNoiseTree(TChain* tree)
 {
     fNoiseTree = tree;
-    fTQReal = 0; fNoiseTree->SetBranchAddress("TQREAL", &fTQReal);
+    fIDTQReal = 0; fNoiseTree->SetBranchAddress("TQREAL", &fIDTQReal);
+    fODTQReal = 0; fNoiseTree->SetBranchAddress("TQAREAL", &fODTQReal);
     fHeader = 0; fNoiseTree->SetBranchAddress("HEADER", &fHeader);
     fNEntries = fNoiseTree->GetEntries();
 
     fNoiseTree->GetEntry();
-
-    tree->Draw(Form("TQREAL.nhits>>hNHits(500, %f, %f)", fMinHitsLimit, fMaxHitsLimit), fNoiseCut, "", 1000);
-    TH1F* hNHits = (TH1F*)gROOT->FindObject("hNHits");
-    std::cout << hNHits->GetEntries() << std::endl;
-    TF1* gausFunc = new TF1("gaus", "gaus", fMinHitsLimit, fMaxHitsLimit);
-    gausFunc->SetParLimits(0, 0, 1000);
-    gausFunc->SetParLimits(1, fMinHitsLimit, fMaxHitsLimit);
-    gausFunc->SetParLimits(2, 0, (fMaxHitsLimit-fMinHitsLimit)/2.);
-    TFitResultPtr gausFit = hNHits->Fit(gausFunc, "S", "goff");
-    const double* fitParams = gausFit->GetParams();
-    double fitMean = fitParams[1]; double fitSigma = fitParams[2];
-
-    float leftEdge = fitMean - 3 * fitSigma;
-    float rightEdge = fitMean + 3 * fitSigma;
-
-    fMinHitDensity = leftEdge / 1000.;
-    fMaxHitDensity = rightEdge / 1000.;
-
-    //fMsg.Print(Form("Noise hits per entry: %3.2f +- %3.2f hits", fitMean, fitSigma));
-    //fMsg.Print(Form("Total entries in noise tree: %d", fNEntries));
 }
 
 void NoiseManager::DumpNoiseFileList(TString pathToList)
@@ -132,9 +122,10 @@ void NoiseManager::DumpNoiseFileList(TString pathToList)
     // dump settings
     outFile << "TNOISESTART " << (fNoiseStartTime-1000)*1e-3 << "\n";
     outFile << "TNOISEEND " << (fNoiseEndTime-1000)*1e-3 << "\n";
-    //outFile << "PMTDEADTIME " << fPMTDeadtime << "\n";
-    //outFile << "MINHITDENSITY " << fMinHitDensity << "\n";
-    //outFile << "MAXHITDENSITY " << fMaxHitDensity << "\n";
+    outFile << "PMTDEADTIME " << fPMTDeadtime << "\n";
+    outFile << "n200_cut " << fDoN200Cut << "\n";
+    outFile << "IDMAXN200 " << fIDMaxN200 << "\n";
+    outFile << "ODMAXN200 " << fODMaxN200 << "\n";
     outFile << "\n";
 
     // dump file paths
@@ -210,9 +201,10 @@ void NoiseManager::SetNoiseTreeFromList(TString pathToList)
     while (inFile >> option >> value) {
         if (option=="TNOISESTART")   startTime    = value;
         if (option=="TNOISEEND")     endTime      = value;
-        //if (option=="PMTDEADTIME")   fPMTDeadtime  = value;
-        //if (option=="MINHITDENSITY") fMinHitDensity  = value;
-        //if (option=="MAXHITDENSITY") fMaxHitDensity  = value;
+        if (option=="PMTDEADTIME")   fPMTDeadtime = value;
+        if (option=="n200_cut")      fDoN200Cut   = value;
+        if (option=="IDMAXN200")     fIDMaxN200   = value;
+        if (option=="ODMAXN200")     fODMaxN200   = value;
     }
     SetNoiseTimeRange(startTime, endTime);
 
@@ -243,6 +235,11 @@ void NoiseManager::SetNoiseTreeFromWildcard(TString wildcard, float tStart, floa
 void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
 {
     auto noiseType   = settings.GetString("noise_type");
+    auto idDarkRate  = settings.GetFloat("IDDARKRATE");
+    auto odDarkRate  = settings.GetFloat("ODDARKRATE");
+    auto doN200Cut   = settings.GetBool("n200_cut", false);
+    auto idMaxN200   = settings.GetInt("IDMAXN200", 60);
+    auto odMaxN200   = settings.GetInt("ODMAXN200", 20);
     auto inputNoise  = settings.GetString("in_noise");
     auto noiseList   = settings.GetString("dump_noise");
     auto tNoiseStart = settings.GetFloat("TNOISESTART", 0);
@@ -250,30 +247,37 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     auto noiseSeed   = settings.GetInt("NOISESEED");
     auto debug       = settings.GetBool("debug", false);
 
-    if (!inputNoise.empty()) {
-        if (TString(inputNoise).EndsWith(".root"))
-            SetNoiseTreeFromWildcard(inputNoise, tNoiseStart, tNoiseEnd);
-        else
-            SetNoiseTreeFromList(inputNoise);
+    SetSeed(noiseSeed);
+    SetNoiseMaxN200(idMaxN200, odMaxN200, doN200Cut);
+    if (debug) SetVerbosity(pDEBUG);
+    if (noiseType == "simulate") {
+        SetDarkRate(idDarkRate, odDarkRate);
     }
     else {
-        SetNoisePath(settings.GetString("noise_path"));
-        SetNoiseTreeFromOptions(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
+        if (!inputNoise.empty()) {
+            if (TString(inputNoise).EndsWith(".root"))
+                SetNoiseTreeFromWildcard(inputNoise, tNoiseStart, tNoiseEnd);
+            else
+                SetNoiseTreeFromList(inputNoise);
+        }
+        else {
+            SetNoisePath(settings.GetString("noise_path"));
+            SetNoiseTreeFromOptions(noiseType, nInputEvents, tNoiseStart, tNoiseEnd, noiseSeed);
+        }
+        if (!noiseList.empty())
+            DumpNoiseFileList(noiseList);
+
+        SetRepeat(settings.GetBool("repeat_noise", true));
     }
-    if (!noiseList.empty())
-        DumpNoiseFileList(noiseList);
-
-    SetRepeat(settings.GetBool("repeat_noise", true));
-    if (debug) SetVerbosity(pDEBUG);
-
+    
     DumpSettings();
 }
 
 void NoiseManager::GetNextNoiseEvent()
 {
-    fPartID = 0; fCurrentHitID = 0;
+    fPartID = 0; fCurrentIDHitIndex = 0; fCurrentODHitIndex = 0;
 
-    fCurrentEntry++; fNoiseEventHits.Clear();
+    fCurrentEntry++; fIDNoiseEventHits.Clear(); fODNoiseEventHits.Clear();
     if (fCurrentEntry < fNEntries) {
         fNoiseTree->GetEntry(fCurrentEntry);
         if (fHeader->idtgsk & mRandomWide || fHeader->idtgsk == mT2KDummy)
@@ -298,52 +302,108 @@ void NoiseManager::GetNextNoiseEvent()
 
 void NoiseManager::SetNoiseEventHits()
 {
-    fT = fTQReal->T;
-    fQ = fTQReal->Q;
-    fI = fTQReal->cables;
-    unsigned int nRawHits = fT.size();
+    bool useThisNoiseEvent = true;
 
-    for (unsigned int j=0; j<=nRawHits; j++) {
-        if (-1000e3 < fT[j] && fT[j] < 1000e3)
-            fNoiseEventHits.Append({fT[j], fQ[j], fI[j]&0x0000FFFF, 2/*in-gate flag*/});
-        else
-            fMsg.Print(Form("Skipping hit with time T=%3.2f msec which is outside of range [-1, 1] msec...", fT[j]*1e-6), pWARNING);
+    if (fDoN200Cut) {
+        // dark selection: OD max N200 <= 20 && ID max N200 <= 50
+        auto idHist = Histogram(fIDTQReal->T, 5000, -500e3, 500e3);
+        auto odHist = Histogram(fODTQReal->T, 5000, -500e3, 500e3);
+        for (int iBin=0; iBin<5000; iBin++) {
+            if (odHist[iBin].second > fODMaxN200 | idHist[iBin].second > fIDMaxN200) {
+                fMsg.Print(Form("Rejecting noise event with OD N200 %d and ID N200 %d...", 
+                                 odHist[iBin].second, idHist[iBin].second), pWARNING);
+                useThisNoiseEvent = false; break;
+            }
+        }
     }
 
-    fNoiseEventHits.Sort();
-    int nHits = fNoiseEventHits.GetSize();
-    fNoiseEventLength = fNoiseEventHits[nHits-1].t() - fNoiseEventHits[0].t();
-    float rawHitDensity = nRawHits / 1000.;
-    fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
+    // populate hit clusters
+    if (useThisNoiseEvent) {
+        PopulateHitCluster(&fIDNoiseEventHits);
+        PopulateHitCluster(&fODNoiseEventHits, true);
 
-    if (fNParts <= 0 || rawHitDensity < fMinHitDensity || rawHitDensity > fMaxHitDensity) {
-        fMsg.Print(Form("Skipping inappropriate entry with fNParts = %d, rawHitDensity = %3.2f hits/us\n", fNParts, rawHitDensity), pWARNING, false);
-        GetNextNoiseEvent();
+        int nHits = fIDNoiseEventHits.GetSize();
+        fNoiseEventLength = fIDNoiseEventHits[nHits-1].t() - fIDNoiseEventHits[0].t();
+        fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
+        fNoiseT0 = fIDNoiseEventHits[0].t() + (fNoiseEventLength - fNParts*fNoiseWindowWidth)/2.;
     }
 
-    fNoiseT0 = fT[0] + (fNoiseEventLength - fNParts*fNoiseWindowWidth)/2.;
+    else GetNextNoiseEvent();
 }
 
-void NoiseManager::AddNoise(PMTHitCluster* signalHits)
+void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits, int& currentHitIndex, float darkRate, bool OD)
 {
-    if (fCurrentEntry == -1 || fPartID == fNParts) {
-        GetNextNoiseEvent();
-        fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
+    // noise from noise files
+    if (fNoiseTree) {
+        if (fCurrentEntry == -1 || fPartID == fNParts) {
+            GetNextNoiseEvent();
+            fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
+        }
+
+        float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
+        float partEndTime = partStartTime + fNoiseWindowWidth;
+
+        while (noiseHits->At(currentHitIndex).t() < partStartTime) currentHitIndex++;
+
+        while (noiseHits->At(currentHitIndex).t() < partEndTime) {
+            PMTHit hit = noiseHits->At(currentHitIndex);
+            hit += (fNoiseStartTime - partStartTime);
+            signalHits->Append(hit);
+            currentHitIndex++;
+        }
     }
 
-    float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
-    float partEndTime = partStartTime + fNoiseWindowWidth;
+    // in case fNoiseTree is empty, simulate noise
+    else {
+        int nSegments = int(fNoiseWindowWidth / fPMTDeadtime);
+        float expected = darkRate * 1e3 * fPMTDeadtime * 1e-9;
 
-    while (fNoiseEventHits[fCurrentHitID].t() < partStartTime) fCurrentHitID++;
+        unsigned int iMinPMT = !OD? 1 : 20001;
+        unsigned int iMaxPMT = !OD? MAXPM : 20000+MAXPMA;
 
-    while (fNoiseEventHits[fCurrentHitID].t() < partEndTime) {
-        PMTHit hit = fNoiseEventHits[fCurrentHitID];
-        hit += (fNoiseStartTime - partStartTime);
-        signalHits->Append(hit);
-        fCurrentHitID++;
+        for (unsigned int iPMT=iMinPMT; iPMT<=iMaxPMT; iPMT++) {
+            for (unsigned int iSeg=0; iSeg<=nSegments; iSeg++) {
+                int sampled = ranGen.Poisson(expected);
+                if (sampled) {
+                    float hitT = fNoiseStartTime + (iSeg + ranGen.Uniform()) * fPMTDeadtime;
+                    if (hitT < fNoiseEndTime) {
+                        float hitQ = abs(ranGen.Gaus(1, 0.7));
+                        PMTHit hit(hitT, hitQ, iPMT, 2/* in-gate */);
+                        signalHits->Append(hit);
+                    }
+                }
+            }
+        }
     }
-
     signalHits->ApplyDeadtime(fPMTDeadtime);
     signalHits->Sort();
     fPartID++;
+}
+
+void NoiseManager::PopulateHitCluster(PMTHitCluster* hitCluster, bool OD)
+{
+    std::vector<float> t = !OD? fIDTQReal->T : fODTQReal->T;
+    std::vector<float> q = !OD? fIDTQReal->Q : fODTQReal->Q;
+    std::vector<int>   i = !OD? fIDTQReal->cables : fODTQReal->cables;
+
+    unsigned int nRawHits = t.size();
+
+    for (unsigned int j=0; j<=nRawHits; j++) {
+        if (-1000e3 < t[j] && t[j] < 1000e3)
+            hitCluster->Append({t[j], q[j], i[j]&0x0000FFFF, 2/*in-gate flag*/});
+        else
+            fMsg.Print(Form("Skipping hit with time T=%3.2f msec which is outside of range [-1, 1] msec...", t[j]*1e-6), pDEBUG);
+    }
+
+    hitCluster->Sort();
+}
+
+void NoiseManager::AddIDNoise(PMTHitCluster* signalHits)
+{
+    AddNoise(signalHits, &fIDNoiseEventHits, fCurrentIDHitIndex, fIDDarkRatekHz);
+}
+
+void NoiseManager::AddODNoise(PMTHitCluster* signalHits)
+{
+    AddNoise(signalHits, &fODNoiseEventHits, fCurrentODHitIndex, fODDarkRatekHz, true);
 }

@@ -25,7 +25,7 @@
       equivalence(ibuf(1),rbuf(1))
       equivalence(ibufz(1,1),rbufz(1,1))
 
-cc  Get 0th element of Tqreal bank
+cc  Get 0th element of TQREAL bank
 
       CALL KZBLOC('TQREAL',IPBANK)
 
@@ -33,7 +33,7 @@ cc  Get 0th element of Tqreal bank
          CALL KZGET1('TQREAL',0,NDATA,IBUF)
       endif
 
-cc  Delete TQreal bank
+cc  Delete TQREAL bank
 
       call kzbdel('TQREAL')
 
@@ -41,12 +41,12 @@ cc  Modify number of hits
 
       ibuf(1) = nqiskz
 
-cc  Create TQreal bank
+cc  Create TQREAL bank
 
       CALL KZBCR1('TQREAL',7,'1I 1F 5I',nqiskz,3,'1I 2F',IERR)
       CALL KZREP1('TQREAL',0,7,ibuf)
 
-cc  Copy to TQreal bank
+cc  Copy to TQREAL bank
 
       do i = 1,nqiskz
          ibufz(1,i) = icabiz(i) + ihtiflz(i)
@@ -59,6 +59,43 @@ cc  Copy to TQreal bank
          nent = 3*nqiskz
          CALL LBFCOPY(IBUFZ,IZBS(LDAT+7+1),nent)
       END IF
+
+cc  Get 0th element of TQAREAL bank
+
+      CALL KZBLOC('TQAREAL',IPBANK)
+
+      if (IPBANK.gt.0) then
+         CALL KZGET1('TQAREAL',0,NDATA,IBUF)
+      endif
+
+cc  Delete TQAREAL bank
+
+      call kzbdel('TQAREAL')
+
+cc  Modify number of hits
+
+      ibuf(1) = nhitaz
+
+cc  Create TQAREAL bank
+
+      CALL KZBCR1('TQAREAL',7,'1I 1F 5I',nhitaz,3,'1I 2F',IERR)
+      CALL KZREP1('TQAREAL',0,7,ibuf)
+
+cc  Copy to TQAREAL bank
+
+      do i = 1, nhitaz
+         ibufz(1,i) = icabaz(i) + ihtflz(i)
+         rbufz(2,i) = taskz(i)
+         rbufz(3,i) = qaskz(i)
+      enddo
+
+      IF (nqiskz .NE. 0) THEN
+         CALL KZLDAT('TQAREAL',LDAT)
+         nent = 3*nhitaz
+         CALL LBFCOPY(IBUFZ,IZBS(LDAT+7+1),nent)
+      END IF
+
+      return
 
 cc   Make additional bank
 

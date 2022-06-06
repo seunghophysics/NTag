@@ -29,6 +29,19 @@ PMTHitCluster::PMTHitCluster(sktqz_common sktqz)
     }
 }
 
+PMTHitCluster::PMTHitCluster(sktqaz_common sktqaz)
+:PMTHitCluster()
+{
+    for (int iHit=0; iHit<sktqaz.nhitaz; iHit++) {
+        PMTHit hit{ /*T*/ sktqaz.taskz[iHit],
+                    /*Q*/ sktqaz.qaskz[iHit],
+                    /*I*/ sktqaz.icabaz[iHit],
+                    /*F*/ sktqaz_.ihtflz[iHit]
+                  };
+        Append(hit);
+    }
+}
+
 PMTHitCluster::PMTHitCluster(TQReal* tqreal, int flag)
 :PMTHitCluster()
 {
@@ -156,21 +169,52 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
 void PMTHitCluster::FillCommon()
 {
     int nHits = GetSize();
-    sktqz_.nqiskz = nHits;
-    rawtqinfo_.nqisk_raw = nHits;
-    rawtqinfo_.pc2pe_raw = 2.46; // SK5
+    int nIDHits = 0;
+    int nODHits = 0;
 
-    for (int iHit=0; iHit<nHits; iHit++) {
-        auto const& hit = fElement[iHit];
-        //hit.Dump();
-        sktqz_.tiskz[iHit] = hit.t();
-        sktqz_.qiskz[iHit] = hit.q();
-        sktqz_.icabiz[iHit] = hit.i();
-        sktqz_.ihtiflz[iHit] = hit.f()<<16;
+    for (auto const& hit: fElement) {
+        if (hit.i() >= 20000) nODHits++;
+        if (hit.i() <  MAXPM) nIDHits++;
+    }
 
-        rawtqinfo_.icabbf_raw[iHit] = hit.i() + (hit.f()<<16);
-        rawtqinfo_.tbuf_raw[iHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
-        rawtqinfo_.qbuf_raw[iHit] = hit.q();
+    if (nIDHits) {
+        sktqz_.nqiskz = nIDHits;
+        rawtqinfo_.nqisk_raw = nIDHits;
+        rawtqinfo_.pc2pe_raw = 2.46; // SK5
+
+        int iIDHit = 0;
+        for (auto const& hit: fElement) {
+            if (hit.i() <  MAXPM) {
+                sktqz_.tiskz[iIDHit] = hit.t();
+                sktqz_.qiskz[iIDHit] = hit.q();
+                sktqz_.icabiz[iIDHit] = hit.i();
+                sktqz_.ihtiflz[iIDHit] = hit.f()<<16;
+                rawtqinfo_.icabbf_raw[iIDHit] = hit.i() + (hit.f()<<16);
+                rawtqinfo_.tbuf_raw[iIDHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
+                rawtqinfo_.qbuf_raw[iIDHit] = hit.q();
+                iIDHit++;
+            }
+        }
+    }
+
+    if (nODHits) {
+        sktqaz_.nhitaz = nODHits;
+        rawtqinfo_.nhitaz_raw = nODHits;
+        rawtqinfo_.pc2pe_raw = 2.46; // SK5
+
+        int iODHit = 0;
+        for (auto const& hit: fElement) {
+            if (hit.i() >= 20000) {
+                sktqaz_.taskz[iODHit] = hit.t();
+                sktqaz_.qaskz[iODHit] = hit.q();
+                sktqaz_.icabaz[iODHit] = hit.i();
+                sktqaz_.ihtflz[iODHit] = hit.f()<<16;
+                rawtqinfo_.icabaz_raw[iODHit] = hit.i() + (hit.f()<<16);
+                rawtqinfo_.taskz_raw[iODHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
+                rawtqinfo_.qaskz_raw[iODHit] = hit.q();
+                iODHit++;
+            }
+        }
     }
 }
 
@@ -263,8 +307,10 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
         bHadVertex = true;
     }
 
-    std::array<Float, MAXPM> hitTime;
-    hitTime.fill(std::numeric_limits<Float>::lowest());
+    std::array<Float, MAXPM+1>  IDHitTime;
+    std::array<Float, MAXPMA+1> ODHitTime;
+    IDHitTime.fill(std::numeric_limits<Float>::lowest());
+    ODHitTime.fill(std::numeric_limits<Float>::lowest());
 
     std::vector<PMTHit> dtCorrectedHits;
 
@@ -272,9 +318,16 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
     for (auto const& hit: fElement) {
         int hitPMTID = hit.i();
         if (1 <= hitPMTID && hitPMTID <= MAXPM) {
-            if (hit.t() - hitTime[hitPMTID] > deadtime) {
+            if (hit.t() - IDHitTime[hitPMTID] > deadtime) {
                 dtCorrectedHits.push_back(hit);
-                hitTime[hitPMTID] = hit.t();
+                IDHitTime[hitPMTID] = hit.t();
+            }
+        }
+        else if (20001 <= hitPMTID && hitPMTID <= 20000+MAXPMA) {
+            hitPMTID -= 20000;
+            if (hit.t() - ODHitTime[hitPMTID] > deadtime) {
+                dtCorrectedHits.push_back(hit);
+                ODHitTime[hitPMTID] = hit.t();
             }
         }
     }

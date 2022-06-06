@@ -45,7 +45,8 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "DWall", "DWallMeanDir"};
                                                  
 static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_bank", "noise_path", "noise_type", "save_hits",
-                                               "add_noise", "repeat_noise", "in_noise", "dump_noise",
+                                               "add_noise", "repeat_noise", "in_noise", "dump_noise", "IDDARKRATE", "ODDARKRATE",
+                                               "n200_cut", "IDMAXN200", "ODMAXN200", 
                                                "weight", "debug", "in", "out", "tmva", "correct_tof",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e", 
                                                "SKGEOMETRY", "SKOPTN", "SKBADOPT", "REFRUNNO",

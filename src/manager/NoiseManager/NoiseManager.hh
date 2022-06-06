@@ -29,7 +29,10 @@ class NoiseManager
         void SetNoisePath(TString dirpath) { fNoisePath = dirpath; }
         void SetNoiseTimeRange(float startTime, float endTime);
         void SetPMTDeadtime(float pmtDeadtime) { fPMTDeadtime = pmtDeadtime; }
+        void SetDarkRate(float idRate, float odRate) { fIDDarkRatekHz = idRate; fODDarkRatekHz = odRate; }
+        void SetNoiseMaxN200(int idCut, int odCut, bool doCut=true) { fIDMaxN200 = idCut; fODMaxN200 = odCut; fDoN200Cut = doCut; }
         void SetRepeat(bool b) { fDoRepeat = b; }
+        void SetSeed(int seed) { fNoiseSeed = seed; ranGen.SetSeed(seed); }
         void DumpSettings();
 
         // noise tree generation
@@ -51,9 +54,15 @@ class NoiseManager
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
 
         // add noise to input PMTHitCluster
-        void AddNoise(PMTHitCluster* signalHits);
+        void AddIDNoise(PMTHitCluster* signalHits);
+        void AddODNoise(PMTHitCluster* signalHits);
+
+    protected:
+        void PopulateHitCluster(PMTHitCluster* hitCluster, bool OD=false);
+        void AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits, int& currentHitIndex, float darkRate, bool OD=false);
 
     private:
+
         TChain* fNoiseTree;
         TString fNoiseTreeName;
 
@@ -62,27 +71,33 @@ class NoiseManager
         TString fNoiseCut;
 
         Header* fHeader;
-        TQReal* fTQReal;
+        TQReal* fIDTQReal;
+        TQReal* fODTQReal;
+
+        int fNoiseSeed;
 
         float fNoiseEventLength;
         float fNoiseStartTime, fNoiseEndTime, fNoiseWindowWidth;
         float fNoiseT0;
 
-        float fMinHitsLimit, fMaxHitsLimit;
-        float fMinHitDensity, fMaxHitDensity;
+        int fIDMaxN200, fODMaxN200;
+
+        //float fMinHitsLimit, fMaxHitsLimit;
+        //float fMinHitDensity, fMaxHitDensity;
 
         float fPMTDeadtime;
+        float fIDDarkRatekHz, fODDarkRatekHz;
 
-        int fCurrentHitID, fCurrentEntry, fNEntries;
+        int fCurrentIDHitIndex, fCurrentODHitIndex, fCurrentEntry, fNEntries;
         int fPartID, fNParts;
 
-        bool fDoRepeat;
+        bool fDoRepeat, fDoN200Cut;
 
-        std::vector<float> fT;
-        std::vector<float> fQ;
+        std::vector<float> fT, fQ;
         std::vector<int>   fI;
 
-        PMTHitCluster fNoiseEventHits;
+        PMTHitCluster fIDNoiseEventHits;
+        PMTHitCluster fODNoiseEventHits;
         
         Printer fMsg;
 };
