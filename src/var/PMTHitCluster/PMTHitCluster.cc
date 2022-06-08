@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include <cassert>
 #include <limits>
 
@@ -376,17 +377,26 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
 
     int hit[3];
 
+    std::vector<int> perm(nHits);
+    std::iota(perm.begin(), perm.end(), 0);
+    Shuffle(perm);
+
+    int MAXNCOMBOS = 20000;
+    int nCombos = 0;
     // Pick 3 hits without repetition
     for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
         for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
             for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
-                openingAngles.push_back(GetOpeningAngle(fElement[hit[0]].GetDirection(),
-                                                        fElement[hit[1]].GetDirection(),
-                                                        fElement[hit[2]].GetDirection()));
+                openingAngles.push_back(GetOpeningAngle(fElement[perm[hit[0]]].GetDirection(),
+                                                        fElement[perm[hit[1]]].GetDirection(),
+                                                        fElement[perm[hit[2]]].GetDirection()));
+                nCombos++;
+                if (nCombos >= MAXNCOMBOS) goto calc;
             }
         }
     }
 
+    calc:
     OpeningAngleStats stats;
 
     stats.mean     = GetMean(openingAngles);
@@ -471,7 +481,7 @@ float PMTHitCluster::GetSignalRatio()
     float sigSum = 0;
     for (auto& hit: fElement)
         sigSum += hit.s();
-    
+
     return sigSum / GetSize();
 }
 
@@ -489,12 +499,12 @@ float PMTHitCluster::GetSignalRatio()
 PMTHitCluster PMTHitCluster::Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const
 {
     PMTHitCluster newCluster;
-    
+
     for (auto const& hit: fElement) {
         if (min < lambda(hit) && lambda(hit) < max)
             newCluster.Append(hit);
     }
-    
+
     return newCluster;
 }
 
