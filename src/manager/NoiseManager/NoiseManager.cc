@@ -121,11 +121,11 @@ void NoiseManager::DumpNoiseFileList(TString pathToList)
 
     // dump settings
     outFile << "TNOISESTART " << (fNoiseStartTime-1000)*1e-3 << "\n";
-    outFile << "TNOISEEND " << (fNoiseEndTime-1000)*1e-3 << "\n";
+    outFile << "TNOISEEND "   << (fNoiseEndTime-1000)*1e-3 << "\n";
     outFile << "PMTDEADTIME " << fPMTDeadtime << "\n";
-    outFile << "n200_cut " << fDoN200Cut << "\n";
-    outFile << "IDMAXN200 " << fIDMaxN200 << "\n";
-    outFile << "ODMAXN200 " << fODMaxN200 << "\n";
+    outFile << "noise_cut "   << fDoN200Cut << "\n";
+    outFile << "IDMAXN200 "   << fIDMaxN200 << "\n";
+    outFile << "ODMAXN200 "   << fODMaxN200 << "\n";
     outFile << "\n";
 
     // dump file paths
@@ -202,7 +202,7 @@ void NoiseManager::SetNoiseTreeFromList(TString pathToList)
         if (option=="TNOISESTART")   startTime    = value;
         if (option=="TNOISEEND")     endTime      = value;
         if (option=="PMTDEADTIME")   fPMTDeadtime = value;
-        if (option=="n200_cut")      fDoN200Cut   = value;
+        if (option=="noise_cut")      fDoN200Cut   = value;
         if (option=="IDMAXN200")     fIDMaxN200   = value;
         if (option=="ODMAXN200")     fODMaxN200   = value;
     }
@@ -237,7 +237,7 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     auto noiseType   = settings.GetString("noise_type");
     auto idDarkRate  = settings.GetFloat("IDDARKRATE");
     auto odDarkRate  = settings.GetFloat("ODDARKRATE");
-    auto doN200Cut   = settings.GetBool("n200_cut", false);
+    auto doN200Cut   = settings.GetBool("noise_cut", false);
     auto idMaxN200   = settings.GetInt("IDMAXN200", 60);
     auto odMaxN200   = settings.GetInt("ODMAXN200", 20);
     auto inputNoise  = settings.GetString("in_noise");
