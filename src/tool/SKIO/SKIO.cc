@@ -160,6 +160,7 @@ int SKIO::ReadNextEvent()
     int logicalUnit = fIOMode;
     int readStatus = skread_(&logicalUnit);
     if (readStatus == mReadOK) fCurrentEventID++;
+
     return readStatus;
 }
 
