@@ -214,21 +214,9 @@ void SKIO::FillMCINFO(SoftwareTrgManager& softTrg)
         //WriteZBS();
     }
     else if (fFileFormat == mSKROOT) {
-        int logicalUnit = mInput;
-        TreeManager* mgr  = skroot_get_mgr(&logicalUnit);
-        int     trigbit[10] = {0};
-        int     it0sk_temp[10] = {0};
-        float   prim_pret0[10] = {0.};
-        int     prim_trg[10] = {0};
-        int tmp_it0_offset = 0;
-        int tmp_it0sk_geantt0 = 0;
-        int tmp_numdsswtrgs = 10;
-        softTrg.FillTrgOffset(trigbit, it0sk_temp, prim_pret0, prim_trg);
-        mgr->AddMCDsTrgOff(&tmp_it0_offset, &tmp_it0sk_geantt0, &tmp_numdsswtrgs,
-                           trigbit, it0sk_temp, prim_pret0, prim_trg);
-        //skroot_set_tree_(&logicalUnit);  // common header, tqreal, tqareal to ROOT
-        //skroot_fill_tree_(&logicalUnit);
-        //skroot_clear_(&logicalUnit);
+        int lun = mInput;
+        softTrg.FillTrgOffset(fMCINFO);
+        //std::cout <<" after filling : "<<fMCINFO.prim_pret0[0]<<std::endl;
     }
 }
 
@@ -241,7 +229,11 @@ void SKIO::FillTQREAL(PMTHitCluster& hitCluster)
     }
     else if (fFileFormat == mSKROOT) {
         int logicalUnit = mInput;
+
         skroot_get_entry_(&logicalUnit); // get tree entry from input ROOT
+        TreeManager* mgr  = skroot_get_mgr(&logicalUnit);
+        std::copy(std::begin(fMCINFO.prim_pret0), std::end(fMCINFO.prim_pret0), std::begin(mgr->GetMC()->prim_pret0));
+        
         hitCluster.FillCommon();
         skroot_set_tree_(&logicalUnit);  // common header, tqreal, tqareal to ROOT
         skroot_fill_tree_(&logicalUnit);

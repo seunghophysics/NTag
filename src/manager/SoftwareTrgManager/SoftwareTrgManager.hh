@@ -6,6 +6,8 @@
 #include "Printer.hh"
 #include "PMTHitCluster.hh"
 
+#include <mcinfo.h>
+
 class SoftwareTrgManager
 {
     public:
@@ -18,7 +20,7 @@ class SoftwareTrgManager
         int FindMainTrigger(int numTriggers, float tOffset);
 
         void FillCommon();
-        void FillTrgOffset(int trigbit[], int it0sk_temp[], float prim_pret0[], int prim_trg[]);
+        void FillTrgOffset(MCInfo& inputMCINFO);
 
    private: 
       int fRawGate;
@@ -37,7 +39,7 @@ class SoftwareTrgManager
 
       int fIT0SK;
       int fIDTGSK;
-
+      
       std::vector<int>   fSubTrigger_Type;
       std::vector<int>   fSubTrigger_Time;
       std::vector<float> fSubTrigger_TimeRel;

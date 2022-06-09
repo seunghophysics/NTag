@@ -111,6 +111,7 @@ class SKIO
         static int fSKBadChOption;
         static int fRefRunNo;
 
+        MCInfo fMCINFO;
         Printer fMsg;
 };
 

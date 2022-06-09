@@ -266,14 +266,22 @@ void SoftwareTrgManager::FillCommon()
   //Many other items in skhead are NOT implemented yet
 }
 
-
-void SoftwareTrgManager::FillTrgOffset(int trigbit[], int it0sk_temp[], float prim_pret0[], int prim_trg[])
+void SoftwareTrgManager::FillTrgOffset(MCInfo& inputMCINFO)
 {
+  int     trigbit[10] = {0};
+  int     it0sk_temp[10] = {0};
+  float   prim_pret0[10] = {0.};
+  int     prim_trg[10] = {0};
+  int tmp_it0_offset = 0;
+  int tmp_it0sk_geantt0 = 0;
+  int tmp_numdsswtrgs = 10;
+
+  //std::cout <<" value filling : "<<fSubTrigger_TimeRel[0]<<std::endl;
   for (int i=0; i<10; i++) {
-    trigbit[i]    = fSubTrigger_Type[i];
-    it0sk_temp[i] = fSubTrigger_Time[i];
-    prim_pret0[i] = fSubTrigger_TimeRel[i];
-    prim_trg[i]   = fSubTrigger_Index[i];
+    inputMCINFO.trigbit[i]    = fSubTrigger_Type[i];
+    inputMCINFO.it0sk_temp[i] = fSubTrigger_Time[i];
+    inputMCINFO.prim_pret0[i] = fSubTrigger_TimeRel[i];
+    inputMCINFO.prim_trg[i]   = fSubTrigger_Index[i];
   }
 
   return;
