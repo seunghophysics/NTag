@@ -61,6 +61,7 @@ class SKIO
         int ReadEvent(int eventID);
 
         void FillHEADER(SoftwareTrgManager& softTrg);
+        void FillMCINFO(SoftwareTrgManager& softTrg);
         void FillTQREAL(PMTHitCluster& hitCluster);
         void Write();
 

@@ -35,6 +35,9 @@ const int SoftwareTrgManager::QBEE_QTC_MEDIUM = 1;
 const int SoftwareTrgManager::QBEE_QTC_LARGE  = 2;
 const int SoftwareTrgManager::IQ_INGATE_FLAG  = 2048;
 
+const int SoftwareTrgManager::SWTRG_SAME_GATE_WIDTH = 768;
+
+
 SoftwareTrgManager::SoftwareTrgManager(int refRunNo=0)
 {
   int softtrg_detector[32];
@@ -76,7 +79,7 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
 
   int iCandidates = softtrg_inittrgtbl_(&iRunSK, &iFirstHWCtr, &iInGateOnly, &iMaxQBeeTBL);
   //std::cout <<" N cand: "<<iCandidates<<std::endl;
-  int iPrimaryTrigger = this->FindMainTrigger(iCandidates);
+  int iPrimaryTrigger = this->FindMainTrigger(iCandidates, tmpTOffset);
   fIT0SK  = swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
   fIDTGSK = swtrgtbl_.swtrgtype[iPrimaryTrigger];
   int iGateStart = -1000 + fIT0SK;
@@ -143,21 +146,13 @@ void SoftwareTrgManager::MakeTQRAW(int pmtID, float t, float q, float tOffset)
   rawtqinfo_.nqisk_raw = fRawGate;
 }
 
-int SoftwareTrgManager::FindMainTrigger(int numTriggers)
+int SoftwareTrgManager::FindMainTrigger(int numTriggers, float tOffset)
 {
   bool isT0Found = false;
 	int iPrimaryTrigger = -1;
   int it0sk_tmp = 0;
   int idtgsk_tmp = 0;
   for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
-    //std::cout <<"\t"<< iTrig << " " 
-	  //     << swtrgtbl_.swtrgtype[iTrig] << " " 
-	  //     << (1 << swtrgtbl_.swtrgtype[iTrig]) << " " 
-	  //     << swtrgtbl_.swtrgidx[iTrig] << " " 
-	  //     << swtrgtbl_.swtrgt0hwctr[iTrig] << " " 
-	  //     << swtrgtbl_.swtrgt0loc[iTrig] << " " 
-	  //     << swtrgtbl_.swtrgt0ctr[iTrig] << " " 
-	  //     << swtrgtbl_.swtrggsctr[iTrig] << std::endl;
     if ( (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_LE && skruninf_.softtrg_mask&(1<<TRGID_SW_LE)) ||
          (swtrgtbl_.swtrgtype[iTrig] == TRGID_SW_HE && skruninf_.softtrg_mask&(1<<TRGID_SW_HE)) ||
          (swtrgtbl_.swtrgtype[iTrig] == TRGID_SHE   && skruninf_.softtrg_mask&(1<<TRGID_SHE))   ||
@@ -206,10 +201,55 @@ int SoftwareTrgManager::FindMainTrigger(int numTriggers)
   // no LE/HE/SLE/OD trigger, t0 is set to GEANT t0 (in units of hardware clock position)	
 	if ( isT0Found == 0 ) {
 		it0sk_tmp   &= 0x00000000L;
-		//fIT0SK   |= ( ( int(fTrgTimeOffset / SKP::TDC_UNIT_SK4)        )      ); // Lower bin is time in count
-		//fIT0SK   |= ( ( (fDummyTrg+2)				& 0xFFFF ) <<15 ); // Upper 17 bin is TRG number
 		idtgsk_tmp  = 0;
 	}
+
+
+  // Record MC trigger info.
+  fSubTrigger_Type.clear();
+  fSubTrigger_Time.clear();
+  fSubTrigger_TimeRel.clear();
+  fSubTrigger_Index.clear();
+
+  // Primary trigger
+  int iTriggerBit = 0;
+  if (iPrimaryTrigger != -1) {
+    iTriggerBit = (1 << swtrgtbl_.swtrgtype[iPrimaryTrigger]);
+    fSubTrigger_Type.push_back(iTriggerBit);
+  }
+  else {
+    fSubTrigger_Type.push_back(iTriggerBit);
+  }
+  fSubTrigger_Time.push_back(it0sk_tmp);
+  fSubTrigger_TimeRel.push_back(it0sk_tmp/COUNT_PER_NSEC - tOffset);
+  fSubTrigger_Index.push_back(iPrimaryTrigger);
+
+  // Loop for overlap triggers (mimics output of data)
+  if ( iPrimaryTrigger != -1 ) {
+    for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
+      // loop over triggers again to get overlap triggers
+
+      if (  iTrig != iPrimaryTrigger
+          && abs( it0sk_tmp - swtrgtbl_.swtrgt0ctr[iTrig] ) < SWTRG_SAME_GATE_WIDTH ) {
+
+        iTriggerBit = (1 << swtrgtbl_.swtrgtype[iTrig]); // Trigger bit
+        idtgsk_tmp |= iTriggerBit; // Add bit if needed
+      }
+    }
+  }
+
+  // Store each trigger, up to max
+  for ( int iTrig = 0; iTrig < numTriggers; iTrig++ ) {
+
+    iTriggerBit = (1 << swtrgtbl_.swtrgtype[iTrig]);
+
+    fSubTrigger_Type   .push_back(iTriggerBit);
+    fSubTrigger_Time   .push_back(swtrgtbl_.swtrgt0ctr[iTrig]);
+    fSubTrigger_TimeRel.push_back( swtrgtbl_.swtrgt0ctr[iTrig]/COUNT_PER_NSEC - tOffset );
+    // ns from event trigger to geant t0 (should be negative)
+    fSubTrigger_Index  .push_back( iTrig );
+  }
+
 
   // overwrite trigger ID of primary trigger
   swtrgtbl_.swtrgtype[iPrimaryTrigger] = idtgsk_tmp;
@@ -224,5 +264,18 @@ void SoftwareTrgManager::FillCommon()
   skhead_.idtgsk = fIDTGSK; 
 
   //Many other items in skhead are NOT implemented yet
+}
+
+
+void SoftwareTrgManager::FillTrgOffset(int trigbit[], int it0sk_temp[], float prim_pret0[], int prim_trg[])
+{
+  for (int i=0; i<10; i++) {
+    trigbit[i]    = fSubTrigger_Type[i];
+    it0sk_temp[i] = fSubTrigger_Time[i];
+    prim_pret0[i] = fSubTrigger_TimeRel[i];
+    prim_trg[i]   = fSubTrigger_Index[i];
+  }
+
+  return;
 }
 

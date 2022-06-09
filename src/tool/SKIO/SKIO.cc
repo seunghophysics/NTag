@@ -205,6 +205,32 @@ void SKIO::FillHEADER(SoftwareTrgManager& softTrg)
     }
 }
 
+void SKIO::FillMCINFO(SoftwareTrgManager& softTrg)
+{
+    if (fFileFormat == mZBS) {
+        softTrg.FillCommon();
+        //fillheader_(); // NOT implemented yet(2022. 06. 02; M.Harara)
+        //WriteZBS();
+    }
+    else if (fFileFormat == mSKROOT) {
+        int logicalUnit = mInput;
+        TreeManager* mgr  = skroot_get_mgr(&logicalUnit);
+        int     trigbit[10] = {0};
+        int     it0sk_temp[10] = {0};
+        float   prim_pret0[10] = {0.};
+        int     prim_trg[10] = {0};
+        int tmp_it0_offset = 0;
+        int tmp_it0sk_geantt0 = 0;
+        int tmp_numdsswtrgs = 10;
+        softTrg.FillTrgOffset(trigbit, it0sk_temp, prim_pret0, prim_trg);
+        mgr->AddMCDsTrgOff(&tmp_it0_offset, &tmp_it0sk_geantt0, &tmp_numdsswtrgs,
+                           trigbit, it0sk_temp, prim_pret0, prim_trg);
+        //skroot_set_tree_(&logicalUnit);  // common header, tqreal, tqareal to ROOT
+        //skroot_fill_tree_(&logicalUnit);
+        //skroot_clear_(&logicalUnit);
+    }
+}
+
 void SKIO::FillTQREAL(PMTHitCluster& hitCluster)
 {
     if (fFileFormat == mZBS) {

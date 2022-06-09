@@ -72,6 +72,7 @@ int main(int argc, char **argv)
         if (settings.GetBool("apply_softwaretrig", false)) {
           softwareTrg.ApplyTrigger(&inputMCHits);
           outputMC.FillHEADER(softwareTrg);
+          outputMC.FillMCINFO(softwareTrg);
         }
 
         outputMC.FillTQREAL(inputMCHits);
