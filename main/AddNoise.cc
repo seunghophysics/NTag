@@ -59,8 +59,8 @@ int main(int argc, char **argv)
 
     // Event loop
     //test Harada
-    for (int eventID=1; eventID<=10; eventID++) {
-//    for (int eventID=1; eventID<=nInputEvents; eventID++) {
+    //for (int eventID=1; eventID<=10; eventID++) {
+    for (int eventID=1; eventID<=nInputEvents; eventID++) {
         msg.Print(Form("Processing event #%d...\x1b[A\r", eventID));
 
         // Get input MC hits
