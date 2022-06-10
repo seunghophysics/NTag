@@ -58,7 +58,8 @@ int main(int argc, char **argv)
 
         // Append dummy hits
         noiseManager.AddIDNoise(&inputMCIDHits);
-        noiseManager.AddODNoise(&inputMCODHits);
+        if (settings.GetBool("add_noise_OD", false))
+            noiseManager.AddODNoise(&inputMCODHits);
 
         inputMCIDHits.Append(inputMCODHits);
         auto& outputHits = inputMCIDHits;
