@@ -169,7 +169,9 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     int NHITCUT = 1100;
     int fitFlag=0; int flagSkip=0; int flagLog=1;
 
-    if (skhead_.nrunsk == 999999) {
+    int original_nrunsk = skhead_.nrunsk;
+
+    if (skhead_.mdrnsk == 0) {
         // for mc, switch nrunsk to reference run number temporarily
         skhead_.nrunsk = fRefRunNo;
 
@@ -179,7 +181,7 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
             lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
     
         // ...and switch back
-        skhead_.nrunsk = 999999;
+        skhead_.nrunsk = original_nrunsk;
     }
     else {
         if (skheadg_.sk_geometry >= 5)
