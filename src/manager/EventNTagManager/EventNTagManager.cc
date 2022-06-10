@@ -776,18 +776,6 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     // set default values for delayed candidate properties
     TVector3 delayedVertex = fPromptVertex;
 
-    float evx = fEventHits.GetVertex().x();
-    float evy = fEventHits.GetVertex().y();
-    float evz = fEventHits.GetVertex().z();
-
-    float pvx = fPromptVertex.x();
-    float pvy = fPromptVertex.y();
-    float pvz = fPromptVertex.z();
-
-    float dvx = delayedVertex.x();
-    float dvy = delayedVertex.y();
-    float dvz = delayedVertex.z();
-
     float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
 
