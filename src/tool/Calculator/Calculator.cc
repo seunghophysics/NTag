@@ -14,7 +14,9 @@
 
 #include "Calculator.hh"
 
+std::default_random_engine c_ranGen;
 TRandom3 ranGen;
+
 
 float Dot(const float a[3], const float b[3])
 {
@@ -139,6 +141,7 @@ unsigned int GetMaxIndex(std::vector<float>& vec)
 
 void SetSeed(int seed)
 {
+    c_ranGen.seed(seed);
     ranGen.SetSeed(seed);
 }
 

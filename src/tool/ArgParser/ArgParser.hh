@@ -9,6 +9,7 @@
 #ifndef ARGPARSER_HH
 #define ARGPARSER_HH 1
 
+#include <iostream>
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -58,6 +59,7 @@ class ArgParser{
         ArgParser& operator+=(ArgParser& addedParser) {
             auto addedToken = addedParser.GetTokens();
             this->fTokens.insert(std::end(this->fTokens), std::begin(addedToken), std::end(addedToken));
+            this->SetOptionPairs();
             return *this;
         }
 
@@ -104,6 +106,9 @@ class ArgParser{
             return std::find(this->fTokens.begin(), this->fTokens.end(), option)
                    != this->fTokens.end();
         }
+
+        void DumpOptionPairs();
+        void DumpTokens();
 
     private:
         void SetOptionPairs();

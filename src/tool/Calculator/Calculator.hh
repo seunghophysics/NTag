@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <string>
 #include <cmath>
+#include <random>
 
 #include <TRandom3.h>
 #include <TString.h>
@@ -25,6 +26,7 @@
 
 /** Global random number generator */
 extern TRandom3 ranGen;
+extern std::default_random_engine c_ranGen;
 
 extern "C"
 {
@@ -241,6 +243,16 @@ T PickRandom(const std::vector<T>& vec)
     int nFiles = vec.size();
     int pickedIndex = (int)(nFiles * ranGen.Rndm());
     return vec[pickedIndex];
+}
+
+/**
+ * @brief Shuffle a given vector.
+ * @param vec The input vector.
+ */
+template <typename T>
+void Shuffle(std::vector<T>& vec)
+{
+    std::shuffle(std::begin(vec), std::end(vec), c_ranGen);
 }
 
 /**

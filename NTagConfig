@@ -21,6 +21,8 @@ NHITSMX        400
 N200MX         1000
 TMINPEAKSEP    200
 TCANWIDTH      14
+MINNHITS       4
+MAXNHITS       400
 
 # MC labeling
 TMATCHWINDOW   50
@@ -35,7 +37,7 @@ weight default
 
 # MC noise
 add_noise      false
-repeat_noise   false
+repeat_noise   true
 noise_path     /disk02/calib3/usr/han/dummy
 noise_type     sk6
 TNOISESTART    2

@@ -281,7 +281,7 @@ void EventNTagManager::AddHits()
 
 void EventNTagManager::AddNoise()
 {
-    fNoiseManager->AddNoise(&fEventHits);
+    fNoiseManager->AddIDNoise(&fEventHits);
 }
 
 void EventNTagManager::ReadParticles()
@@ -554,6 +554,8 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
     fSettings.Get("NHITSTH", NHITSTH);
     fSettings.Get("NHITSMX", NHITSMX);
+    fSettings.Get("MINNHITS", MINNHITS);
+    fSettings.Get("MAXNHITS", MAXNHITS);
     fSettings.Get("N200TH", N200TH);
     fSettings.Get("N200MX", N200MX);
     fSettings.Get("PVXRES", PVXRES);
@@ -750,7 +752,7 @@ void EventNTagManager::CheckMC()
 
 void EventNTagManager::PrepareEventHitsForSearch()
 {
-    if (!fSettings.GetBool("correct_tof"))
+    if (fSettings.GetBool("correct_tof", true))
         fEventHits.SetVertex(fPromptVertex);
     else
         fEventHits.RemoveVertex();
@@ -773,6 +775,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     // set default values for delayed candidate properties
     TVector3 delayedVertex = fPromptVertex;
+
     float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
 
@@ -837,8 +840,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         //unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
         unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.01, TCANWIDTH/2.).GetSize();
 
-        // NHits > 4 to prevent NaN in angle variables
-        if (nHits > 4) {
+        if (nHits >= MINNHITS && nHits <= MAXNHITS) {
             Candidate candidate(iHit);
             candidate.Set("FitT", (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
             candidate.Set("FitGoodness", delayedGoodness);

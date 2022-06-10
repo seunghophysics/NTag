@@ -28,10 +28,10 @@ int main(int argc, char **argv)
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
 
-    inputMC.SetSKGeometry(settings.GetInt("SKGEOMETRY"));
-    inputMC.SetSKOption(settings.GetString("SKOPTN"));
-    inputMC.SetSKBadChOption(settings.GetInt("SKBADOPT"));
-    inputMC.SetRefRunNo(settings.GetInt("REFRUNNO"));
+    SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    SKIO::SetSKOption("31,30");
+    SKIO::SetSKBadChOption(0);
+    SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
 
     inputMC.OpenFile();
     auto nInputEvents = inputMC.GetNumberOfEvents();
@@ -46,13 +46,7 @@ int main(int argc, char **argv)
     msg.Print(Form("Output file: %s", outputFilePath.c_str()));
 
     NoiseManager noiseManager;
-    noiseManager.SetNoisePath(settings.GetString("noise_path"));
-    noiseManager.GenerateNoiseTree(settings.GetString("noise_type").c_str(), nInputEvents,
-                                   settings.GetFloat("TNOISESTART"), settings.GetFloat("TNOISEEND"), settings.GetInt("NOISESEED"));
-    if (settings.GetBool("debug", false))
-        noiseManager.SetVerbosity(pDEBUG);
-    noiseManager.SetRepeat(settings.GetBool("repeat_noise", false));
-    noiseManager.DumpSettings();
+    noiseManager.ApplySettings(settings, nInputEvents);
 
     SoftwareTrgManager softwareTrg(settings.GetInt("REFRUNNO"));
   
@@ -65,10 +59,15 @@ int main(int argc, char **argv)
 
         // Get input MC hits
         inputMC.ReadEvent(eventID);
-        PMTHitCluster inputMCHits(sktqz_);
+        PMTHitCluster inputMCIDHits(sktqz_);
+        PMTHitCluster inputMCODHits(sktqaz_);
 
         // Append dummy hits
-        noiseManager.AddNoise(&inputMCHits);
+        noiseManager.AddNoise(&inputMCIDHits);
+        if (settings.GetBool("add_noise_OD", false))
+            noiseManager.AddODNoise(&inputMCODHits);
+
+        inputMCIDHits.Append(inputMCODHits);
 
         // Apply software trigger, if needed
         if (settings.GetBool("apply_softwaretrig", false)) {
@@ -77,7 +76,8 @@ int main(int argc, char **argv)
           outputMC.FillMCINFO(softwareTrg);
         }
 
-        outputMC.FillTQREAL(inputMCHits);
+        auto& outputHits = inputMCIDHits;
+        outputMC.FillTQREAL(outputHits);
         outputMC.Write();
     }
 
