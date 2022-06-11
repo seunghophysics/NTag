@@ -744,7 +744,7 @@ void EventNTagManager::DumpEvent()
 
 void EventNTagManager::CheckMC()
 {
-    if (skhead_.nrunsk == 999999)
+    if (skhead_.mdrnsk == 0)
         fIsMC = true;
     else
         fIsMC = false;
