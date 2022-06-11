@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         PMTHitCluster inputMCODHits(sktqaz_);
 
         // Append dummy hits
-        noiseManager.AddNoise(&inputMCIDHits);
+        noiseManager.AddIDNoise(&inputMCIDHits);
         if (settings.GetBool("add_noise_OD", false))
             noiseManager.AddODNoise(&inputMCODHits);
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
         // Apply software trigger, if needed
         if (settings.GetBool("apply_softwaretrig", false)) {
-          softwareTrg.ApplyTrigger(&inputMCHits);
+          softwareTrg.ApplyTrigger(&inputMCIDHits);
           outputMC.FillHEADER(softwareTrg);
           outputMC.FillMCINFO(softwareTrg);
         }
