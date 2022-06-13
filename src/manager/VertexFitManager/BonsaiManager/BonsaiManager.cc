@@ -65,8 +65,9 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
 
     int maxpm = MAXPM;
     cfbsinit_(&maxpm, GetPMTPositionArray());
-    int elapsedDays = skday_data_.relapse[refRunNo-1]; float waterTransparency;
-    lfwater_(&elapsedDays, &waterTransparency);
+    int elapsedDays = skday_data_.relapse[refRunNo-1]; 
+    waterTransparency = 12431.3;
+    if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
 
     fIsLOWFITInitialized = true;
 }
@@ -165,7 +166,6 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     skq_.nqisk = iHit+1;
 
     // lfallfit_sk4_data / mc
-    float waterTransparency = 12431.3;
     int NHITCUT = 1100;
     int fitFlag=0; int flagSkip=0; int flagLog=1;
 
@@ -175,11 +175,13 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         // for mc, switch nrunsk to reference run number temporarily
         skhead_.nrunsk = fRefRunNo;
 
-        if (skheadg_.sk_geometry >= 5)
+        if (skheadg_.sk_geometry >= 6)
+            lfallfit_sk6_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        else if (skheadg_.sk_geometry == 5)
             lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else
             lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-    
+
         // ...and switch back
         skhead_.nrunsk = original_nrunsk;
     }

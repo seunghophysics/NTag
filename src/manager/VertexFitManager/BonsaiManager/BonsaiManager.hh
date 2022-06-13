@@ -42,6 +42,7 @@ class BonsaiManager : public VertexFitManager
         unsigned int fRefRunNo;
         bool fUseLOWFIT;
         static bool fIsLOWFITInitialized;
+        float waterTransparency;
 };
 
 #endif

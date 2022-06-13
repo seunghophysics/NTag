@@ -1,5 +1,4 @@
 include include.gmk
-
 ##### Rules #####
 
 .PHONY: all float dirs inc clean cleanobj main docs
