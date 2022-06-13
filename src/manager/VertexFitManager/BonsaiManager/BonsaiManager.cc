@@ -177,11 +177,11 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
 
         if (skheadg_.sk_geometry >= 6)
             lfallfit_sk6_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-        if (skheadg_.sk_geometry == 5)
+        else if (skheadg_.sk_geometry == 5)
             lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else
             lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-    
+
         // ...and switch back
         skhead_.nrunsk = original_nrunsk;
     }

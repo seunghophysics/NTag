@@ -6,9 +6,9 @@ CXXFLAGS += -std=c++11 -fPIC -g -O0 -lgfortran -Wl,-z -Wl,muldefs
 FC = gfortran
 FCFLAGS += -w -fPIC -lstdc++
 
-SKOFL_ROOT = /usr/local/sklib_gcc8/skofl-trunk/
-ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk/
-ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38/
+SKOFL_ROOT = /usr/local/sklib_gcc8/skofl-trunk
+ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk
+ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38
 CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 
 SKOFLINCLUDE = -I $(SKOFL_ROOT)/include -I $(SKOFL_ROOT)/include/lowe -I $(SKOFL_ROOT)/lowe/bonsai
