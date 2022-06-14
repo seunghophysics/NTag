@@ -3,7 +3,7 @@
 set bin = `pwd`/bin
 setenv PATH "${bin}:${PATH}"
 setenv NTAGLIBPATH `pwd`
-set pathline = "setenv PATH $PATH # Install NTagLib"
+set pathline = 'setenv PATH '${bin}':${PATH} # Install NTagLib'
 set ntagline = "setenv NTAGLIBPATH $NTAGLIBPATH # Install NTagLib"
 
 if ($1 == "set") then
