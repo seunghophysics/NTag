@@ -1,14 +1,12 @@
 #!/bin/csh
 
 set bin = `pwd`/bin
-setenv PATH "$bin\:$PATH"
+setenv PATH "${bin}:${PATH}"
 setenv NTAGLIBPATH `pwd`
-set pathline = "setenv PATH $bin\:\$PATH # Install NTagLib"
+set pathline = 'setenv PATH '${bin}':${PATH} # Install NTagLib'
 set ntagline = "setenv NTAGLIBPATH $NTAGLIBPATH # Install NTagLib"
 
 if ($1 == "set") then
-    setenv PATH $bin\:$PATH
-    setenv NTAGLIBPATH $PWD
     echo $pathline | tee -a ~/.{csh,tcsh}rc >/dev/null
     echo $ntagline | tee -a ~/.{csh,tcsh}rc >/dev/null
     echo "[NTagLib] The path to the NTagLib executables has been added to your PATH."
