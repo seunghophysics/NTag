@@ -24,16 +24,17 @@ The following instruction assumes you are working on sukap.
 git clone https://github.com/seunghophysics/NTag.git
 cd NTag && make
 ```
-Set the environment variables `$PATH` and `$NTAGLIBPATH`. Typing following commands set them automatically.
+Set the environment variables `$PATH` and `$NTAGLIBPATH`.
 
 | Shell type | Install command       | Uninstall command       |
 |------------|-----------------------|-------------------------|
 | bash       | `. path/bash set`     | `. path/bash unset`     |
 | csh/tcsh   | `source path/csh set` | `source path/csh unset` |
 
-Those `set` and `unset` commands overwrite your `.bashrc`, `.cshrc` or `.tcshrc`.
-It is sufficient to execute them once.
-
+N.B. These commands will overwrite your shell config files, i.e., `.bashrc`, `.cshrc`, or `.tcshrc`,
+so that the set environment variables will be reconfigured automatically when you start up your shell.
+Once you've installed these varaibles there's no need to re-install every time you run executables,
+unless you have multiple copies of NTag installed.
 
 ### How to run executables
 
