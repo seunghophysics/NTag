@@ -77,16 +77,17 @@ void SoftwareTrgManager::ApplyTrigger(PMTHitCluster* signalHits)
   int iInGateOnly = 1;
   int iMaxQBeeTBL = 1280;
 
+  // Apply software trigger 
   int iCandidates = softtrg_inittrgtbl_(&iRunSK, &iFirstHWCtr, &iInGateOnly, &iMaxQBeeTBL);
   //std::cout <<" N cand: "<<iCandidates<<std::endl;
   int iPrimaryTrigger = this->FindMainTrigger(iCandidates, tmpTOffset);
   fIT0SK  = swtrgtbl_.swtrgt0ctr[iPrimaryTrigger];
   fIDTGSK = swtrgtbl_.swtrgtype[iPrimaryTrigger];
+
   int iGateStart = -1000 + fIT0SK;
   int iGateEnd   =  1496 + fIT0SK;
   //std::cout <<"main trigger: "<<"\n"
   //          <<"\t TRGID: "<<idtgsk<<", t0: "<<it0sk<<", min: "<<iGateStart<<", max: "<<iGateEnd<<std::endl;
-
   // Turn on the flag for 1.3 us around T0
   for (auto& hit: *signalHits) {
     hit.SetFlag(hit.f() & 0xFFFE);
@@ -268,19 +269,11 @@ void SoftwareTrgManager::FillCommon()
 
 void SoftwareTrgManager::FillTrgOffset(MCInfo& inputMCINFO)
 {
-  int     trigbit[10] = {0};
-  int     it0sk_temp[10] = {0};
-  float   prim_pret0[10] = {0.};
-  int     prim_trg[10] = {0};
-  int tmp_it0_offset = 0;
-  int tmp_it0sk_geantt0 = 0;
-  int tmp_numdsswtrgs = 10;
 
-  //std::cout <<" value filling : "<<fSubTrigger_TimeRel[0]<<std::endl;
   for (int i=0; i<10; i++) {
     inputMCINFO.trigbit[i]    = fSubTrigger_Type[i];
     inputMCINFO.it0sk_temp[i] = fSubTrigger_Time[i];
-    inputMCINFO.prim_pret0[i] = fSubTrigger_TimeRel[i];
+    inputMCINFO.prim_pret0[i] = fSubTrigger_TimeRel[i] - 1000. + 500./COUNT_PER_NSEC;;
     inputMCINFO.prim_trg[i]   = fSubTrigger_Index[i];
   }
 
