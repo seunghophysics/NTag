@@ -54,6 +54,8 @@ static std::string GetENV(const char* pathName)
     return ( getenv(pathName) ? std::string( getenv(pathName) ) + "/" : std::string("") );
 }
 
+float Sigmoid(const float x);
+
 /**
  * @brief Get dot produt of two arrays.
  * @param vec1 A size-3 float array.

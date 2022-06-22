@@ -17,6 +17,10 @@
 std::default_random_engine c_ranGen;
 TRandom3 ranGen;
 
+float Sigmoid(const float x)
+{
+    return 1 / (1 + exp(-x));
+}
 
 float Dot(const float a[3], const float b[3])
 {
