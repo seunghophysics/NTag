@@ -4,9 +4,11 @@
 #include <limits>
 
 #include <TTree.h>
+#include <TMath.h>
 
 #include <skheadC.h>
 #include <tqrealroot.h>
+#include <skbadcC.h>
 #undef MAXPM
 #undef MAXPMA
 #include <geotnkC.h>
@@ -298,7 +300,7 @@ void PMTHitCluster::AddTimeOffset(Float tOffset)
         hit = hit + tOffset;
 }
 
-void PMTHitCluster::ApplyDeadtime(Float deadtime)
+void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 {
     TVector3 tempVertex;
     bool bHadVertex = false;
@@ -308,28 +310,27 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime)
         bHadVertex = true;
     }
 
-    std::array<Float, MAXPM+1>  IDHitTime;
-    std::array<Float, MAXPMA+1> ODHitTime;
-    IDHitTime.fill(std::numeric_limits<Float>::lowest());
-    ODHitTime.fill(std::numeric_limits<Float>::lowest());
+    std::array<Float, 20000+MAXPMA> HitTime;
+    HitTime.fill(std::numeric_limits<Float>::lowest());
+    
+    //std::array<Float, MAXPM+1>  IDHitTime;
+    //std::array<Float, MAXPMA+1> ODHitTime;
+    //IDHitTime.fill(std::numeric_limits<Float>::lowest());
+    //ODHitTime.fill(std::numeric_limits<Float>::lowest());
 
     std::vector<PMTHit> dtCorrectedHits;
 
     if (!fIsSorted) Sort();
-    for (auto const& hit: fElement) {
+    for (auto& hit: fElement) {
         int hitPMTID = hit.i();
-        if (1 <= hitPMTID && hitPMTID <= MAXPM) {
-            if (hit.t() - IDHitTime[hitPMTID] > deadtime) {
-                dtCorrectedHits.push_back(hit);
-                IDHitTime[hitPMTID] = hit.t();
-            }
+        if (hit.t() - HitTime[hitPMTID] > deadtime) {
+            hit.SetBurstFlag(false);
+            dtCorrectedHits.push_back(hit);
+            HitTime[hitPMTID] = hit.t();
         }
-        else if (20001 <= hitPMTID && hitPMTID <= 20000+MAXPMA) {
-            hitPMTID -= 20000;
-            if (hit.t() - ODHitTime[hitPMTID] > deadtime) {
-                dtCorrectedHits.push_back(hit);
-                ODHitTime[hitPMTID] = hit.t();
-            }
+        else if (!doRemove) {
+            hit.SetBurstFlag(true);
+            dtCorrectedHits.push_back(hit);
         }
     }
 
@@ -476,13 +477,53 @@ void PMTHitCluster::SetAsSignal(bool b)
     }
 }
 
-float PMTHitCluster::GetSignalRatio()
+unsigned int PMTHitCluster::GetNSignal()
 {
     float sigSum = 0;
     for (auto& hit: fElement)
         sigSum += hit.s();
+    return sigSum;
+}
 
-    return sigSum / GetSize();
+unsigned int PMTHitCluster::GetNBurst()
+{
+    float burSum = 0;
+    for (auto& hit: fElement)
+        burSum += hit.b();
+    return burSum;
+}
+
+float PMTHitCluster::GetSignalRatio()
+{
+    return float(GetNSignal()) / float(GetSize());
+}
+
+float PMTHitCluster::GetBurstRatio()
+{
+    return float(GetNBurst()) / float(GetSize());
+}
+
+float PMTHitCluster::GetBurstSignificance(float tBurstWindow)
+{
+    int obs = GetNBurst();
+    float exp = 0;
+    float flatDarkRatio = 0.5;
+    for (auto const& hit: fElement) {
+        exp += comdark_.dark_rate[hit.i()-1] * flatDarkRatio * tBurstWindow * 1e-6;
+    }
+    return (obs-exp)/sqrt(exp);
+}
+
+float PMTHitCluster::GetDarkLikelihood()
+{
+    float darkLLH = 1;
+    for (auto const& hit: fElement) {
+        float ratio = comdark_.dark_rate[hit.i()-1] / comdark_.dark_ave;
+        darkLLH *= ratio;
+        //if (ratio>0) darkLLH *= ratio;
+    }
+
+    return Sigmoid(std::log(darkLLH));
 }
 
 //void PMTHitCluster::FindHitProperties()
@@ -527,12 +568,13 @@ void PMTHitCluster::MakeBranches()
         //fOutputTree->Branch("y", &fY);
         //fOutputTree->Branch("z", &fZ);
         fOutputTree->Branch("s", &fS);
+        fOutputTree->Branch("b", &fB);
     }
 }
 
 void PMTHitCluster::ClearBranches()
 {
-    fT.clear(); fQ.clear(); fI.clear(); fS.clear();
+    fT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
     //fX.clear(); fY.clear(); fZ.clear();
 }
 
@@ -552,6 +594,7 @@ void PMTHitCluster::FillTree()
             //fY.push_back(hitPos.y());
             //fZ.push_back(hitPos.z());
             fS.push_back(hit.s());
+            fB.push_back(hit.b());
         }
         fOutputTree->Fill();
         SetVertex(vertex);

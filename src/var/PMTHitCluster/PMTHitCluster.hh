@@ -64,7 +64,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetMeanDirection() const { return fMeanDirection; }
 
         void AddTimeOffset(Float tOffset);
-        void ApplyDeadtime(Float deadtime);
+        void ApplyDeadtime(Float deadtime, bool doRemove=true);
 
         template<typename T>
         float Find(std::function<T(const PMTHit&)> projFunc,
@@ -93,7 +93,12 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         OpeningAngleStats GetOpeningAngleStats();
 
         void SetAsSignal(bool b);
+        unsigned int GetNSignal();
+        unsigned int GetNBurst();
         float GetSignalRatio();
+        float GetBurstRatio();
+        float GetBurstSignificance(float tBurstWindow);
+        float GetDarkLikelihood();
         
         //void FindHitProperties();
         PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
@@ -108,7 +113,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         TVector3 fVertex, fMeanDirection;
 
         std::vector<float> fT, fQ;
-        std::vector<int> fI, fS;
+        std::vector<int> fI, fS, fB;
 
         void SetToF(bool unset=false);
 };

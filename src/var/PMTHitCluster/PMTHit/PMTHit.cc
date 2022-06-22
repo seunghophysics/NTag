@@ -3,7 +3,7 @@
 #include "PMTHitCluster.hh"
 
 PMTHit::PMTHit(Float t, float q, int i, int f)
-: fT(t), fToF(0), fQ(q), fPMTID(i), fFlag(f), fIsSignal(false)
+: fT(t), fToF(0), fQ(q), fPMTID(i), fFlag(f), fIsSignal(false), fIsBurst(false)
 {
     if (1 <= fPMTID && fPMTID <= MAXPM) {
         fPMTPosition = TVector3(NTagConstant::PMTXYZ[fPMTID-1]);
@@ -12,6 +12,7 @@ PMTHit::PMTHit(Float t, float q, int i, int f)
         fPMTPosition = TVector3();
     }
 }
+
 /*
 void PMTHit::FindMinAngle(PMTHitCluster* cluster)
 {

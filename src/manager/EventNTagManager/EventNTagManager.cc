@@ -20,6 +20,7 @@
 #include "neworkC.h"
 #include "nbnkC.h"
 #include "skonl/softtrg_cond.h"
+#include "skbadcC.h"
 
 #include "SKLibs.hh"
 #include "SKIO.hh"
@@ -185,6 +186,11 @@ void EventNTagManager::ReadVariables()
     int nhitac; odpc_2nd_s_(&nhitac);
     fEventVariables.Set("QISMSK", qismsk);
     fEventVariables.Set("NHITAC", nhitac);
+
+    // dark rate
+    int refRunNo = fSettings.GetInt("REFRUNNO");
+    int iErrorStatus = 0;
+    skdark_(&refRunNo, &iErrorStatus);
 
     // trigger information
     int trgtype = (fIsMC || skhead_.idtgsk & 1<<29) ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
@@ -435,8 +441,7 @@ void EventNTagManager::ProcessFlatEvent()
 
 void EventNTagManager::SearchCandidates()
 {
-    float pmtDeadTime; fSettings.Get("TRBNWIDTH", pmtDeadTime);
-    if (pmtDeadTime) fEventHits.ApplyDeadtime(pmtDeadTime);
+    if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
 
     // subtract tof
     PrepareEventHitsForSearch();
@@ -552,6 +557,7 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("TCANWIDTH", TCANWIDTH);
     fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
     fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
+    fSettings.Get("TRBNWIDTH", TRBNWIDTH);
     fSettings.Get("NHITSTH", NHITSTH);
     fSettings.Get("NHITSMX", NHITSMX);
     fSettings.Get("MINNHITS", MINNHITS);
@@ -932,6 +938,10 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
                              -1 : (fPromptVertex-delayedVertex).Mag());
 
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
+    candidate.Set("NBurst", hitsInTCANWIDTH.GetNBurst());
+    candidate.Set("BurstRatio", hitsInTCANWIDTH.GetBurstRatio());
+    candidate.Set("BurstSigma", hitsInTCANWIDTH.GetBurstSignificance(TRBNWIDTH));
+    candidate.Set("DarkLikelihood", hitsInTCANWIDTH.GetDarkLikelihood());
 
     candidate.Set("TagOut", fTMVAManager.GetTMVAOutput(candidate));
     candidate.Set("TagClass", fTagger.Classify(candidate));

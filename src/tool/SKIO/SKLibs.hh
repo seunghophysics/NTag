@@ -38,6 +38,7 @@ extern "C" {
     int  skread_(int*);
     void skclosef_(int*);
     void skroot_init_(int*);
+    void skdark_(int*, int*);
 }
 
 // atmpd data control

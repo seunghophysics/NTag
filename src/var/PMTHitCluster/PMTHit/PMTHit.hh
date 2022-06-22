@@ -28,7 +28,8 @@ namespace NTagConstant{
 class PMTHit
 {
     public:
-        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false) {}//, fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
+        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false), fIsBurst(false) {}
+        //, fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
         PMTHit(Float t, float q, int i, int f);
 
         inline const Float& t() const { return fT; }
@@ -36,8 +37,10 @@ class PMTHit
         inline const unsigned int& i() const { return fPMTID; }
         inline const int& f() const { return fFlag; }
         inline const bool& s() const { return fIsSignal; }
+        inline const bool& b() const { return fIsBurst; }
 
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
+        inline void SetBurstFlag(bool b) { fIsBurst=b; }
         inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
 
         void SetToFAndDirection(const TVector3& vertex)
@@ -77,7 +80,7 @@ class PMTHit
         float fQ;
         unsigned int fPMTID;
         int fFlag;
-        bool fIsSignal;
+        bool fIsSignal, fIsBurst;
         TVector3 fPMTPosition;
         TVector3 fHitDirection;
         
