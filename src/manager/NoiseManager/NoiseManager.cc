@@ -317,6 +317,12 @@ void NoiseManager::SetNoiseEventHits()
         }
     }
 
+    // make sure noise event is not empty
+    if (!fIDTQReal->nhits || !fODTQReal->nhits) {
+        fMsg.Print(Form("Skipping an empty noise event..."), pWARNING);
+        useThisNoiseEvent = false;
+    }
+
     // populate hit clusters
     if (useThisNoiseEvent) {
         PopulateHitCluster(&fIDNoiseEventHits);
