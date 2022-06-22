@@ -69,5 +69,5 @@ GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
 # logging
-print          FitT,NHits,DPrompt,FitGoodness,DWall,Beta1,SignalRatio,TagOut,Label,TagIndex,DTaggable,TagClass
+print          FitT,NHits,NBurst,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,BurstSigma,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
 debug          false

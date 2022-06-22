@@ -202,7 +202,7 @@ void NoiseManager::SetNoiseTreeFromList(TString pathToList)
         if (option=="TNOISESTART")   startTime    = value;
         if (option=="TNOISEEND")     endTime      = value;
         if (option=="PMTDEADTIME")   fPMTDeadtime = value;
-        if (option=="noise_cut")      fDoN200Cut   = value;
+        if (option=="noise_cut")     fDoN200Cut   = value;
         if (option=="IDMAXN200")     fIDMaxN200   = value;
         if (option=="ODMAXN200")     fODMaxN200   = value;
     }
