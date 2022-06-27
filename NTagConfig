@@ -44,8 +44,8 @@ TNOISESTART    2
 TNOISEEND      536
 NOISESEED      0
 
-# PMT noise reduction
-TRBNWIDTH      0
+# PMT burst noise width
+TRBNWIDTH      30000
 
 # OD event cut
 NODHITMX       100000
