@@ -57,12 +57,13 @@ class NoiseManager
         void AddIDNoise(PMTHitCluster* signalHits);
         void AddODNoise(PMTHitCluster* signalHits);
 
+        int GetCurrentRun() { return fHeader->nrunsk; }
+
     protected:
         void PopulateHitCluster(PMTHitCluster* hitCluster, bool OD=false);
         void AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits, int& currentHitIndex, float darkRate, bool OD=false);
 
     private:
-
         TChain* fNoiseTree;
         TString fNoiseTreeName;
 
