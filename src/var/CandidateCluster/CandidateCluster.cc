@@ -59,7 +59,7 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
                 if (TString(key).Contains("Index")) {
                     std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " ";
                 }
-                else if ((TString(key).Contains("FitT") || key=="BurstSigma" || key=="DarkLikelihood") && fabs(value) < 10) {
+                else if (TString(key).Contains("FitT") && fabs(value) < 10) {
                     std::cout << std::fixed << std::setprecision(2) << std::setw(textWidth) << value << " ";
                 }
                 else if (key == "Label") {
