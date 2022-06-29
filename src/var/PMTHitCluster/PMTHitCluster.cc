@@ -479,7 +479,7 @@ void PMTHitCluster::SetAsSignal(bool b)
 
 unsigned int PMTHitCluster::GetNSignal()
 {
-    float sigSum = 0;
+    unsigned int sigSum = 0;
     for (auto& hit: fElement)
         sigSum += hit.s();
     return sigSum;
@@ -487,10 +487,19 @@ unsigned int PMTHitCluster::GetNSignal()
 
 unsigned int PMTHitCluster::GetNBurst()
 {
-    float burSum = 0;
+    unsigned int burSum = 0;
     for (auto& hit: fElement)
         burSum += hit.b();
     return burSum;
+}
+
+unsigned int PMTHitCluster::GetNNoisyPMT()
+{
+    unsigned int nNoisyPMT = 0;
+    for (auto const& hit: fElement) {
+        if (comdark_.dark_rate[hit.i()-1] > comdark_.dark_ave) nNoisyPMT++;
+    }
+    return nNoisyPMT;
 }
 
 float PMTHitCluster::GetSignalRatio()
@@ -524,6 +533,11 @@ float PMTHitCluster::GetDarkLikelihood()
     }
 
     return Sigmoid(std::log(darkLLH));
+}
+
+float PMTHitCluster::GetNoisyPMTRatio()
+{
+    return GetNNoisyPMT() / float(GetSize());
 }
 
 //void PMTHitCluster::FindHitProperties()

@@ -95,8 +95,10 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         void SetAsSignal(bool b);
         unsigned int GetNSignal();
         unsigned int GetNBurst();
+        unsigned int GetNNoisyPMT();
         float GetSignalRatio();
         float GetBurstRatio();
+        float GetNoisyPMTRatio();
         float GetBurstSignificance(float tBurstWindow);
         float GetDarkLikelihood();
         

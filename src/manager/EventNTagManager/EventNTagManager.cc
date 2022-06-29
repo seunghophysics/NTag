@@ -31,7 +31,8 @@
 #include "EventNTagManager.hh"
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
-: fOutDataFile(nullptr), fIsBranchSet(false), fIsMC(true), fFileFormat(mZBS)
+: fOutDataFile(nullptr), fNoiseManager(nullptr),
+  fIsBranchSet(false), fIsMC(true), fFileFormat(mZBS)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -188,7 +189,8 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("NHITAC", nhitac);
 
     // dark rate
-    int refRunNo = fSettings.GetInt("REFRUNNO");
+    int refRunNo = (fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 
+                   fIsMC ? fSettings.GetInt("REFRUNNO") : skhead_.nrunsk;
     int iErrorStatus = 0;
     skdark_(&refRunNo, &iErrorStatus);
 
@@ -896,6 +898,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("N50",   hitsIn50ns.GetSize());
     candidate.Set("N200",  hitsIn200ns.GetSize());
     candidate.Set("N1300", hitsIn1300ns.GetSize());
+    candidate.Set("NResHits", hitsIn200ns.GetSize()-hitsInTCANWIDTH.GetSize());
 
     // Time
     //float fitT = hitsInTCANWIDTH.Find(HitFunc::T, Calc::Mean) * 1e-3;
@@ -940,8 +943,9 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
     candidate.Set("NBurst", hitsInTCANWIDTH.GetNBurst());
     candidate.Set("BurstRatio", hitsInTCANWIDTH.GetBurstRatio());
-    candidate.Set("BurstSigma", hitsInTCANWIDTH.GetBurstSignificance(TRBNWIDTH));
     candidate.Set("DarkLikelihood", hitsInTCANWIDTH.GetDarkLikelihood());
+    candidate.Set("NNoisyPMT", hitsInTCANWIDTH.GetNNoisyPMT());
+    candidate.Set("NoisyPMTRatio", hitsInTCANWIDTH.GetNoisyPMTRatio());
 
     candidate.Set("TagOut", fTMVAManager.GetTMVAOutput(candidate));
     candidate.Set("TagClass", fTagger.Classify(candidate));

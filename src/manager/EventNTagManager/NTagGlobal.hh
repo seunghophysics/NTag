@@ -30,13 +30,14 @@ enum TaggableType
 static std::vector<std::string> gMuechkFeatures =  {"FitT", "fvx", "fvy", "fvz", "DWall", "dirx", "diry", "dirz",
                                                     "NHits", "GateType", "Goodness", "Label", "TagIndex", "DTaggable", "TagClass"};
 
-static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", "N1300", "NBurst", "FitT", "TRMS", "QSum",
+static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", "N1300", "NResHits", 
+                                                 "NBurst", "NNoisyPMT", "FitT", "TRMS", "QSum",
                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                                  "BSenergy", "BSdirks", "BSovaq",
                                                  "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev",
-                                                 "MeanDirAngleMean", "MeanDirAngleRMS", "DarkLikelihood",
+                                                 "MeanDirAngleMean", "MeanDirAngleRMS", "DarkLikelihood", "NoisyPMTRatio",
                                                  "fvx", "fvy", "fvz", "DTaggable", "FitGoodness", "DPrompt", "DWall", "DWallMeanDir",
-                                                 "SignalRatio", "BurstRatio", "BurstSigma", "TagOut", "TagIndex", "TagClass", "Label"};
+                                                 "SignalRatio", "BurstRatio", "TagOut", "TagIndex", "TagClass", "Label"};
 
 static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "Beta1", "Beta5",
