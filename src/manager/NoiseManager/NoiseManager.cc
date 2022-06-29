@@ -173,7 +173,7 @@ void NoiseManager::SetNoiseTreeFromOptions(TString option, int nInputEvents, flo
 
     TString dummyFilePath;
 
-    while (fNEntries <= 2*nRequiredEvents) {
+    while (fNEntries <= /*2**/nRequiredEvents) {
         if (run == "") {
             dummyRunPath = PickRandom(runDirs);
             int dummyRunNo = ((TObjString*)((dummyRunPath.Tokenize('/'))->Last()))->GetString().Atoi();
