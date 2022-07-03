@@ -409,11 +409,19 @@ void EventNTagManager::ProcessEvent()
 
     if (!initialized) {
         CheckMC();
-        if (fSettings.GetBool("tmva")) {
-            std::string weightPath = fSettings.GetString("weight");
+        auto nnType = fSettings.GetString("NN_type");
+        auto weightPath = fSettings.GetString("weight");
+        if (nnType=="tmva") {
             if (weightPath=="default")
                 weightPath = fSettings.GetString("delayed_vertex");
             fTMVAManager.InitializeReader(weightPath);
+        }
+        else if (nnType=="keras") {
+            if (weightPath=="default") {
+                int skGen = fSettings.GetInt("SKGEOMETRY");
+                weightPath = GetENV("NTAGLIBPATH")+Form("weights/keras/sk%d", skGen);
+            }
+            fKerasManager.LoadWeights(weightPath);
         }
         initialized = true;
     }
@@ -972,7 +980,11 @@ void EventNTagManager::FindFeatures(Candidate& candidate)
     candidate.Set("NNoisyPMT", hitsInTCANWIDTH.GetNNoisyPMT());
     candidate.Set("NoisyPMTRatio", hitsInTCANWIDTH.GetNoisyPMTRatio());
 
-    candidate.Set("TagOut", fTMVAManager.GetTMVAOutput(candidate));
+    auto nnType = fSettings.GetString("NN_type");
+    float tagOut = nnType=="tmva" ? fTMVAManager.GetTMVAOutput(candidate) :
+                   nnType=="keras" ?  fKerasManager.GetOutput(candidate) : 0;
+
+    candidate.Set("TagOut", tagOut);
     candidate.Set("TagClass", fTagger.Classify(candidate));
 }
 

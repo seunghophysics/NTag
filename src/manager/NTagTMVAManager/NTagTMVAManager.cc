@@ -26,7 +26,7 @@ void NTagTMVAManager::InitializeReader(std::string weightPath)
     // use same weight for bonsai and lowfit
     if (weightPath == "lowfit") weightPath = "bonsai";
     if (weightPath == "bonsai" || weightPath == "trms" || weightPath == "prompt")
-        SetWeightPath(GetENV("NTAGLIBPATH")+ "weights/" + weightPath + "/NTagTMVAFactory_MLP.weights.xml");
+        SetWeightPath(GetENV("NTAGLIBPATH")+ "weights/tmva/" + weightPath + "/NTagTMVAFactory_MLP.weights.xml");
     else if (!weightPath.empty())
         SetWeightPath(weightPath);
 
@@ -79,10 +79,8 @@ void NTagTMVAManager::SetMethods(bool turnOn)
 float NTagTMVAManager::GetTMVAOutput(const Candidate& candidate)
 {
     // get features from candidate and fill feature container
-    for (auto const& pair: fFeatureContainer) {
-        float value = candidate[pair.first];
-        fFeatureContainer[pair.first] = value;
-    }
+    for (auto const& pair: fFeatureContainer)
+        fFeatureContainer[pair.first] = candidate[pair.first];
 
     return fReader? fReader->EvaluateMVA("MLP") : 0;
 }

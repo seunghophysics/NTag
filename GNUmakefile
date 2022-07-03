@@ -29,7 +29,7 @@ INC := $(addprefix -I , $(sort $(dir $(shell find src -name '*.hh'))))
 $(OBJS): obj/%.o: src/%.cc src/%.hh
 	@mkdir -p $(@D)
 	@echo "[NTagLib] Building library: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
-	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
+	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(TFINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 
 $(FORTRANOBJS): obj/%.o: src/%.F
 	@mkdir -p $(@D)
@@ -60,12 +60,12 @@ main: $(MAINBINS)
 	
 $(MAINOBJS): obj/main/%.o: main/%.cc lib/libNTagLib.a
 	@mkdir -p obj/main
-	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
+	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(TFINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 	
 $(MAINBINS): bin/%: obj/main/%.o
 	@mkdir -p bin
 	@echo "[NTagLib] Building executable: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
-	@LD_RUN_PATH=$(ROOTSYS)/lib:$(SKOFL_ROOT)/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)
+	@LD_RUN_PATH=$(ROOTSYS)/lib:$(SKOFL_ROOT)/lib:$(TF_ROOT)/tensorflow/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(TFLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)
 
 double: CXXFLAGS+=-DUSE_DOUBLE=1
 double: cleanobj dirs inc lib/libNTagLib_double.a

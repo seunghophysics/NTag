@@ -31,8 +31,8 @@ TMATCHWINDOW   50
 E_CUTS (TagOut>0.7)&&(NHits>50)&&(FitT<20)
 N_CUTS (TagOut>0.7)&&((NHits<50)||(FitT>20))
 
-# TMVA options
-tmva   true
+# Neural network options
+NN_type keras
 weight default
 
 # MC noise
@@ -69,5 +69,5 @@ GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
 # logging
-print          FitT,NHits,NBurst,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,BurstSigma,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
+print          FitT,NHits,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
 debug          false

@@ -1,7 +1,9 @@
-#ifndef NTAGTMVAMANAGER_HH
-#define NTAGTMVAMANAGER_HH
+#ifndef NTAGKERASMANAGER_HH
+#define NTAGKERASMANAGER_HH
 
 #include <tensorflow/cc/saved_model/loader.h>
+
+#include "Printer.hh"
 
 class NTagKerasManager
 {
@@ -9,8 +11,9 @@ class NTagKerasManager
         NTagKerasManager();
         ~NTagKerasManager() {}
 
-        void LoadModel(const char* modelPath);
-        void LoadScaler(const char* scalerPath);
+        void LoadWeights(std::string weightPath);
+        void LoadModel(std::string modelPath);
+        void LoadScaler(std::string scalerPath);
         std::vector<double> Transform(const Candidate& candidate);
 
         float GetOutput(const Candidate& candidate);
@@ -28,6 +31,8 @@ class NTagKerasManager
         tensorflow::Tensor fInputTensor;
         double* fInputData;
         std::vector<tensorflow::Tensor> fOuptutTensorVector;
+
+        Printer fMsg;
 };
 
 #endif

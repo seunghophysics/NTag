@@ -45,10 +45,15 @@ static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
                                                  "MeanDirAngleMean", "MeanDirAngleRMS",
                                                  "DWall", "DWallMeanDir"};
 
+static std::vector<std::string> gKerasFeatures = {"NHits", "NResHits", "TRMS",
+                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
+                                                  "OpeningAngleStdev", "DWall", "DWallMeanDir", 
+                                                  "BurstRatio", "FitGoodness", "DarkLikelihood"};
+
 static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_bank", "noise_path", "noise_type", "save_hits",
                                                "add_noise", "repeat_noise", "in_noise", "dump_noise", "IDDARKRATE", "ODDARKRATE",
                                                "noise_cut", "IDMAXN200", "ODMAXN200",
-                                               "weight", "debug", "in", "out", "tmva", "correct_tof", "macro",
+                                               "weight", "debug", "in", "out", "NN_type", "correct_tof", "macro",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e",
                                                "SKGEOMETRY", "SKOPTN", "SKBADOPT", "REFRUNNO",
                                                "TMIN", "TMAX", "TRBNWIDTH", "PVXRES", "PVXBIAS", "NODHITMX",
