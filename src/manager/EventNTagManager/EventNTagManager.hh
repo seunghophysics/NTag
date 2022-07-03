@@ -10,6 +10,7 @@
 #include "TRMSFitManager.hh"
 #include "BonsaiManager.hh"
 #include "NTagTMVAManager.hh"
+#include "NTagKerasManager.hh"
 #include "Printer.hh"
 #include "Store.hh"
 #include "NTagGlobal.hh"
@@ -151,6 +152,9 @@ class EventNTagManager
 
         // TMVA
         NTagTMVAManager fTMVAManager;
+
+        // Keras
+        NTagKerasManager fKerasManager;
 
         // Tagger
         CandidateTagger fTagger;
