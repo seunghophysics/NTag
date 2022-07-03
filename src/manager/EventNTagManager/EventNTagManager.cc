@@ -151,13 +151,16 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
     }
 
     // vertex smearing
-    float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
-    float maxDist = 150.;
-    while (Norm(dx, dy, dz) > maxDist) {
-        dx = gRandom->BreitWigner(0, PVXRES);
-        dy = gRandom->BreitWigner(0, PVXRES);
-        dz = gRandom->BreitWigner(0, PVXRES);
-    }
+    //float dx = 2*RINTK, dy = 2*RINTK, dz = 2*ZPINTK;
+    //float maxDist = 150.;
+    //while (Norm(dx, dy, dz) > maxDist) {
+    //  dx = gRandom->BreitWigner(0, PVXRES);
+    //  dy = gRandom->BreitWigner(0, PVXRES);
+    //  dz = gRandom->BreitWigner(0, PVXRES);
+    //}
+    float dx = gRandom->Uniform() > 0.5 ? gRandom->Exp(PVXRES) : -gRandom->Exp(PVXRES);
+    float dy = gRandom->Uniform() > 0.5 ? gRandom->Exp(PVXRES) : -gRandom->Exp(PVXRES);
+    float dz = gRandom->Uniform() > 0.5 ? gRandom->Exp(PVXRES) : -gRandom->Exp(PVXRES);
 
     auto biasDir= TVector3(gRandom->Uniform(), gRandom->Uniform(), gRandom->Uniform()).Unit();
     if (fPromptVertexMode == mAPFIT || fPromptVertexMode == mFITQUN)
@@ -193,6 +196,28 @@ void EventNTagManager::ReadVariables()
                    fIsMC ? fSettings.GetInt("REFRUNNO") : skhead_.nrunsk;
     int iErrorStatus = 0;
     skdark_(&refRunNo, &iErrorStatus);
+
+    if (iErrorStatus<0 && fNoiseManager!=nullptr) {
+        int step = 1;
+        int sign = 1;
+        while (iErrorStatus<0) {
+            refRunNo -= sign*step;
+            skdark_(&refRunNo, &iErrorStatus);
+            sign *= -1; step += 1;
+        }
+
+        fMsg.Print(Form("Unable to fetch dark rate of noise run %d, " 
+                        "fetching dark rate from closest noise run %d...",
+                        fNoiseManager->GetCurrentRun(), refRunNo), pWARNING);
+        skdark_(&refRunNo, &iErrorStatus);
+    }
+
+    if (iErrorStatus<0) {
+        fMsg.Print(Form("Unable to fetch dark rate of REFRUNNO %d, " 
+                        "fetching dark rate from Run 85619...", refRunNo), pWARNING);
+        refRunNo = 85619;
+        skdark_(&refRunNo, &iErrorStatus);
+    }
 
     // trigger information
     int trgtype = (fIsMC || skhead_.idtgsk & 1<<29) ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
