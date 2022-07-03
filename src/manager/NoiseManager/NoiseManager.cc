@@ -183,6 +183,7 @@ void NoiseManager::SetNoiseTreeFromOptions(TString option, int nInputEvents, flo
         }
         if (!fileList.empty())
             dummyFilePath = PickRandom(fileList);
+        else continue;
         AddNoiseFileToChain(dummyChain, dummyFilePath);
     }
 
