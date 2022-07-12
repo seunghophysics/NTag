@@ -49,7 +49,7 @@ cc  Create TQREAL bank
 cc  Copy to TQREAL bank
 
       do i = 1,nqiskz
-         ibufz(1,i) = icabiz(i) + ihtiflz(i)
+         ibufz(1,i) = icabiz(i) + ishft(ihtiflz(i),16)
          rbufz(2,i) = tiskz(i)
          rbufz(3,i) = qiskz(i)
       enddo
@@ -84,7 +84,7 @@ cc  Create TQAREAL bank
 cc  Copy to TQAREAL bank
 
       do i = 1, nhitaz
-         ibufz(1,i) = icabaz(i) + ihtflz(i)
+         ibufz(1,i) = icabaz(i) + ishft(ihtflz(i),16)
          rbufz(2,i) = taskz(i)
          rbufz(3,i) = qaskz(i)
       enddo

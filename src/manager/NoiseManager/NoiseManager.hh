@@ -58,6 +58,7 @@ class NoiseManager
         void AddODNoise(PMTHitCluster* signalHits);
 
         int GetCurrentRun() { return fHeader->nrunsk; }
+        TChain* GetNoiseChain() { return fNoiseTree; }
 
     protected:
         void PopulateHitCluster(PMTHitCluster* hitCluster, bool OD=false);

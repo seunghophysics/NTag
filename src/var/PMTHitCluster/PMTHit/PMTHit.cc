@@ -2,8 +2,8 @@
 #include "PMTHit.hh"
 #include "PMTHitCluster.hh"
 
-PMTHit::PMTHit(Float t, float q, int i, int f)
-: fT(t), fToF(0), fQ(q), fPMTID(i), fFlag(f), fIsSignal(false), fIsBurst(false)
+PMTHit::PMTHit(Float t, float q, int i, int f, bool s)
+: fT(t), fToF(0), fQ(q), fPMTID(i), fFlag(f), fIsSignal(s), fIsBurst(false)
 {
     if (1 <= fPMTID && fPMTID <= MAXPM) {
         fPMTPosition = TVector3(NTagConstant::PMTXYZ[fPMTID-1]);

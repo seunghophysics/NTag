@@ -55,6 +55,8 @@ int main(int argc, char **argv)
         inputMC.ReadEvent(eventID);
         PMTHitCluster inputMCIDHits(sktqz_);
         PMTHitCluster inputMCODHits(sktqaz_);
+        inputMCIDHits.SetAsSignal();
+        inputMCODHits.SetAsSignal();
 
         // Append dummy hits
         noiseManager.AddIDNoise(&inputMCIDHits);

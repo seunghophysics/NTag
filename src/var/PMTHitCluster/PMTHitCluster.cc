@@ -26,7 +26,8 @@ PMTHitCluster::PMTHitCluster(sktqz_common sktqz)
         PMTHit hit{ /*T*/ sktqz.tiskz[iHit],
                     /*Q*/ sktqz.qiskz[iHit],
                     /*I*/ sktqz.icabiz[iHit],
-                    /*F*/ sktqz_.ihtiflz[iHit]
+                    /*F*/ sktqz.ihtiflz[iHit],
+                    /*S*/ sktqz.ihtiflz[iHit]&(1<<12)
                   };
         Append(hit);
     }
@@ -39,7 +40,8 @@ PMTHitCluster::PMTHitCluster(sktqaz_common sktqaz)
         PMTHit hit{ /*T*/ sktqaz.taskz[iHit],
                     /*Q*/ sktqaz.qaskz[iHit],
                     /*I*/ sktqaz.icabaz[iHit],
-                    /*F*/ sktqaz_.ihtflz[iHit]
+                    /*F*/ sktqaz.ihtflz[iHit],
+                    /*S*/ sktqaz.ihtflz[iHit]&(1<<12)
                   };
         Append(hit);
     }
@@ -163,7 +165,7 @@ void PMTHitCluster::FillTQReal(TQReal* tqreal)
     tqreal->Q.clear();
 
     for (auto const& hit: fElement) {
-        tqreal->cables.push_back(hit.i() + (hit.f() << 16));
+        tqreal->cables.push_back(hit.i() + (hit.f()<<16) + (hit.s()<<28));
         tqreal->T.push_back(hit.t());
         tqreal->Q.push_back(hit.q());
     }
@@ -191,7 +193,7 @@ void PMTHitCluster::FillCommon()
                 sktqz_.tiskz[iIDHit] = hit.t();
                 sktqz_.qiskz[iIDHit] = hit.q();
                 sktqz_.icabiz[iIDHit] = hit.i();
-                sktqz_.ihtiflz[iIDHit] = hit.f()<<16;
+                sktqz_.ihtiflz[iIDHit] = hit.f() + (hit.s()<<12);
                 rawtqinfo_.icabbf_raw[iIDHit] = hit.i() + (hit.f()<<16);
                 rawtqinfo_.tbuf_raw[iIDHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
                 rawtqinfo_.qbuf_raw[iIDHit] = hit.q();
@@ -211,7 +213,7 @@ void PMTHitCluster::FillCommon()
                 sktqaz_.taskz[iODHit] = hit.t();
                 sktqaz_.qaskz[iODHit] = hit.q();
                 sktqaz_.icabaz[iODHit] = hit.i();
-                sktqaz_.ihtflz[iODHit] = hit.f()<<16;
+                sktqaz_.ihtflz[iODHit] = hit.f() + (hit.s()<<12);
                 rawtqinfo_.icabaz_raw[iODHit] = hit.i() + (hit.f()<<16);
                 rawtqinfo_.taskz_raw[iODHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
                 rawtqinfo_.qaskz_raw[iODHit] = hit.q();

@@ -92,7 +92,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         std::array<float, 6> GetBetaArray();
         OpeningAngleStats GetOpeningAngleStats();
 
-        void SetAsSignal(bool b);
+        void SetAsSignal(bool b=true);
         unsigned int GetNSignal();
         unsigned int GetNBurst();
         unsigned int GetNNoisyPMT();

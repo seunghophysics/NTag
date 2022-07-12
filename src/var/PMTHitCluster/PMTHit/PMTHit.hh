@@ -28,9 +28,7 @@ namespace NTagConstant{
 class PMTHit
 {
     public:
-        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(-1), fIsSignal(false), fIsBurst(false) {}
-        //, fMinAngle(0), fDirAngle(0), fAcceptance(0) {}
-        PMTHit(Float t, float q, int i, int f);
+        PMTHit(Float t, float q, int i, int f, bool s=false);
 
         inline const Float& t() const { return fT; }
         inline const float& q() const { return fQ; }
@@ -39,6 +37,7 @@ class PMTHit
         inline const bool& s() const { return fIsSignal; }
         inline const bool& b() const { return fIsBurst; }
 
+        inline void SetFlagBitOr(int bit) { fFlag |= bit; }
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void SetBurstFlag(bool b) { fIsBurst=b; }
         inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
@@ -75,6 +74,9 @@ class PMTHit
         PMTHit& operator+=(const Float& time);
         PMTHit& operator-=(const Float& time);
 
+    private:    
+        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false) {}
+    
     protected:
         Float fT, fToF;
         float fQ;

@@ -319,7 +319,6 @@ float SKIO::GetMCTriggerOffset(FileFormat format)
 
         TreeManager* mgr  = skroot_get_mgr(&lun);
         MCInfo* MCINFO = mgr->GetMC();
-        TQReal* TQREAL = mgr->GetTQREALINFO();
         mgr->GetEntry();
 
         trgOffset = -MCINFO->prim_pret0[0];
