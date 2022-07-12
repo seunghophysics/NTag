@@ -67,6 +67,7 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
                     else if (value <= lDecayE) std::cout << std::right << std::setw(textWidth) << "e";
                     else if (value <= lnH) std::cout << std::right << std::setw(textWidth) << "nH";
                     else if (value <= lnGd) std::cout << std::right << std::setw(textWidth) << "nGd";
+                    else if (value <= lGamma) std::cout << std::right << std::setw(textWidth) << "g";
                     else if (value <= lRemnant) std::cout << std::right << std::setw(textWidth) << "=";
                     else if (value <= lUndefined) std::cout << std::right << std::setw(textWidth) << "?";
                     std::cout << " ";

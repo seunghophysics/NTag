@@ -13,6 +13,7 @@ class TaggableCluster : public Cluster<Taggable>, public TreeOut
         TaggableCluster(const ParticleCluster& particleCluster);
 
         void ReadParticleCluster(const ParticleCluster& particleCluster);
+        void AddParticle(TaggableType taggableType, const Particle& particle, const ParticleCluster& particleCluster);
 
         void Sort();
         void DumpAllElements() const;
@@ -36,6 +37,13 @@ class TaggableCluster : public Cluster<Taggable>, public TreeOut
         std::vector<float> fDWallVector;
         std::vector<int> fEarlyIndexVector;
         std::vector<int> fDelayedIndexVector;
+        std::vector<int> fParentIndexVector;
+        std::vector<int> fParentIntIDVector;
+        std::vector<float> fParentXVector;
+        std::vector<float> fParentYVector;
+        std::vector<float> fParentZVector;
+        std::vector<float> fParentEnergyVector;
+        std::vector<float> fParentTimeVector;
 };
 
 #endif

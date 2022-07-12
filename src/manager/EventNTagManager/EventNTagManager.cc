@@ -183,7 +183,7 @@ void EventNTagManager::ReadVariables()
     for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
         float hitTime = sktqz_.tiskz[iHit];
         if (479.2 < hitTime && hitTime < 1779.2) {
-            qismsk += sktqz_.qiskz[iHit];
+            qismsk += fabs(sktqz_.qiskz[iHit]);  // negative qiskz?
         }
     }
     // qismsk = skq_.qismsk;
@@ -191,43 +191,48 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("QISMSK", qismsk);
     fEventVariables.Set("NHITAC", nhitac);
 
+    PMTHitCluster odHits(sktqaz_);
+    auto odT = odHits.GetProjection(HitFunc::T);
+    int nBins = int((T0MX-T0TH)/200.);
+    float remainderT = fmod(T0MX-T0TH, 200.);
+    auto odHist = Histogram(odT, nBins, T0TH+remainderT/2., T0MX-remainderT/2.);
+    int odMaxN200 = 0;
+    for (auto const& pair: odHist) {
+        if (pair.second > odMaxN200) odMaxN200 = pair.second;
+    }
+    fEventVariables.Set("ODMaxN200", odMaxN200);
+
     // dark rate
     int refRunNo = (fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 
-                   fIsMC ? fSettings.GetInt("REFRUNNO") : skhead_.nrunsk;
+                   fSettings.GetInt("REFRUNNO") ? fSettings.GetInt("REFRUNNO") : skhead_.nrunsk;
     int iErrorStatus = 0;
     skdark_(&refRunNo, &iErrorStatus);
 
-    if (iErrorStatus<0 && fNoiseManager!=nullptr) {
+    if (iErrorStatus < 0) {
+        int newRefRunNo = refRunNo;
         int step = 1;
         int sign = 1;
         while (iErrorStatus<0) {
-            refRunNo -= sign*step;
-            skdark_(&refRunNo, &iErrorStatus);
+            newRefRunNo -= sign*step;
+            skdark_(&newRefRunNo, &iErrorStatus);
             sign *= -1; step += 1;
         }
 
         fMsg.Print(Form("Unable to fetch dark rate of noise run %d, " 
                         "fetching dark rate from closest noise run %d...",
-                        fNoiseManager->GetCurrentRun(), refRunNo), pWARNING);
-        skdark_(&refRunNo, &iErrorStatus);
-    }
-
-    if (iErrorStatus<0) {
-        fMsg.Print(Form("Unable to fetch dark rate of REFRUNNO %d, " 
-                        "fetching dark rate from Run 85619...", refRunNo), pWARNING);
-        refRunNo = 85619;
+                        refRunNo, newRefRunNo), pWARNING);
         skdark_(&refRunNo, &iErrorStatus);
     }
 
     // trigger information
-    int trgtype = (fIsMC || skhead_.idtgsk & 1<<29) ? tAFT : skhead_.idtgsk & 1<<28 ? tSHE : tELSE;
+    int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : ((skhead_.idtgsk & 1<<28) ? tSHE : tELSE));
     static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
                         + skhead_.nt48sk[2]) * 20 * 1e-6;      // [ms]
     double tDiff = globalTime - prevEvTime;
     fEventVariables.Set("TrgType", trgtype);
-    fEventVariables.Set("TDiff", fIsMC? 0 : tDiff);
+    fEventVariables.Set("TDiff", tDiff);
     prevEvTime = globalTime;
 
     // reconstructed information
@@ -274,8 +279,9 @@ void EventNTagManager::ReadHits()
 
 void EventNTagManager::AddHits()
 {
+    /*
     float tOffset = 0.;
-    PMTHit lastHit;
+    PMTHit lastHit(0, 0, 0, 0);
 
     bool  coincidenceFound = true;
 
@@ -307,6 +313,13 @@ void EventNTagManager::AddHits()
             fMsg.Print(Form("Last hit from the previous event: T: %3.2f ns Q: %3.9f pe, I: %d", lastHit.t(), lastHit.q(), lastHit.i()), pWARNING);
         }
     }
+
+    fMsg.Print(Form("TDiff using it0sk: %3.2f nsec", tdiff));
+    */
+
+    static int it0sk_prev = 0;
+    float tOffset = (skheadqb_.it0sk - it0sk_prev) / 1.92;
+    it0sk_prev = skheadqb_.it0sk;
 
     fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
     fEventHits.Sort();
@@ -434,13 +447,13 @@ void EventNTagManager::ProcessEvent()
 
 void EventNTagManager::ProcessDataEvent()
 {
-    auto thisEvTrg = skhead_.idtgsk & (1<<29) ? tAFT : (skhead_.idtgsk & (1<<28) ? tSHE : tELSE);
+    int thisEvTrg = ((skhead_.idtgsk & (1<<29)) ? tAFT : ((skhead_.idtgsk & (1<<28)) ? tSHE : tELSE));
     //fMsg.Print(Form("This evtrg: %d", thisEvTrg), pWARNING);
 
     // if current event is AFT, append TQ and fill output.
     if (thisEvTrg == tAFT) {
         //fMsg.Print("Appending AFT to previous SHE", pWARNING);
-        fEventVariables.Set("TrgType", tAFT);
+        fEventVariables.Set("TrgType", thisEvTrg);
         AddHits();
         SearchAndFill();
     }
@@ -1000,8 +1013,9 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
 
         // default label: noise
         TrueLabel label = lNoise;
-        bool hasMatchingN = false;
-        bool hasMatchingE = false;
+        //bool hasMatchingN = false;
+        //bool hasMatchingE = false;
+        //bool hasMatchingG = false;
 
         std::vector<int> taggableIndexList;
         std::vector<float> matchTimeList;
@@ -1025,13 +1039,17 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
 
             // candidate label determined by taggable type
             if (taggable.Type() == typeN) {
-                hasMatchingN = true;
+                //hasMatchingN = true;
                 if (taggable.Energy() > 6.) label = lnGd;
                 else                        label = lnH;
             }
             else if (taggable.Type() == typeE) {
-                hasMatchingE = true;
+                //hasMatchingE = true;
                 label = lDecayE;
+            }
+            else if (taggable.Type() == typeG) {
+                //hasMatchingG = true;
+                label = lGamma;
             }
 
             // set candidate tagindex as the index of the closest taggable
@@ -1065,8 +1083,8 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
             }
         }
 
-        if (hasMatchingE && hasMatchingN)
-            label = lUndefined;
+        //if (hasMatchingE && hasMatchingN)
+        //    label = lUndefined;
 
         candidate.Set("Label", label);
     }
@@ -1082,7 +1100,7 @@ void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
     //     candidate.Set("TagClass", fTagger.Classify(candidate));
     // if candidate tag class defined
     else if (tagType != typeMissed && tagType != tagClass)
-        taggable.SetTaggedType(typeEN);
+        taggable.SetTaggedType(typeMixed);
     else
         taggable.SetTaggedType(tagClass);
 }

@@ -16,7 +16,7 @@ enum TriggerType
 
 enum TrueLabel
 {
-    lNoise, lDecayE, lnH, lnGd, lRemnant, lUndefined
+    lNoise, lDecayE, lnH, lnGd, lGamma, lRemnant, lUndefined
 };
 
 enum TaggableType
@@ -24,7 +24,8 @@ enum TaggableType
     typeMissed,
     typeE,
     typeN,
-    typeEN
+    typeG,
+    typeMixed
 };
 
 static std::vector<std::string> gMuechkFeatures =  {"FitT", "fvx", "fvy", "fvz", "DWall", "dirx", "diry", "dirz",

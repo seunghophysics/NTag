@@ -39,16 +39,30 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
             }
 
             // if this n-capture gamma-ray is new
-            if (isNewCapture) {
-                Taggable capture(typeN, particle.Time(), particle.Energy(), particle.Vertex());
-                Append(capture);
-            }
+            if (isNewCapture)
+                AddParticle(typeN, particle, particleCluster);
         }
 
         // decay electrons
         else if (particle.IntID() == iDECAY && abs(particle.PID()) == ELECTRON)
-            Append(Taggable(typeE, particle.Time(), particle.Energy(), particle.Vertex()));
+            AddParticle(typeE, particle, particleCluster);
+
+        // non-capture gamma-rays (E > 1 MeV)
+        else if (particle.PID() == GAMMA && particle.Energy() > 1)
+            AddParticle(typeG, particle, particleCluster);
     }
+}
+
+void TaggableCluster::AddParticle(TaggableType taggableType, const Particle& particle, const ParticleCluster& particleCluster)
+{
+    Taggable taggable(taggableType, particle.Time(), particle.Energy(), particle.Vertex());
+
+    int parentIndex = particle.ParentIndex();
+    if (parentIndex >= 0) {
+        taggable.SetParent(particleCluster.ConstAt(parentIndex), parentIndex);
+    }
+
+    Append(taggable);
 }
 
 void TaggableCluster::Sort()
@@ -71,7 +85,7 @@ void TaggableCluster::DumpAllElements() const
         auto delayedIndex = taggable.GetCandidateIndex("Delayed")+1;
         auto taggedType = taggable.TaggedType();
         std::cout << std::right << std::setw(3) << iTaggable+1 << "  ";
-        std::cout << std::right << std::setw(8) << (taggable.Type() == typeE ? "mu-e" : "nCapture") << " ";
+        std::cout << std::right << std::setw(8) << (taggable.Type() == typeE ? "mu-e" : (taggable.Type() == typeN ? "nCapture" : "gamma")) << " ";
         if (time<10)
         std::cout << " " << std::right << std::setw(8) << std::fixed << std::setprecision(2) << time << " ";
         else
@@ -102,6 +116,13 @@ void TaggableCluster::MakeBranches()
         fOutputTree->Branch("DWall" ,&fDWallVector);
         fOutputTree->Branch("EarlyIndex" ,&fEarlyIndexVector);
         fOutputTree->Branch("DelayedIndex" ,&fDelayedIndexVector);
+        fOutputTree->Branch("parvx", &fParentXVector);
+        fOutputTree->Branch("parvy", &fParentYVector);
+        fOutputTree->Branch("parvz", &fParentZVector);
+        fOutputTree->Branch("ParentE", &fParentEnergyVector);
+        fOutputTree->Branch("ParentT", &fParentTimeVector);
+        fOutputTree->Branch("ParentIntID", &fParentIntIDVector);
+        fOutputTree->Branch("ParentIndex", &fParentIndexVector);
     }
 }
 
@@ -118,6 +139,13 @@ void TaggableCluster::FillTree()
     fDWallVector.clear();
     fEarlyIndexVector.clear();
     fDelayedIndexVector.clear();
+    fParentIndexVector.clear();
+    fParentIntIDVector.clear();
+    fParentXVector.clear();
+    fParentYVector.clear();
+    fParentZVector.clear();
+    fParentEnergyVector.clear();
+    fParentTimeVector.clear();
 
     for (auto const& taggable: fElement) {
         auto const& vertex = taggable.Vertex();
@@ -132,6 +160,13 @@ void TaggableCluster::FillTree()
         fDWallVector.push_back(GetDWall(vertex));
         fEarlyIndexVector.push_back(taggable.GetCandidateIndex("Early"));
         fDelayedIndexVector.push_back(taggable.GetCandidateIndex("Delayed"));
+        fParentIndexVector.push_back(taggable.ParentIndex());
+        fParentIntIDVector.push_back(taggable.ParentIntID());
+        fParentXVector.push_back(taggable.ParentVertex().x());
+        fParentYVector.push_back(taggable.ParentVertex().y());
+        fParentZVector.push_back(taggable.ParentVertex().z());
+        fParentEnergyVector.push_back(taggable.ParentE());
+        fParentTimeVector.push_back(taggable.ParentT());
     }
 
     if (fIsOutputTreeSet) fOutputTree->Fill();

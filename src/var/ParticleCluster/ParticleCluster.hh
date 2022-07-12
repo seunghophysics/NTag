@@ -25,9 +25,12 @@ class ParticleCluster : public Cluster<Particle>, public TreeOut
         void FillTree();
 
     private:
+        void FindParents();
+
         // pid
         std::vector<int> fPIDVector;
         std::vector<int> fParentPIDVector;
+        std::vector<int> fParentIndexVector;
         std::vector<int> fInteractionIDVector;
         std::vector<float> fTimeVector;
         std::vector<float> fXVector;
@@ -37,6 +40,8 @@ class ParticleCluster : public Cluster<Particle>, public TreeOut
         std::vector<float> fPYVector;
         std::vector<float> fPZVector;
         std::vector<float> fKEVector;
+
+        std::vector<float> fParentPXVector, fParentVXVector;
 
     //ClassDef(ParticleCluster, 1)
 };

@@ -2,8 +2,10 @@
 
 #include "Particle.hh"
 
-Particle::Particle(int id, float time, TVector3 vtx, TVector3 mom, int parPID, unsigned int interactionID)
-: fT(time), fPID(id), fParentPID(parPID), fIntID(interactionID), fVertex(vtx), fMomentum(mom) {}
+Particle::Particle(int id, float time, TVector3 vtx, TVector3 mom, 
+                   int parPID, unsigned int interactionID, TVector3 parVtx, TVector3 parMom)
+: fT(time), fPID(id), fParentPID(parPID), fIntID(interactionID), fParentIndex(-1), fVertex(vtx), fMomentum(mom),
+  fParentVertex(parVtx), fParentMomentum(parMom) {}
 
 TString Particle::GetName() const
 {

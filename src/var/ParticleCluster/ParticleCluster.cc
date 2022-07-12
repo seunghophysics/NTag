@@ -45,12 +45,15 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
                            TVector3(secondaryCommon.vtxscnd[iSec]),
                            TVector3(secondaryCommon.pscnd[iSec]),
                            secondaryCommon.iprntprt[iSec],
-                           secondaryCommon.lmecscnd[iSec]);
+                           secondaryCommon.lmecscnd[iSec],
+                           TVector3(secondaryCommon.vtxprnt[iSec]),
+                           TVector3(secondaryCommon.pprntinit[iSec]));
 
         Append(secondary);
     }
 
     Sort();
+    FindParents();
 }
 
 void ParticleCluster::SetT0(float t0)
@@ -111,6 +114,9 @@ void ParticleCluster::MakeBranches()
     if (fIsOutputTreeSet) {
         fOutputTree->Branch("PID", &fPIDVector);
         fOutputTree->Branch("ParentPID", &fParentPIDVector);
+        fOutputTree->Branch("ParentIndex", &fParentIndexVector);
+        fOutputTree->Branch("ParentPX", &fParentPXVector);
+        fOutputTree->Branch("ParentVX", &fParentVXVector);
         fOutputTree->Branch("IntID", &fInteractionIDVector);
         fOutputTree->Branch("t", &fTimeVector);
         fOutputTree->Branch("x", &fXVector);
@@ -125,8 +131,12 @@ void ParticleCluster::MakeBranches()
 
 void ParticleCluster::FillTree()
 {
+    fParentPXVector.clear();
+    fParentVXVector.clear();
+
     fPIDVector.clear();
     fParentPIDVector.clear();
+    fParentIndexVector.clear();
     fInteractionIDVector.clear();
     fTimeVector.clear();
     fXVector.clear();
@@ -142,6 +152,9 @@ void ParticleCluster::FillTree()
         auto const& momentum = particle.Momentum();
         fPIDVector.push_back(particle.PID());
         fParentPIDVector.push_back(particle.ParentPID());
+        fParentPXVector.push_back(particle.ParentMomentum().x());
+        fParentVXVector.push_back(particle.ParentVertex().x());
+        fParentIndexVector.push_back(particle.ParentIndex());
         fInteractionIDVector.push_back(particle.IntID());
         fTimeVector.push_back(particle.Time());
         fXVector.push_back(vertex.x());
@@ -154,4 +167,18 @@ void ParticleCluster::FillTree()
     }
 
     if (fIsOutputTreeSet) fOutputTree->Fill();
+}
+
+void ParticleCluster::FindParents()
+{
+    for (int i=0; i<GetSize(); i++) {
+        for (int j=0; j<GetSize(); j++) {
+            if (i==j) continue;
+            auto& parent = fElement[i];
+            auto& particle = fElement[j];
+            if (particle.IsDaughterOf(parent)) {
+                particle.SetParentIndex(i);
+            }
+        }
+    }
 }
