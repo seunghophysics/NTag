@@ -241,8 +241,9 @@ void EventNTagManager::ReadHits()
 
 void EventNTagManager::AddHits()
 {
+    /*
     float tOffset = 0.;
-    PMTHit lastHit;
+    PMTHit lastHit(0, 0, 0, 0);
 
     bool  coincidenceFound = true;
 
@@ -274,6 +275,13 @@ void EventNTagManager::AddHits()
             fMsg.Print(Form("Last hit from the previous event: T: %3.2f ns Q: %3.9f pe, I: %d", lastHit.t(), lastHit.q(), lastHit.i()), pWARNING);
         }
     }
+
+    fMsg.Print(Form("TDiff using it0sk: %3.2f nsec", tdiff));
+    */
+
+    static int it0sk_prev = 0;
+    float tOffset = (skheadqb_.it0sk - it0sk_prev) / 1.92;
+    it0sk_prev = skheadqb_.it0sk;
 
     fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
     fEventHits.Sort();
