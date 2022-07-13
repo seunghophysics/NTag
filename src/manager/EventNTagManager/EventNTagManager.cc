@@ -283,7 +283,7 @@ void EventNTagManager::AddHits()
     float tOffset = 0.;
     PMTHit lastHit(0, 0, 0, 0);
 
-    bool  coincidenceFound = true;
+    bool coincidenceFound = true;
 
     if (!fEventHits.IsEmpty()) {
         coincidenceFound = false;
@@ -318,7 +318,7 @@ void EventNTagManager::AddHits()
     */
 
     static int it0sk_prev = 0;
-    float tOffset = (skheadqb_.it0sk - it0sk_prev) / 1.92;
+    float tOffset = fEventHits.IsEmpty() ? 0 : (skheadqb_.it0sk - it0sk_prev) / 1.92;
     it0sk_prev = skheadqb_.it0sk;
 
     fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
@@ -404,8 +404,8 @@ void EventNTagManager::SearchAndFill()
         SearchCandidates();
     }
 
-    FillTrees();
     DumpEvent();
+    FillTrees();
     if (fSettings.GetBool("write_bank"))
         FillNTAGBank();
     if (fOutDataFile) {
@@ -447,15 +447,19 @@ void EventNTagManager::ProcessEvent()
 
 void EventNTagManager::ProcessDataEvent()
 {
+    static int prevEvTrg = tELSE;
     int thisEvTrg = ((skhead_.idtgsk & (1<<29)) ? tAFT : ((skhead_.idtgsk & (1<<28)) ? tSHE : tELSE));
     //fMsg.Print(Form("This evtrg: %d", thisEvTrg), pWARNING);
 
     // if current event is AFT, append TQ and fill output.
     if (thisEvTrg == tAFT) {
-        //fMsg.Print("Appending AFT to previous SHE", pWARNING);
-        fEventVariables.Set("TrgType", thisEvTrg);
-        AddHits();
-        SearchAndFill();
+        if (prevEvTrg == tSHE) {
+            //fMsg.Print("Appending AFT to previous SHE", pWARNING);
+            fEventVariables.Set("TrgType", thisEvTrg);
+            AddHits();
+            SearchAndFill();
+        }
+        else thisEvTrg = tELSE;
     }
 
     // if previous event was SHE without following AFT,
@@ -479,6 +483,8 @@ void EventNTagManager::ProcessDataEvent()
         //fMsg.Print("ELSE", pWARNING);
         ProcessFlatEvent();
     }
+
+    prevEvTrg = thisEvTrg;
 }
 
 void EventNTagManager::ProcessFlatEvent()
@@ -892,7 +898,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         T0TH < delayedTime && delayedTime < T0MX) {
         //iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         //unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
-        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.01, TCANWIDTH/2.).GetSize();
+        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
 
         if (nHits >= MINNHITS && nHits <= MAXNHITS) {
             Candidate candidate(iHit);
@@ -901,7 +907,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             candidate.Set("BSenergy", fBonsaiManager.GetFitEnergy());
             candidate.Set("BSdirks", fBonsaiManager.GetFitDirKS());
             candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
-            FindFeatures(candidate);
+            FindFeatures(candidate, delayedTime);
             fEventCandidates.Append(candidate);
         }
     }
@@ -909,15 +915,15 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     PrepareEventHitsForSearch();
 }
 
-void EventNTagManager::FindFeatures(Candidate& candidate)
+void EventNTagManager::FindFeatures(Candidate& candidate, double canTime)
 {
     //unsigned int firstHitID = candidate.HitID();
-    float fitTime = candidate.Get("FitT")*1e3 + 1000;
-    auto hitsInTCANWIDTH = fEventHits.SliceRange(fitTime, -TCANWIDTH/2., TCANWIDTH/2.);
-    auto hitsIn30ns      = fEventHits.SliceRange(fitTime,           -15,          +15);
-    auto hitsIn50ns      = fEventHits.SliceRange(fitTime,           -25,          +25);
-    auto hitsIn200ns     = fEventHits.SliceRange(fitTime,          -100,         +100);
-    auto hitsIn1300ns    = fEventHits.SliceRange(fitTime,          -520,         +780);
+    //float fitTime = candidate.Get("FitT")*1e3 + 1000;
+    auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2., TCANWIDTH/2.);
+    auto hitsIn30ns      = fEventHits.SliceRange(canTime,           -15,          +15);
+    auto hitsIn50ns      = fEventHits.SliceRange(canTime,           -25,          +25);
+    auto hitsIn200ns     = fEventHits.SliceRange(canTime,          -100,         +100);
+    auto hitsIn1300ns    = fEventHits.SliceRange(canTime,          -520,         +780);
     //auto hitsInTCANWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
     //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
     //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);

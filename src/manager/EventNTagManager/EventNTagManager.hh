@@ -108,7 +108,7 @@ class EventNTagManager
         void FindDelayedCandidate(unsigned int iHit);
 
         // feature extraction
-        void FindFeatures(Candidate& candidate);
+        void FindFeatures(Candidate& candidate, double canTime);
 
         // tag class for candidate
         //int FindTagClass(const Candidate& candidate);
