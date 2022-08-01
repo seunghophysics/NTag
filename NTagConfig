@@ -47,7 +47,8 @@ NOISESEED      0
 # PMT burst noise width
 TRBNWIDTH      30000
 
-# OD event cut
+# Event cut
+NIDHITMX       100000
 NODHITMX       100000
 
 # SK I/O options
@@ -57,9 +58,11 @@ SKBADOPT       55
 REFRUNNO       85619
 
 # event processing
+TGATEMIN       -0.5208
+TGATEMAX       0.7792
 force_flat     0
 write_bank     0
-save_hits      0
+save_hits      false
 
 # TRMS-fit
 TRMSTWIDTH     30

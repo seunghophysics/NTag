@@ -108,7 +108,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 
         void MakeBranches();
         void ClearBranches();
-        void FillTree();
+        void FillTree(bool asResidual=false);
         
     private:
         bool fIsSorted, fHasVertex;

@@ -180,12 +180,15 @@ void EventNTagManager::ReadVariables()
 
     // hit information
     float qismsk = 0;
-    for (int iHit = 0; iHit < sktqz_.nqiskz; iHit++) {
-        float hitTime = sktqz_.tiskz[iHit];
-        if (479.2 < hitTime && hitTime < 1779.2) {
-            qismsk += fabs(sktqz_.qiskz[iHit]);  // negative qiskz?
+    float tGateMin = fSettings.GetFloat("TGATEMIN")*1e3 + 1000.;
+    float tGateMax = fSettings.GetFloat("TGATEMAX")*1e3 + 1000.;
+    for (auto const& hit: fEventHits) {
+        float hitTime = hit.t();
+        if (tGateMin < hitTime && hitTime < tGateMax) {
+            qismsk += fabs(hit.q()); // negative q?
         }
     }
+
     // qismsk = skq_.qismsk;
     int nhitac; odpc_2nd_s_(&nhitac);
     fEventVariables.Set("QISMSK", qismsk);
@@ -221,7 +224,7 @@ void EventNTagManager::ReadVariables()
         fMsg.Print(Form("Unable to fetch dark rate of noise run %d, " 
                         "fetching dark rate from closest noise run %d...",
                         refRunNo, newRefRunNo), pWARNING);
-        skdark_(&refRunNo, &iErrorStatus);
+        skdark_(&newRefRunNo, &iErrorStatus);
     }
 
     // trigger information
@@ -281,7 +284,7 @@ void EventNTagManager::AddHits()
 {
     /*
     float tOffset = 0.;
-    PMTHit lastHit(0, 0, 0, 0);
+    PMTHit lastHit(std::numeric_limits<Float>::lowest(), 0, 0, 0);
 
     bool coincidenceFound = true;
 
@@ -314,14 +317,28 @@ void EventNTagManager::AddHits()
         }
     }
 
-    fMsg.Print(Form("TDiff using it0sk: %3.2f nsec", tdiff));
+    //fMsg.Print(Form("TDiff using it0sk: %3.2f nsec", tdiff));
     */
+
+    PMTHit lastHit(std::numeric_limits<Float>::lowest(), 0, 0, 0);
+    if (!fEventHits.IsEmpty())
+        lastHit = fEventHits[fEventHits.GetSize()-1];
 
     static int it0sk_prev = 0;
     float tOffset = fEventHits.IsEmpty() ? 0 : (skheadqb_.it0sk - it0sk_prev) / 1.92;
     it0sk_prev = skheadqb_.it0sk;
 
-    fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
+    fMsg.Print(Form("tOffset_it0sk: %3.2f ns", tOffset));
+
+    if (fEventHits.IsEmpty())
+        fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
+    else {
+        auto hitsToAdd = PMTHitCluster(sktqz_) + tOffset;
+        for (auto const& hit: hitsToAdd) {
+            if (hit.t() > lastHit.t())
+                fEventHits.Append(hit);
+        }
+    }
     fEventHits.Sort();
 }
 
@@ -384,12 +401,12 @@ void EventNTagManager::ReadInfoFromCommon()
 
 void EventNTagManager::ReadEventFromCommon()
 {
-    ReadInfoFromCommon();
     AddHits();
     if (fSettings.GetBool("add_noise", false)) {
         fEventHits.SetAsSignal(true);
         AddNoise();
     }
+    ReadInfoFromCommon();
 }
 
 void EventNTagManager::SearchAndFill()
@@ -404,6 +421,7 @@ void EventNTagManager::SearchAndFill()
         SearchCandidates();
     }
 
+    FillNTagCommon();
     DumpEvent();
     FillTrees();
     if (fSettings.GetBool("write_bank"))
@@ -507,64 +525,70 @@ void EventNTagManager::SearchCandidates()
     float t0Previous      = std::numeric_limits<float>::min();
 
     unsigned long nEventHits = fEventHits.GetSize();
+    unsigned long nIDHitsMax = fSettings.GetInt("NIDHITMX", std::numeric_limits<int>::max());
 
-    // Loop over the saved TQ hit array from current event
-    for (unsigned int iHit = 0; iHit < nEventHits; iHit++) {
-
-        PMTHitCluster hitsInTCANWIDTH = fEventHits.Slice(iHit, TWIDTH);
-
-        // If (ToF-subtracted) hit comes earlier than T0TH or later than T0MX, skip:
-        float firstHitTime = hitsInTCANWIDTH[0].t();
-        if (firstHitTime < T0TH || firstHitTime > T0MX) continue;
-
-        // Calculate NHitsNew:
-        // number of hits within TWIDTH (ns) from the i-th hit
-        int NHits_iHit = hitsInTCANWIDTH.GetSize();
-
-        // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
-        if (NHits_iHit < NHITSTH) continue;
-        if (NHits_iHit > NHITSMX) {
-            fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...",
-                            NHits_iHit, firstHitTime, NHITSMX), pDEBUG);
-        }
-
-        // We've found a new peak.
-        NHitsNew = NHits_iHit;
-        float t0New = firstHitTime;
-
-        // Calculate N200
-        PMTHitCluster hitsIn200ns = fEventHits.Slice(iHit, TWIDTH/2.-100, TWIDTH/2.+100);
-        int N200New = hitsIn200ns.GetSize();
-
-        // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
-        // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
-        if (t0New - t0Previous > TMINPEAKSEP) {
-            if (iHitPrevious >= 0 && N200Previous < N200MX && t0Previous > T0TH) {
-                FindDelayedCandidate(iHitPrevious);
-            }
-            // Reset NHitsPrevious,
-            // if peaks are separated enough
-            NHitsPrevious = 0;
-        }
-
-        // If NHits is not greater than previous, skip
-        if ( NHitsNew <= NHitsPrevious ) continue;
-
-        iHitPrevious  = iHit;
-        t0Previous    = t0New;
-        NHitsPrevious = NHitsNew;
-        N200Previous  = N200New;
+    if (nEventHits > nIDHitsMax) {
+        fMsg.Print(Form("Skipping event with ID number of hits %ld > NIDHITMX %ld", nEventHits, nIDHitsMax), pWARNING);
     }
+    else {
+        // Loop over the saved TQ hit array from current event
+        for (unsigned int iHit = 0; iHit < nEventHits; iHit++) {
 
-    // Save the last peak
-    if (NHitsPrevious >= NHITSTH)
-        FindDelayedCandidate(iHitPrevious);
+            PMTHitCluster hitsInTCANWIDTH = fEventHits.Slice(iHit, TWIDTH);
 
-    if (!fEventEarlyCandidates.IsEmpty()) PruneCandidates();
-    /*if (fIsMC)*/  MapTaggables();
+            // If (ToF-subtracted) hit comes earlier than T0TH or later than T0MX, skip:
+            float firstHitTime = hitsInTCANWIDTH[0].t();
+            if (firstHitTime < T0TH || firstHitTime > T0MX) continue;
 
-    fEventEarlyCandidates.FillVectorMap();
-    fEventCandidates.FillVectorMap();
+            // Calculate NHitsNew:
+            // number of hits within TWIDTH (ns) from the i-th hit
+            int NHits_iHit = hitsInTCANWIDTH.GetSize();
+
+            // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
+            if (NHits_iHit < NHITSTH) continue;
+            if (NHits_iHit > NHITSMX) {
+                fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...",
+                                NHits_iHit, firstHitTime, NHITSMX), pDEBUG);
+            }
+
+            // We've found a new peak.
+            NHitsNew = NHits_iHit;
+            float t0New = firstHitTime;
+
+            // Calculate N200
+            PMTHitCluster hitsIn200ns = fEventHits.Slice(iHit, TWIDTH/2.-100, TWIDTH/2.+100);
+            int N200New = hitsIn200ns.GetSize();
+
+            // If peak t0 diff = t0New - t0Previous > TMINPEAKSEP, save the previous peak.
+            // Also check if N200Previous is below N200 cut and if t0Previous is over t0 threshold
+            if (t0New - t0Previous > TMINPEAKSEP) {
+                if (iHitPrevious >= 0 && N200Previous < N200MX && t0Previous > T0TH) {
+                    FindDelayedCandidate(iHitPrevious);
+                }
+                // Reset NHitsPrevious,
+                // if peaks are separated enough
+                NHitsPrevious = 0;
+            }
+
+            // If NHits is not greater than previous, skip
+            if ( NHitsNew <= NHitsPrevious ) continue;
+
+            iHitPrevious  = iHit;
+            t0Previous    = t0New;
+            NHitsPrevious = NHitsNew;
+            N200Previous  = N200New;
+        }
+
+        // Save the last peak
+        if (NHitsPrevious >= NHITSTH)
+            FindDelayedCandidate(iHitPrevious);
+
+        if (!fEventEarlyCandidates.IsEmpty()) PruneCandidates();
+        /*if (fIsMC)*/  MapTaggables();
+
+        fEventEarlyCandidates.FillVectorMap();
+        fEventCandidates.FillVectorMap();
+    }
 }
 
 void EventNTagManager::MapTaggables()
@@ -730,7 +754,7 @@ void EventNTagManager::MakeTrees(TFile* outfile)
 
     fSettings.SetTree(settingsTree);
     fEventVariables.SetTree(eventTree);
-    if (fSettings.GetBool("save_hits")) fEventHits.SetTree(hitTree);
+    if (fSettings.GetBool("save_hits", true)) fEventHits.SetTree(hitTree);
     fEventParticles.SetTree(particleTree);
     fEventTaggables.SetTree(taggableTree);
     fEventCandidates.SetTree(nTree);
@@ -739,8 +763,6 @@ void EventNTagManager::MakeTrees(TFile* outfile)
 
 void EventNTagManager::FillTrees()
 {
-    FillNTagCommon();
-
     // set branch address for the first event
     if (!fIsBranchSet) {
         // make branches
@@ -759,7 +781,7 @@ void EventNTagManager::FillTrees()
 
     // fill trees
     fEventVariables.FillTree();
-    fEventHits.FillTree();
+    fEventHits.FillTree(fSettings.GetString("save_hits")=="residual");
     fEventParticles.FillTree();
     fEventTaggables.FillTree();
     fEventEarlyCandidates.FillTree();

@@ -594,12 +594,12 @@ void PMTHitCluster::ClearBranches()
     //fX.clear(); fY.clear(); fZ.clear();
 }
 
-void PMTHitCluster::FillTree()
+void PMTHitCluster::FillTree(bool asResidual)
 {
     if (fIsOutputTreeSet) {
         ClearBranches();
         auto vertex = fVertex;
-        RemoveVertex();
+        if (!asResidual) RemoveVertex();
         Sort();
         for (auto const hit: fElement) {
             auto hitPos = hit.GetPosition();
@@ -613,7 +613,7 @@ void PMTHitCluster::FillTree()
             fB.push_back(hit.b());
         }
         fOutputTree->Fill();
-        SetVertex(vertex);
+        if (!asResidual) SetVertex(vertex);
     }
 }
 
