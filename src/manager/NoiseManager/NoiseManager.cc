@@ -332,7 +332,7 @@ void NoiseManager::SetNoiseEventHits()
         int nHits = fIDNoiseEventHits.GetSize();
         fNoiseEventLength = fIDNoiseEventHits[nHits-1].t() - fIDNoiseEventHits[0].t();
         fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
-        fNoiseT0 = fIDNoiseEventHits[0].t() + (fNoiseEventLength - fNParts*fNoiseWindowWidth)/2.;
+        fNoiseT0 = fIDNoiseEventHits[0].t() + (fNoiseEventLength - fNParts*fNoiseWindowWidth)*ranGen.Uniform();
     }
 
     else GetNextNoiseEvent();
