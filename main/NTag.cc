@@ -50,7 +50,10 @@ int main(int argc, char** argv)
     if (parser.GetOption("-prompt_vertex")=="stmu")
         input.AddSKOption(23);
 
-    SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    //SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    // don't do bad channel mask at this tage
+    //auto skOptionNoBad = TString(settings.GetString("SKOPTN")).ReplaceAll(",25", "");
+    //SKIO::SetSKOption(skOptionNoBad.Data());
     SKIO::SetSKOption(settings.GetString("SKOPTN"));
     SKIO::SetSKBadChOption(settings.GetInt("SKBADOPT"));
     SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
@@ -62,9 +65,9 @@ int main(int argc, char** argv)
         ntagManager.SetOutDataFile(&output);
     }
 
-    input.DumpSettings();
     input.OpenFile();
     int nInputEvents = input.GetNumberOfEvents();
+    input.DumpSettings();
 
     msg.Print("Input file: " + inputFilePath);
     msg.Print(Form("Number of events in input file: %d", nInputEvents));

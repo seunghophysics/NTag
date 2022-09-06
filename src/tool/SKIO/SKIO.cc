@@ -1,6 +1,7 @@
 #include <skheadC.h>
 #undef MAXHWSK
 #include <fortran_interface.h>
+#include "skbadcC.h"
 #undef MAXPM
 #undef MAXPMA
 #undef SECMAXRNG
@@ -70,19 +71,17 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     }
 
     // SK option
+    //auto woBadOpt = fSKOption.ReplaceAll(",25", "");
+    //skoptn_(woBadOpt.Data(), woBadOpt.Length());
     skoptn_(fSKOption.Data(), fSKOption.Length());
 
-    // SK geometry
-    skheadg_.sk_geometry = fSKGeometry; geoset_();
-
+    // bad channel options
+    skbadopt_(&fSKBadChOption);
     // SK custom bad channel masking (M. Harada)
     // (SK option 25: mask bad channel)
     // (SK option 26: read bad channel from input file)
-    if ( fSKOption.Contains("25") ) {
-        int refSubRunNo = 0; int outputErrorStatus = 0;
-        skbadopt_(&fSKBadChOption);
-        skbadch_(&fRefRunNo, &refSubRunNo, &outputErrorStatus);
-    }
+    //if (fSKOption.Contains("25"))
+    //    SetBadChannels(fRefRunNo);
 
     //int logicalUnit = fFileFormat==mZBS ? fIOMode : mInput;
     int logicalUnit = fIOMode;
@@ -243,6 +242,14 @@ int SKIO::GetNumberOfEvents()
         else if (fFileFormat == mSKROOT) {
             skroot_get_entries_(&logicalUnit, &nEvents);
             fNEvents = nEvents;
+
+            TreeManager* mgr  = skroot_get_mgr(&logicalUnit);
+            TTree* tree = mgr->GetTree();
+            Header* header = mgr->GetHEAD();
+            tree->GetEntry(0);
+            skhead_.nrunsk = header->nrunsk;
+            skhead_.mdrnsk = header->mdrnsk;
+
             if (!wasFileOpen) CloseFile();
         }
 
@@ -250,6 +257,8 @@ int SKIO::GetNumberOfEvents()
             fMsg.Print("The given input file at " + fFilePath + " is empty!", pERROR);
         }
     }
+
+    //SetSKGeometry(FindSKGeometry());
 
     return fNEvents;
 }
@@ -263,12 +272,75 @@ void SKIO::DumpSettings()
 {
     std::cout << "\n";
     fMsg.Print(Form("%s file path: ", (fIOMode==mInput? "Read": "Write")) + fFilePath);
-    fMsg.Print(Form("SK geometry: %d", fSKGeometry));
+    fMsg.Print(Form("SK geometry: %d", skheadg_.sk_geometry));
     fMsg.Print("SK option: " + fSKOption);
     fMsg.Print("SK bad channel option: " + std::to_string(fSKBadChOption));
     fMsg.Print(Form("SK reference run number: %d", fRefRunNo));
     std::cout << "\n";
 }
+
+void SKIO::SetRefRunNo(int refRunNo)
+{
+    // auto
+    if (!refRunNo) {
+        
+    }
+
+    // manual
+    fRefRunNo = refRunNo;
+}
+
+int SKIO::SetBadChannels(int runNo, int subrunNo, bool fetchTQ)
+{
+    int badchError = 0; int darkError = 0;
+    combad_.log_level_skbadch = 4; // silent
+    comdark_.log_level_skdark = 4; // silent
+    skbadch_(&runNo, &subrunNo, &badchError);
+    skdark_(&runNo, &darkError);
+    if (fetchTQ) {
+        skbadch_mask_tqz_();
+        tqrealsk_();
+    }
+    return (badchError>=0) && (darkError==0);
+}
+
+void SKIO::ResetBadChannels()
+{
+    combad_.nbad = 0;
+    combada_.nbada = 0;
+    combad00_.nbad0 = 0;
+
+    for (int iPMT=0; iPMT<MAXPM; iPMT++) {
+        combad_.ibad[iPMT] = 0;
+        combad_.isqbad[iPMT] = 0;
+        combad00_.ibad0[iPMT] = 0;
+        combad00_.isqbad0[iPMT] = 0;
+    }
+
+    for (int iPMT=0; iPMT<MAXPMA; iPMT++) {
+        combada_.ibada[iPMT] = 0;
+        combada_.isqbada[iPMT] = 0;
+    }
+}
+
+//int SKIO::FindSKGeometry()
+//{
+    /*
+    // data
+    if (skhead_.mdrnsk) {
+        if (skhead_.nrunsk < 80000) return 4;
+        else if (skhead_.nrunsk < 83000) return 5;
+        else if (skhead_.nrunsk < 88000) return 6;
+        else return 7;
+    }
+    // mc (no change)
+    else {
+        return SKIO::GetSKGeometry();
+    }
+    */
+
+//   return skheadg_.sk_geometry;
+//}
 
 void SKIO::ClearTQCommon()
 {

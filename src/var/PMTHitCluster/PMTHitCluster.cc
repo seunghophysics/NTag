@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <numeric>
 #include <cassert>
+#include <cmath>
 #include <limits>
 
 #include <TTree.h>
@@ -58,16 +59,24 @@ void PMTHitCluster::Append(const PMTHit& hit)
     int i = hit.i();
 
     // append only hits with meaningful PMT ID
-    if ((1 <= i && i <= MAXPM) || (20001 <= i && i <= 20000+MAXPMA)) {
-        fElement.push_back(hit);
-        //fIndex.push_back(fElement.size());
-    }
+    if ((1 <= i && i <= MAXPM) || (20001 <= i && i <= 20000+MAXPMA))
+            fElement.push_back(hit);
+    //else
+    //    std::cerr << "[PMTHitCluster] " << hit.i() << " at t=" << hit.t() << " ns is not a valid PMT cable ID!\n";
 }
 
 void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
 {
     for (auto const& hit: hitCluster) {
-        if (!inGateOnly || hit.f() & (1<<1))
+        if (inGateOnly) {
+            if (hit.f() & (1<<1)) {
+                Append(hit);
+            }
+            //else {
+            //    std::cerr << "[PMTHitCluster] PMT ID " << hit.i() << " at t=" << hit.t() << " ns not in gate!\n";
+            //}
+        }
+        else
             Append(hit);
     }
 }
@@ -118,6 +127,21 @@ void PMTHitCluster::RemoveVertex()
 
         fIsSorted = false;
     }
+}
+
+void PMTHitCluster::RemoveBadChannels()
+{
+    auto idCut = [](PMTHit const & hit){ return (hit.i()>MAXPM) || (combad_.ibad[hit.i()] > 0); };
+    auto odCut = [](PMTHit const & hit){ return (hit.i()<20000) ? true : (combada_.ibada[hit.i()-20000] > 0); };
+    auto cut = (fElement[0].i()<=MAXPM) ? idCut : odCut;
+
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
+}
+
+void PMTHitCluster::RemoveNegativeHits()
+{
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), 
+        [](PMTHit const & hit){ return (hit.q()<0); }), fElement.end());
 }
 
 void PMTHitCluster::FindMeanDirection()
@@ -179,7 +203,7 @@ void PMTHitCluster::FillCommon()
 
     for (auto const& hit: fElement) {
         if (hit.i() >= 20000) nODHits++;
-        if (hit.i() <  MAXPM) nIDHits++;
+        if (hit.i() <= MAXPM) nIDHits++;
     }
 
     if (nIDHits) {
@@ -189,7 +213,7 @@ void PMTHitCluster::FillCommon()
 
         int iIDHit = 0;
         for (auto const& hit: fElement) {
-            if (hit.i() <  MAXPM) {
+            if (hit.i() <=  MAXPM) {
                 sktqz_.tiskz[iIDHit] = hit.t();
                 sktqz_.qiskz[iIDHit] = hit.q();
                 sktqz_.icabiz[iIDHit] = hit.i();
@@ -304,6 +328,8 @@ void PMTHitCluster::AddTimeOffset(Float tOffset)
 
 void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 {
+    int allSize = GetSize();
+
     TVector3 tempVertex;
     bool bHadVertex = false;
     if (fHasVertex) {
@@ -325,7 +351,9 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
     if (!fIsSorted) Sort();
     for (auto& hit: fElement) {
         int hitPMTID = hit.i();
-        if (hit.t() - HitTime[hitPMTID] > deadtime) {
+        Float tDiff = hit.t() - HitTime[hitPMTID];
+        hit.SetTDiff(tDiff);
+        if (tDiff > deadtime) {
             hit.SetBurstFlag(false);
             dtCorrectedHits.push_back(hit);
             HitTime[hitPMTID] = hit.t();
@@ -340,6 +368,11 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 
     if (bHadVertex)
         SetVertex(tempVertex);
+
+    if (doRemove) {
+        int removedHits = allSize-GetSize();
+        std::cout << "Removed " << removedHits << " hits for PMT deadtime " << deadtime << " ns\n";
+    }
 }
 
 std::array<float, 6> PMTHitCluster::GetBetaArray()
@@ -406,6 +439,8 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
     stats.median   = GetMedian(openingAngles);
     stats.stdev    = GetRMS(openingAngles);
     stats.skewness = GetSkew(openingAngles);
+
+    assert(!std::isnan(stats.skewness));
 
     return stats;
 }
@@ -580,6 +615,7 @@ void PMTHitCluster::MakeBranches()
         fOutputTree->Branch("t", &fT);
         fOutputTree->Branch("q", &fQ);
         fOutputTree->Branch("i", &fI);
+        fOutputTree->Branch("dt", &fDT);
         //fOutputTree->Branch("x", &fX);
         //fOutputTree->Branch("y", &fY);
         //fOutputTree->Branch("z", &fZ);
@@ -590,7 +626,7 @@ void PMTHitCluster::MakeBranches()
 
 void PMTHitCluster::ClearBranches()
 {
-    fT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
+    fT.clear(); fDT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
     //fX.clear(); fY.clear(); fZ.clear();
 }
 
@@ -604,6 +640,7 @@ void PMTHitCluster::FillTree(bool asResidual)
         for (auto const hit: fElement) {
             auto hitPos = hit.GetPosition();
             fT.push_back(hit.t());
+            fDT.push_back(hit.dt());
             fQ.push_back(hit.q());
             fI.push_back(hit.i());
             //fX.push_back(hitPos.x());
@@ -614,6 +651,18 @@ void PMTHitCluster::FillTree(bool asResidual)
         }
         fOutputTree->Fill();
         if (!asResidual) SetVertex(vertex);
+    }
+}
+
+void PMTHitCluster::CheckNaN()
+{
+    for (auto const& hit: fElement) {
+        float t = hit.t();
+        float q = hit.q();
+        assert(!std::isnan(t));
+        assert(!std::isnan(q));
+        assert(!std::isinf(t));
+        assert(!std::isinf(q));
     }
 }
 

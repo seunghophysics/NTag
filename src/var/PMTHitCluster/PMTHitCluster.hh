@@ -34,6 +34,8 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetVertex() const { return fVertex; }
         bool HasVertex() { return fHasVertex; }
         void RemoveVertex();
+        void RemoveBadChannels();
+        void RemoveNegativeHits();
         void FindMeanDirection();
 
         void Sort();
@@ -101,6 +103,8 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         float GetNoisyPMTRatio();
         float GetBurstSignificance(float tBurstWindow);
         float GetDarkLikelihood();
+
+        void CheckNaN();
         
         //void FindHitProperties();
         PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
@@ -114,7 +118,8 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         bool fIsSorted, fHasVertex;
         TVector3 fVertex, fMeanDirection;
 
-        std::vector<float> fT, fQ;
+        std::vector<Float> fT, fDT;
+        std::vector<float> fQ;
         std::vector<int> fI, fS, fB;
 
         void SetToF(bool unset=false);

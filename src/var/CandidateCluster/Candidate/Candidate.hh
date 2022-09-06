@@ -9,6 +9,8 @@
 #ifndef CANDIDATE_HH
 #define CANDIDATE_HH
 
+#include <cassert>
+#include <cmath>
 #include <map>
 #include <string>
 #include <algorithm>

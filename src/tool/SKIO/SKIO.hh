@@ -3,6 +3,9 @@
 
 #include <TString.h>
 
+#undef MAXHWSK
+#include <skheadC.h>
+
 #include <Printer.hh>
 #include <PMTHitCluster.hh>
 
@@ -75,14 +78,19 @@ class SKIO
         static void SetSKOption(std::string skOption) { fSKOption = skOption; }
         static void AddSKOption(int opt) { fSKOption += ("," + std::to_string(opt)); }
 
-        static int GetSKGeometry() { return fSKGeometry; }
-        static void SetSKGeometry(int skGeometry) { fSKGeometry = skGeometry; }
+        static int GetSKGeometry() { return skheadg_.sk_geometry; }
+        //static int GetSKGeometry() { return fSKGeometry; }
+        //static void SetSKGeometry(int skGeometry) { fSKGeometry = skGeometry; }
+        //static int FindSKGeometry();
 
         static int GetSKBadChOption() { return fSKBadChOption; }
         static void SetSKBadChOption(int skBadChOption) { fSKBadChOption = skBadChOption; }
 
         static int GetRefRunNo() { return fRefRunNo; }
-        static void SetRefRunNo(int refRunNo) { fRefRunNo = refRunNo; }
+        static void SetRefRunNo(int refRunNo);
+
+        static int SetBadChannels(int runNo, int subrunNo=1, bool fetchTQ=false);
+        static void ResetBadChannels();
 
         static void ClearTQCommon();
         static void SetSecondaryCommon(FileFormat format=mZBS);

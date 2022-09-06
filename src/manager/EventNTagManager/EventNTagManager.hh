@@ -86,7 +86,7 @@ class EventNTagManager
         void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
         
         // MC taggable mapping
-        static void Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow=200);
+        static void Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, Float tMatchWindow=200);
         static void ResetTaggableMapping(TaggableCluster& taggableCluster);
         static void ResetCandidateClass(CandidateCluster& candidateCluster);
         // tagged type for taggable
@@ -97,7 +97,7 @@ class EventNTagManager
         void CheckMC();
     
         // ToF subtraction
-        void PrepareEventHitsForSearch();
+        void ResetEventHitsVertex();
         //void SetToF(const TVector3& vertex);
         //void UnsetToF();
 
@@ -108,7 +108,11 @@ class EventNTagManager
         void FindDelayedCandidate(unsigned int iHit);
 
         // feature extraction
-        void FindFeatures(Candidate& candidate, double canTime);
+        void FindFeatures(Candidate& candidate, Float canTime);
+
+        // reference run for bad channels and dark rates
+        void FindReferenceRun();
+        void PrepareEventHits();
 
         // tag class for candidate
         //int FindTagClass(const Candidate& candidate);
@@ -129,6 +133,7 @@ class EventNTagManager
         // data models
         Store fEventVariables;
         PMTHitCluster fEventHits;
+        PMTHitCluster fEventODHits;
         ParticleCluster fEventParticles;
         TaggableCluster fEventTaggables;
         CandidateCluster fEventCandidates;
@@ -139,7 +144,7 @@ class EventNTagManager
         Store fSettings;
         VertexMode fPromptVertexMode, fDelayedVertexMode;
         float PVXRES, PVXBIAS;
-        float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW, TRBNWIDTH;
+        Float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW, TRBNWIDTH;
         int NHITSTH, NHITSMX, N200TH, N200MX, MINNHITS, MAXNHITS;
         float TRMSTWIDTH, INITGRIDWIDTH, MINGRIDWIDTH, GRIDSHRINKRATE, VTXMAXRADIUS;
         float E_NHITSCUT, E_TIMECUT, TAGOUTCUT;
@@ -166,7 +171,7 @@ class EventNTagManager
         Printer fMsg;
 
         // booleans
-        bool fIsBranchSet, fIsMC;
+        bool fIsBranchSet, fIsMC, fDoAutoRefRun;
         FileFormat fFileFormat;
 };
 

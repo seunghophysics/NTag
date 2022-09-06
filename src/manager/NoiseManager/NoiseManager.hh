@@ -33,6 +33,7 @@ class NoiseManager
         void SetNoiseMaxN200(int idCut, int odCut, bool doCut=true) { fIDMaxN200 = idCut; fODMaxN200 = odCut; fDoN200Cut = doCut; }
         void SetRepeat(bool b) { fDoRepeat = b; }
         void SetSeed(int seed) { fNoiseSeed = seed; ranGen.SetSeed(seed); }
+        void SetSKGeneration(int gen) { fSKGen = gen; }
         void DumpSettings();
 
         // noise tree generation
@@ -58,6 +59,8 @@ class NoiseManager
         void AddODNoise(PMTHitCluster* signalHits);
 
         int GetCurrentRun() { return fHeader->nrunsk; }
+        int GetCurrentSubrun() { return fHeader->nsubsk; }
+        int GetCurrentEventID() { return fHeader->nevsk; }
         TChain* GetNoiseChain() { return fNoiseTree; }
 
     protected:
@@ -76,6 +79,7 @@ class NoiseManager
         TQReal* fIDTQReal;
         TQReal* fODTQReal;
 
+        int fSKGen;
         int fNoiseSeed;
 
         float fNoiseEventLength;

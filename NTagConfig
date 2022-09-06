@@ -39,7 +39,7 @@ weight default
 add_noise      false
 repeat_noise   true
 noise_path     /disk02/calib3/usr/han/dummy
-noise_type     sk6
+noise_type     default
 TNOISESTART    2
 TNOISEEND      536
 NOISESEED      0
@@ -48,14 +48,12 @@ NOISESEED      0
 TRBNWIDTH      30000
 
 # Event cut
-NIDHITMX       100000
+NIDHITMX       1000000
 NODHITMX       100000
-
 # SK I/O options
-SKGEOMETRY     5
 SKOPTN         31,30,25
 SKBADOPT       55
-REFRUNNO       85619
+REFRUNNO       0
 
 # event processing
 TGATEMIN       -0.5208

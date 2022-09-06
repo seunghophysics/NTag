@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string.h>
 
 #include "nbnkC.h"
@@ -149,4 +150,48 @@ void FillNTAGBank()
     //int luno = 20;
     //kzwrit_(&luno); // write bank to file
     //kzeclr_();      // clear bank
+}
+
+void DumpNTAGBank()
+{
+    std::cout << "nn: " << ntag_.nn << "\n";
+    std::cout << "trgtype: " << ntag_.trgtype << "\n";
+    std::cout << "lasthit: " << ntag_.lasthit << "\n";
+    std::cout << "n200m: " << ntag_.n200m << "\n";
+    std::cout << "t200m: " << ntag_.t200m << "\n";
+    std::cout << "np: " << ntag_.np << "\n";
+    std::cout << "mctruth_nn: " << ntag_.mctruth_nn << "\n";
+
+    for (int i=0; i<ntag_.np; i++) {
+        std::cout << std::right << std::setw(4);
+        std::cout << ntag_.goodness[i] << " ";
+        std::cout << ntag_.ntime[i] << " ";
+        std::cout << ntag_.nvx[i][0] << " ";
+        std::cout << ntag_.nvx[i][1] << " ";
+        std::cout << ntag_.nvx[i][2] << " ";
+        std::cout << ntag_.bvx[i][0] << " ";
+        std::cout << ntag_.bvx[i][1] << " ";
+        std::cout << ntag_.bvx[i][2] << " ";
+        std::cout << ntag_.nlow[i] << " ";
+        std::cout << ntag_.n300[i] << " ";
+        std::cout << ntag_.phi[i] << " ";
+        std::cout << ntag_.theta[i] << " ";
+        std::cout << ntag_.trmsold[i] << " ";
+        std::cout << ntag_.trmsdiff[i] << " ";
+        std::cout << ntag_.mintrms6[i] << " ";
+        std::cout << ntag_.mintrms3[i] << " ";
+        std::cout << ntag_.bswall[i] << " ";
+        std::cout << ntag_.bse[i] << " ";
+        std::cout << ntag_.fpdis[i] << " ";
+        std::cout << ntag_.bfdis[i] << " ";
+        std::cout << ntag_.nc[i] << " ";
+        std::cout << ntag_.fwall[i] << " ";
+        std::cout << ntag_.n10[i] << " ";
+        std::cout << ntag_.n10d[i] << " ";
+        std::cout << ntag_.t0[i] << " ";
+        std::cout << ntag_.mctruth_neutron[i] << " ";
+        std::cout << ntag_.bse2[i] << " ";
+        std::cout << ntag_.tag[i] << " ";
+        std::cout << "\n";
+    }
 }

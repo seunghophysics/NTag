@@ -113,7 +113,20 @@ void CandidateCluster::FillVectorMap()
                 }
                 else {
                     fFeatureVectorMap[basePair.first]->resize(iCandidate);
-                    fFeatureVectorMap[basePair.first]->push_back(comparedFeatureMap[basePair.first]);
+                    auto value = comparedFeatureMap[basePair.first];
+                    if (std::isnan(value) | std::isinf(value)) {
+                        if (std::isnan(value)) {
+                            std::cerr << Form("Candidate #%d: key %s value is NaN!", iCandidate, basePair.first.c_str()) << std::endl;
+                        }
+                        if (std::isinf(value)) {
+                            std::cerr << Form("Candidate #%d: key %s value is inf!", iCandidate, basePair.first.c_str()) << std::endl;
+                        }
+                        std::cerr << Form("Dumping all features in map...", basePair.first) << std::endl;
+                        DumpAllElements(gNTagFeatures);
+                        abort();
+                    }
+                    else
+                        fFeatureVectorMap[basePair.first]->push_back(value);
                 }
             }
 

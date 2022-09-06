@@ -31,16 +31,24 @@ class PMTHit
         PMTHit(Float t, float q, int i, int f, bool s=false);
 
         inline const Float& t() const { return fT; }
+        inline const Float& dt() const { return fTDiff; }
         inline const float& q() const { return fQ; }
         inline const unsigned int& i() const { return fPMTID; }
         inline const int& f() const { return fFlag; }
         inline const bool& s() const { return fIsSignal; }
         inline const bool& b() const { return fIsBurst; }
 
+        inline void SetT(Float f)  { fT = f; }
+        inline void SetTDiff(Float f)  { fTDiff = f; }
+        inline void SetQ(float f)  { fQ = f; }
+        inline void SetID(int i)   { fPMTID = i; }
+        inline void SetFlag(int i) { fFlag = i; }
+
         inline void SetFlagBitOr(int bit) { fFlag |= bit; }
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void SetBurstFlag(bool b) { fIsBurst=b; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
+        //inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF << " S: " << fIsSignal << " dT: " << fTDiff << "\n"; }
 
         void SetToFAndDirection(const TVector3& vertex)
         {
@@ -75,10 +83,10 @@ class PMTHit
         PMTHit& operator-=(const Float& time);
 
     private:    
-        PMTHit(): fT(0), fToF(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false) {}
+        PMTHit(): fT(0), fToF(0), fTDiff(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false) {}
     
     protected:
-        Float fT, fToF;
+        Float fT, fToF, fTDiff;
         float fQ;
         unsigned int fPMTID;
         int fFlag;

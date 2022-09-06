@@ -3,5 +3,6 @@
 
 void ReadNTAGBank();
 void FillNTAGBank();
+void DumpNTAGBank();
 
 #endif

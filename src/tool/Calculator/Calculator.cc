@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cassert>
 #include <iostream>
 #include <numeric>
 #include <string>
@@ -116,14 +117,15 @@ float GetDWall(TVector3 vtx)
 
 float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 {
+    assert(dir.Mag()>0);
     dir = dir.Unit();
 
     float dot = vtx.Dot(dir) - vtx.z()*dir.z();
     float dirSq = dir.Perp2(); float vtxSq = vtx.Perp2();
 
     // Calculate distance to barrel and distance to top/bottom
-    float distR = (-dot + sqrt(dot*dot + dirSq*(RINTK*RINTK - vtxSq))) / dirSq;
-    float distZ = dir.z() > 0 ? (ZPINTK-vtx.z())/dir.z() : (ZMINTK-vtx.z())/dir.z();
+    float distR = fabs((-dot + sqrt(dot*dot + dirSq*(RINTK*RINTK - vtxSq))) / dirSq);
+    float distZ = fabs(dir.z() > 0 ? (ZPINTK-vtx.z())/dir.z() : (ZMINTK-vtx.z())/dir.z());
 
     // Return the smaller
     return distR < distZ ? distR : distZ;

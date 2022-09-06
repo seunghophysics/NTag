@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     // Read input MC
     SKIO inputMC = SKIO(inputFilePath, mInput);
 
-    SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
+    //SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
     SKIO::SetSKOption("31,30");
     SKIO::SetSKBadChOption(0);
     SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));

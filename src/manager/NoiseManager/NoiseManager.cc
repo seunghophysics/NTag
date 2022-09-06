@@ -24,6 +24,7 @@ NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
   fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"), 
   fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy)),
+  fSKGen(6),
   fNoiseSeed(0),
   fNoiseEventLength(1000e3),
   fNoiseStartTime(1e3), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
@@ -167,6 +168,7 @@ void NoiseManager::SetNoiseTreeFromOptions(TString option, int nInputEvents, flo
     TString dummyRunPath = fNoisePath + "/" + option;
     int nRequiredEvents = nInputEvents / fNParts;
 
+    if (base == "default") base = "sk" + std::to_string(fSKGen);
     std::vector<TString> runDirs = GetListOfSubdirectories(fNoisePath + "/" + base);
     std::vector<TString> fileList;
     if (run != "") fileList = GetListOfFiles(fNoisePath + "/" + base + "/" + run);
@@ -235,6 +237,7 @@ void NoiseManager::SetNoiseTreeFromWildcard(TString wildcard, float tStart, floa
 
 void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
 {
+    auto skGen       = SKIO::GetSKGeometry();
     auto noiseType   = settings.GetString("noise_type");
     auto idDarkRate  = settings.GetFloat("IDDARKRATE");
     auto odDarkRate  = settings.GetFloat("ODDARKRATE");
@@ -247,7 +250,8 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     auto tNoiseEnd   = settings.GetFloat("TNOISEEND", 535);
     auto noiseSeed   = settings.GetInt("NOISESEED");
     auto debug       = settings.GetBool("debug", false);
-
+    
+    SetSKGeneration(skGen);
     SetSeed(noiseSeed);
     SetNoiseMaxN200(idMaxN200, odMaxN200, doN200Cut);
     if (debug) SetVerbosity(pDEBUG);
@@ -333,6 +337,13 @@ void NoiseManager::SetNoiseEventHits()
         fNoiseEventLength = fIDNoiseEventHits[nHits-1].t() - fIDNoiseEventHits[0].t();
         fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
         fNoiseT0 = fIDNoiseEventHits[0].t() + (fNoiseEventLength - fNParts*fNoiseWindowWidth)*ranGen.Uniform();
+
+        if (fNoiseEventLength < fNoiseWindowWidth) {
+            fMsg.Print(Form("Noise event length %3.2f us is smaller than required window width %3.2f us, "
+                            "getting next noise event...", 
+                            fNoiseEventLength*1e-3, fNoiseWindowWidth*1e-3), pWARNING);
+            GetNextNoiseEvent();
+        }
     }
 
     else GetNextNoiseEvent();
@@ -342,10 +353,13 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
 {
     // noise from noise files
     if (fNoiseTree) {
+
         if (fCurrentEntry == -1 || fPartID == fNParts) {
             GetNextNoiseEvent();
             fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
         }
+        std::cout << "NoiseHitsSize: " << noiseHits->GetSize() << "\n";
+        std::cout << "CurrentHitTime: " << noiseHits->At(currentHitIndex).t() << " Index: " << currentHitIndex << "\n";
 
         float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
         float partEndTime = partStartTime + fNoiseWindowWidth;
@@ -382,8 +396,10 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
             }
         }
     }
-    signalHits->ApplyDeadtime(fPMTDeadtime);
+    //fMsg.Print("ApplyDeadtime: ", pDEFAULT, false);
+    //signalHits->ApplyDeadtime(fPMTDeadtime, true);
     signalHits->Sort();
+    //signalHits->CheckNaN();
     fPartID++;
 }
 
@@ -395,9 +411,12 @@ void NoiseManager::PopulateHitCluster(PMTHitCluster* hitCluster, bool OD)
 
     unsigned int nRawHits = t.size();
 
-    for (unsigned int j=0; j<=nRawHits; j++) {
-        if (-1000e3 < t[j] && t[j] < 1000e3)
+    assert((t.size()==q.size()) && (q.size()==i.size()));
+
+    for (unsigned int j=0; j<nRawHits; j++) {
+        if (-1000e3 < t[j] && t[j] < 1000e3) {
             hitCluster->Append({t[j], q[j], i[j]&0x0000FFFF, 2/*in-gate flag*/});
+        }
         else
             fMsg.Print(Form("Skipping hit with time T=%3.2f msec which is outside of range [-1, 1] msec...", t[j]*1e-6), pDEBUG);
     }

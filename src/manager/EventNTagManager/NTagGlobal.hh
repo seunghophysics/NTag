@@ -31,7 +31,7 @@ enum TaggableType
 static std::vector<std::string> gMuechkFeatures =  {"FitT", "fvx", "fvy", "fvz", "DWall", "dirx", "diry", "dirz",
                                                     "NHits", "GateType", "Goodness", "Label", "TagIndex", "DTaggable", "TagClass"};
 
-static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", "N1300", "NResHits", 
+static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", "N1300", "N3000", "NResHits", 
                                                  "NBurst", "NNoisyPMT", "FitT", "TRMS", "QSum",
                                                  "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
                                                  "BSenergy", "BSdirks", "BSovaq",

@@ -32,7 +32,7 @@
 
 EventNTagManager::EventNTagManager(Verbosity verbose)
 : fOutDataFile(nullptr), fNoiseManager(nullptr),
-  fIsBranchSet(false), fIsMC(true), fFileFormat(mZBS)
+  fIsBranchSet(false), fIsMC(true), fDoAutoRefRun(true), fFileFormat(mZBS)
 {
     fMsg = Printer("NTagManager", verbose);
 
@@ -173,59 +173,19 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
 
 void EventNTagManager::ReadVariables()
 {
+    // debug: read ntag bank
+    //ReadNTAGBank();
+    //std::cout << "Read following NTAG bank\n";
+    //DumpNTAGBank();
+
     // run/event information
     fEventVariables.Set("RunNo", skhead_.nrunsk);
     fEventVariables.Set("SubrunNo", skhead_.nsubsk);
     fEventVariables.Set("EventNo", skhead_.nevsk);
 
-    // hit information
-    float qismsk = 0;
-    float tGateMin = fSettings.GetFloat("TGATEMIN")*1e3 + 1000.;
-    float tGateMax = fSettings.GetFloat("TGATEMAX")*1e3 + 1000.;
-    for (auto const& hit: fEventHits) {
-        float hitTime = hit.t();
-        if (tGateMin < hitTime && hitTime < tGateMax) {
-            qismsk += fabs(hit.q()); // negative q?
-        }
-    }
-
-    // qismsk = skq_.qismsk;
+    //fEventHits.DumpAllElements();
     int nhitac; odpc_2nd_s_(&nhitac);
-    fEventVariables.Set("QISMSK", qismsk);
     fEventVariables.Set("NHITAC", nhitac);
-
-    PMTHitCluster odHits(sktqaz_);
-    auto odT = odHits.GetProjection(HitFunc::T);
-    int nBins = int((T0MX-T0TH)/200.);
-    float remainderT = fmod(T0MX-T0TH, 200.);
-    auto odHist = Histogram(odT, nBins, T0TH+remainderT/2., T0MX-remainderT/2.);
-    int odMaxN200 = 0;
-    for (auto const& pair: odHist) {
-        if (pair.second > odMaxN200) odMaxN200 = pair.second;
-    }
-    fEventVariables.Set("ODMaxN200", odMaxN200);
-
-    // dark rate
-    int refRunNo = (fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 
-                   fSettings.GetInt("REFRUNNO") ? fSettings.GetInt("REFRUNNO") : skhead_.nrunsk;
-    int iErrorStatus = 0;
-    skdark_(&refRunNo, &iErrorStatus);
-
-    if (iErrorStatus < 0) {
-        int newRefRunNo = refRunNo;
-        int step = 1;
-        int sign = 1;
-        while (iErrorStatus<0) {
-            newRefRunNo -= sign*step;
-            skdark_(&newRefRunNo, &iErrorStatus);
-            sign *= -1; step += 1;
-        }
-
-        fMsg.Print(Form("Unable to fetch dark rate of noise run %d, " 
-                        "fetching dark rate from closest noise run %d...",
-                        refRunNo, newRefRunNo), pWARNING);
-        skdark_(&newRefRunNo, &iErrorStatus);
-    }
 
     // trigger information
     int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : ((skhead_.idtgsk & 1<<28) ? tSHE : tELSE));
@@ -255,8 +215,8 @@ void EventNTagManager::ReadVariables()
         fEventVariables.Set("vecvz", skvect_.pos[2]);
         fEventVariables.Set("VtxRes", (TVector3(skvect_.pos)-fPromptVertex).Mag());
 
-        // trgOffset
-        fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat));
+        // trgOffset in usec
+        fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat)*1e-3);
 
         // NEUT
         float posnu[3]{0., 0., 1e5+1}; nerdnebk_(posnu);
@@ -278,6 +238,9 @@ void EventNTagManager::ReadHits()
 {
     fEventHits = PMTHitCluster(sktqz_);
     fEventHits.Sort();
+
+    fEventODHits = PMTHitCluster(sktqaz_);
+    fEventODHits.Sort();
 }
 
 void EventNTagManager::AddHits()
@@ -321,30 +284,49 @@ void EventNTagManager::AddHits()
     */
 
     PMTHit lastHit(std::numeric_limits<Float>::lowest(), 0, 0, 0);
-    if (!fEventHits.IsEmpty())
-        lastHit = fEventHits[fEventHits.GetSize()-1];
+    PMTHit lastODHit(std::numeric_limits<Float>::lowest(), 0, 0, 0);
+    if (!fEventHits.IsEmpty()) {
+        lastHit = fEventHits.GetLastHit();
+        lastODHit = fEventODHits.GetLastHit();
+    }
 
     static int it0sk_prev = 0;
     float tOffset = fEventHits.IsEmpty() ? 0 : (skheadqb_.it0sk - it0sk_prev) / 1.92;
     it0sk_prev = skheadqb_.it0sk;
 
-    fMsg.Print(Form("tOffset_it0sk: %3.2f ns", tOffset));
+    fMsg.Print(Form("tOffset_it0sk: %3.2f ns", tOffset), pDEBUG);
 
-    if (fEventHits.IsEmpty())
+    //fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
+    //fEventODHits.Append(PMTHitCluster(sktqaz_) + tOffset, true);
+
+    if (fEventHits.IsEmpty()) {
         fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
+        fEventODHits.Append(PMTHitCluster(sktqaz_) + tOffset, true);
+    }
     else {
         auto hitsToAdd = PMTHitCluster(sktqz_) + tOffset;
+        auto odHitsToAdd = PMTHitCluster(sktqaz_) + tOffset;
         for (auto const& hit: hitsToAdd) {
-            if (hit.t() > lastHit.t())
+            if (hit.t() > lastHit.t() && (hit.f()&(1<<1)))
                 fEventHits.Append(hit);
         }
+        for (auto const& hit: odHitsToAdd) {
+            if (hit.t() > lastODHit.t() && (hit.f()&(1<<1)))
+                fEventODHits.Append(hit);
+        }
     }
+
     fEventHits.Sort();
+    fEventODHits.Sort();
 }
 
 void EventNTagManager::AddNoise()
 {
     fNoiseManager->AddIDNoise(&fEventHits);
+
+    // replace OD hits with dark noise from dummy trigger data
+    fEventODHits.Clear();
+    fNoiseManager->AddODNoise(&fEventODHits);
 }
 
 void EventNTagManager::ReadParticles()
@@ -354,7 +336,7 @@ void EventNTagManager::ReadParticles()
     fEventParticles.ReadCommonBlock(skvect_, secndprt_);
 
     float geantT0 = fEventVariables.GetFloat("MCT0", 0);
-    fEventParticles.SetT0(geantT0*1e-3);
+    fEventParticles.SetT0(geantT0);
 
     fEventTaggables.ReadParticleCluster(fEventParticles);
     fEventTaggables.SetPromptVertex(fPromptVertex);
@@ -395,8 +377,10 @@ void EventNTagManager::ReadInfoFromCommon()
 {
     ReadVariables();
 
-    if (fIsMC) ReadParticles();
-    ReadEarlyCandidates();
+    if (fIsMC) 
+        ReadParticles();
+    if (fSettings.GetBool("neut",false))
+        ReadEarlyCandidates();
 }
 
 void EventNTagManager::ReadEventFromCommon()
@@ -411,6 +395,8 @@ void EventNTagManager::ReadEventFromCommon()
 
 void EventNTagManager::SearchAndFill()
 {
+    PrepareEventHits();
+
     int nhitac = fEventVariables.GetInt("NHITAC");
     int nodhitmx = fSettings.GetInt("NODHITMX");
     if (nhitac > nodhitmx) {
@@ -421,12 +407,18 @@ void EventNTagManager::SearchAndFill()
         SearchCandidates();
     }
 
+    fEventVariables.Set("NCandidates", fEventCandidates.GetSize()+fEventEarlyCandidates.GetSize());
+
     FillNTagCommon();
     DumpEvent();
     FillTrees();
-    if (fSettings.GetBool("write_bank"))
+    if (fSettings.GetBool("write_bank")) {
         FillNTAGBank();
+        //std::cout << "Filling following NTAG bank\n";
+        //DumpNTAGBank();
+    }
     if (fOutDataFile) {
+        fEventHits.RemoveVertex();
         fOutDataFile->FillTQREAL(fEventHits);
         fOutDataFile->Write();
     }
@@ -449,8 +441,7 @@ void EventNTagManager::ProcessEvent()
         }
         else if (nnType=="keras") {
             if (weightPath=="default") {
-                int skGen = fSettings.GetInt("SKGEOMETRY");
-                weightPath = GetENV("NTAGLIBPATH")+Form("weights/keras/sk%d", skGen);
+                weightPath = GetENV("NTAGLIBPATH")+Form("weights/keras/sk%d", SKIO::GetSKGeometry());
             }
             fKerasManager.LoadWeights(weightPath);
         }
@@ -513,31 +504,28 @@ void EventNTagManager::ProcessFlatEvent()
 
 void EventNTagManager::SearchCandidates()
 {
-    if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
-
-    // subtract tof
-    PrepareEventHitsForSearch();
-
     int   iHitPrevious    = -1;
     int   NHitsNew        = 0;
     int   NHitsPrevious   = 0;
     int   N200Previous    = 0;
-    float t0Previous      = std::numeric_limits<float>::min();
+    Float t0Previous      = std::numeric_limits<Float>::min();
 
-    unsigned long nEventHits = fEventHits.GetSize();
-    unsigned long nIDHitsMax = fSettings.GetInt("NIDHITMX", std::numeric_limits<int>::max());
+    int nEventHits = fEventVariables.GetInt("NAllHits");
+    int nIDHitsMax = fSettings.GetInt("NIDHITMX", std::numeric_limits<int>::max());
+
+    //fEventHits.DumpAllElements();
 
     if (nEventHits > nIDHitsMax) {
         fMsg.Print(Form("Skipping event with ID number of hits %ld > NIDHITMX %ld", nEventHits, nIDHitsMax), pWARNING);
     }
     else {
         // Loop over the saved TQ hit array from current event
-        for (unsigned int iHit = 0; iHit < nEventHits; iHit++) {
+        for (unsigned int iHit = 0; iHit < fEventHits.GetSize(); iHit++) {
 
             PMTHitCluster hitsInTCANWIDTH = fEventHits.Slice(iHit, TWIDTH);
 
             // If (ToF-subtracted) hit comes earlier than T0TH or later than T0MX, skip:
-            float firstHitTime = hitsInTCANWIDTH[0].t();
+            Float firstHitTime = hitsInTCANWIDTH[0].t();
             if (firstHitTime < T0TH || firstHitTime > T0MX) continue;
 
             // Calculate NHitsNew:
@@ -547,13 +535,13 @@ void EventNTagManager::SearchCandidates()
             // Pass only if NHITSTH <= NHits_iHit <= NHITSMX:
             if (NHits_iHit < NHITSTH) continue;
             if (NHits_iHit > NHITSMX) {
-                fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2fus (>NHITSMX=%d), skipping...",
-                                NHits_iHit, firstHitTime, NHITSMX), pDEBUG);
+                fMsg.Print(Form("Encountered a candidate with NHits=%d at T=%3.2f usec (>NHITSMX=%d), skipping...",
+                                NHits_iHit, firstHitTime*1e-3, NHITSMX), pDEBUG);
             }
 
             // We've found a new peak.
             NHitsNew = NHits_iHit;
-            float t0New = firstHitTime;
+            Float t0New = firstHitTime;
 
             // Calculate N200
             PMTHitCluster hitsIn200ns = fEventHits.Slice(iHit, TWIDTH/2.-100, TWIDTH/2.+100);
@@ -582,13 +570,12 @@ void EventNTagManager::SearchCandidates()
         // Save the last peak
         if (NHitsPrevious >= NHITSTH)
             FindDelayedCandidate(iHitPrevious);
-
-        if (!fEventEarlyCandidates.IsEmpty()) PruneCandidates();
-        /*if (fIsMC)*/  MapTaggables();
-
-        fEventEarlyCandidates.FillVectorMap();
-        fEventCandidates.FillVectorMap();
     }
+    if (!fEventEarlyCandidates.IsEmpty()) PruneCandidates();
+    /*if (fIsMC)*/  MapTaggables();
+
+    fEventEarlyCandidates.FillVectorMap();
+    fEventCandidates.FillVectorMap();
 }
 
 void EventNTagManager::MapTaggables()
@@ -626,6 +613,8 @@ void EventNTagManager::ApplySettings()
         fFileFormat = mZBS;
 
     if (fSettings.GetBool("debug")) fMsg.SetVerbosity(pDEBUG);
+
+    fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
 
     // NTag parameters
     float tMin = fSettings.GetFloat("TMIN");
@@ -806,6 +795,7 @@ void EventNTagManager::ClearData()
 {
     fEventVariables.Clear();
     fEventHits.Clear();
+    fEventODHits.Clear();
     fEventParticles.Clear();
     fEventTaggables.Clear();
     fEventCandidates.Clear();
@@ -832,12 +822,102 @@ void EventNTagManager::CheckMC()
         fIsMC = false;
 }
 
-void EventNTagManager::PrepareEventHitsForSearch()
+void EventNTagManager::ResetEventHitsVertex()
 {
     if (fSettings.GetBool("correct_tof", true))
         fEventHits.SetVertex(fPromptVertex);
     else
         fEventHits.RemoveVertex();
+}
+
+void EventNTagManager::PrepareEventHits()
+{
+    // deadtime
+    //int allSize = fEventHits.GetSize();
+    //fMsg.Print(Form("ApplyDeadtime: "), pDEFAULT, false);
+    //fEventHits.ApplyDeadtime(900., true);
+    //int nDeadHits = allSize - fEventHits.GetSize();
+    if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
+
+    ResetEventHitsVertex();
+    fEventODHits.RemoveNegativeHits();
+
+    // fetch bad channels, dark rates
+    FindReferenceRun();
+
+    int nBadIDPMTs = 0; int nBadODPMTs = 0; 
+    int nBadIDHits = 0; int nBadODHits = 0; 
+
+    int allIDSize = fEventHits.SliceRange(T0TH, T0MX).GetSize();
+    int allODSize = fEventODHits.SliceRange(T0TH, T0MX).GetSize();
+
+    // remove bad tube hits
+    if (TString(fSettings.GetString("SKOPTN")).Contains("25")) {
+        fEventHits.RemoveBadChannels();
+        fEventODHits.RemoveBadChannels();
+
+        nBadIDPMTs = combad_.nbad;
+        nBadODPMTs = combada_.nbada;
+        int redIDSize = fEventHits.SliceRange(T0TH, T0MX).GetSize();
+        int redODSize = fEventODHits.SliceRange(T0TH, T0MX).GetSize();
+        nBadIDHits = allIDSize - redIDSize;
+        nBadODHits = allODSize - redODSize;
+
+        std::vector<std::string> badTypes;
+
+        int skbadopt = fSettings.GetInt("SKBADOPT", -1);
+        if (!skbadopt | skbadopt & (1<<0)) badTypes.push_back("bad");
+        if (!skbadopt | skbadopt & (1<<1)) badTypes.push_back("dead1");
+        if (!skbadopt | skbadopt & (1<<2)) badTypes.push_back("dead2");
+        if (!skbadopt | skbadopt & (1<<3)) badTypes.push_back("noisy");
+        if (!skbadopt | skbadopt & (1<<5)) badTypes.push_back("HK");
+
+        std::cout << "\n";
+        fMsg.Print(Form("BADSEL reference run: %d", fEventVariables.GetInt("RefRunNo")));
+        fMsg.Print(Form("# of bad ID PMTs: %d ( ", nBadIDPMTs), pDEFAULT, false);
+        for (auto const& btype: badTypes) std::cout << btype << " ";
+        std::cout << ")\n";
+
+        fMsg.Print(Form("# of bad OD PMTs: %d", nBadODPMTs));
+        fMsg.Print(Form("Removed %d bad ID tube hits in search range: total %d -> %d hits", nBadIDHits, allIDSize, redIDSize));
+        fMsg.Print(Form("Removed %d bad OD tube hits in search range: total %d -> %d hits", nBadODHits, allODSize, redODSize));
+        std::cout << "\n";
+
+        SKIO::ResetBadChannels();
+
+        allIDSize = redIDSize;
+        allODSize = redODSize;
+    }
+
+    fEventVariables.Set("NBadPMTs", nBadIDPMTs);
+    fEventVariables.Set("NBadHits", nBadIDHits);
+    fEventVariables.Set("NAllHits", allIDSize);
+    fEventVariables.Set("NAllODHits", allODSize);
+
+    // qismsk
+    float qismsk = 0;
+    float tGateMin = fSettings.GetFloat("TGATEMIN")*1e3 + 1000.;
+    float tGateMax = fSettings.GetFloat("TGATEMAX")*1e3 + 1000.;
+    for (auto const& hit: fEventHits) {
+        float hitTime = hit.t();
+        if (tGateMin < hitTime && hitTime < tGateMax) {
+            qismsk += hit.q();
+        }
+    }
+
+    // qismsk = skq_.qismsk;
+    fEventVariables.Set("QISMSK", qismsk);
+
+    // ODMaxN200
+    auto odT = fEventODHits.GetProjection(HitFunc::T);
+    int nBins = int((T0MX-T0TH)/200.);
+    float remainderT = fmod(T0MX-T0TH, 200.);
+    auto odHist = Histogram(odT, nBins, T0TH+remainderT/2., T0MX-remainderT/2.);
+    int odMaxN200 = 0;
+    for (auto const& pair: odHist) {
+        if (pair.second > odMaxN200) odMaxN200 = pair.second;
+    }
+    fEventVariables.Set("ODMaxN200", odMaxN200);
 }
 
 //void EventNTagManager::SetToF(const TVector3& vertex)
@@ -858,7 +938,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     // set default values for delayed candidate properties
     TVector3 delayedVertex = fPromptVertex;
 
-    float delayedTime = firstHit.t() + TWIDTH/2.;
+    Float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
 
     bool doFit = true;
@@ -885,8 +965,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             fEventHits.Sort();
             firstHit.UnsetToFAndDirection();
             unsigned int firstHitID = fEventHits.GetIndex(firstHit);
-            float tLeft  = fDelayedVertexMode == mLOWFIT ? -520 : -500;
-            float tRight = fDelayedVertexMode == mLOWFIT ?  780 : 1000;
+            Float tLeft  = fDelayedVertexMode == mLOWFIT ? -520 : -500;
+            Float tRight = fDelayedVertexMode == mLOWFIT ?  780 : 1000;
             hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.+tLeft, TWIDTH/2.+tRight) - firstHit.t() + 1000;
 
             // give up bonsai fit for N1300 larger than 2000
@@ -912,7 +992,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         firstHit.SetToFAndDirection(delayedVertex);
     }
 
-    float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
+    Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
     if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
@@ -920,7 +1000,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         T0TH < delayedTime && delayedTime < T0MX) {
         //iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         //unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
-        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
+        // -0.03 is to ensure that hit at index == iHit is included in nHits
+        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.).GetSize();
 
         if (nHits >= MINNHITS && nHits <= MAXNHITS) {
             Candidate candidate(iHit);
@@ -934,18 +1015,24 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         }
     }
 
-    PrepareEventHitsForSearch();
+    ResetEventHitsVertex();
 }
 
-void EventNTagManager::FindFeatures(Candidate& candidate, double canTime)
+void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
 {
     //unsigned int firstHitID = candidate.HitID();
     //float fitTime = candidate.Get("FitT")*1e3 + 1000;
-    auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2., TCANWIDTH/2.);
-    auto hitsIn30ns      = fEventHits.SliceRange(canTime,           -15,          +15);
-    auto hitsIn50ns      = fEventHits.SliceRange(canTime,           -25,          +25);
-    auto hitsIn200ns     = fEventHits.SliceRange(canTime,          -100,         +100);
-    auto hitsIn1300ns    = fEventHits.SliceRange(canTime,          -520,         +780);
+    auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
+    auto hitsIn30ns      = fEventHits.SliceRange(canTime,                -15,          +15);
+    auto hitsIn50ns      = fEventHits.SliceRange(canTime,                -25,          +25);
+    auto hitsIn200ns     = fEventHits.SliceRange(canTime,               -100,         +100);
+    auto hitsIn1300ns    = fEventHits.SliceRange(canTime,               -520,         +780);
+    auto hitsIn3000ns    = fEventHits.SliceRange(canTime,               -520,        +2480);
+
+    //std::cout << "\n";
+    //fMsg.Print(Form("Candidate found!"));
+    //hitsInTCANWIDTH.DumpAllElements();
+
     //auto hitsInTCANWIDTH = fEventHits.Slice(firstHitID, TWIDTH);
     //auto hitsIn50ns   = fEventHits.Slice(firstHitID, TWIDTH/2.-25, TWIDTH/2.+ 25);
     //auto hitsIn200ns  = fEventHits.Slice(firstHitID, TWIDTH/2.-100, TWIDTH/2.+100);
@@ -972,6 +1059,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate, double canTime)
     candidate.Set("N50",   hitsIn50ns.GetSize());
     candidate.Set("N200",  hitsIn200ns.GetSize());
     candidate.Set("N1300", hitsIn1300ns.GetSize());
+    candidate.Set("N3000", hitsIn3000ns.GetSize());
     candidate.Set("NResHits", hitsIn200ns.GetSize()-hitsInTCANWIDTH.GetSize());
 
     // Time
@@ -1029,7 +1117,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate, double canTime)
     candidate.Set("TagClass", fTagger.Classify(candidate));
 }
 
-void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, float tMatchWindow)
+void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, Float tMatchWindow)
 {
     std::string key = candidateCluster.GetName();
 
@@ -1116,6 +1204,47 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
 
         candidate.Set("Label", label);
     }
+}
+
+void EventNTagManager::FindReferenceRun()
+{
+    int refRunNo = fSettings.GetInt("REFRUNNO", 0);
+
+    // refrunno == 0: auto-determine refrunno
+    if (!refRunNo) {
+        refRunNo = skhead_.mdrnsk ? skhead_.nrunsk :
+                   (skhead_.nrunsk != 999999 ? skhead_.nrunsk :
+                   ((fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 0)); 
+
+        if (!refRunNo)
+            fMsg.Print("Unable to determine reference run number for the input MC, " 
+                       "specify reference run number with -REFRUNNO option.", pERROR);
+    }
+
+    int readStatus = SKIO::SetBadChannels(refRunNo, 0);
+
+    // if bad channel list not found, search for closest noise run
+    if (!readStatus) {
+        int newRefRunNo = refRunNo;
+        int step = 1; int sign = 1;
+        while (!readStatus && step<100) {
+            newRefRunNo -= sign*step;
+            readStatus = SKIO::SetBadChannels(newRefRunNo, 0);
+            sign *= -1; step += 1;
+        }
+        if (step>=100) {
+            fMsg.Print(Form("Unable to fetch bad channel list for run %d", refRunNo), pERROR);
+        }
+        else {
+            fMsg.Print(Form("Unable to fetch bad channel list for run %d, " 
+                            "fetching from the closest noise run %d...", refRunNo, newRefRunNo), pWARNING);
+        }
+        refRunNo = newRefRunNo;
+        SKIO::SetBadChannels(refRunNo, 0);
+    }
+    SKIO::SetBadChannels(refRunNo);
+
+    fEventVariables.Set("RefRunNo", refRunNo);
 }
 
 void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)
