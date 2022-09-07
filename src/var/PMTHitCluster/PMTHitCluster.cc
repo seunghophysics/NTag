@@ -365,7 +365,7 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
         bHadVertex = true;
     }
 
-    std::array<Float, 20000+MAXPMA> HitTime;
+    std::array<Float, 20000+MAXPMA+1> HitTime;
     HitTime.fill(std::numeric_limits<Float>::lowest());
     
     //std::array<Float, MAXPM+1>  IDHitTime;
@@ -640,6 +640,7 @@ void PMTHitCluster::MakeBranches()
 {
     if (fIsOutputTreeSet) {
         fOutputTree->Branch("t", &fT);
+        fOutputTree->Branch("tof", &fToF);
         fOutputTree->Branch("q", &fQ);
         fOutputTree->Branch("i", &fI);
         fOutputTree->Branch("dt", &fDT);
@@ -653,7 +654,7 @@ void PMTHitCluster::MakeBranches()
 
 void PMTHitCluster::ClearBranches()
 {
-    fT.clear(); fDT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
+    fT.clear(); fToF.clear(); fDT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
     //fX.clear(); fY.clear(); fZ.clear();
 }
 
@@ -667,6 +668,7 @@ void PMTHitCluster::FillTree(bool asResidual)
         for (auto const hit: fElement) {
             auto hitPos = hit.GetPosition();
             fT.push_back(hit.t());
+            fToF.push_back(hit.GetToF());
             fDT.push_back(hit.dt());
             fQ.push_back(hit.q());
             fI.push_back(hit.i());

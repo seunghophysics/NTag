@@ -48,7 +48,7 @@ class PMTHit
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void SetBurstFlag(bool b) { fIsBurst=b; }
         //inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF << " S: " << fIsSignal << " dT: " << fTDiff << "\n"; }
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF << " S: " << fIsSignal << " B: " << fIsBurst << " dT: " << fTDiff << "\n"; }
 
         void SetToFAndDirection(const TVector3& vertex)
         {

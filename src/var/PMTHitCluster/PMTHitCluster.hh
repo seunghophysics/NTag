@@ -119,7 +119,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         bool fIsSorted, fHasVertex;
         TVector3 fVertex, fMeanDirection;
 
-        std::vector<Float> fT, fDT;
+        std::vector<Float> fT, fToF, fDT;
         std::vector<float> fQ;
         std::vector<int> fI, fS, fB;
 
