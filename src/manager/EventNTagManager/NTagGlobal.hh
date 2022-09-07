@@ -11,7 +11,7 @@ enum VertexMode
 
 enum TriggerType
 {
-    tELSE, tSHE, tAFT
+    tELSE, tSHE, tAFT, tLE, tHE
 };
 
 enum TrueLabel

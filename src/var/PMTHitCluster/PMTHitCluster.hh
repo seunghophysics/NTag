@@ -27,6 +27,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 
         void Append(const PMTHit& hit);
         void Append(const PMTHitCluster& hitCluster, bool inGateOnly=false);
+        void AppendByCoincidence(PMTHitCluster& hitCluster);
         void Clear();
         void AddTQReal(TQReal* tqreal, int flag=2/* default: in-gate */);
 

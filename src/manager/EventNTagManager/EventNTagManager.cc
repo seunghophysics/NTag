@@ -188,7 +188,9 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("NHITAC", nhitac);
 
     // trigger information
-    int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : ((skhead_.idtgsk & 1<<28) ? tSHE : tELSE));
+    int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : 
+                  ((skhead_.idtgsk & 1<<28) ? tSHE : 
+                  ((skhead_.idtgsk & 1<< 1) ?  tHE : tELSE)));
     static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
@@ -306,14 +308,9 @@ void EventNTagManager::AddHits()
     else {
         auto hitsToAdd = PMTHitCluster(sktqz_) + tOffset;
         auto odHitsToAdd = PMTHitCluster(sktqaz_) + tOffset;
-        for (auto const& hit: hitsToAdd) {
-            if (hit.t() > lastHit.t() && (hit.f()&(1<<1)))
-                fEventHits.Append(hit);
-        }
-        for (auto const& hit: odHitsToAdd) {
-            if (hit.t() > lastODHit.t() && (hit.f()&(1<<1)))
-                fEventODHits.Append(hit);
-        }
+
+        fEventHits.AppendByCoincidence(hitsToAdd);
+        fEventODHits.AppendByCoincidence(odHitsToAdd);
     }
 
     fEventHits.Sort();

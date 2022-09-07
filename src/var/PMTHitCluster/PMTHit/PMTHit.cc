@@ -66,6 +66,16 @@ PMTHit& PMTHit::operator-=(const Float& time)
     return *this;
 }
 
+bool PMTHit::operator==(const PMTHit& hit) const
+{
+    return ((fabs(fQ-hit.q())<1e-3) && (fPMTID==hit.i()));
+}
+
+bool PMTHit::operator!=(const PMTHit& hit) const
+{
+    return !(*this==hit);
+}
+
 PMTHit operator+(const PMTHit& hit, const Float& time)
 {
     PMTHit newHit = hit;

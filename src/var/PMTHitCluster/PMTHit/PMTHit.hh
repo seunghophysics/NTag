@@ -81,6 +81,9 @@ class PMTHit
 
         PMTHit& operator+=(const Float& time);
         PMTHit& operator-=(const Float& time);
+        
+        bool operator==(const PMTHit& hit) const;
+        bool operator!=(const PMTHit& hit) const;
 
     private:    
         PMTHit(): fT(0), fToF(0), fTDiff(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false) {}

@@ -81,6 +81,33 @@ void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
     }
 }
 
+void PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
+{
+    auto lastHit = GetLastHit();
+    Float tSharedLowerBound = lastHit.t() - 100;
+    Float tSharedUpperBound = lastHit.t() + 100;
+
+    Sort();
+    hitCluster.Sort();
+
+    bool doAppend = false;
+    for (auto const& hit: hitCluster) {
+        if (doAppend) Append(hit);
+        Float hitT = hit.t();
+        if ((tSharedLowerBound < hitT) && (hitT < tSharedUpperBound) && (hit == lastHit)) {
+            doAppend = true;
+        }
+    }
+
+    if (!doAppend) {
+        std::cerr << "PMTHitCluster::AppendByCoincidence WARNING: coincidence hit not found!\n";
+        std::cerr << "LastHit: \n";
+        lastHit.Dump();
+        std::cerr << "Added cluster within [-500,+500] ns range: \n";
+        hitCluster.SliceRange(lastHit.t()-500, lastHit.t()+500).DumpAllElements();
+    }
+}
+
 void PMTHitCluster::Clear()
 {
     //*this = PMTHitCluster();
