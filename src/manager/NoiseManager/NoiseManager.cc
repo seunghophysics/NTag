@@ -358,8 +358,8 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
             GetNextNoiseEvent();
             fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
         }
-        std::cout << "NoiseHitsSize: " << noiseHits->GetSize() << "\n";
-        std::cout << "CurrentHitTime: " << noiseHits->At(currentHitIndex).t() << " Index: " << currentHitIndex << "\n";
+        //std::cout << "NoiseHitsSize: " << noiseHits->GetSize() << "\n";
+        //std::cout << "CurrentHitTime: " << noiseHits->At(currentHitIndex).t() << " Index: " << currentHitIndex << "\n";
 
         float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
         float partEndTime = partStartTime + fNoiseWindowWidth;
@@ -397,7 +397,7 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
         }
     }
     //fMsg.Print("ApplyDeadtime: ", pDEFAULT, false);
-    //signalHits->ApplyDeadtime(fPMTDeadtime, true);
+    signalHits->ApplyDeadtime(fPMTDeadtime, true);
     signalHits->Sort();
     //signalHits->CheckNaN();
     fPartID++;

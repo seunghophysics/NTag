@@ -829,11 +829,8 @@ void EventNTagManager::ResetEventHitsVertex()
 
 void EventNTagManager::PrepareEventHits()
 {
-    // deadtime
-    //int allSize = fEventHits.GetSize();
-    //fMsg.Print(Form("ApplyDeadtime: "), pDEFAULT, false);
-    //fEventHits.ApplyDeadtime(900., true);
-    //int nDeadHits = allSize - fEventHits.GetSize();
+    // deadtime, burst noise
+    fEventHits.ApplyDeadtime(900., true);
     if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
 
     ResetEventHitsVertex();

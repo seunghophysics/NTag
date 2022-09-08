@@ -375,7 +375,8 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 
     std::vector<PMTHit> dtCorrectedHits;
 
-    if (!fIsSorted) Sort();
+    //if (!fIsSorted) Sort();
+    Sort();
     for (auto& hit: fElement) {
         int hitPMTID = hit.i();
         Float tDiff = hit.t() - HitTime[hitPMTID];
@@ -385,9 +386,14 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
             dtCorrectedHits.push_back(hit);
             HitTime[hitPMTID] = hit.t();
         }
-        else if (!doRemove) {
-            hit.SetBurstFlag(true);
-            dtCorrectedHits.push_back(hit);
+        else {
+            if (!doRemove) {
+                hit.SetBurstFlag(true);
+                dtCorrectedHits.push_back(hit);
+            }
+            else {
+                std::cout << "Removing hit within deadtime " << deadtime << " ns: "; hit.Dump();
+            }
         }
     }
 
@@ -396,8 +402,8 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
     if (bHadVertex)
         SetVertex(tempVertex);
 
-    if (doRemove) {
-        int removedHits = allSize-GetSize();
+    int removedHits = allSize-GetSize();
+    if (doRemove && removedHits) {
         std::cout << "Removed " << removedHits << " hits for PMT deadtime " << deadtime << " ns\n";
     }
 }
