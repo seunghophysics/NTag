@@ -8,10 +8,10 @@
 #include "NTagKerasManager.hh"
 
 NTagKerasManager::NTagKerasManager()
-: fInputTensor(tensorflow::DT_DOUBLE, tensorflow::TensorShape({1,14})),
+: fInputTensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1,14})),
   fMsg("NTagKerasManager") 
 {
-    fInputData = fInputTensor.flat<double>().data();
+    fInputData = fInputTensor.flat<float>().data();
 }
 
 void NTagKerasManager::LoadWeights(std::string weightPath)
@@ -56,9 +56,9 @@ void NTagKerasManager::LoadScaler(std::string scalerPath)
     }
 }
 
-std::vector<double> NTagKerasManager::Transform(const Candidate& candidate)
+std::vector<float> NTagKerasManager::Transform(const Candidate& candidate)
 {
-    std::vector<double> scaledFeatures;
+    std::vector<float> scaledFeatures;
 
     for (auto const& key: gKerasFeatures) {
         auto scale_element = fScalerMap[key];
@@ -75,8 +75,8 @@ float NTagKerasManager::GetOutput(const Candidate& candidate)
     auto scaledFeatures = Transform(candidate);
     std::copy(scaledFeatures.begin(), scaledFeatures.end(), fInputData);
 
-    fModel.session->Run({{fInputLayerName, fInputTensor}}, 
-                        {fOutputLayerName}, {}, &fOuptutTensorVector);
+    TF_CHECK_OK(fModel.session->Run({{fInputLayerName, fInputTensor}}, 
+                        {fOutputLayerName}, {}, &fOutputTensorVector));
 
-    return fOuptutTensorVector.at(0).flat<float>()(0);
+    return fOutputTensorVector.at(0).flat<float>()(0);
 }

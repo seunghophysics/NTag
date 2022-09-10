@@ -14,7 +14,7 @@ class NTagKerasManager
         void LoadWeights(std::string weightPath);
         void LoadModel(std::string modelPath);
         void LoadScaler(std::string scalerPath);
-        std::vector<double> Transform(const Candidate& candidate);
+        std::vector<float> Transform(const Candidate& candidate);
 
         float GetOutput(const Candidate& candidate);
 
@@ -23,14 +23,14 @@ class NTagKerasManager
         tensorflow::SavedModelBundle fModel;
 
         // scaler
-        std::map<std::string, std::pair<double, double>> fScalerMap;
+        std::map<std::string, std::pair<float, float>> fScalerMap;
 
         // input, output tensors
         std::string fInputLayerName;
         std::string fOutputLayerName;
         tensorflow::Tensor fInputTensor;
-        double* fInputData;
-        std::vector<tensorflow::Tensor> fOuptutTensorVector;
+        float* fInputData;
+        std::vector<tensorflow::Tensor> fOutputTensorVector;
 
         Printer fMsg;
 };
