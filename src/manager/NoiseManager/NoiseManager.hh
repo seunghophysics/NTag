@@ -14,7 +14,8 @@ class Header;
 enum NoiseTriggerType
 {
     mRandomWide = 2048,
-    mT2KDummy = -2147483648
+    mT2KDummy = -2147483648,
+    mNickel = (1<<14)
 };
 
 class NoiseManager

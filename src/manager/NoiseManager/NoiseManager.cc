@@ -23,7 +23,7 @@
 NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
   fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"), 
-  fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d", mRandomWide, mT2KDummy)),
+  fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d || HEADER.idtgsk & %d", mRandomWide, mT2KDummy, mNickel)),
   fSKGen(6),
   fNoiseSeed(0),
   fNoiseEventLength(1000e3),
@@ -285,7 +285,8 @@ void NoiseManager::GetNextNoiseEvent()
     fCurrentEntry++; fIDNoiseEventHits.Clear(); fODNoiseEventHits.Clear();
     if (fCurrentEntry < fNEntries) {
         fNoiseTree->GetEntry(fCurrentEntry);
-        if (fHeader->idtgsk & mRandomWide || fHeader->idtgsk == mT2KDummy)
+        int trgType = fHeader->idtgsk;
+        if (trgType & mRandomWide || trgType == mT2KDummy || trgType & mNickel)
             SetNoiseEventHits();
         else
             GetNextNoiseEvent();
