@@ -183,10 +183,6 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("SubrunNo", skhead_.nsubsk);
     fEventVariables.Set("EventNo", skhead_.nevsk);
 
-    //fEventHits.DumpAllElements();
-    int nhitac; odpc_2nd_s_(&nhitac);
-    fEventVariables.Set("NHITAC", nhitac);
-
     // trigger information
     int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : 
                   ((skhead_.idtgsk & 1<<28) ? tSHE : 
@@ -883,7 +879,7 @@ void EventNTagManager::PrepareEventHits()
         allODSize = redODSize;
     }
 
-    fEventVariables.Set("NBadPMTs", nBadIDPMTs);
+    //fEventVariables.Set("NBadPMTs", nBadIDPMTs);
     fEventVariables.Set("NBadHits", nBadIDHits);
     fEventVariables.Set("NAllHits", allIDSize);
     fEventVariables.Set("NAllODHits", allODSize);
@@ -901,6 +897,10 @@ void EventNTagManager::PrepareEventHits()
 
     // qismsk = skq_.qismsk;
     fEventVariables.Set("QISMSK", qismsk);
+
+    //fEventHits.DumpAllElements();
+    int nhitac; odpc_2nd_s_(&nhitac);
+    fEventVariables.Set("NHITAC", nhitac);
 
     // ODMaxN200
     auto odT = fEventODHits.GetProjection(HitFunc::T);
