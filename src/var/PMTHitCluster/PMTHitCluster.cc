@@ -158,8 +158,12 @@ void PMTHitCluster::RemoveVertex()
 
 void PMTHitCluster::RemoveBadChannels()
 {
-    auto idCut = [](PMTHit const & hit){ return (hit.i()>MAXPM) || (combad_.ibad[hit.i()] > 0); };
-    auto odCut = [](PMTHit const & hit){ return (hit.i()<20000) ? true : (combada_.ibada[hit.i()-20000] > 0); };
+    auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) || 
+                                                (combad_.ibad[hit.i()-1] > 0) || 
+                                                (comdark_.dark_rate[hit.i()-1] == 0); };
+    auto odCut = [](PMTHit const & hit){ return (hit.i() < 20000) || (hit.i() > 20000+MAXPMA) ||
+                                                (combada_.ibada[hit.i()-20000-1] > 0) || 
+                                                (comdark_.dark_rate_od[hit.i()-20000-1] == 0); };
     auto cut = (fElement[0].i()<=MAXPM) ? idCut : odCut;
 
     fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
