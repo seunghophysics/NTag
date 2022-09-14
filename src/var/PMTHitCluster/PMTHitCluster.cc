@@ -249,6 +249,8 @@ void PMTHitCluster::FillCommon()
                 sktqz_.qiskz[iIDHit] = hit.q();
                 sktqz_.icabiz[iIDHit] = hit.i();
                 sktqz_.ihtiflz[iIDHit] = hit.f() + (hit.s()<<12);
+                if (479.2 < hit.t() && hit.t() < 1779.2)
+                    sktqz_.ihtiflz[iIDHit] |= 1;
                 rawtqinfo_.icabbf_raw[iIDHit] = hit.i() + (hit.f()<<16);
                 rawtqinfo_.tbuf_raw[iIDHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
                 rawtqinfo_.qbuf_raw[iIDHit] = hit.q();
@@ -269,6 +271,8 @@ void PMTHitCluster::FillCommon()
                 sktqaz_.qaskz[iODHit] = hit.q();
                 sktqaz_.icabaz[iODHit] = hit.i();
                 sktqaz_.ihtflz[iODHit] = hit.f() + (hit.s()<<12);
+                if (479.2 < hit.t() && hit.t() < 1779.2)
+                    sktqaz_.ihtflz[iODHit] |= 1;
                 rawtqinfo_.icabaz_raw[iODHit] = hit.i() + (hit.f()<<16);
                 rawtqinfo_.taskz_raw[iODHit] = hit.t() + (skheadqb_.it0xsk - skheadqb_.it0sk) / COUNT_PER_NSEC;
                 rawtqinfo_.qaskz_raw[iODHit] = hit.q();
