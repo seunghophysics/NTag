@@ -111,7 +111,10 @@ namespace HitFunc
 {
     const std::function<float(const PMTHit&)> T = [](const PMTHit& hit)->float { return hit.t(); };
     const std::function<float(const PMTHit&)> Q = [](const PMTHit& hit)->float { return hit.q(); };
+    const std::function<float(const PMTHit&)> dT = [](const PMTHit& hit)->float { return hit.dt(); };
     const std::function<int(const PMTHit&)> I = [](const PMTHit& hit)->int { return hit.i(); };
+    const std::function<int(const PMTHit&)> S = [](const PMTHit& hit)->int { return hit.s(); };
+    const std::function<int(const PMTHit&)> B = [](const PMTHit& hit)->int { return hit.b(); };
     //const std::function<int(const PMTHit&)> MinAngle = [](const PMTHit& hit)->int { return hit.GetMinAngle(); };
     //const std::function<int(const PMTHit&)> DirAngle = [](const PMTHit& hit)->int { return hit.GetDirAngle(); };
     //const std::function<int(const PMTHit&)> Acceptance = [](const PMTHit& hit)->int { return hit.GetAcceptance(); };
