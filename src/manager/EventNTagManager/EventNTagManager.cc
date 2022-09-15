@@ -439,14 +439,16 @@ void EventNTagManager::ProcessEvent()
         CheckMC();
         auto nnType = fSettings.GetString("NN_type");
         auto weightPath = fSettings.GetString("weight");
+        auto delayedMode = fSettings.GetString("delayed_vertex");
         if (nnType=="tmva") {
             if (weightPath=="default")
-                weightPath = fSettings.GetString("delayed_vertex");
+                weightPath = delayedMode;
             fTMVAManager.InitializeReader(weightPath);
         }
         else if (nnType=="keras") {
             if (weightPath=="default") {
-                weightPath = GetENV("NTAGLIBPATH")+Form("weights/keras/sk%d", SKIO::GetSKGeometry());
+                int skGeometry = SKIO::GetSKGeometry();
+                weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedMode;
             }
             fKerasManager.LoadWeights(weightPath);
         }

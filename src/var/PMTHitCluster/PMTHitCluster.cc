@@ -408,7 +408,7 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
         Float tDiff = hit.t() - HitTime[hitPMTID];
         hit.SetTDiff(tDiff);
         if (!doRemove || tDiff>deadtime) {
-            hit.SetBurstFlag(tDiff>deadtime);
+            hit.SetBurstFlag(tDiff<deadtime);
             dtCorrectedHits.push_back(hit);
             HitTime[hitPMTID] = hit.t();
             HitType[hitPMTID] = hit.s();
