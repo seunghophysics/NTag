@@ -81,7 +81,7 @@ void PMTHitCluster::Append(const PMTHitCluster& hitCluster, bool inGateOnly)
     }
 }
 
-void PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
+bool PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
 {
     auto lastHit = GetLastHit();
     Float tSharedLowerBound = lastHit.t() - 100;
@@ -99,13 +99,15 @@ void PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
         }
     }
 
-    if (!doAppend) {
-        std::cerr << "PMTHitCluster::AppendByCoincidence WARNING: coincidence hit not found!\n";
-        std::cerr << "LastHit: \n";
-        lastHit.Dump();
-        std::cerr << "Added cluster within [-500,+500] ns range: \n";
-        hitCluster.SliceRange(lastHit.t()-500, lastHit.t()+500).DumpAllElements();
-    }
+    //if (!doAppend) {
+    //    std::cerr << "PMTHitCluster::AppendByCoincidence WARNING: coincidence hit not found!\n";
+    //    std::cerr << "LastHit: \n";
+    //    lastHit.Dump();
+    //    std::cerr << "Added cluster within [-500,+500] ns range: \n";
+    //    hitCluster.SliceRange(lastHit.t()-500, lastHit.t()+500).DumpAllElements();
+    //}
+
+    return doAppend;
 }
 
 void PMTHitCluster::Clear()
@@ -156,7 +158,7 @@ void PMTHitCluster::RemoveVertex()
     }
 }
 
-void PMTHitCluster::RemoveBadChannels()
+unsigned int PMTHitCluster::RemoveBadChannels()
 {
     auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) || 
                                                 (combad_.ibad[hit.i()-1] > 0) || 
@@ -166,13 +168,26 @@ void PMTHitCluster::RemoveBadChannels()
                                                 (comdark_.dark_rate_od[hit.i()-20000-1] == 0); };
     auto cut = (fElement[0].i()<=MAXPM) ? idCut : odCut;
 
+    int nSize = GetSize();
     fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
+    
+    return nSize-GetSize();
 }
 
-void PMTHitCluster::RemoveNegativeHits()
+unsigned int PMTHitCluster::RemoveNegativeHits()
 {
+    int nSize = GetSize();
     fElement.erase(std::remove_if(fElement.begin(), fElement.end(), 
         [](PMTHit const & hit){ return (hit.q()<0); }), fElement.end());
+    return nSize-GetSize();
+}
+
+unsigned int PMTHitCluster::RemoveLargeQHits(float qThreshold)
+{
+    int nSize = GetSize();
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), 
+        [=](PMTHit const & hit){ return (hit.q()>qThreshold); }), fElement.end());
+    return nSize-GetSize();
 }
 
 void PMTHitCluster::FindMeanDirection()
@@ -361,7 +376,7 @@ void PMTHitCluster::AddTimeOffset(Float tOffset)
         hit = hit + tOffset;
 }
 
-void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
+std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 {
     int allSize = GetSize();
 
@@ -374,7 +389,9 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
     }
 
     std::array<Float, 20000+MAXPMA+1> HitTime;
+    std::array<bool, 20000+MAXPMA+1> HitType;
     HitTime.fill(std::numeric_limits<Float>::lowest());
+    HitType.fill(0);
     
     //std::array<Float, MAXPM+1>  IDHitTime;
     //std::array<Float, MAXPMA+1> ODHitTime;
@@ -385,35 +402,56 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 
     //if (!fIsSorted) Sort();
     Sort();
+    unsigned int nRemovedBySignal = 0;
     for (auto& hit: fElement) {
         int hitPMTID = hit.i();
         Float tDiff = hit.t() - HitTime[hitPMTID];
         hit.SetTDiff(tDiff);
-        if (tDiff > deadtime) {
-            hit.SetBurstFlag(false);
+        if (!doRemove || tDiff>deadtime) {
+            hit.SetBurstFlag(tDiff>deadtime);
             dtCorrectedHits.push_back(hit);
             HitTime[hitPMTID] = hit.t();
+            HitType[hitPMTID] = hit.s();
         }
         else {
-            if (!doRemove) {
-                hit.SetBurstFlag(true);
-                dtCorrectedHits.push_back(hit);
+            if (hit.s()) {
+                std::cout << "Removing signal hit within deadtime " << deadtime << " ns: "; hit.Dump();
+                nRemovedBySignal++;
             }
-            //else {
-            //    std::cout << "Removing hit within deadtime " << deadtime << " ns: "; hit.Dump();
-            //}
+            else if (HitType[hitPMTID]) {
+                std::cout << "Removing noise hit due to signal within deadtime " << deadtime << " ns: "; hit.Dump();
+                nRemovedBySignal++;
+            }
+            std::cout << "Removing noise hit due to noise within deadtime " << deadtime << " ns: "; hit.Dump();
         }
+        //if (tDiff > deadtime) {
+        //    hit.SetBurstFlag(false);
+        //    dtCorrectedHits.push_back(hit);
+        //    HitTime[hitPMTID] = hit.t();
+        //}
+        //else {
+        //    if (!doRemove) {
+        //        hit.SetBurstFlag(true);
+        //        dtCorrectedHits.push_back(hit);
+        //        HitTime[hitPMTID] = hit.t();
+        //    }
+            
+        //}
     }
 
+    unsigned int nRemovedHits = allSize-dtCorrectedHits.size();
+    unsigned int nRemovedByNoise = nRemovedHits - nRemovedBySignal;
     fElement = dtCorrectedHits;
 
     if (bHadVertex)
         SetVertex(tempVertex);
 
-    int removedHits = allSize-GetSize();
-    if (doRemove && removedHits) {
-        std::cout << "Removed " << removedHits << " hits for PMT deadtime " << deadtime << " ns\n";
+    if (doRemove && nRemovedHits) {
+        std::cout << "Removed " << nRemovedHits << Form(" ( %d due to signal ) ", nRemovedBySignal) 
+                  << "hits for PMT deadtime " << deadtime << " ns\n";
     }
+
+    return std::array<unsigned int,2>({nRemovedBySignal, nRemovedByNoise});
 }
 
 std::array<float, 6> PMTHitCluster::GetBetaArray()

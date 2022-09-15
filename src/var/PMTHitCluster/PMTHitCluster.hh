@@ -27,7 +27,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 
         void Append(const PMTHit& hit);
         void Append(const PMTHitCluster& hitCluster, bool inGateOnly=false);
-        void AppendByCoincidence(PMTHitCluster& hitCluster);
+        bool AppendByCoincidence(PMTHitCluster& hitCluster);
         void Clear();
         void AddTQReal(TQReal* tqreal, int flag=2/* default: in-gate */);
 
@@ -35,8 +35,9 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetVertex() const { return fVertex; }
         bool HasVertex() { return fHasVertex; }
         void RemoveVertex();
-        void RemoveBadChannels();
-        void RemoveNegativeHits();
+        unsigned int RemoveBadChannels();
+        unsigned int RemoveNegativeHits();
+        unsigned int RemoveLargeQHits(float qThreshold=10);
         void FindMeanDirection();
 
         void Sort();
@@ -67,7 +68,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetMeanDirection() const { return fMeanDirection; }
 
         void AddTimeOffset(Float tOffset);
-        void ApplyDeadtime(Float deadtime, bool doRemove=true);
+        std::array<unsigned int,2> ApplyDeadtime(Float deadtime, bool doRemove=true);
 
         template<typename T>
         float Find(std::function<T(const PMTHit&)> projFunc,

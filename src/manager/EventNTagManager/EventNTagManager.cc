@@ -297,6 +297,7 @@ void EventNTagManager::AddHits()
     //fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
     //fEventODHits.Append(PMTHitCluster(sktqaz_) + tOffset, true);
 
+    fEventVariables.Set("HitAppendError", 0);
     if (fEventHits.IsEmpty()) {
         fEventHits.Append(PMTHitCluster(sktqz_) + tOffset, true);
         fEventODHits.Append(PMTHitCluster(sktqaz_) + tOffset, true);
@@ -305,9 +306,19 @@ void EventNTagManager::AddHits()
         auto hitsToAdd = PMTHitCluster(sktqz_) + tOffset;
         auto odHitsToAdd = PMTHitCluster(sktqaz_) + tOffset;
 
-        fEventHits.AppendByCoincidence(hitsToAdd);
-        fEventODHits.Append(odHitsToAdd, true);
-        //fEventODHits.AppendByCoincidence(odHitsToAdd);
+        bool idAddOK = fEventHits.AppendByCoincidence(hitsToAdd);
+        bool odAddOK = fEventODHits.AppendByCoincidence(odHitsToAdd);
+
+        int appendError = 0;
+        if (!idAddOK) {
+            fEventHits.Append(hitsToAdd, true);
+            appendError |= 1;
+        }
+        if (!odAddOK) {
+            fEventODHits.Append(odHitsToAdd, true);
+            appendError |= 2;
+        }
+        fEventVariables.Set("HitAppendError", appendError);
     }
 
     fEventHits.Sort();
@@ -614,6 +625,7 @@ void EventNTagManager::ApplySettings()
     float tMin = fSettings.GetFloat("TMIN");
     float tMax = fSettings.GetFloat("TMAX");
     T0TH = tMin * 1e3 + 1000; T0MX = tMax * 1e3 + 1000; // ns->us, add trigger time T=1000 ns
+    fSettings.Get("QMAX", QMAX);
     fSettings.Get("TWIDTH", TWIDTH);
     fSettings.Get("TCANWIDTH", TCANWIDTH);
     fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
@@ -827,16 +839,20 @@ void EventNTagManager::ResetEventHitsVertex()
 
 void EventNTagManager::PrepareEventHits()
 {
+    int nNegHits = fEventHits.RemoveNegativeHits();
+    fEventODHits.RemoveNegativeHits();
+    fEventVariables.Set("NNegHits", nNegHits);
+    int nLargeQHits = fEventHits.RemoveLargeQHits(QMAX);
+    fEventVariables.Set("NLargeQHits", nLargeQHits);
+
     // deadtime, burst noise
-    int nAllHits = fEventHits.GetSize();
-    fEventHits.ApplyDeadtime(PMTDEADTIME, true);
-    int nDeadHits = fEventHits.GetSize();
-    fEventVariables.Set("NDeadHits", nAllHits-nDeadHits);
+    auto nDead = fEventHits.ApplyDeadtime(PMTDEADTIME, true);    
+    fEventVariables.Set("NDeadHitsByNoise", nDead[1]);
+    fEventVariables.Set("NDeadHitsBySignal", nDead[0]);
 
     if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
 
     ResetEventHitsVertex();
-    fEventODHits.RemoveNegativeHits();
 
     // fetch bad channels, dark rates
     FindReferenceRun();
