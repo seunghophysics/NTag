@@ -306,7 +306,8 @@ void EventNTagManager::AddHits()
         auto odHitsToAdd = PMTHitCluster(sktqaz_) + tOffset;
 
         fEventHits.AppendByCoincidence(hitsToAdd);
-        fEventODHits.AppendByCoincidence(odHitsToAdd);
+        fEventODHits.Append(odHitsToAdd, true);
+        //fEventODHits.AppendByCoincidence(odHitsToAdd);
     }
 
     fEventHits.Sort();
@@ -618,6 +619,7 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("TMINPEAKSEP", TMINPEAKSEP);
     fSettings.Get("TMATCHWINDOW", TMATCHWINDOW);
     fSettings.Get("TRBNWIDTH", TRBNWIDTH);
+    fSettings.Get("PMTDEADTIME", PMTDEADTIME);
     fSettings.Get("NHITSTH", NHITSTH);
     fSettings.Get("NHITSMX", NHITSMX);
     fSettings.Get("MINNHITS", MINNHITS);
@@ -826,7 +828,11 @@ void EventNTagManager::ResetEventHitsVertex()
 void EventNTagManager::PrepareEventHits()
 {
     // deadtime, burst noise
-    fEventHits.ApplyDeadtime(900., true);
+    int nAllHits = fEventHits.GetSize();
+    fEventHits.ApplyDeadtime(PMTDEADTIME, true);
+    int nDeadHits = fEventHits.GetSize();
+    fEventVariables.Set("NDeadHits", nAllHits-nDeadHits);
+
     if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
 
     ResetEventHitsVertex();
@@ -884,6 +890,10 @@ void EventNTagManager::PrepareEventHits()
     fEventVariables.Set("NAllHits", allIDSize);
     fEventVariables.Set("NAllODHits", allODSize);
 
+    //auto tDiff = fEventHits.GetProjection(HitFunc::dT);
+    //float pmtMinTDiff = *std::min_element(tDiff.begin(), tDiff.end());
+    //fEventVariables.Set("MinPMTTDiff", pmtMinTDiff);
+
     // qismsk
     float qismsk = 0;
     float tGateMin = fSettings.GetFloat("TGATEMIN")*1e3 + 1000.;
@@ -899,6 +909,8 @@ void EventNTagManager::PrepareEventHits()
     fEventVariables.Set("QISMSK", qismsk);
 
     //fEventHits.DumpAllElements();
+    //fEventODHits.DumpAllElements();
+    fEventODHits.FillCommon();
     int nhitac; odpc_2nd_s_(&nhitac);
     fEventVariables.Set("NHITAC", nhitac);
 

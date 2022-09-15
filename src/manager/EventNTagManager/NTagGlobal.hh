@@ -53,7 +53,7 @@ static std::vector<std::string> gKerasFeatures = {"NHits", "NResHits", "TRMS",
 
 static std::vector<std::string> gCmdOptions = {"force_flat", "outdata", "write_bank", "noise_path", "noise_type", "save_hits",
                                                "add_noise", "repeat_noise", "in_noise", "dump_noise", "IDDARKRATE", "ODDARKRATE",
-                                               "noise_cut", "IDMAXN200", "ODMAXN200", "TGATEMIN", "TGATEMAX",
+                                               "noise_cut", "PMTDEADTIME", "IDMAXN200", "ODMAXN200", "TGATEMIN", "TGATEMAX",
                                                "weight", "debug", "in", "out", "NN_type", "correct_tof", "macro",
                                                "prompt_vertex", "delayed_vertex", "vx", "vy", "vz", "tag_e",
                                                "SKGEOMETRY", "SKOPTN", "SKBADOPT", "REFRUNNO",

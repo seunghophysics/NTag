@@ -399,9 +399,9 @@ void PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
                 hit.SetBurstFlag(true);
                 dtCorrectedHits.push_back(hit);
             }
-            else {
-                std::cout << "Removing hit within deadtime " << deadtime << " ns: "; hit.Dump();
-            }
+            //else {
+            //    std::cout << "Removing hit within deadtime " << deadtime << " ns: "; hit.Dump();
+            //}
         }
     }
 

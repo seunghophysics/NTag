@@ -29,8 +29,7 @@ NoiseManager::NoiseManager()
   fNoiseEventLength(1000e3),
   fNoiseStartTime(1e3), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
   fNoiseT0(0),
-  fIDMaxN200(60), fODMaxN200(20
-  ),
+  fIDMaxN200(60), fODMaxN200(20),
   //fMinHitsLimit(50e3), fMaxHitsLimit(100e3),
   //fMinHitDensity(10e-3), fMaxHitDensity(50e-3), // hits per nanosecond
   fPMTDeadtime(900), fIDDarkRatekHz(7.5), fODDarkRatekHz(4.0),
@@ -249,11 +248,13 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     auto tNoiseStart = settings.GetFloat("TNOISESTART", 0);
     auto tNoiseEnd   = settings.GetFloat("TNOISEEND", 535);
     auto noiseSeed   = settings.GetInt("NOISESEED");
+    auto pmtDeadtime = settings.GetFloat("PMTDEADTIME", 900);
     auto debug       = settings.GetBool("debug", false);
     
     SetSKGeneration(skGen);
     SetSeed(noiseSeed);
     SetNoiseMaxN200(idMaxN200, odMaxN200, doN200Cut);
+    SetPMTDeadtime(pmtDeadtime);
     if (debug) SetVerbosity(pDEBUG);
     if (noiseType == "simulate") {
         SetDarkRate(idDarkRate, odDarkRate);
@@ -398,7 +399,7 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
         }
     }
     //fMsg.Print("ApplyDeadtime: ", pDEFAULT, false);
-    signalHits->ApplyDeadtime(fPMTDeadtime, true);
+    //signalHits->ApplyDeadtime(fPMTDeadtime, true);
     signalHits->Sort();
     //signalHits->CheckNaN();
     fPartID++;

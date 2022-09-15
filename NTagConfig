@@ -43,6 +43,7 @@ noise_type     default
 TNOISESTART    2
 TNOISEEND      536
 NOISESEED      0
+PMTDEADTIME    1000
 
 # PMT burst noise width
 TRBNWIDTH      30000

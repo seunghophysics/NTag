@@ -83,6 +83,10 @@ int main(int argc, char** argv)
     if (settings.GetBool("add_noise", false)) {
         noiseManager = new NoiseManager;
         noiseManager->ApplySettings(settings, nInputEvents);
+        
+        // PMT deadtime will be covered in EventNTagManager,
+        // so override PMT deadtime in noiseManager with zero for now
+        noiseManager->SetPMTDeadtime(0);
         ntagManager.SetNoiseManager(noiseManager);
     }
 
