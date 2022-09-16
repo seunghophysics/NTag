@@ -297,7 +297,23 @@ std::vector<TString> GetListOfSubdirectories(TString dirPath);
  * @param high The upper bound of the range.
  * @return A vector of indices whose elements are within the input range.
  */
-std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, double low, double high);
+template <typename T>
+std::vector<unsigned int> GetRangeIndex(const std::vector<T>& sortedVec, T low, T high)
+{
+    std::vector<unsigned int> vIndex;
+    //std::cout << "low: " << low << " high: " << high << std::endl;
+
+    auto start = std::lower_bound(sortedVec.begin(), sortedVec.end(), low);
+    auto end   = std::upper_bound(sortedVec.begin(), sortedVec.end(), high);
+
+    //std::cout << "start_i: " << start-sortedVec.begin() << " end_i: " << end-sortedVec.begin() << std::endl;
+
+    for (auto it=start; it!=end; ++it) {
+        vIndex.push_back(it-sortedVec.begin());
+    }
+
+    return vIndex;
+}
 
 /**
  * @brief Histogram a given vector of float.
@@ -322,6 +338,9 @@ template float    GetSum<float>    (const std::vector<float>&    vec);
 template int      GetMean<int>     (const std::vector<int>&      vec);
 template float    GetMean<float>   (const std::vector<float>&    vec);
 template TVector3 GetMean<TVector3>(const std::vector<TVector3>& vec);
+
+template std::vector<unsigned int> GetRangeIndex<double>(const std::vector<double>&, double, double);
+template std::vector<unsigned int> GetRangeIndex<float> (const std::vector<float>&,   float,  float);
 
 namespace Calc
 {

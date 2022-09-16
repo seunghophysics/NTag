@@ -214,23 +214,6 @@ std::vector<TString> GetListOfSubdirectories(TString dirPath)
     return list;
 }
 
-std::vector<unsigned int> GetRangeIndex(const std::vector<double>& sortedVec, double low, double high)
-{
-    std::vector<unsigned int> vIndex;
-    //std::cout << "low: " << low << " high: " << high << std::endl;
-
-    auto start = std::lower_bound(sortedVec.begin(), sortedVec.end(), low);
-    auto end   = std::upper_bound(sortedVec.begin(), sortedVec.end(), high);
-
-    //std::cout << "start_i: " << start-sortedVec.begin() << " end_i: " << end-sortedVec.begin() << std::endl;
-
-    for (auto it=start; it!=end; ++it) {
-        vIndex.push_back(it-sortedVec.begin());
-    }
-
-    return vIndex;
-}
-
 std::vector<std::pair<float, int>> Histogram(std::vector<float> vec, int nBins, float min, float max)
 {
     std::vector<std::pair<float, int>> hist(nBins, std::pair<float, int>(0, 0));
