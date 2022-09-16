@@ -47,7 +47,7 @@ NOISESEED      0
 PMTDEADTIME    1000
 
 # PMT burst noise width
-TRBNWIDTH      30000
+TRBNWIDTH      10000
 
 # Event cut
 NIDHITMX       1000000

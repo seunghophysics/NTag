@@ -843,7 +843,7 @@ void EventNTagManager::PrepareEventHits()
 {
     int nNegHits = fEventHits.RemoveNegativeHits();
     fEventODHits.RemoveNegativeHits();
-    fEventVariables.Set("NNegHits", nNegHits);
+    fEventVariables.Set("NNegativeHits", nNegHits);
     int nLargeQHits = fEventHits.RemoveLargeQHits(QMAX);
     fEventVariables.Set("NLargeQHits", nLargeQHits);
 
