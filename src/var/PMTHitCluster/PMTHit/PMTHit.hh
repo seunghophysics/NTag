@@ -37,6 +37,7 @@ class PMTHit
         inline const int& f() const { return fFlag; }
         inline const bool& s() const { return fIsSignal; }
         inline const bool& b() const { return fIsBurst; }
+        inline const bool& n() const { return fIsTagged; }
 
         inline void SetT(Float f)  { fT = f; }
         inline void SetTDiff(Float f)  { fTDiff = f; }
@@ -47,8 +48,11 @@ class PMTHit
         inline void SetFlagBitOr(int bit) { fFlag |= bit; }
         inline void SetSignalFlag(bool b) { fIsSignal=b; }
         inline void SetBurstFlag(bool b) { fIsBurst=b; }
+        inline void SetTagFlag(bool b) { fIsTagged=b; }
         //inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF << " S: " << fIsSignal << " B: " << fIsBurst << " dT: " << fTDiff << "\n"; }
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF 
+                                             << " S: " << fIsSignal << " B: " << fIsBurst << " Tag: " << fIsTagged
+                                             << " dT: " << (fTDiff>1e308?-1:fTDiff) << "\n"; }
 
         void SetToFAndDirection(const TVector3& vertex)
         {
@@ -86,14 +90,14 @@ class PMTHit
         bool operator!=(const PMTHit& hit) const;
 
     private:    
-        PMTHit(): fT(0), fToF(0), fTDiff(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false) {}
+        PMTHit(): fT(0), fToF(0), fTDiff(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false), fIsTagged(false) {}
     
     protected:
         Float fT, fToF, fTDiff;
         float fQ;
         unsigned int fPMTID;
         int fFlag;
-        bool fIsSignal, fIsBurst;
+        bool fIsSignal, fIsBurst, fIsTagged;
         TVector3 fPMTPosition;
         TVector3 fHitDirection;
         

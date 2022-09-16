@@ -408,34 +408,23 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
         Float tDiff = hit.t() - HitTime[hitPMTID];
         hit.SetTDiff(tDiff);
         if (!doRemove || tDiff>deadtime) {
-            hit.SetBurstFlag(tDiff<deadtime);
+            //hit.SetBurstFlag(tDiff<deadtime);
             dtCorrectedHits.push_back(hit);
             HitTime[hitPMTID] = hit.t();
             HitType[hitPMTID] = hit.s();
         }
-        else {
-            if (hit.s()) {
-                std::cout << "Removing signal hit within deadtime " << deadtime << " ns: "; hit.Dump();
-                nRemovedBySignal++;
-            }
-            else if (HitType[hitPMTID]) {
-                std::cout << "Removing noise hit due to signal within deadtime " << deadtime << " ns: "; hit.Dump();
-                nRemovedBySignal++;
-            }
-            std::cout << "Removing noise hit due to noise within deadtime " << deadtime << " ns: "; hit.Dump();
+        else if (hit.s()) {
+            //std::cout << "Removing signal hit within deadtime " << deadtime << " ns: "; hit.Dump();
+            nRemovedBySignal++;
         }
-        //if (tDiff > deadtime) {
-        //    hit.SetBurstFlag(false);
-        //    dtCorrectedHits.push_back(hit);
-        //    HitTime[hitPMTID] = hit.t();
-        //}
+        else if (HitType[hitPMTID]) {
+            //std::cout << "Removing noise hit due to signal within deadtime " << deadtime << " ns: "; hit.Dump();
+            nRemovedBySignal++;
+        }
         //else {
-        //    if (!doRemove) {
-        //        hit.SetBurstFlag(true);
-        //        dtCorrectedHits.push_back(hit);
-        //        HitTime[hitPMTID] = hit.t();
-        //    }
-            
+        //    HitTime[hitPMTID] = hit.t();
+        //    HitType[hitPMTID] = hit.s();
+        //    std::cout << "Removing noise hit due to noise within deadtime " << deadtime << " ns: "; hit.Dump();
         //}
     }
 
@@ -593,6 +582,13 @@ void PMTHitCluster::SetAsSignal(bool b)
     }
 }
 
+void PMTHitCluster::SetBurstFlag(float tBurstWidth)
+{
+    for (auto& hit: fElement) {
+        hit.SetBurstFlag(hit.dt()<tBurstWidth);
+    }
+}
+
 unsigned int PMTHitCluster::GetNSignal()
 {
     unsigned int sigSum = 0;
@@ -701,12 +697,13 @@ void PMTHitCluster::MakeBranches()
         //fOutputTree->Branch("z", &fZ);
         fOutputTree->Branch("s", &fS);
         fOutputTree->Branch("b", &fB);
+        fOutputTree->Branch("n", &fTag);
     }
 }
 
 void PMTHitCluster::ClearBranches()
 {
-    fT.clear(); fToF.clear(); fDT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear();
+    fT.clear(); fToF.clear(); fDT.clear(); fQ.clear(); fI.clear(); fS.clear(); fB.clear(); fTag.clear();
     //fX.clear(); fY.clear(); fZ.clear();
 }
 
@@ -729,6 +726,7 @@ void PMTHitCluster::FillTree(bool asResidual)
             //fZ.push_back(hitPos.z());
             fS.push_back(hit.s());
             fB.push_back(hit.b());
+            fTag.push_back(hit.n());
         }
         fOutputTree->Fill();
         if (!asResidual) SetVertex(vertex);

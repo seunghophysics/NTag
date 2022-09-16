@@ -312,11 +312,11 @@ void EventNTagManager::AddHits()
         int appendError = 0;
         if (!idAddOK) {
             fEventHits.Append(hitsToAdd, true);
-            appendError |= 1;
+            appendError |= 2;
         }
         if (!odAddOK) {
             fEventODHits.Append(odHitsToAdd, true);
-            appendError |= 2;
+            appendError |= 1;
         }
         fEventVariables.Set("HitAppendError", appendError);
     }
@@ -852,7 +852,7 @@ void EventNTagManager::PrepareEventHits()
     fEventVariables.Set("NDeadHitsByNoise", nDead[1]);
     fEventVariables.Set("NDeadHitsBySignal", nDead[0]);
 
-    if (TRBNWIDTH > 0) fEventHits.ApplyDeadtime(TRBNWIDTH, false);
+    fEventHits.SetBurstFlag(TRBNWIDTH);
 
     ResetEventHitsVertex();
 
@@ -1138,7 +1138,19 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
                    nnType=="keras" ?  fKerasManager.GetOutput(candidate) : 0;
 
     candidate.Set("TagOut", tagOut);
-    candidate.Set("TagClass", fTagger.Classify(candidate));
+    auto tagClass = fTagger.Classify(candidate);
+    candidate.Set("TagClass", tagClass);
+
+    if (tagClass>0) {
+        auto allHitT = fEventHits.GetProjection(HitFunc::T);
+        std::vector<float> hitT(allHitT.begin(), allHitT.end());
+
+        auto hitIndex = GetRangeIndex(hitT, float(canTime-TCANWIDTH/2.-0.03), float(canTime+TCANWIDTH/2.));
+        for (auto i: hitIndex) {
+            fEventHits.At(i).SetTagFlag(1);
+            fEventHits[i].Dump();
+        }
+    }
 }
 
 void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, Float tMatchWindow)

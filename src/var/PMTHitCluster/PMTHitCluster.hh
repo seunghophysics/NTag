@@ -97,6 +97,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         OpeningAngleStats GetOpeningAngleStats();
 
         void SetAsSignal(bool b=true);
+        void SetBurstFlag(float tBurstWidth=30000);
         unsigned int GetNSignal();
         unsigned int GetNBurst();
         unsigned int GetNNoisyPMT();
@@ -122,7 +123,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 
         std::vector<Float> fT, fToF, fDT;
         std::vector<float> fQ;
-        std::vector<int> fI, fS, fB;
+        std::vector<bool> fI, fS, fB, fTag;
 
         void SetToF(bool unset=false);
 };
