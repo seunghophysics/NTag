@@ -52,7 +52,7 @@ class PMTHit
         //inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
         inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF 
                                              << " S: " << fIsSignal << " B: " << fIsBurst << " Tag: " << fIsTagged
-                                             << " dT: " << (fTDiff>1e308?-1:fTDiff) << "\n"; }
+                                             << " dT: " << (fTDiff>1e308 ? std::string("") : std::to_string(fTDiff)) << "\n"; }
 
         void SetToFAndDirection(const TVector3& vertex)
         {

@@ -1148,7 +1148,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
         auto hitIndex = GetRangeIndex(hitT, float(canTime-TCANWIDTH/2.-0.03), float(canTime+TCANWIDTH/2.));
         for (auto i: hitIndex) {
             fEventHits.At(i).SetTagFlag(1);
-            fEventHits[i].Dump();
+            //fEventHits[i].Dump();
         }
     }
 }
