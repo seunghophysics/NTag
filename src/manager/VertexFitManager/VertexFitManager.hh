@@ -1,5 +1,5 @@
 /**
- * @file VertexFitManager.hh 
+ * @file VertexFitManager.hh
  */
 
 #ifndef VERTEXFITMANAGER_HH
@@ -23,7 +23,7 @@ class VertexFitManager
         float GetFitTime() { return fFitTime; }
         float GetFitGoodness() { return fFitGoodness; }
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
-        
+
         /**
          * @brief Calculate ad-hoc vertex fit goodness.
          */

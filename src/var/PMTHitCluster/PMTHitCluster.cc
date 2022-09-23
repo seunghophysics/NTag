@@ -160,24 +160,24 @@ void PMTHitCluster::RemoveVertex()
 
 unsigned int PMTHitCluster::RemoveBadChannels()
 {
-    auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) || 
-                                                (combad_.ibad[hit.i()-1] > 0) || 
+    auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) ||
+                                                (combad_.ibad[hit.i()-1] > 0) ||
                                                 (comdark_.dark_rate[hit.i()-1] == 0); };
     auto odCut = [](PMTHit const & hit){ return (hit.i() < 20000) || (hit.i() > 20000+MAXPMA) ||
-                                                (combada_.ibada[hit.i()-20000-1] > 0) || 
+                                                (combada_.ibada[hit.i()-20000-1] > 0) ||
                                                 (comdark_.dark_rate_od[hit.i()-20000-1] == 0); };
     auto cut = (fElement[0].i()<=MAXPM) ? idCut : odCut;
 
     int nSize = GetSize();
     fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
-    
+
     return nSize-GetSize();
 }
 
 unsigned int PMTHitCluster::RemoveNegativeHits()
 {
     int nSize = GetSize();
-    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), 
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(),
         [](PMTHit const & hit){ return (hit.q()<0); }), fElement.end());
     return nSize-GetSize();
 }
@@ -185,7 +185,7 @@ unsigned int PMTHitCluster::RemoveNegativeHits()
 unsigned int PMTHitCluster::RemoveLargeQHits(float qThreshold)
 {
     int nSize = GetSize();
-    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), 
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(),
         [=](PMTHit const & hit){ return (hit.q()>qThreshold); }), fElement.end());
     return nSize-GetSize();
 }
@@ -392,7 +392,7 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
     std::array<bool, 20000+MAXPMA+1> HitType;
     HitTime.fill(std::numeric_limits<Float>::lowest());
     HitType.fill(0);
-    
+
     //std::array<Float, MAXPM+1>  IDHitTime;
     //std::array<Float, MAXPMA+1> ODHitTime;
     //IDHitTime.fill(std::numeric_limits<Float>::lowest());
@@ -436,7 +436,7 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
         SetVertex(tempVertex);
 
     if (doRemove && nRemovedHits) {
-        std::cout << "Removed " << nRemovedHits << Form(" ( %d due to signal ) ", nRemovedBySignal) 
+        std::cout << "Removed " << nRemovedHits << Form(" ( %d due to signal ) ", nRemovedBySignal)
                   << "hits for PMT deadtime " << deadtime << " ns\n";
     }
 

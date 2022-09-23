@@ -18,7 +18,7 @@ class NTagTMVAManager
     public:
         NTagTMVAManager();
         ~NTagTMVAManager();
-                
+
         void SetWeightPath(std::string filePath) { fWeightFilePath = filePath; }
         std::string GetWeightPath() { return fWeightFilePath; }
 
@@ -33,14 +33,14 @@ class NTagTMVAManager
     private:
         TMVA::Factory* fFactory;
         TMVA::Reader*  fReader;
-        
+
         std::string fWeightFilePath;
-        
+
         std::map<std::string, float> fFeatureContainer;
         int fCandidateLabel;
-    
+
         std::map<std::string, bool> fUse;
-        
+
         Printer fMsg;
 };
 

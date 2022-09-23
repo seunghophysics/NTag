@@ -65,7 +65,7 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
 
     int maxpm = MAXPM;
     cfbsinit_(&maxpm, GetPMTPositionArray());
-    int elapsedDays = skday_data_.relapse[refRunNo-1]; 
+    int elapsedDays = skday_data_.relapse[refRunNo-1];
     waterTransparency = 12431.3;
     if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
 

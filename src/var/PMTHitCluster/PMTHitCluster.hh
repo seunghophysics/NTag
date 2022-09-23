@@ -55,11 +55,11 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         PMTHitCluster SliceRange(Float minusT, Float plusT);
 
         unsigned int GetIndex(PMTHit hit);
-        unsigned int GetLowerBoundIndex(Float t) 
-        { 
+        unsigned int GetLowerBoundIndex(Float t)
+        {
             return std::lower_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();
         }
-        unsigned int GetUpperBoundIndex(Float t) 
+        unsigned int GetUpperBoundIndex(Float t)
         {
             auto index = std::upper_bound(fElement.begin(), fElement.end(), PMTHit(t, 0, 1, 1)) - fElement.begin();
             return index? --index : index;
@@ -108,7 +108,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         float GetDarkLikelihood();
 
         void CheckNaN();
-        
+
         //void FindHitProperties();
         PMTHitCluster Slice(std::function<float(const PMTHit&)> lambda, float min, float max) const;
         void ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max);
@@ -116,7 +116,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         void MakeBranches();
         void ClearBranches();
         void FillTree(bool asResidual=false);
-        
+
     private:
         bool fIsSorted, fHasVertex;
         TVector3 fVertex, fMeanDirection;

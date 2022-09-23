@@ -14,7 +14,7 @@ class CandidateTagger : public TreeOut
     public:
         CandidateTagger(std::string fitterName="", Verbosity verbose=pDEFAULT);
         ~CandidateTagger();
-        
+
         void SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }
         void SetTMATCHWINDOW(float t) { TMATCHWINDOW = t; }
         void SetECuts(std::string cuts="0");
@@ -24,7 +24,7 @@ class CandidateTagger : public TreeOut
         virtual void OverrideSettings(std::string outFilePath);
 
         virtual int Classify(const Candidate& candidate);
-        
+
     protected:
         float TMATCHWINDOW;
 
@@ -32,7 +32,7 @@ class CandidateTagger : public TreeOut
         std::string fECuts;
         std::string fNCuts;
         TTreeFormula* fECutFormula;
-        TTreeFormula* fNCutFormula; 
+        TTreeFormula* fNCutFormula;
         std::map<std::string, float> fFeatureMap;
 
         std::string fName;

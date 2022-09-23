@@ -8,7 +8,7 @@ float VertexFitManager::GetGoodness(const PMTHitCluster& hitCluster, const TVect
         std::cerr << "WARNING: Empty hit cluster is passed to VertexFitManager::GetGoodness, returning 0...\n";
         return 0;
     }
-        
+
     auto cluster = hitCluster;
     cluster.SetVertex(vertex);
 
@@ -21,7 +21,7 @@ float VertexFitManager::GetGoodness(const PMTHitCluster& hitCluster, const TVect
     }
 
     float goodness = numerator/denominator;
-    
+
     if (isnan(goodness)) {
         std::cerr << "WARNING: Vertex fit goodness is NaN! returning 0...\n";
         return 0;

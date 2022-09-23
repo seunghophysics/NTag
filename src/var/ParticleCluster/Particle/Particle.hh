@@ -18,7 +18,7 @@ class Particle
     public:
         Particle(): fT(0), fPID(0), fParentPID(0), fIntID(0), fParentIndex(-1),
                     fVertex(), fMomentum(), fParentVertex(), fParentMomentum() {}
-        Particle(int id, float time, TVector3 vtx, TVector3 mom, 
+        Particle(int id, float time, TVector3 vtx, TVector3 mom,
                  int parPID=0, unsigned int interactionID=0, TVector3 parVtx=TVector3(), TVector3 parMom=TVector3());
 
         inline int PID() const { return fPID; }
@@ -34,8 +34,8 @@ class Particle
         inline void SetParentIndex(int parIndex) { fParentIndex = parIndex; }
 
         bool IsDaughterOf(const Particle& particle) const {
-            return (fParentPID == particle.PID()) && 
-                   ((fParentVertex-particle.Vertex()).Mag()<1e-2) && 
+            return (fParentPID == particle.PID()) &&
+                   ((fParentVertex-particle.Vertex()).Mag()<1e-2) &&
                    ((fParentMomentum-particle.Momentum()).Mag()<1e-2);
         }
 

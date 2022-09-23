@@ -10,14 +10,14 @@
 #include "EventNTagManager.hh"
 
 CandidateTagger::CandidateTagger(std::string fitterName, Verbosity verbose)
-: fECuts("0"), fNCuts("0"), fECutFormula(nullptr), fNCutFormula(nullptr), TMATCHWINDOW(50), 
+: fECuts("0"), fNCuts("0"), fECutFormula(nullptr), fNCutFormula(nullptr), TMATCHWINDOW(50),
   fMsg(fitterName.c_str(), verbose)
-{ 
+{
     fName = fitterName;
 
     for (auto const& key: gMuechkFeatures)
         fFeatureMap[key] = 0;
-    
+
     for (auto const& key: gNTagFeatures)
         fFeatureMap[key] = 0;
 
@@ -80,7 +80,7 @@ void CandidateTagger::Apply(std::string inFilePath, std::string outFilePath, NTa
         fMsg.Print("Cloning muechk tree...");
         outMuechkTree = inMuechkTree->CloneTree();
     }
-    
+
     NTagTree ntagTreeReader(inNtagTree);
     TaggableTree taggableTreeReader(inTaggableTree);
 
@@ -118,13 +118,13 @@ void CandidateTagger::Apply(std::string inFilePath, std::string outFilePath, NTa
             tagOutList.push_back(tagOut);
             tagClassList.push_back(tagClass);
         }
-        
+
         nTaggedE = std::count_if(tagClassList.begin(), tagClassList.end(), [](int tagclass){ return tagclass==typeE; });
         nTaggedN = std::count_if(tagClassList.begin(), tagClassList.end(), [](int tagclass){ return tagclass==typeN; });
 
         EventNTagManager::ResetTaggableMapping(taggableTreeReader.cluster);
         EventNTagManager::Map(taggableTreeReader.cluster, ntagTreeReader.cluster, TMATCHWINDOW);
-        
+
         for (auto const& taggable: taggableTreeReader.cluster) {
             taggedTypeList.push_back(taggable.TaggedType());
         }
@@ -145,7 +145,7 @@ void CandidateTagger::Apply(std::string inFilePath, std::string outFilePath, NTa
 
     outFile->Close();
     inFile->Close();
-    
+
     OverrideSettings(outFilePath.c_str());
 
     fMsg.Print(fName + " application complete!                ");
@@ -168,7 +168,7 @@ void CandidateTagger::OverrideSettings(std::string outFilePath)
     b_TMATCHWINDOW->Fill();
     outSettingsTree->Write();
     //f->Delete(inSettingsTree);
-    
+
     f->Close();
 }
 

@@ -49,7 +49,7 @@ class NoiseManager
 
         // initialize from Store
         void ApplySettings(Store& store, int nInputEvents);
-        
+
         // event navigation within tree
         void GetNextNoiseEvent(); // checks trigger, tree size and current entry
         void SetNoiseEventHits(); // reads in noise hits from current noise entry
@@ -105,7 +105,7 @@ class NoiseManager
 
         PMTHitCluster fIDNoiseEventHits;
         PMTHitCluster fODNoiseEventHits;
-        
+
         Printer fMsg;
 };
 

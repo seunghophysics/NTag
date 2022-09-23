@@ -184,8 +184,8 @@ void EventNTagManager::ReadVariables()
     fEventVariables.Set("EventNo", skhead_.nevsk);
 
     // trigger information
-    int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT : 
-                  ((skhead_.idtgsk & 1<<28) ? tSHE : 
+    int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT :
+                  ((skhead_.idtgsk & 1<<28) ? tSHE :
                   ((skhead_.idtgsk & 1<< 1) ?  tHE : tELSE)));
     static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
@@ -382,7 +382,7 @@ void EventNTagManager::ReadInfoFromCommon()
 {
     ReadVariables();
 
-    if (fIsMC) 
+    if (fIsMC)
         ReadParticles();
     if (fSettings.GetBool("neut",false))
         ReadEarlyCandidates();
@@ -848,7 +848,7 @@ void EventNTagManager::PrepareEventHits()
     fEventVariables.Set("NLargeQHits", nLargeQHits);
 
     // deadtime, burst noise
-    auto nDead = fEventHits.ApplyDeadtime(PMTDEADTIME, true);    
+    auto nDead = fEventHits.ApplyDeadtime(PMTDEADTIME, true);
     fEventVariables.Set("NDeadHitsByNoise", nDead[1]);
     fEventVariables.Set("NDeadHitsBySignal", nDead[0]);
 
@@ -859,8 +859,8 @@ void EventNTagManager::PrepareEventHits()
     // fetch bad channels, dark rates
     FindReferenceRun();
 
-    int nBadIDPMTs = 0; int nBadODPMTs = 0; 
-    int nBadIDHits = 0; int nBadODHits = 0; 
+    int nBadIDPMTs = 0; int nBadODPMTs = 0;
+    int nBadIDHits = 0; int nBadODHits = 0;
 
     int allIDSize = fEventHits.SliceRange(T0TH, T0MX).GetSize();
     int allODSize = fEventODHits.SliceRange(T0TH, T0MX).GetSize();
@@ -1250,10 +1250,10 @@ void EventNTagManager::FindReferenceRun()
     if (!refRunNo) {
         refRunNo = skhead_.mdrnsk ? skhead_.nrunsk :
                    (skhead_.nrunsk != 999999 ? skhead_.nrunsk :
-                   ((fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 0)); 
+                   ((fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 0));
 
         if (!refRunNo)
-            fMsg.Print("Unable to determine reference run number for the input MC, " 
+            fMsg.Print("Unable to determine reference run number for the input MC, "
                        "specify reference run number with -REFRUNNO option.", pERROR);
     }
 
@@ -1272,7 +1272,7 @@ void EventNTagManager::FindReferenceRun()
             fMsg.Print(Form("Unable to fetch bad channel list for run %d", refRunNo), pERROR);
         }
         else {
-            fMsg.Print(Form("Unable to fetch bad channel list for run %d, " 
+            fMsg.Print(Form("Unable to fetch bad channel list for run %d, "
                             "fetching from the closest noise run %d...", refRunNo, newRefRunNo), pWARNING);
         }
         refRunNo = newRefRunNo;

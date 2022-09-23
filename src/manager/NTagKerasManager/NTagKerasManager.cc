@@ -9,7 +9,7 @@
 
 NTagKerasManager::NTagKerasManager()
 : fInputTensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1,14})),
-  fMsg("NTagKerasManager") 
+  fMsg("NTagKerasManager")
 {
     fInputData = fInputTensor.flat<float>().data();
 }
@@ -75,7 +75,7 @@ float NTagKerasManager::GetOutput(const Candidate& candidate)
     auto scaledFeatures = Transform(candidate);
     std::copy(scaledFeatures.begin(), scaledFeatures.end(), fInputData);
 
-    TF_CHECK_OK(fModel.session->Run({{fInputLayerName, fInputTensor}}, 
+    TF_CHECK_OK(fModel.session->Run({{fInputLayerName, fInputTensor}},
                         {fOutputLayerName}, {}, &fOutputTensorVector));
 
     return fOutputTensorVector.at(0).flat<float>()(0);

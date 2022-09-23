@@ -22,7 +22,7 @@ class BonsaiManager : public VertexFitManager
         void FitLOWFIT(const PMTHitCluster& hitCluster);
 
         inline unsigned int GetRefRunNo() { return fRefRunNo; }
-        inline void SetRefRunNo(unsigned int no) { fRefRunNo = no; } 
+        inline void SetRefRunNo(unsigned int no) { fRefRunNo = no; }
 
         inline float GetFitEnergy() { return fFitEnergy; }
         inline float GetFitDirKS() { return fFitDirKS; }

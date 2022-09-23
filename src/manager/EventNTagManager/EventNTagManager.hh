@@ -84,7 +84,7 @@ class EventNTagManager
         void SetTaggables(const TaggableCluster& cluster) { fEventTaggables = cluster; }
         void SetEarlyCandidates(const CandidateCluster& cluster) { fEventEarlyCandidates = cluster; }
         void SetCandidates(const CandidateCluster& cluster) { fEventCandidates = cluster; }
-        
+
         // MC taggable mapping
         static void Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, Float tMatchWindow=200);
         static void ResetTaggableMapping(TaggableCluster& taggableCluster);
@@ -95,7 +95,7 @@ class EventNTagManager
     private:
         // check if MC
         void CheckMC();
-    
+
         // ToF subtraction
         void ResetEventHitsVertex();
         //void SetToF(const TVector3& vertex);
@@ -123,10 +123,10 @@ class EventNTagManager
 
         // zbs common filling
         void FillNTagCommon();
-        
+
         // output data file
         SKIO* fOutDataFile;
-        
+
         // noise manager
         NoiseManager* fNoiseManager;
 

@@ -50,7 +50,7 @@ class PMTHit
         inline void SetBurstFlag(bool b) { fIsBurst=b; }
         inline void SetTagFlag(bool b) { fIsTagged=b; }
         //inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " F: " << fFlag << " ToF: " << fToF << "\n"; }
-        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF 
+        inline void Dump() const { std::cout << "T: " << fT << " Q: " << fQ << " I: " << fPMTID << " ToF: " << fToF
                                              << " S: " << fIsSignal << " B: " << fIsBurst << " Tag: " << fIsTagged
                                              << " dT: " << (fTDiff>1e308 ? std::string("") : std::to_string(fTDiff)) << "\n"; }
 
@@ -85,13 +85,13 @@ class PMTHit
 
         PMTHit& operator+=(const Float& time);
         PMTHit& operator-=(const Float& time);
-        
+
         bool operator==(const PMTHit& hit) const;
         bool operator!=(const PMTHit& hit) const;
 
-    private:    
+    private:
         PMTHit(): fT(0), fToF(0), fTDiff(0), fQ(0), fPMTID(0), fFlag(2), fIsSignal(false), fIsBurst(false), fIsTagged(false) {}
-    
+
     protected:
         Float fT, fToF, fTDiff;
         float fQ;
@@ -100,7 +100,7 @@ class PMTHit
         bool fIsSignal, fIsBurst, fIsTagged;
         TVector3 fPMTPosition;
         TVector3 fHitDirection;
-        
+
         //float fMinAngle;
         //float fDirAngle;
         //float fAcceptance;

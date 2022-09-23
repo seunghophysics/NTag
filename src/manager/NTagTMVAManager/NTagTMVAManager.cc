@@ -31,7 +31,7 @@ void NTagTMVAManager::InitializeReader(std::string weightPath)
         SetWeightPath(weightPath);
 
     fReader = new TMVA::Reader();
-    
+
     for (auto const& feature: gTMVAFeatures) {
         fFeatureContainer[feature] = 0;
         fReader->AddVariable(feature, &(fFeatureContainer[feature]));

@@ -43,14 +43,14 @@ void PMTHit::FindAcceptance()
 
     float dist = NTagConstant::C_WATER * fToF;
     TVector3 normalDir;
-    
+
     if (fabs(fPMTPosition.z()) < 1800)
         normalDir = TVector3(fPMTPosition.x(), fPMTPosition.y(), 0);
     else
         normalDir = TVector3(0, 0, fPMTPosition.z());
 
     float cosTheta = cos(fHitDirection.Angle(normalDir));
-    
+
     fAcceptance = coseffsk_(&cosTheta) * exp(-dist/attLenght)/dist/dist;
 }
 */

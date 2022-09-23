@@ -46,10 +46,10 @@ void SKIO::OpenFile()
         fMsg.Print("File path not specified!", pERROR);
 }
 
-void SKIO::SetFile(std::string filePath, IOMode mode) 
-{ 
-    fFilePath = filePath; 
-    fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS; 
+void SKIO::SetFile(std::string filePath, IOMode mode)
+{
+    fFilePath = filePath;
+    fFileFormat = fFilePath.EndsWith(".root") ? mSKROOT : mZBS;
     fIOMode = mode;
     if (fIOMode==mInput)
         fInFilePath = fFilePath;
@@ -132,7 +132,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     }
 
     fIsFileOpen = true;
-    
+
     if (fIOMode == mInput)
         fNEvents = GetNumberOfEvents();
 }
@@ -234,7 +234,7 @@ int SKIO::GetNumberOfEvents()
                 std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
 
-            CloseFile(); 
+            CloseFile();
             fNEvents = nEvents;
             if (wasFileOpen) OpenFile();
         }
@@ -283,7 +283,7 @@ void SKIO::SetRefRunNo(int refRunNo)
 {
     // auto
     if (!refRunNo) {
-        
+
     }
 
     // manual
@@ -399,6 +399,6 @@ float SKIO::GetMCTriggerOffset(FileFormat format)
         trginfo_(&trgOffset);
         trgOffset -= 1000;
     }
-    
+
     return trgOffset;
 }

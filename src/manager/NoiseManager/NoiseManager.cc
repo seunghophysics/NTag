@@ -22,7 +22,7 @@
 
 NoiseManager::NoiseManager()
 : fNoiseTree(0), fNoiseTreeName("data"),
-  fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"), 
+  fNoisePath("/disk02/calib3/usr/han/dummy"), fNoiseType("sk6"),
   fNoiseCut(Form("HEADER.idtgsk & %d || HEADER.idtgsk == %d || HEADER.idtgsk & %d", mRandomWide, mT2KDummy, mNickel)),
   fSKGen(6),
   fNoiseSeed(0),
@@ -195,7 +195,7 @@ void NoiseManager::SetNoiseTreeFromList(TString pathToList)
 {
     std::ifstream inFile;
     inFile.open(pathToList.Data());
-    
+
     // read in settings
     std::string option; float value;
     float startTime = fNoiseStartTime*1e-3 - 1;
@@ -217,7 +217,7 @@ void NoiseManager::SetNoiseTreeFromList(TString pathToList)
     TChain* dummyChain = new TChain(fNoiseTreeName);
     std::string dummyFilePath;
     while (std::getline(inFile, dummyFilePath)) {
-        if (dummyFilePath[0]=='/') 
+        if (dummyFilePath[0]=='/')
             AddNoiseFileToChain(dummyChain, dummyFilePath);
     }
 
@@ -251,7 +251,7 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     //auto pmtDeadtime = settings.GetFloat("PMTDEADTIME", 900);
     float pmtDeadtime = 900;
     auto debug       = settings.GetBool("debug", false);
-    
+
     SetSKGeneration(skGen);
     SetSeed(noiseSeed);
     SetNoiseMaxN200(idMaxN200, odMaxN200, doN200Cut);
@@ -276,7 +276,7 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
 
         SetRepeat(settings.GetBool("repeat_noise", true));
     }
-    
+
     DumpSettings();
 }
 
@@ -318,7 +318,7 @@ void NoiseManager::SetNoiseEventHits()
         auto odHist = Histogram(fODTQReal->T, 5000, -500e3, 500e3);
         for (int iBin=0; iBin<5000; iBin++) {
             if (odHist[iBin].second > fODMaxN200 | idHist[iBin].second > fIDMaxN200) {
-                fMsg.Print(Form("Rejecting noise event with OD N200 %d and ID N200 %d...", 
+                fMsg.Print(Form("Rejecting noise event with OD N200 %d and ID N200 %d...",
                                  odHist[iBin].second, idHist[iBin].second), pWARNING);
                 useThisNoiseEvent = false; break;
             }
@@ -343,7 +343,7 @@ void NoiseManager::SetNoiseEventHits()
 
         if (fNoiseEventLength < fNoiseWindowWidth) {
             fMsg.Print(Form("Noise event length %3.2f us is smaller than required window width %3.2f us, "
-                            "getting next noise event...", 
+                            "getting next noise event...",
                             fNoiseEventLength*1e-3, fNoiseWindowWidth*1e-3), pWARNING);
             GetNextNoiseEvent();
         }
