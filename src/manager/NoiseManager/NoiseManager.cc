@@ -249,7 +249,7 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     auto tNoiseEnd   = settings.GetFloat("TNOISEEND", 535);
     auto noiseSeed   = settings.GetInt("NOISESEED");
     //auto pmtDeadtime = settings.GetFloat("PMTDEADTIME", 900);
-    pmtDeadtime = 900;
+    float pmtDeadtime = 900;
     auto debug       = settings.GetBool("debug", false);
     
     SetSKGeneration(skGen);
