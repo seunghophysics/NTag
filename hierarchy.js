@@ -22,6 +22,7 @@ var hierarchy =
     [ "EventNTagManager", "classEventNTagManager.html", null ],
     [ "MuechkTree", "classMuechkTree.html", null ],
     [ "NoiseManager", "classNoiseManager.html", null ],
+    [ "NTagKerasManager", "classNTagKerasManager.html", null ],
     [ "NTagTMVAManager", "classNTagTMVAManager.html", null ],
     [ "NTagTree", "classNTagTree.html", null ],
     [ "OpeningAngleStats", "structOpeningAngleStats.html", null ],
@@ -45,6 +46,7 @@ var hierarchy =
       [ "TaggableCluster", "classTaggableCluster.html", null ],
       [ "TaggableCluster", "classTaggableCluster.html", null ]
     ] ],
+    [ "TriggerManager", "classTriggerManager.html", null ],
     [ "TSignalHandler", null, [
       [ "TInterruptHandler", "classTInterruptHandler.html", null ],
       [ "TInterruptHandler", "classTInterruptHandler.html", null ]

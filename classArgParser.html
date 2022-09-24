@@ -129,6 +129,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4">OptionExists</a> (const std::string &amp;option) const</td></tr>
 <tr class="memdesc:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if an option is specified.  <a href="classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4">More...</a><br /></td></tr>
 <tr class="separator:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd65a12be61c0ae4e7bff4b003d31583"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgParser.html#acd65a12be61c0ae4e7bff4b003d31583">DumpOptionPairs</a> ()</td></tr>
+<tr class="separator:acd65a12be61c0ae4e7bff4b003d31583"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a440b095d242b6d3e4c798185775f35ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgParser.html#a440b095d242b6d3e4c798185775f35ac">DumpTokens</a> ()</td></tr>
+<tr class="separator:a440b095d242b6d3e4c798185775f35ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22ff015b7fe0fe7a920e8f76a5c20363"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgParser.html#a22ff015b7fe0fe7a920e8f76a5c20363">ArgParser</a> (int &amp;argc, char **argv)</td></tr>
 <tr class="memdesc:a22ff015b7fe0fe7a920e8f76a5c20363"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of <a class="el" href="classArgParser.html" title="Argument parser used in the main function.">ArgParser</a>.  <a href="classArgParser.html#a22ff015b7fe0fe7a920e8f76a5c20363">More...</a><br /></td></tr>
 <tr class="separator:a22ff015b7fe0fe7a920e8f76a5c20363"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,11 +157,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4">OptionExists</a> (const std::string &amp;option) const</td></tr>
 <tr class="memdesc:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if an option is specified.  <a href="classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4">More...</a><br /></td></tr>
 <tr class="separator:a19b0fda7d6d95e6a4fca4bd1abcfaff4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd65a12be61c0ae4e7bff4b003d31583"><td class="memItemLeft" align="right" valign="top"><a id="acd65a12be61c0ae4e7bff4b003d31583" name="acd65a12be61c0ae4e7bff4b003d31583"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpOptionPairs</b> ()</td></tr>
+<tr class="separator:acd65a12be61c0ae4e7bff4b003d31583"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a440b095d242b6d3e4c798185775f35ac"><td class="memItemLeft" align="right" valign="top"><a id="a440b095d242b6d3e4c798185775f35ac" name="a440b095d242b6d3e4c798185775f35ac"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpTokens</b> ()</td></tr>
+<tr class="separator:a440b095d242b6d3e4c798185775f35ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Argument parser used in the main function. </p>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00036">36</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00037">37</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a97b3a17dbee46c34d7c70a45204710d5" name="a97b3a17dbee46c34d7c70a45204710d5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a97b3a17dbee46c34d7c70a45204710d5">&#9670;&nbsp;</a></span>ArgParser() <span class="overload">[1/5]</span></h2>
@@ -309,6 +319,44 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="acd65a12be61c0ae4e7bff4b003d31583" name="acd65a12be61c0ae4e7bff4b003d31583"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd65a12be61c0ae4e7bff4b003d31583">&#9670;&nbsp;</a></span>DumpOptionPairs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ArgParser::DumpOptionPairs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ArgParser_8cc_source.html#l00073">73</a> of file <a class="el" href="ArgParser_8cc_source.html">ArgParser.cc</a>.</p>
+
+</div>
+</div>
+<a id="a440b095d242b6d3e4c798185775f35ac" name="a440b095d242b6d3e4c798185775f35ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a440b095d242b6d3e4c798185775f35ac">&#9670;&nbsp;</a></span>DumpTokens()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ArgParser::DumpTokens </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ArgParser_8cc_source.html#l00078">78</a> of file <a class="el" href="ArgParser_8cc_source.html">ArgParser.cc</a>.</p>
+
+</div>
+</div>
 <a id="a4c4c5236e704de2d04b4b41e18491572" name="a4c4c5236e704de2d04b4b41e18491572"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4c4c5236e704de2d04b4b41e18491572">&#9670;&nbsp;</a></span>GetOption() <span class="overload">[1/2]</span></h2>
 
@@ -342,7 +390,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The subsequent argument if a flag is specified, otherwise an empty string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00088">88</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00090">90</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -379,7 +427,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The subsequent argument if a flag is specified, otherwise an empty string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00088">88</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00090">90</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -409,7 +457,7 @@ Public Member Functions</h2></td></tr>
 <p>Get the vector of option-value pairs. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of pairs, whose first string is an input option and the second string is the option's value. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00069">69</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00071">71</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -439,7 +487,7 @@ Public Member Functions</h2></td></tr>
 <p>Get the vector of option-value pairs. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of pairs, whose first string is an input option and the second string is the option's value. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00069">69</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00071">71</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -469,7 +517,7 @@ Public Member Functions</h2></td></tr>
 <p>Get the vector of saved tokens. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of tokens (strings). </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00081">81</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00083">83</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -499,7 +547,7 @@ Public Member Functions</h2></td></tr>
 <p>Get the vector of saved tokens. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of tokens (strings). </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00081">81</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00083">83</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -535,7 +583,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00058">58</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00059">59</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -571,7 +619,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00058">58</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00059">59</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -608,7 +656,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> if the option is specified, otherwise <code>false</code> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00103">103</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00105">105</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -645,7 +693,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> if the option is specified, otherwise <code>false</code> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00103">103</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00105">105</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -681,7 +729,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00075">75</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2ArgParser_8hh_source.html#l00077">77</a> of file <a class="el" href="include_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>
@@ -717,7 +765,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00075">75</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html#l00077">77</a> of file <a class="el" href="src_2tool_2ArgParser_2ArgParser_8hh_source.html">ArgParser.hh</a>.</p>
 
 </div>
 </div>

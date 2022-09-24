@@ -121,23 +121,30 @@ $(document).ready(function(){initNavTree('src_2var_2ParticleCluster_2ParticleClu
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordtype">void</span> FillTree();</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        <span class="comment">// pid</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        std::vector&lt;int&gt; fPIDVector;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        std::vector&lt;int&gt; fParentPIDVector;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        std::vector&lt;int&gt; fInteractionIDVector;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        std::vector&lt;float&gt; fTimeVector;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        std::vector&lt;float&gt; fXVector;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        std::vector&lt;float&gt; fYVector;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        std::vector&lt;float&gt; fZVector;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        std::vector&lt;float&gt; fPXVector;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        std::vector&lt;float&gt; fPYVector;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        std::vector&lt;float&gt; fPZVector;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        std::vector&lt;float&gt; fKEVector;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="comment">//ClassDef(ParticleCluster, 1)</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>};</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        <span class="keywordtype">void</span> FindParents();</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="comment">// pid</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        std::vector&lt;int&gt; fPIDVector;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        std::vector&lt;int&gt; fParentPIDVector;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        std::vector&lt;int&gt; fParentIndexVector;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        std::vector&lt;int&gt; fInteractionIDVector;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        std::vector&lt;float&gt; fTimeVector;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        std::vector&lt;float&gt; fXVector;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        std::vector&lt;float&gt; fYVector;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        std::vector&lt;float&gt; fZVector;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        std::vector&lt;float&gt; fPXVector;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        std::vector&lt;float&gt; fPYVector;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        std::vector&lt;float&gt; fPZVector;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        std::vector&lt;float&gt; fKEVector;</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        std::vector&lt;float&gt; fParentPXVector, fParentVXVector;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        std::vector&lt;float&gt; fParentPYVector, fParentVYVector;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        std::vector&lt;float&gt; fParentPZVector, fParentVZVector;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="comment">//ClassDef(ParticleCluster, 1)</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aclassCluster_html"><div class="ttname"><a href="classCluster.html">Cluster</a></div><div class="ttdoc">Vector-like dynamic container class.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Cluster_8hh_source.html#l00031">Cluster.hh:32</a></div></div>
 <div class="ttc" id="aclassParticleCluster_html"><div class="ttname"><a href="classParticleCluster.html">ParticleCluster</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2ParticleCluster_8hh_source.html#l00011">ParticleCluster.hh:12</a></div></div>
 <div class="ttc" id="aclassParticleCluster_html_a349b53c11aa06f4d56aeb0320303800f"><div class="ttname"><a href="classParticleCluster.html#a349b53c11aa06f4d56aeb0320303800f">ParticleCluster::DumpAllElements</a></div><div class="ttdeci">void DumpAllElements() const</div><div class="ttdoc">Prints out information of the saved elements. (virtual)</div></div>

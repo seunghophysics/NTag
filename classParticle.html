@@ -100,8 +100,8 @@ $(document).ready(function(){initNavTree('classParticle.html',''); initResizable
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a29087cddf424cd71eae837238ec7b46e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a29087cddf424cd71eae837238ec7b46e">Particle</a> (int id, float time, TVector3 vtx, TVector3 mom, int parPID=0, unsigned int interactionID=0)</td></tr>
-<tr class="separator:a29087cddf424cd71eae837238ec7b46e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0753c5a6b2714be9b6fdb1b7e78dbcf1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a0753c5a6b2714be9b6fdb1b7e78dbcf1">Particle</a> (int id, float time, TVector3 vtx, TVector3 mom, int parPID=0, unsigned int interactionID=0, TVector3 parVtx=TVector3(), TVector3 parMom=TVector3())</td></tr>
+<tr class="separator:a0753c5a6b2714be9b6fdb1b7e78dbcf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf83c64fcc89672c7dd90b8b321e907d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#abf83c64fcc89672c7dd90b8b321e907d">PID</a> () const</td></tr>
 <tr class="separator:abf83c64fcc89672c7dd90b8b321e907d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e6c078be088f08975641d8d36990bca"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a3e6c078be088f08975641d8d36990bca">Time</a> () const</td></tr>
@@ -116,6 +116,16 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a03587f9644b97820f9bb01eb37fac80f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c6566466efcd1a0ecd516536d9b78ad"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a2c6566466efcd1a0ecd516536d9b78ad">ParentPID</a> () const</td></tr>
 <tr class="separator:a2c6566466efcd1a0ecd516536d9b78ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7948c7137fb9947434263ca2357a9156"><td class="memItemLeft" align="right" valign="top">TVector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a7948c7137fb9947434263ca2357a9156">ParentVertex</a> () const</td></tr>
+<tr class="separator:a7948c7137fb9947434263ca2357a9156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a76abb4b98b3d01fc27633970cb523b"><td class="memItemLeft" align="right" valign="top">TVector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a6a76abb4b98b3d01fc27633970cb523b">ParentMomentum</a> () const</td></tr>
+<tr class="separator:a6a76abb4b98b3d01fc27633970cb523b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a456affa1d3a1d44ddff36594f92ef62b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a456affa1d3a1d44ddff36594f92ef62b">ParentIndex</a> () const</td></tr>
+<tr class="separator:a456affa1d3a1d44ddff36594f92ef62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a78d92ef51e66370b266408083e3150"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a0a78d92ef51e66370b266408083e3150">SetParentIndex</a> (int parIndex)</td></tr>
+<tr class="separator:a0a78d92ef51e66370b266408083e3150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa4eed05df124d30657b8e36ee008dad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#afa4eed05df124d30657b8e36ee008dad">IsDaughterOf</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
+<tr class="separator:afa4eed05df124d30657b8e36ee008dad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa266d16ca26ff457eca6ad1c892e3ba1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#aa266d16ca26ff457eca6ad1c892e3ba1">operator==</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
 <tr class="separator:aa266d16ca26ff457eca6ad1c892e3ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4ad8a852e68b5b3b0e63771371529eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#ad4ad8a852e68b5b3b0e63771371529eb">operator!=</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
@@ -126,9 +136,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a650cb89158ceb7e06f133dd2d2b3ff3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6286df21391b156853382f7b8b805cf4"><td class="memItemLeft" align="right" valign="top">TString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a6286df21391b156853382f7b8b805cf4">GetIntName</a> () const</td></tr>
 <tr class="separator:a6286df21391b156853382f7b8b805cf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29087cddf424cd71eae837238ec7b46e"><td class="memItemLeft" align="right" valign="top"><a id="a29087cddf424cd71eae837238ec7b46e" name="a29087cddf424cd71eae837238ec7b46e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Particle</b> (int id, float time, TVector3 vtx, TVector3 mom, int parPID=0, unsigned int interactionID=0)</td></tr>
-<tr class="separator:a29087cddf424cd71eae837238ec7b46e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0753c5a6b2714be9b6fdb1b7e78dbcf1"><td class="memItemLeft" align="right" valign="top"><a id="a0753c5a6b2714be9b6fdb1b7e78dbcf1" name="a0753c5a6b2714be9b6fdb1b7e78dbcf1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Particle</b> (int id, float time, TVector3 vtx, TVector3 mom, int parPID=0, unsigned int interactionID=0, TVector3 parVtx=TVector3(), TVector3 parMom=TVector3())</td></tr>
+<tr class="separator:a0753c5a6b2714be9b6fdb1b7e78dbcf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf83c64fcc89672c7dd90b8b321e907d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#abf83c64fcc89672c7dd90b8b321e907d">PID</a> () const</td></tr>
 <tr class="separator:abf83c64fcc89672c7dd90b8b321e907d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e6c078be088f08975641d8d36990bca"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a3e6c078be088f08975641d8d36990bca">Time</a> () const</td></tr>
@@ -143,6 +153,16 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a03587f9644b97820f9bb01eb37fac80f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c6566466efcd1a0ecd516536d9b78ad"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a2c6566466efcd1a0ecd516536d9b78ad">ParentPID</a> () const</td></tr>
 <tr class="separator:a2c6566466efcd1a0ecd516536d9b78ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7948c7137fb9947434263ca2357a9156"><td class="memItemLeft" align="right" valign="top">TVector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a7948c7137fb9947434263ca2357a9156">ParentVertex</a> () const</td></tr>
+<tr class="separator:a7948c7137fb9947434263ca2357a9156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a76abb4b98b3d01fc27633970cb523b"><td class="memItemLeft" align="right" valign="top">TVector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a6a76abb4b98b3d01fc27633970cb523b">ParentMomentum</a> () const</td></tr>
+<tr class="separator:a6a76abb4b98b3d01fc27633970cb523b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a456affa1d3a1d44ddff36594f92ef62b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a456affa1d3a1d44ddff36594f92ef62b">ParentIndex</a> () const</td></tr>
+<tr class="separator:a456affa1d3a1d44ddff36594f92ef62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a78d92ef51e66370b266408083e3150"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#a0a78d92ef51e66370b266408083e3150">SetParentIndex</a> (int parIndex)</td></tr>
+<tr class="separator:a0a78d92ef51e66370b266408083e3150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa4eed05df124d30657b8e36ee008dad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#afa4eed05df124d30657b8e36ee008dad">IsDaughterOf</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
+<tr class="separator:afa4eed05df124d30657b8e36ee008dad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa266d16ca26ff457eca6ad1c892e3ba1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#aa266d16ca26ff457eca6ad1c892e3ba1">operator==</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
 <tr class="separator:aa266d16ca26ff457eca6ad1c892e3ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4ad8a852e68b5b3b0e63771371529eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticle.html#ad4ad8a852e68b5b3b0e63771371529eb">operator!=</a> (const <a class="el" href="classParticle.html">Particle</a> &amp;particle) const</td></tr>
@@ -187,8 +207,8 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 
 </div>
 </div>
-<a id="a29087cddf424cd71eae837238ec7b46e" name="a29087cddf424cd71eae837238ec7b46e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a29087cddf424cd71eae837238ec7b46e">&#9670;&nbsp;</a></span>Particle() <span class="overload">[2/3]</span></h2>
+<a id="a0753c5a6b2714be9b6fdb1b7e78dbcf1" name="a0753c5a6b2714be9b6fdb1b7e78dbcf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0753c5a6b2714be9b6fdb1b7e78dbcf1">&#9670;&nbsp;</a></span>Particle() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,7 +247,19 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>interactionID</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>interactionID</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TVector3&#160;</td>
+          <td class="paramname"><em>parVtx</em> = <code>TVector3()</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TVector3&#160;</td>
+          <td class="paramname"><em>parMom</em> = <code>TVector3()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -293,7 +325,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00036">36</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00048">48</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -321,7 +353,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00036">36</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00048">48</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -348,7 +380,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00026">26</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00028">28</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -375,7 +407,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00026">26</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00028">28</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -394,7 +426,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="Particle_8cc_source.html#l00013">13</a> of file <a class="el" href="Particle_8cc_source.html">Particle.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Particle_8cc_source.html#l00015">15</a> of file <a class="el" href="Particle_8cc_source.html">Particle.cc</a>.</p>
 
 </div>
 </div>
@@ -413,7 +445,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="Particle_8cc_source.html#l00008">8</a> of file <a class="el" href="Particle_8cc_source.html">Particle.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Particle_8cc_source.html#l00010">10</a> of file <a class="el" href="Particle_8cc_source.html">Particle.cc</a>.</p>
 
 </div>
 </div>
@@ -440,7 +472,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00027">27</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00029">29</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -467,7 +499,63 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00027">27</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00029">29</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="afa4eed05df124d30657b8e36ee008dad" name="afa4eed05df124d30657b8e36ee008dad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4eed05df124d30657b8e36ee008dad">&#9670;&nbsp;</a></span>IsDaughterOf() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Particle::IsDaughterOf </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classParticle.html">Particle</a> &amp;&#160;</td>
+          <td class="paramname"><em>particle</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00036">36</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="afa4eed05df124d30657b8e36ee008dad" name="afa4eed05df124d30657b8e36ee008dad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4eed05df124d30657b8e36ee008dad">&#9670;&nbsp;</a></span>IsDaughterOf() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Particle::IsDaughterOf </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classParticle.html">Particle</a> &amp;&#160;</td>
+          <td class="paramname"><em>particle</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00036">36</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -494,7 +582,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00025">25</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00027">27</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -521,7 +609,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00025">25</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00027">27</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -549,7 +637,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00034">34</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00046">46</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -577,7 +665,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00034">34</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00046">46</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -605,7 +693,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00030">30</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00042">42</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -633,7 +721,115 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00030">30</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00042">42</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a456affa1d3a1d44ddff36594f92ef62b" name="a456affa1d3a1d44ddff36594f92ef62b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a456affa1d3a1d44ddff36594f92ef62b">&#9670;&nbsp;</a></span>ParentIndex() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Particle::ParentIndex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00033">33</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a456affa1d3a1d44ddff36594f92ef62b" name="a456affa1d3a1d44ddff36594f92ef62b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a456affa1d3a1d44ddff36594f92ef62b">&#9670;&nbsp;</a></span>ParentIndex() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Particle::ParentIndex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00033">33</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a6a76abb4b98b3d01fc27633970cb523b" name="a6a76abb4b98b3d01fc27633970cb523b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a76abb4b98b3d01fc27633970cb523b">&#9670;&nbsp;</a></span>ParentMomentum() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 Particle::ParentMomentum </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00032">32</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a6a76abb4b98b3d01fc27633970cb523b" name="a6a76abb4b98b3d01fc27633970cb523b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a76abb4b98b3d01fc27633970cb523b">&#9670;&nbsp;</a></span>ParentMomentum() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 Particle::ParentMomentum </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00032">32</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -660,7 +856,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00028">28</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00030">30</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -687,7 +883,61 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00028">28</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00030">30</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a7948c7137fb9947434263ca2357a9156" name="a7948c7137fb9947434263ca2357a9156"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7948c7137fb9947434263ca2357a9156">&#9670;&nbsp;</a></span>ParentVertex() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 Particle::ParentVertex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00031">31</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a7948c7137fb9947434263ca2357a9156" name="a7948c7137fb9947434263ca2357a9156"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7948c7137fb9947434263ca2357a9156">&#9670;&nbsp;</a></span>ParentVertex() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 Particle::ParentVertex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00031">31</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -714,7 +964,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00022">22</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00024">24</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -741,7 +991,63 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00022">22</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00024">24</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a0a78d92ef51e66370b266408083e3150" name="a0a78d92ef51e66370b266408083e3150"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a78d92ef51e66370b266408083e3150">&#9670;&nbsp;</a></span>SetParentIndex() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Particle::SetParentIndex </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>parIndex</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00034">34</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+
+</div>
+</div>
+<a id="a0a78d92ef51e66370b266408083e3150" name="a0a78d92ef51e66370b266408083e3150"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a78d92ef51e66370b266408083e3150">&#9670;&nbsp;</a></span>SetParentIndex() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Particle::SetParentIndex </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>parIndex</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00034">34</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -768,7 +1074,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00023">23</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00025">25</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -795,7 +1101,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00023">23</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00025">25</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -822,7 +1128,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00024">24</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2Particle_8hh_source.html#l00026">26</a> of file <a class="el" href="include_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>
@@ -849,7 +1155,7 @@ TString&#160;</td><td class="memItemRight" valign="bottom"><b>GetIntName</b> () 
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00024">24</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html#l00026">26</a> of file <a class="el" href="src_2var_2ParticleCluster_2Particle_2Particle_8hh_source.html">Particle.hh</a>.</p>
 
 </div>
 </div>

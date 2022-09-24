@@ -42,7 +42,7 @@ var NAVTREE =
       [ "Signal search parameters", "command-line-options.html#signal-search-parameters", null ],
       [ "Tagging conditions", "command-line-options.html#tag-cond-option", null ],
       [ "Dark noise", "command-line-options.html#dark-noise-option", null ],
-      [ "PMT noise reduction", "command-line-options.html#autotoc_md8", null ],
+      [ "Variables for output variables", "command-line-options.html#autotoc_md8", null ],
       [ "Event cut", "command-line-options.html#autotoc_md9", null ],
       [ "SK I/O", "command-line-options.html#autotoc_md10", null ],
       [ "Output", "command-line-options.html#cl-output", null ],
@@ -84,7 +84,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ArgParser_8cc_source.html",
-"include_2TaggableCluster_8hh_source.html"
+"include_2ParticleTable_8hh_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -13,6 +13,7 @@ var dir_d44c64559bbebec7f509842c48db8b23 =
     [ "NoiseManager.hh", "include_2NoiseManager_8hh_source.html", null ],
     [ "NTagBankIO.hh", "include_2NTagBankIO_8hh_source.html", null ],
     [ "NTagGlobal.hh", "include_2NTagGlobal_8hh_source.html", null ],
+    [ "NTagKerasManager.hh", "include_2NTagKerasManager_8hh_source.html", null ],
     [ "NTagTMVAManager.hh", "include_2NTagTMVAManager_8hh_source.html", null ],
     [ "NTagTree.hh", "include_2NTagTree_8hh_source.html", null ],
     [ "Particle.hh", "include_2Particle_8hh_source.html", null ],
@@ -28,6 +29,7 @@ var dir_d44c64559bbebec7f509842c48db8b23 =
     [ "TaggableCluster.hh", "include_2TaggableCluster_8hh_source.html", null ],
     [ "TaggableTree.hh", "include_2TaggableTree_8hh_source.html", null ],
     [ "TreeOut.hh", "include_2TreeOut_8hh_source.html", null ],
+    [ "TriggerManager.hh", "include_2TriggerManager_8hh_source.html", null ],
     [ "TRMSFitManager.hh", "include_2TRMSFitManager_8hh_source.html", null ],
     [ "VertexFitManager.hh", "include_2VertexFitManager_8hh.html", "include_2VertexFitManager_8hh" ]
 ];

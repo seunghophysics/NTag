@@ -126,23 +126,11 @@ Vertex</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-PVXBIAS</code>   </td><td class="markdownTableBodyNone">Prompt vertex bias (cm) (for <code>true</code> mode only)   </td><td class="markdownTableBodyCenter">0    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-delayed_vertex</code>   </td><td class="markdownTableBodyNone">One of <code>trms</code>, <code>bonsai</code>, <code>prompt</code>   </td><td class="markdownTableBodyCenter"><code>bonsai</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>-correct_tof</code>   </td><td class="markdownTableBodyNone"><code>true</code> if correcting ToF from prompt vertex, otherwise <code>false</code>   </td><td class="markdownTableBodyCenter"><code>true</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-delayed_vertex</code>   </td><td class="markdownTableBodyNone">One of <code>trms</code>, <code>bonsai</code>, <code>prompt</code>, <code>lowfit</code>   </td><td class="markdownTableBodyCenter"><code>bonsai</code>   </td></tr>
 </table>
-<p >Prompt vertex options:</p><ul>
-<li><code>none</code>:</li>
-<li><code>apfit</code>:</li>
-<li><code>bonsai</code>:</li>
-<li><code>custom</code>:</li>
-<li><code>true</code>:</li>
-<li><code>stmu</code>:</li>
-<li><code>fitqun</code>:</li>
-</ul>
-<p >Delayed vertex options:</p><ul>
-<li><code>bonsai</code>:</li>
-<li><code>lowfit</code>:</li>
-<li><code>trms</code>:</li>
-<li><code>prompt</code>:</li>
-</ul>
+<p >N.B. <code>-prompt_vertex none</code> automatically turns on <code>-correct_tof false</code>.</p>
 <h1><a class="anchor" id="signal-search-parameters"></a>
 Signal search parameters</h1>
 <table class="markdownTable">
@@ -153,17 +141,23 @@ Signal search parameters</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-TMAX</code>   </td><td class="markdownTableBodyNone">Search end time relative to event trigger (µs)   </td><td class="markdownTableBodyCenter">535    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-QMAX</code>   </td><td class="markdownTableBodyNone">Maximum allowed PMT hit charge (p.e.)   </td><td class="markdownTableBodyCenter">10    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-TWIDTH</code>   </td><td class="markdownTableBodyNone">Time window width of signal trigger (ns)   </td><td class="markdownTableBodyCenter">14    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-NHITSTH</code>   </td><td class="markdownTableBodyNone">Threshold number of hits within trigger time window   </td><td class="markdownTableBodyCenter">7    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-NHITSMX</code>   </td><td class="markdownTableBodyNone">Maximum number of hits within trigger time window   </td><td class="markdownTableBodyCenter">400    </td></tr>
+<td class="markdownTableBodyNone"><code>-NHITSTH</code>   </td><td class="markdownTableBodyNone">Hit trigger for candidate selection   </td><td class="markdownTableBodyCenter">7    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-NHITSMX</code>   </td><td class="markdownTableBodyNone">Maximum number of hits for hit trigger   </td><td class="markdownTableBodyCenter">400    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-N200MX</code>   </td><td class="markdownTableBodyNone">Maximum number of hits within 200 ns   </td><td class="markdownTableBodyCenter">1000    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-TMINPEAKSEP</code>   </td><td class="markdownTableBodyNone">Minimum time separation between two signal triggers (ns)   </td><td class="markdownTableBodyCenter">200    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-TCANWIDTH</code>   </td><td class="markdownTableBodyNone">Time window width to calculate features   </td><td class="markdownTableBodyCenter">14   </td></tr>
+<td class="markdownTableBodyNone"><code>-TMINPEAKSEP</code>   </td><td class="markdownTableBodyNone">Minimum time separation between two signal triggers (ns)   </td><td class="markdownTableBodyCenter">200    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-TCANWIDTH</code>   </td><td class="markdownTableBodyNone">Time window width to calculate features   </td><td class="markdownTableBodyCenter">14    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-MINNHITS</code>   </td><td class="markdownTableBodyNone">Minimum number of allowed hits in the output   </td><td class="markdownTableBodyCenter">7    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-MAXNHITS</code>   </td><td class="markdownTableBodyNone">Maximum number of allowed hits in the ouptut   </td><td class="markdownTableBodyCenter">400   </td></tr>
 </table>
 <h1><a class="anchor" id="tag-cond-option"></a>
 Tagging conditions</h1>
@@ -174,10 +168,12 @@ Tagging conditions</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-TMATCHWINDOW</code>   </td><td class="markdownTableBodyNone">Maximum time window to match candidate with true taggable (ns)   </td><td class="markdownTableBodyCenter">50    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-weight</code>   </td><td class="markdownTableBodyNone">TMVA weight file (.xml)   </td><td class="markdownTableBodyCenter"><code>default</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>-NN_type</code>   </td><td class="markdownTableBodyNone"><code>keras</code> or <code>tmva</code>   </td><td class="markdownTableBodyCenter"><code>keras</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-E_CUTS</code>   </td><td class="markdownTableBodyNone">Cuts for decay-e selection   </td><td class="markdownTableBodyCenter"><code>(TagOut&gt;0.7)&amp;&amp;(NHits&gt;50)&amp;&amp;(FitT&lt;20)</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>-weight</code>   </td><td class="markdownTableBodyNone">TMVA weight file (.xml)   </td><td class="markdownTableBodyCenter"><code>default</code>    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-E_CUTS</code>   </td><td class="markdownTableBodyNone">Cuts for decay-e selection   </td><td class="markdownTableBodyCenter"><code>(TagOut&gt;0.7)&amp;&amp;(NHits&gt;50)&amp;&amp;(FitT&lt;20)</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-N_CUTS</code>   </td><td class="markdownTableBodyNone">Cuts for neutron capture selection   </td><td class="markdownTableBodyCenter"><code>(TagOut&gt;0.7)</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="dark-noise-option"></a>
@@ -189,22 +185,32 @@ Dark noise</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-add_noise</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyCenter"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>-noise_type</code>   </td><td class="markdownTableBodyNone">One of <code>sk5</code>, <code>sk6</code>, <code>ambe</code>   </td><td class="markdownTableBodyCenter"><code>sk6</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>-repeat_noise</code>   </td><td class="markdownTableBodyNone"><code>true</code> if allowing repetition for limited amount of noise   </td><td class="markdownTableBodyCenter"><code>true</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-noise_path</code>   </td><td class="markdownTableBodyNone">Directory path to search for noise files   </td><td class="markdownTableBodyCenter"><code>/disk02/calib3/usr/han/dummy</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-noise_type</code>   </td><td class="markdownTableBodyNone">One of <code>sk4</code>, <code>sk5</code>, <code>sk6</code>, <code>ambe</code>, or <code>default</code> (auto)   </td><td class="markdownTableBodyCenter"><code>default</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-TNOISESTART</code>   </td><td class="markdownTableBodyNone">Noise addition start time from event trigger (µs)   </td><td class="markdownTableBodyCenter">2    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-TNOISEEND</code>   </td><td class="markdownTableBodyNone">Noise addition end time from event trigger (µs)   </td><td class="markdownTableBodyCenter">536    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-NOISESEED</code>   </td><td class="markdownTableBodyNone">Random seed   </td><td class="markdownTableBodyCenter">0   </td></tr>
+<td class="markdownTableBodyNone"><code>-NOISESEED</code>   </td><td class="markdownTableBodyNone">Random seed   </td><td class="markdownTableBodyCenter">0    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-PMTDEADTIME</code>   </td><td class="markdownTableBodyNone">Artificial PMT deadtime (ns)   </td><td class="markdownTableBodyCenter">1000   </td></tr>
 </table>
-<p >When <code>-add_noise true</code> option is used, dark noise hits randomly extracted from dummy trigger data files stored in <code>/disk02/calib3/usr/han/dummy</code> are appended to the input SK MC before signal search starts. Note that <code>-NOISESEED 0</code> (which is default) will set a seed used in the random number generator according to the current UNIX time.</p>
+<p >When <code>-add_noise true</code> option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by <code>-noise_path</code> (<code>/disk02/calib3/usr/han/dummy</code> by default) are appended to the input SK MC before signal search starts. Note that <code>-NOISESEED 0</code> (which is default) will set a seed used in the random number generator according to the current UNIX time.</p>
 <h1><a class="anchor" id="autotoc_md8"></a>
-PMT noise reduction</h1>
+Variables for output variables</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadCenter">Default    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>-TRBNWIDTH</code>   </td><td class="markdownTableBodyNone">PMT deadtime (µs)   </td><td class="markdownTableBodyCenter">0   </td></tr>
+<td class="markdownTableBodyNone"><code>-TGATEMIN</code>   </td><td class="markdownTableBodyNone">Minimum hit time from trigger for QISMSK calculation (µs)   </td><td class="markdownTableBodyCenter">-0.5208    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-TGATEMAX</code>   </td><td class="markdownTableBodyNone">Maximum hit time from trigger for QISMSK calculation (µs)   </td><td class="markdownTableBodyCenter">0.7792    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-TRBNWIDTH</code>   </td><td class="markdownTableBodyNone">Time window width for burst noise (ns)   </td><td class="markdownTableBodyCenter">10000   </td></tr>
 </table>
 <h1><a class="anchor" id="autotoc_md9"></a>
 Event cut</h1>
@@ -212,6 +218,8 @@ Event cut</h1>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadCenter">Default    </th></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-NIDHITSMX</code>   </td><td class="markdownTableBodyNone">Maximum # of ID hits to allow   </td><td class="markdownTableBodyCenter">1000000    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-NODHITSMX</code>   </td><td class="markdownTableBodyNone">Maximum # of OD hits to allow   </td><td class="markdownTableBodyCenter">100000   </td></tr>
 </table>
 <h1><a class="anchor" id="autotoc_md10"></a>
@@ -279,7 +287,7 @@ Macro rules</h1>
 <div class="line">-out otherpath/output.root</div>
 <div class="line"> </div>
 <div class="line"># options</div>
-<div class="line">-usetruevertex</div>
+<div class="line">-prompt true</div>
 </div><!-- fragment --><p >A macro can be used in conjunction with command line arguments, for example: <code>NTag -in input.zbs -macro macro.txt</code> The priority order is command line arguments &gt; macro &gt; <a href="NTagConfig_source.html">NTagConfig</a>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->

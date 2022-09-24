@@ -116,7 +116,7 @@ Getting Started</h1>
 Dependencies</h2>
 <blockquote class="doxtable">
 <p >&zwj;CERNLIB 2005</p>
-<p >SKOFL: <code>skofl_trunk</code> or newer</p>
+<p >SKOFL: <code>skofl_22a</code> or newer</p>
 <p >ATMPD: <code>ATMPD_21a</code> or newer</p>
 <p >ROOT: <code>v5.38.34</code> </p>
 </blockquote>
@@ -124,7 +124,7 @@ Dependencies</h2>
 How to install</h2>
 <div class="fragment"><div class="line">git clone https://github.com/seunghophysics/NTag.git</div>
 <div class="line">cd NTag &amp;&amp; make</div>
-</div><!-- fragment --><p> Set the environment variables $PATH and $NTAGLIBPATH automatically by typing in the following commands.</p>
+</div><!-- fragment --><p> Set the environment variables <code>$PATH</code> and <code>$NTAGLIBPATH</code>.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Shell type   </th><th class="markdownTableHeadNone">Install command   </th><th class="markdownTableHeadNone">Uninstall command    </th></tr>
@@ -133,6 +133,7 @@ How to install</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">csh/tcsh   </td><td class="markdownTableBodyNone"><code>source path/csh set</code>   </td><td class="markdownTableBodyNone"><code>source path/csh unset</code>   </td></tr>
 </table>
+<p >N.B. These commands will overwrite your shell config files, i.e., <code>.bashrc</code>, <code>.cshrc</code>, or <code>.tcshrc</code>, so that the set environment variables will be reconfigured automatically when you start up your shell. Once you've installed these varaibles there's no need to re-install every time you run executables, unless you have multiple copies of NTag installed.</p>
 <h2><a class="anchor" id="autotoc_md4"></a>
 How to run executables</h2>
 <p >Once you install NTag, there will be executables created in a directory named <code>bin</code>.</p>

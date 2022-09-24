@@ -106,14 +106,14 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;EventNTagManager.hh&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>CandidateTagger::CandidateTagger(std::string fitterName, Verbosity verbose)</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>: fECuts(<span class="stringliteral">&quot;0&quot;</span>), fNCuts(<span class="stringliteral">&quot;0&quot;</span>), fECutFormula(nullptr), fNCutFormula(nullptr), TMATCHWINDOW(50), </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>: fECuts(<span class="stringliteral">&quot;0&quot;</span>), fNCuts(<span class="stringliteral">&quot;0&quot;</span>), fECutFormula(nullptr), fNCutFormula(nullptr), TMATCHWINDOW(50),</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  fMsg(fitterName.c_str(), verbose)</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>{ </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>{</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    fName = fitterName;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; key: gMuechkFeatures)</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        fFeatureMap[key] = 0;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; key: gNTagFeatures)</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        fFeatureMap[key] = 0;</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
@@ -176,7 +176,7 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        fMsg.<a class="code hl_function" href="classPrinter.html#a296e5254efcb5b6bd734ea63ff60785f">Print</a>(<span class="stringliteral">&quot;Cloning muechk tree...&quot;</span>);</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        outMuechkTree = inMuechkTree-&gt;CloneTree();</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    }</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_class" href="classNTagTree.html">NTagTree</a> ntagTreeReader(inNtagTree);</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_class" href="classTaggableTree.html">TaggableTree</a> taggableTreeReader(inTaggableTree);</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
@@ -214,13 +214,13 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>            tagOutList.push_back(tagOut);</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>            tagClassList.push_back(tagClass);</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        }</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        nTaggedE = std::count_if(tagClassList.begin(), tagClassList.end(), [](<span class="keywordtype">int</span> tagclass){ return tagclass==typeE; });</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        nTaggedN = std::count_if(tagClassList.begin(), tagClassList.end(), [](<span class="keywordtype">int</span> tagclass){ return tagclass==typeN; });</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        EventNTagManager::ResetTaggableMapping(taggableTreeReader.cluster);</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        EventNTagManager::Map(taggableTreeReader.cluster, ntagTreeReader.cluster, TMATCHWINDOW);</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; taggable: taggableTreeReader.cluster) {</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>            taggedTypeList.push_back(taggable.TaggedType());</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        }</div>
@@ -241,7 +241,7 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    outFile-&gt;Close();</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    inFile-&gt;Close();</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    OverrideSettings(outFilePath.c_str());</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    fMsg.<a class="code hl_function" href="classPrinter.html#a296e5254efcb5b6bd734ea63ff60785f">Print</a>(fName + <span class="stringliteral">&quot; application complete!                &quot;</span>);</div>
@@ -264,7 +264,7 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    b_TMATCHWINDOW-&gt;Fill();</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    outSettingsTree-&gt;Write();</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="comment">//f-&gt;Delete(inSettingsTree);</span></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    f-&gt;Close();</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>}</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
@@ -282,8 +282,8 @@ $(document).ready(function(){initNavTree('CandidateTagger_8cc_source.html',''); 
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    ClearTree();</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">return</span> tagClass;</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>}</div>
-<div class="ttc" id="aclassCandidate_html"><div class="ttname"><a href="classCandidate.html">Candidate</a></div><div class="ttdoc">The container of signal candidate's features.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00045">Candidate.hh:46</a></div></div>
-<div class="ttc" id="aclassCandidate_html_a65ec87281ccda52ff3e9acb1d0c785bb"><div class="ttname"><a href="classCandidate.html#a65ec87281ccda52ff3e9acb1d0c785bb">Candidate::GetFeatureMap</a></div><div class="ttdeci">const std::map&lt; std::string, float &gt; &amp; GetFeatureMap() const</div><div class="ttdoc">Returns the registered feature map.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00106">Candidate.hh:106</a></div></div>
+<div class="ttc" id="aclassCandidate_html"><div class="ttname"><a href="classCandidate.html">Candidate</a></div><div class="ttdoc">The container of signal candidate's features.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00047">Candidate.hh:48</a></div></div>
+<div class="ttc" id="aclassCandidate_html_a65ec87281ccda52ff3e9acb1d0c785bb"><div class="ttname"><a href="classCandidate.html#a65ec87281ccda52ff3e9acb1d0c785bb">Candidate::GetFeatureMap</a></div><div class="ttdeci">const std::map&lt; std::string, float &gt; &amp; GetFeatureMap() const</div><div class="ttdoc">Returns the registered feature map.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00108">Candidate.hh:108</a></div></div>
 <div class="ttc" id="aclassNTagTMVAManager_html"><div class="ttname"><a href="classNTagTMVAManager.html">NTagTMVAManager</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2NTagTMVAManager_8hh_source.html#l00016">NTagTMVAManager.hh:17</a></div></div>
 <div class="ttc" id="aclassNTagTree_html"><div class="ttname"><a href="classNTagTree.html">NTagTree</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2NTagTree_8hh_source.html#l00018">NTagTree.hh:18</a></div></div>
 <div class="ttc" id="aclassPrinter_html_a296e5254efcb5b6bd734ea63ff60785f"><div class="ttname"><a href="classPrinter.html#a296e5254efcb5b6bd734ea63ff60785f">Printer::Print</a></div><div class="ttdeci">virtual void Print(TString line, Verbosity vType=pDEFAULT, bool newLine=true)</div><div class="ttdoc">Prints one-liners.</div><div class="ttdef"><b>Definition:</b> <a href="Printer_8cc_source.html#l00026">Printer.cc:26</a></div></div>

@@ -127,8 +127,32 @@ event</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">TrgType   </td><td class="markdownTableBodyNone">Trigger type: SHE+AFT: 2, SHE-only: 1, Else: 0    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">TDiff   </td><td class="markdownTableBodyNone">Time from previous event (msec)   </td></tr>
+<td class="markdownTableBodyNone">TDiff   </td><td class="markdownTableBodyNone">Time from previous event (msec)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NCandidates   </td><td class="markdownTableBodyNone">Number of signal candidates (same as <code>ntag</code> tree)   </td></tr>
 </table>
+<ul>
+<li>Number of hits within neutron search range</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Branch name   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NAllHits   </td><td class="markdownTableBodyNone"># of all good ID hits    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">NAllODHits   </td><td class="markdownTableBodyNone"># of all good OD hits    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NBadHits   </td><td class="markdownTableBodyNone"># of all masked bad ID hits    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">NNegativeHits   </td><td class="markdownTableBodyNone"># of all masked ID hits with negative charge    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NLargeQHits   </td><td class="markdownTableBodyNone"># of all masked ID hits with charge larger than QMAX    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">NDeadHitsByNoise   </td><td class="markdownTableBodyNone"># of all dead ID hits due to noise hits    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NDeadHitsBySignal   </td><td class="markdownTableBodyNone"># of all dead ID hits due to signal hits   </td></tr>
+</table>
+<p >Deadtime is determined by PMTDEADTIME.</p>
 <ul>
 <li>Prompt vertex</li>
 </ul>
@@ -196,6 +220,15 @@ event</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">nu_dirz   </td><td class="markdownTableBodyNone">Neutrino Z direction   </td></tr>
 </table>
+<ul>
+<li>Error flag</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Branch name   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">HitAppendError   </td><td class="markdownTableBodyNone">Error flag for SHE+AFT hit merging (0: No error, 1: OD coincidence missing, 2: ID coincidence missing, 3: ID/OD coincidence missing)   </td></tr>
+</table>
 <h1><a class="anchor" id="autotoc_md16"></a>
 hit</h1>
 <p >This tree is generated if <code>-save_hits true</code> option is passed to <a class="el" href="index.html#ntag-exe">NTag</a>.</p>
@@ -210,7 +243,15 @@ hit</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">i   </td><td class="markdownTableBodyNone">Event PMT hit cable number    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">s   </td><td class="markdownTableBodyNone">Event PMT hit signal flag (signal hits: 1 if <code>-add_noise true</code>)   </td></tr>
+<td class="markdownTableBodyNone">s   </td><td class="markdownTableBodyNone">Event PMT hit signal flag (signal hits: 1 if <code>-add_noise true</code>)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">tof   </td><td class="markdownTableBodyNone">Event PMT hit time of flight from prompt vertex (ns)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">dt   </td><td class="markdownTableBodyNone">Event PMT hit time from preceding hit (ns)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">b   </td><td class="markdownTableBodyNone">Event PMT hit burst noise flag (1 if dt &lt; TRBNWIDTH)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">n   </td><td class="markdownTableBodyNone">Event PMT hit tagged flag (1 if tagged as signal by NTag)   </td></tr>
 </table>
 <h1><a class="anchor" id="autotoc_md17"></a>
 particle</h1>
@@ -224,22 +265,36 @@ particle</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">ParentPID   </td><td class="markdownTableBodyNone">PDG code of the parent particle    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentIndex   </td><td class="markdownTableBodyNone">Index of the parent particle in <code>particle</code> tree    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">IntID   </td><td class="markdownTableBodyNone">Geant3 code of the particle generating interaction    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">t   </td><td class="markdownTableBodyNone">Time of production relative to trigger (µs)    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">x   </td><td class="markdownTableBodyNone">X coordinate of production vertex (cm)    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">y   </td><td class="markdownTableBodyNone">Y coordinate of production vertex (cm)    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">z   </td><td class="markdownTableBodyNone">Z coordinate of production vertex (cm)    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">px   </td><td class="markdownTableBodyNone">Momentum in X direction (MeV/c)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">py   </td><td class="markdownTableBodyNone">Momentum in Y direction (MeV/c)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">pz   </td><td class="markdownTableBodyNone">Momentum in Z direction (MeV/c)    </td></tr>
+<td class="markdownTableBodyNone">py   </td><td class="markdownTableBodyNone">Momentum in Y direction (MeV/c)    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">pz   </td><td class="markdownTableBodyNone">Momentum in Z direction (MeV/c)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">ParentVX   </td><td class="markdownTableBodyNone">X coordinate of parent production vertex (cm)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentVY   </td><td class="markdownTableBodyNone">Y coordinate of parent production vertex (cm)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">ParentVZ   </td><td class="markdownTableBodyNone">Z coordinate of parent production vertex (cm)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentPX   </td><td class="markdownTableBodyNone">Parent momentum in X direction (MeV/c)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">ParentPY   </td><td class="markdownTableBodyNone">Parent momentum in Y direction (MeV/c)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentPZ   </td><td class="markdownTableBodyNone">Parent momentum in Z direction (MeV/c)    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">KE   </td><td class="markdownTableBodyNone">Kinetic energy (MeV)   </td></tr>
 </table>
 <p >Below is the list of Geant3 interaction code used in IntID branch: </p><div class="fragment"></div><!-- fragment --><h1><a class="anchor" id="autotoc_md18"></a>
@@ -270,7 +325,21 @@ taggable</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">EarlyIndex   </td><td class="markdownTableBodyNone">Array index of corresponding signal candidate in <code>mue</code> tree    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">DelayedIndex   </td><td class="markdownTableBodyNone">Array index of corresponding signal candidate in <code>ntag</code> tree   </td></tr>
+<td class="markdownTableBodyNone">DelayedIndex   </td><td class="markdownTableBodyNone">Array index of corresponding signal candidate in <code>ntag</code> tree    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">parvx   </td><td class="markdownTableBodyNone">X coordinate of parent particle (cm)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">parvy   </td><td class="markdownTableBodyNone">Y coordinate of parent particle (cm)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">parvz   </td><td class="markdownTableBodyNone">Z coordinate of parent particle (cm)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentE   </td><td class="markdownTableBodyNone">Total energy of parent particle (MeV)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">ParentT   </td><td class="markdownTableBodyNone">Parent particle creation time relative to trigger (µs)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">ParentIntID   </td><td class="markdownTableBodyNone">Parent particle creation interaction ID    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">ParentIndex   </td><td class="markdownTableBodyNone">Parent particle index in <code>particle</code> tree   </td></tr>
 </table>
 <h1><a class="anchor" id="autotoc_md19"></a>
 mue</h1>
@@ -322,48 +391,68 @@ ntag</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">NCandidates   </td><td class="markdownTableBodyNone">Total number of NTag candidates   </td></tr>
 </table>
-<p >Each entry in the following branches is an array with a size of the number of NTag candidates in each event.</p>
+<p >Each entry in the following branches is an array with a size of the number of NTag candidates in each event. NN label K stands for Keras, and T stands for TMVA.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Branch name   </th><th class="markdownTableHeadCenter">NN   </th><th class="markdownTableHeadNone">Description    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Beta_l   </td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyNone">\(\beta_l=\frac{2}{N_{Hits}(N_{Hits}-1)}\sum_{i\neq j}P_l(\cos{\theta_ij})\)    </td></tr>
+<td class="markdownTableBodyNone">BSdirks   </td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyNone">BONSAI dirKS    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">BSenergy   </td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyNone">BONSAI reconstructed energy (MeV)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">BSovaq   </td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyNone">BONSAI ovaQ    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Beta_l   </td><td class="markdownTableBodyCenter">K/T   </td><td class="markdownTableBodyNone">\(\beta_l=\frac{2}{N_{Hits}(N_{Hits}-1)}\sum_{i\neq j}P_l(\cos{\theta_ij})\)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">BurstRatio   </td><td class="markdownTableBodyCenter">K   </td><td class="markdownTableBodyNone">Ratio of burst (dt &lt; TRBNWIDTH) PMTs within candidate    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">DPrompt   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Distance from prompt vertex to fitted vertex (cm)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">DWall   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Distance from fitted vertex to nearest wall (cm)    </td></tr>
+<td class="markdownTableBodyNone">DTaggable   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Distance from true taggable vertex to fitted vertex (cm)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">DWallMeanDir   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Distance from fitted vertex to wall in mean hit direction (cm)    </td></tr>
+<td class="markdownTableBodyNone">DWall   </td><td class="markdownTableBodyCenter">K/T   </td><td class="markdownTableBodyNone">Distance from fitted vertex to nearest wall (cm)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">FitGoodness   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Ad-hoc vertex fit goodness (see <a class="el" href="classVertexFitManager.html#aa6a46f308ed353ead0b77aab9d875186" title="Calculate ad-hoc vertex fit goodness.">VertexFitManager::GetGoodness</a>)    </td></tr>
+<td class="markdownTableBodyNone">DWallMeanDir   </td><td class="markdownTableBodyCenter">K/T   </td><td class="markdownTableBodyNone">Distance from fitted vertex to wall in mean hit direction (cm)    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">FitGoodness   </td><td class="markdownTableBodyCenter">K   </td><td class="markdownTableBodyNone">Ad-hoc vertex fit goodness (see <a class="el" href="classVertexFitManager.html#aa6a46f308ed353ead0b77aab9d875186" title="Calculate ad-hoc vertex fit goodness.">VertexFitManager::GetGoodness</a>)    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">FitT   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Fitted time relative to trigger (µs)    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">Label   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">True class label (0: noise, 1: decay-e, 2: p(n,γ), 3: Gd(n,γ))    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">MeanDirAngleMean   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Mean of angles between each hit direction and mean hit direction    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">MeanDirAngleRMS   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">RMS of angles between each hit direction and mean hit direction    </td></tr>
+<td class="markdownTableBodyNone">MeanDirAngleMean   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Mean of angles between each hit direction and mean hit direction    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">N1300   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Number of hits within (520, +780) ns from FitT    </td></tr>
+<td class="markdownTableBodyNone">MeanDirAngleRMS   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">RMS of angles between each hit direction and mean hit direction    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">N200   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Number of hits within ±100 ns from FitT    </td></tr>
+<td class="markdownTableBodyNone">N1300   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Number of hits within (-520, +780) ns from FitT    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">N50   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Number of hits within ±25 ns from FitT    </td></tr>
+<td class="markdownTableBodyNone">N200   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Number of hits within ±100 ns from FitT    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">NHits   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Number of hits within <a class="el" href="command-line-options.html#signal-search-parameters">TCANWIDTH</a>    </td></tr>
+<td class="markdownTableBodyNone">N30   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Number of hits within ±15 ns from FitT    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">OpeningAngleMean   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Mean of all possible 3-hit opening angles    </td></tr>
+<td class="markdownTableBodyNone">N3000   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Number of hits within ±15 ns from FitT    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">OpeningAngleSkew   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Skewness of all possible 3-hit opening angles    </td></tr>
+<td class="markdownTableBodyNone">N50   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Number of hits within (-520, +2480) ns from FitT    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">OpeningAngleStdev   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">Standard deviation of all possible 3-hit opening angles    </td></tr>
+<td class="markdownTableBodyNone">NHits   </td><td class="markdownTableBodyCenter">K/T   </td><td class="markdownTableBodyNone">Number of hits within <a class="el" href="command-line-options.html#signal-search-parameters">TCANWIDTH</a>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NNoisyPMT   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Number of hits with dark rate larger than average    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">NResHits   </td><td class="markdownTableBodyCenter">K   </td><td class="markdownTableBodyNone">N200 - NHits    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NoisyPMTRatio   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Ratio of hits with dark rate larger than average    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">OpeningAngleMean   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Mean of all possible 3-hit opening angles    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">OpeningAngleSkew   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Skewness of all possible 3-hit opening angles    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">OpeningAngleStdev   </td><td class="markdownTableBodyCenter">T   </td><td class="markdownTableBodyNone">Standard deviation of all possible 3-hit opening angles    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">QSum   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Sum of deposit charge (p.e.)    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">SignalRatio   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Ratio of signal hits (non-zero only if <code>-add_noise true</code>)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">TRMS   </td><td class="markdownTableBodyCenter">O   </td><td class="markdownTableBodyNone">RMS of ToF-subtracted hit times    </td></tr>
+<td class="markdownTableBodyNone">TRMS   </td><td class="markdownTableBodyCenter">K/T   </td><td class="markdownTableBodyNone">RMS of ToF-subtracted hit times    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">TagClass   </td><td class="markdownTableBodyCenter">-   </td><td class="markdownTableBodyNone">Tag result (0: noise, 1: decay-e, 2: n-capture)    </td></tr>
 <tr class="markdownTableRowOdd">

@@ -93,6 +93,7 @@ $(document).ready(function(){initNavTree('classNoiseManager.html',''); initResiz
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classNoiseManager-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">NoiseManager Class Reference</div></div>
 </div><!--header-->
@@ -100,70 +101,148 @@ $(document).ready(function(){initNavTree('classNoiseManager.html',''); initResiz
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7a1f4c1ad56acdacea7a79ca7d32af7e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a7a1f4c1ad56acdacea7a79ca7d32af7e">NoiseManager</a> (TString option, int nInputEvents, float tStart, float tEnd, int seed=0)</td></tr>
-<tr class="separator:a7a1f4c1ad56acdacea7a79ca7d32af7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6512f233e8d2f10a808604e2d2713cec"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a6512f233e8d2f10a808604e2d2713cec">NoiseManager</a> (TTree *tree)</td></tr>
-<tr class="separator:a6512f233e8d2f10a808604e2d2713cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a21c02008b9510e5ca2722f04f4b3e4d4">AddNoiseFileToChain</a> (TChain *chain, TString noiseFilePath)</td></tr>
-<tr class="separator:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ca845a865a24df846bc3b1216ea1e45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a2ca845a865a24df846bc3b1216ea1e45">SetNoiseTree</a> (TTree *tree)</td></tr>
-<tr class="separator:a2ca845a865a24df846bc3b1216ea1e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08fb63043d4404e638798727ef53e7d8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a08fb63043d4404e638798727ef53e7d8">NoiseManager</a> (TChain *tree)</td></tr>
+<tr class="separator:a08fb63043d4404e638798727ef53e7d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac39c7a0bdd420d2d8343c04898982849"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ac39c7a0bdd420d2d8343c04898982849">SetNoiseTreeName</a> (TString treename)</td></tr>
+<tr class="separator:ac39c7a0bdd420d2d8343c04898982849"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8abd7c57d63215c7bbfc1080eb4d3d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ac8abd7c57d63215c7bbfc1080eb4d3d1">SetNoisePath</a> (TString dirpath)</td></tr>
+<tr class="separator:ac8abd7c57d63215c7bbfc1080eb4d3d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b8114139ab40bf0ffbe8c4621071c6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a8b8114139ab40bf0ffbe8c4621071c6e">SetNoiseTimeRange</a> (float startTime, float endTime)</td></tr>
 <tr class="separator:a8b8114139ab40bf0ffbe8c4621071c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aa2c4bbd37fba1605251309c5d6cdb0ef">SetNoiseEventHits</a> ()</td></tr>
-<tr class="separator:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aef0bc0b1b2e75f972d2d44ae4ffcd255">GetNextNoiseEvent</a> ()</td></tr>
-<tr class="separator:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae89da88e26423b32c1455931fea4df6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ae89da88e26423b32c1455931fea4df6c">SetPMTDeadtime</a> (float pmtDeadtime)</td></tr>
 <tr class="separator:ae89da88e26423b32c1455931fea4df6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71326829a6c4e685e192ee8a77ee192"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ae71326829a6c4e685e192ee8a77ee192">SetDarkRate</a> (float idRate, float odRate)</td></tr>
+<tr class="separator:ae71326829a6c4e685e192ee8a77ee192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4440fe84e786511a2bd79ac6eef522a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a4440fe84e786511a2bd79ac6eef522a8">SetNoiseMaxN200</a> (int idCut, int odCut, bool doCut=true)</td></tr>
+<tr class="separator:a4440fe84e786511a2bd79ac6eef522a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66883af4d0bccfc362deefa455ab7cfa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a66883af4d0bccfc362deefa455ab7cfa">SetRepeat</a> (bool b)</td></tr>
 <tr class="separator:a66883af4d0bccfc362deefa455ab7cfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a7bf6662cf88bd7c81658f89f1c8017bb">SetVerbosity</a> (Verbosity verbose)</td></tr>
-<tr class="separator:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae11a42723713837d1d9812dfcf7a855a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ae11a42723713837d1d9812dfcf7a855a">AddNoise</a> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
-<tr class="separator:ae11a42723713837d1d9812dfcf7a855a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0637777af2ec9c140236af7607ca8f78"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a0637777af2ec9c140236af7607ca8f78">SetSeed</a> (int seed)</td></tr>
+<tr class="separator:a0637777af2ec9c140236af7607ca8f78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3002c49189c28f807b1c0ab3cba184ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a3002c49189c28f807b1c0ab3cba184ee">SetSKGeneration</a> (int gen)</td></tr>
+<tr class="separator:a3002c49189c28f807b1c0ab3cba184ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeb30d99104a91d6ff870358f2e27d53"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#afeb30d99104a91d6ff870358f2e27d53">DumpSettings</a> ()</td></tr>
 <tr class="separator:afeb30d99104a91d6ff870358f2e27d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a1f4c1ad56acdacea7a79ca7d32af7e"><td class="memItemLeft" align="right" valign="top"><a id="a7a1f4c1ad56acdacea7a79ca7d32af7e" name="a7a1f4c1ad56acdacea7a79ca7d32af7e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NoiseManager</b> (TString option, int nInputEvents, float tStart, float tEnd, int seed=0)</td></tr>
-<tr class="separator:a7a1f4c1ad56acdacea7a79ca7d32af7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6512f233e8d2f10a808604e2d2713cec"><td class="memItemLeft" align="right" valign="top"><a id="a6512f233e8d2f10a808604e2d2713cec" name="a6512f233e8d2f10a808604e2d2713cec"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NoiseManager</b> (TTree *tree)</td></tr>
-<tr class="separator:a6512f233e8d2f10a808604e2d2713cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memItemLeft" align="right" valign="top"><a id="a21c02008b9510e5ca2722f04f4b3e4d4" name="a21c02008b9510e5ca2722f04f4b3e4d4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddNoiseFileToChain</b> (TChain *chain, TString noiseFilePath)</td></tr>
+<tr class="memitem:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a21c02008b9510e5ca2722f04f4b3e4d4">AddNoiseFileToChain</a> (TChain *chain, TString noiseFilePath)</td></tr>
 <tr class="separator:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ca845a865a24df846bc3b1216ea1e45"><td class="memItemLeft" align="right" valign="top"><a id="a2ca845a865a24df846bc3b1216ea1e45" name="a2ca845a865a24df846bc3b1216ea1e45"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTree</b> (TTree *tree)</td></tr>
-<tr class="separator:a2ca845a865a24df846bc3b1216ea1e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f690255d95556aa4bf3534be7c8d755"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a2f690255d95556aa4bf3534be7c8d755">SetNoiseTree</a> (TChain *tree)</td></tr>
+<tr class="separator:a2f690255d95556aa4bf3534be7c8d755"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdd33daf69c9d98d2c41e85bc7152b1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#acdd33daf69c9d98d2c41e85bc7152b1f">DumpNoiseFileList</a> (TString pathToFileList)</td></tr>
+<tr class="separator:acdd33daf69c9d98d2c41e85bc7152b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaae7b43d57efc055c0c49efde29efda2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aaae7b43d57efc055c0c49efde29efda2">SetNoiseTreeFromOptions</a> (TString option, int nInputEvents, float tStart, float tEnd, int seed=0)</td></tr>
+<tr class="separator:aaae7b43d57efc055c0c49efde29efda2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5adc3a13d4b1f5c593e5368dee96b12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ac5adc3a13d4b1f5c593e5368dee96b12">SetNoiseTreeFromList</a> (TString pathToList)</td></tr>
+<tr class="separator:ac5adc3a13d4b1f5c593e5368dee96b12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cc7fb9059e6c94218bb16b9d5cb69e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a6cc7fb9059e6c94218bb16b9d5cb69e7">SetNoiseTreeFromWildcard</a> (TString wildcard, float tStart=0, float tEnd=535)</td></tr>
+<tr class="separator:a6cc7fb9059e6c94218bb16b9d5cb69e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d78205fc5b19121414952b6df0e8f48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a1d78205fc5b19121414952b6df0e8f48">ApplySettings</a> (<a class="el" href="classStore.html">Store</a> &amp;store, int nInputEvents)</td></tr>
+<tr class="separator:a1d78205fc5b19121414952b6df0e8f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aef0bc0b1b2e75f972d2d44ae4ffcd255">GetNextNoiseEvent</a> ()</td></tr>
+<tr class="separator:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aa2c4bbd37fba1605251309c5d6cdb0ef">SetNoiseEventHits</a> ()</td></tr>
+<tr class="separator:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a7bf6662cf88bd7c81658f89f1c8017bb">SetVerbosity</a> (Verbosity verbose)</td></tr>
+<tr class="separator:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30b2d5b836182229655dd9906d9e946a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a30b2d5b836182229655dd9906d9e946a">AddIDNoise</a> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
+<tr class="separator:a30b2d5b836182229655dd9906d9e946a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab48c1514939fc85e371d14289769a37c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ab48c1514939fc85e371d14289769a37c">AddODNoise</a> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
+<tr class="separator:ab48c1514939fc85e371d14289769a37c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb9a5f6e771b6b7445c021e67f7fd5ac"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aeb9a5f6e771b6b7445c021e67f7fd5ac">GetCurrentRun</a> ()</td></tr>
+<tr class="separator:aeb9a5f6e771b6b7445c021e67f7fd5ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1997cb6966cfa048c1756f624a5b1391"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a1997cb6966cfa048c1756f624a5b1391">GetCurrentSubrun</a> ()</td></tr>
+<tr class="separator:a1997cb6966cfa048c1756f624a5b1391"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a576a3eedb708cdbc357517c77e9a5484"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a576a3eedb708cdbc357517c77e9a5484">GetCurrentEventID</a> ()</td></tr>
+<tr class="separator:a576a3eedb708cdbc357517c77e9a5484"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0e29cecbed40e282fc5fb9727ac937a"><td class="memItemLeft" align="right" valign="top">TChain *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ad0e29cecbed40e282fc5fb9727ac937a">GetNoiseChain</a> ()</td></tr>
+<tr class="separator:ad0e29cecbed40e282fc5fb9727ac937a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08fb63043d4404e638798727ef53e7d8"><td class="memItemLeft" align="right" valign="top"><a id="a08fb63043d4404e638798727ef53e7d8" name="a08fb63043d4404e638798727ef53e7d8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NoiseManager</b> (TChain *tree)</td></tr>
+<tr class="separator:a08fb63043d4404e638798727ef53e7d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac39c7a0bdd420d2d8343c04898982849"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ac39c7a0bdd420d2d8343c04898982849">SetNoiseTreeName</a> (TString treename)</td></tr>
+<tr class="separator:ac39c7a0bdd420d2d8343c04898982849"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8abd7c57d63215c7bbfc1080eb4d3d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ac8abd7c57d63215c7bbfc1080eb4d3d1">SetNoisePath</a> (TString dirpath)</td></tr>
+<tr class="separator:ac8abd7c57d63215c7bbfc1080eb4d3d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b8114139ab40bf0ffbe8c4621071c6e"><td class="memItemLeft" align="right" valign="top"><a id="a8b8114139ab40bf0ffbe8c4621071c6e" name="a8b8114139ab40bf0ffbe8c4621071c6e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTimeRange</b> (float startTime, float endTime)</td></tr>
 <tr class="separator:a8b8114139ab40bf0ffbe8c4621071c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memItemLeft" align="right" valign="top"><a id="aa2c4bbd37fba1605251309c5d6cdb0ef" name="aa2c4bbd37fba1605251309c5d6cdb0ef"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseEventHits</b> ()</td></tr>
-<tr class="separator:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memItemLeft" align="right" valign="top"><a id="aef0bc0b1b2e75f972d2d44ae4ffcd255" name="aef0bc0b1b2e75f972d2d44ae4ffcd255"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>GetNextNoiseEvent</b> ()</td></tr>
-<tr class="separator:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae89da88e26423b32c1455931fea4df6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ae89da88e26423b32c1455931fea4df6c">SetPMTDeadtime</a> (float pmtDeadtime)</td></tr>
 <tr class="separator:ae89da88e26423b32c1455931fea4df6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71326829a6c4e685e192ee8a77ee192"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ae71326829a6c4e685e192ee8a77ee192">SetDarkRate</a> (float idRate, float odRate)</td></tr>
+<tr class="separator:ae71326829a6c4e685e192ee8a77ee192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4440fe84e786511a2bd79ac6eef522a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a4440fe84e786511a2bd79ac6eef522a8">SetNoiseMaxN200</a> (int idCut, int odCut, bool doCut=true)</td></tr>
+<tr class="separator:a4440fe84e786511a2bd79ac6eef522a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66883af4d0bccfc362deefa455ab7cfa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a66883af4d0bccfc362deefa455ab7cfa">SetRepeat</a> (bool b)</td></tr>
 <tr class="separator:a66883af4d0bccfc362deefa455ab7cfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a7bf6662cf88bd7c81658f89f1c8017bb">SetVerbosity</a> (Verbosity verbose)</td></tr>
-<tr class="separator:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae11a42723713837d1d9812dfcf7a855a"><td class="memItemLeft" align="right" valign="top"><a id="ae11a42723713837d1d9812dfcf7a855a" name="ae11a42723713837d1d9812dfcf7a855a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddNoise</b> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
-<tr class="separator:ae11a42723713837d1d9812dfcf7a855a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0637777af2ec9c140236af7607ca8f78"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a0637777af2ec9c140236af7607ca8f78">SetSeed</a> (int seed)</td></tr>
+<tr class="separator:a0637777af2ec9c140236af7607ca8f78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3002c49189c28f807b1c0ab3cba184ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a3002c49189c28f807b1c0ab3cba184ee">SetSKGeneration</a> (int gen)</td></tr>
+<tr class="separator:a3002c49189c28f807b1c0ab3cba184ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeb30d99104a91d6ff870358f2e27d53"><td class="memItemLeft" align="right" valign="top"><a id="afeb30d99104a91d6ff870358f2e27d53" name="afeb30d99104a91d6ff870358f2e27d53"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</td></tr>
 <tr class="separator:afeb30d99104a91d6ff870358f2e27d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memItemLeft" align="right" valign="top"><a id="a21c02008b9510e5ca2722f04f4b3e4d4" name="a21c02008b9510e5ca2722f04f4b3e4d4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddNoiseFileToChain</b> (TChain *chain, TString noiseFilePath)</td></tr>
+<tr class="separator:a21c02008b9510e5ca2722f04f4b3e4d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f690255d95556aa4bf3534be7c8d755"><td class="memItemLeft" align="right" valign="top"><a id="a2f690255d95556aa4bf3534be7c8d755" name="a2f690255d95556aa4bf3534be7c8d755"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTree</b> (TChain *tree)</td></tr>
+<tr class="separator:a2f690255d95556aa4bf3534be7c8d755"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdd33daf69c9d98d2c41e85bc7152b1f"><td class="memItemLeft" align="right" valign="top"><a id="acdd33daf69c9d98d2c41e85bc7152b1f" name="acdd33daf69c9d98d2c41e85bc7152b1f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpNoiseFileList</b> (TString pathToFileList)</td></tr>
+<tr class="separator:acdd33daf69c9d98d2c41e85bc7152b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaae7b43d57efc055c0c49efde29efda2"><td class="memItemLeft" align="right" valign="top"><a id="aaae7b43d57efc055c0c49efde29efda2" name="aaae7b43d57efc055c0c49efde29efda2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTreeFromOptions</b> (TString option, int nInputEvents, float tStart, float tEnd, int seed=0)</td></tr>
+<tr class="separator:aaae7b43d57efc055c0c49efde29efda2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5adc3a13d4b1f5c593e5368dee96b12"><td class="memItemLeft" align="right" valign="top"><a id="ac5adc3a13d4b1f5c593e5368dee96b12" name="ac5adc3a13d4b1f5c593e5368dee96b12"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTreeFromList</b> (TString pathToList)</td></tr>
+<tr class="separator:ac5adc3a13d4b1f5c593e5368dee96b12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cc7fb9059e6c94218bb16b9d5cb69e7"><td class="memItemLeft" align="right" valign="top"><a id="a6cc7fb9059e6c94218bb16b9d5cb69e7" name="a6cc7fb9059e6c94218bb16b9d5cb69e7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseTreeFromWildcard</b> (TString wildcard, float tStart=0, float tEnd=535)</td></tr>
+<tr class="separator:a6cc7fb9059e6c94218bb16b9d5cb69e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d78205fc5b19121414952b6df0e8f48"><td class="memItemLeft" align="right" valign="top"><a id="a1d78205fc5b19121414952b6df0e8f48" name="a1d78205fc5b19121414952b6df0e8f48"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ApplySettings</b> (<a class="el" href="classStore.html">Store</a> &amp;store, int nInputEvents)</td></tr>
+<tr class="separator:a1d78205fc5b19121414952b6df0e8f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memItemLeft" align="right" valign="top"><a id="aef0bc0b1b2e75f972d2d44ae4ffcd255" name="aef0bc0b1b2e75f972d2d44ae4ffcd255"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GetNextNoiseEvent</b> ()</td></tr>
+<tr class="separator:aef0bc0b1b2e75f972d2d44ae4ffcd255"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memItemLeft" align="right" valign="top"><a id="aa2c4bbd37fba1605251309c5d6cdb0ef" name="aa2c4bbd37fba1605251309c5d6cdb0ef"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNoiseEventHits</b> ()</td></tr>
+<tr class="separator:aa2c4bbd37fba1605251309c5d6cdb0ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a7bf6662cf88bd7c81658f89f1c8017bb">SetVerbosity</a> (Verbosity verbose)</td></tr>
+<tr class="separator:a7bf6662cf88bd7c81658f89f1c8017bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30b2d5b836182229655dd9906d9e946a"><td class="memItemLeft" align="right" valign="top"><a id="a30b2d5b836182229655dd9906d9e946a" name="a30b2d5b836182229655dd9906d9e946a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddIDNoise</b> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
+<tr class="separator:a30b2d5b836182229655dd9906d9e946a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab48c1514939fc85e371d14289769a37c"><td class="memItemLeft" align="right" valign="top"><a id="ab48c1514939fc85e371d14289769a37c" name="ab48c1514939fc85e371d14289769a37c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddODNoise</b> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits)</td></tr>
+<tr class="separator:ab48c1514939fc85e371d14289769a37c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb9a5f6e771b6b7445c021e67f7fd5ac"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#aeb9a5f6e771b6b7445c021e67f7fd5ac">GetCurrentRun</a> ()</td></tr>
+<tr class="separator:aeb9a5f6e771b6b7445c021e67f7fd5ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1997cb6966cfa048c1756f624a5b1391"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a1997cb6966cfa048c1756f624a5b1391">GetCurrentSubrun</a> ()</td></tr>
+<tr class="separator:a1997cb6966cfa048c1756f624a5b1391"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a576a3eedb708cdbc357517c77e9a5484"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a576a3eedb708cdbc357517c77e9a5484">GetCurrentEventID</a> ()</td></tr>
+<tr class="separator:a576a3eedb708cdbc357517c77e9a5484"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0e29cecbed40e282fc5fb9727ac937a"><td class="memItemLeft" align="right" valign="top">TChain *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#ad0e29cecbed40e282fc5fb9727ac937a">GetNoiseChain</a> ()</td></tr>
+<tr class="separator:ad0e29cecbed40e282fc5fb9727ac937a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:acdde213a63095a4a3a8fb8d1cc1820c5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#acdde213a63095a4a3a8fb8d1cc1820c5">PopulateHitCluster</a> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *hitCluster, bool OD=false)</td></tr>
+<tr class="separator:acdde213a63095a4a3a8fb8d1cc1820c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39c58c4b45bc0071dd97e55db5e3fb09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNoiseManager.html#a39c58c4b45bc0071dd97e55db5e3fb09">AddNoise</a> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits, <a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *noiseHits, int &amp;currentHitIndex, float darkRate, bool OD=false)</td></tr>
+<tr class="separator:a39c58c4b45bc0071dd97e55db5e3fb09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdde213a63095a4a3a8fb8d1cc1820c5"><td class="memItemLeft" align="right" valign="top"><a id="acdde213a63095a4a3a8fb8d1cc1820c5" name="acdde213a63095a4a3a8fb8d1cc1820c5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PopulateHitCluster</b> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *hitCluster, bool OD=false)</td></tr>
+<tr class="separator:acdde213a63095a4a3a8fb8d1cc1820c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39c58c4b45bc0071dd97e55db5e3fb09"><td class="memItemLeft" align="right" valign="top"><a id="a39c58c4b45bc0071dd97e55db5e3fb09" name="a39c58c4b45bc0071dd97e55db5e3fb09"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddNoise</b> (<a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *signalHits, <a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *noiseHits, int &amp;currentHitIndex, float darkRate, bool OD=false)</td></tr>
+<tr class="separator:a39c58c4b45bc0071dd97e55db5e3fb09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00026">26</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00021">21</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac2c7accf48f8934c2de54d0e45f1e47c" name="ac2c7accf48f8934c2de54d0e45f1e47c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2c7accf48f8934c2de54d0e45f1e47c">&#9670;&nbsp;</a></span>NoiseManager() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2c7accf48f8934c2de54d0e45f1e47c">&#9670;&nbsp;</a></span>NoiseManager() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -177,18 +256,835 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00020">20</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00023">23</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
 
 </div>
 </div>
-<a id="a7a1f4c1ad56acdacea7a79ca7d32af7e" name="a7a1f4c1ad56acdacea7a79ca7d32af7e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a1f4c1ad56acdacea7a79ca7d32af7e">&#9670;&nbsp;</a></span>NoiseManager() <span class="overload">[2/3]</span></h2>
+<a id="a08fb63043d4404e638798727ef53e7d8" name="a08fb63043d4404e638798727ef53e7d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08fb63043d4404e638798727ef53e7d8">&#9670;&nbsp;</a></span>NoiseManager() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">NoiseManager::NoiseManager </td>
+          <td>(</td>
+          <td class="paramtype">TChain *&#160;</td>
+          <td class="paramname"><em>tree</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00043">43</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a826bd179740be1357948da626c2f5fce" name="a826bd179740be1357948da626c2f5fce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a826bd179740be1357948da626c2f5fce">&#9670;&nbsp;</a></span>~NoiseManager()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">NoiseManager::~NoiseManager </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00049">49</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a30b2d5b836182229655dd9906d9e946a" name="a30b2d5b836182229655dd9906d9e946a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30b2d5b836182229655dd9906d9e946a">&#9670;&nbsp;</a></span>AddIDNoise()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::AddIDNoise </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
+          <td class="paramname"><em>signalHits</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00430">430</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a39c58c4b45bc0071dd97e55db5e3fb09" name="a39c58c4b45bc0071dd97e55db5e3fb09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39c58c4b45bc0071dd97e55db5e3fb09">&#9670;&nbsp;</a></span>AddNoise()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::AddNoise </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
+          <td class="paramname"><em>signalHits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
+          <td class="paramname"><em>noiseHits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>currentHitIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>darkRate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>OD</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00355">355</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a21c02008b9510e5ca2722f04f4b3e4d4" name="a21c02008b9510e5ca2722f04f4b3e4d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21c02008b9510e5ca2722f04f4b3e4d4">&#9670;&nbsp;</a></span>AddNoiseFileToChain()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::AddNoiseFileToChain </td>
+          <td>(</td>
+          <td class="paramtype">TChain *&#160;</td>
+          <td class="paramname"><em>chain</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>noiseFilePath</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00082">82</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="ab48c1514939fc85e371d14289769a37c" name="ab48c1514939fc85e371d14289769a37c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab48c1514939fc85e371d14289769a37c">&#9670;&nbsp;</a></span>AddODNoise()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::AddODNoise </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
+          <td class="paramname"><em>signalHits</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00435">435</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a1d78205fc5b19121414952b6df0e8f48" name="a1d78205fc5b19121414952b6df0e8f48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d78205fc5b19121414952b6df0e8f48">&#9670;&nbsp;</a></span>ApplySettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::ApplySettings </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classStore.html">Store</a> &amp;&#160;</td>
+          <td class="paramname"><em>store</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nInputEvents</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00237">237</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="acdd33daf69c9d98d2c41e85bc7152b1f" name="acdd33daf69c9d98d2c41e85bc7152b1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acdd33daf69c9d98d2c41e85bc7152b1f">&#9670;&nbsp;</a></span>DumpNoiseFileList()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::DumpNoiseFileList </td>
+          <td>(</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>pathToFileList</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00117">117</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="afeb30d99104a91d6ff870358f2e27d53" name="afeb30d99104a91d6ff870358f2e27d53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afeb30d99104a91d6ff870358f2e27d53">&#9670;&nbsp;</a></span>DumpSettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::DumpSettings </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00062">62</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a576a3eedb708cdbc357517c77e9a5484" name="a576a3eedb708cdbc357517c77e9a5484"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a576a3eedb708cdbc357517c77e9a5484">&#9670;&nbsp;</a></span>GetCurrentEventID() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentEventID </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00064">64</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a576a3eedb708cdbc357517c77e9a5484" name="a576a3eedb708cdbc357517c77e9a5484"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a576a3eedb708cdbc357517c77e9a5484">&#9670;&nbsp;</a></span>GetCurrentEventID() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentEventID </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00064">64</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="aeb9a5f6e771b6b7445c021e67f7fd5ac" name="aeb9a5f6e771b6b7445c021e67f7fd5ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb9a5f6e771b6b7445c021e67f7fd5ac">&#9670;&nbsp;</a></span>GetCurrentRun() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentRun </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00062">62</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="aeb9a5f6e771b6b7445c021e67f7fd5ac" name="aeb9a5f6e771b6b7445c021e67f7fd5ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb9a5f6e771b6b7445c021e67f7fd5ac">&#9670;&nbsp;</a></span>GetCurrentRun() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentRun </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00062">62</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a1997cb6966cfa048c1756f624a5b1391" name="a1997cb6966cfa048c1756f624a5b1391"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1997cb6966cfa048c1756f624a5b1391">&#9670;&nbsp;</a></span>GetCurrentSubrun() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentSubrun </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00063">63</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a1997cb6966cfa048c1756f624a5b1391" name="a1997cb6966cfa048c1756f624a5b1391"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1997cb6966cfa048c1756f624a5b1391">&#9670;&nbsp;</a></span>GetCurrentSubrun() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int NoiseManager::GetCurrentSubrun </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00063">63</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="aef0bc0b1b2e75f972d2d44ae4ffcd255" name="aef0bc0b1b2e75f972d2d44ae4ffcd255"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef0bc0b1b2e75f972d2d44ae4ffcd255">&#9670;&nbsp;</a></span>GetNextNoiseEvent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::GetNextNoiseEvent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00283">283</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="ad0e29cecbed40e282fc5fb9727ac937a" name="ad0e29cecbed40e282fc5fb9727ac937a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0e29cecbed40e282fc5fb9727ac937a">&#9670;&nbsp;</a></span>GetNoiseChain() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TChain * NoiseManager::GetNoiseChain </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00065">65</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="ad0e29cecbed40e282fc5fb9727ac937a" name="ad0e29cecbed40e282fc5fb9727ac937a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0e29cecbed40e282fc5fb9727ac937a">&#9670;&nbsp;</a></span>GetNoiseChain() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TChain * NoiseManager::GetNoiseChain </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00065">65</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="acdde213a63095a4a3a8fb8d1cc1820c5" name="acdde213a63095a4a3a8fb8d1cc1820c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acdde213a63095a4a3a8fb8d1cc1820c5">&#9670;&nbsp;</a></span>PopulateHitCluster()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::PopulateHitCluster </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
+          <td class="paramname"><em>hitCluster</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>OD</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00409">409</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="ae71326829a6c4e685e192ee8a77ee192" name="ae71326829a6c4e685e192ee8a77ee192"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71326829a6c4e685e192ee8a77ee192">&#9670;&nbsp;</a></span>SetDarkRate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetDarkRate </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>idRate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>odRate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00033">33</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="ae71326829a6c4e685e192ee8a77ee192" name="ae71326829a6c4e685e192ee8a77ee192"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71326829a6c4e685e192ee8a77ee192">&#9670;&nbsp;</a></span>SetDarkRate() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetDarkRate </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>idRate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>odRate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00033">33</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="aa2c4bbd37fba1605251309c5d6cdb0ef" name="aa2c4bbd37fba1605251309c5d6cdb0ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2c4bbd37fba1605251309c5d6cdb0ef">&#9670;&nbsp;</a></span>SetNoiseEventHits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseEventHits </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00311">311</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a4440fe84e786511a2bd79ac6eef522a8" name="a4440fe84e786511a2bd79ac6eef522a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4440fe84e786511a2bd79ac6eef522a8">&#9670;&nbsp;</a></span>SetNoiseMaxN200() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseMaxN200 </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>idCut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>odCut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>doCut</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00034">34</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a4440fe84e786511a2bd79ac6eef522a8" name="a4440fe84e786511a2bd79ac6eef522a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4440fe84e786511a2bd79ac6eef522a8">&#9670;&nbsp;</a></span>SetNoiseMaxN200() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseMaxN200 </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>idCut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>odCut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>doCut</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00034">34</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="ac8abd7c57d63215c7bbfc1080eb4d3d1" name="ac8abd7c57d63215c7bbfc1080eb4d3d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8abd7c57d63215c7bbfc1080eb4d3d1">&#9670;&nbsp;</a></span>SetNoisePath() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoisePath </td>
+          <td>(</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>dirpath</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00030">30</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="ac8abd7c57d63215c7bbfc1080eb4d3d1" name="ac8abd7c57d63215c7bbfc1080eb4d3d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8abd7c57d63215c7bbfc1080eb4d3d1">&#9670;&nbsp;</a></span>SetNoisePath() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoisePath </td>
+          <td>(</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>dirpath</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00030">30</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a8b8114139ab40bf0ffbe8c4621071c6e" name="a8b8114139ab40bf0ffbe8c4621071c6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b8114139ab40bf0ffbe8c4621071c6e">&#9670;&nbsp;</a></span>SetNoiseTimeRange()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseTimeRange </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>startTime</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>endTime</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00054">54</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="a2f690255d95556aa4bf3534be7c8d755" name="a2f690255d95556aa4bf3534be7c8d755"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f690255d95556aa4bf3534be7c8d755">&#9670;&nbsp;</a></span>SetNoiseTree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseTree </td>
+          <td>(</td>
+          <td class="paramtype">TChain *&#160;</td>
+          <td class="paramname"><em>tree</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00106">106</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="ac5adc3a13d4b1f5c593e5368dee96b12" name="ac5adc3a13d4b1f5c593e5368dee96b12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5adc3a13d4b1f5c593e5368dee96b12">&#9670;&nbsp;</a></span>SetNoiseTreeFromList()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseTreeFromList </td>
+          <td>(</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>pathToList</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00194">194</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+
+</div>
+</div>
+<a id="aaae7b43d57efc055c0c49efde29efda2" name="aaae7b43d57efc055c0c49efde29efda2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaae7b43d57efc055c0c49efde29efda2">&#9670;&nbsp;</a></span>SetNoiseTreeFromOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseTreeFromOptions </td>
           <td>(</td>
           <td class="paramtype">TString&#160;</td>
           <td class="paramname"><em>option</em>, </td>
@@ -225,174 +1121,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00034">34</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00143">143</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
 
 </div>
 </div>
-<a id="a6512f233e8d2f10a808604e2d2713cec" name="a6512f233e8d2f10a808604e2d2713cec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6512f233e8d2f10a808604e2d2713cec">&#9670;&nbsp;</a></span>NoiseManager() <span class="overload">[3/3]</span></h2>
+<a id="a6cc7fb9059e6c94218bb16b9d5cb69e7" name="a6cc7fb9059e6c94218bb16b9d5cb69e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cc7fb9059e6c94218bb16b9d5cb69e7">&#9670;&nbsp;</a></span>SetNoiseTreeFromWildcard()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">NoiseManager::NoiseManager </td>
+          <td class="memname">void NoiseManager::SetNoiseTreeFromWildcard </td>
           <td>(</td>
-          <td class="paramtype">TTree *&#160;</td>
-          <td class="paramname"><em>tree</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00086">86</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="a826bd179740be1357948da626c2f5fce" name="a826bd179740be1357948da626c2f5fce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a826bd179740be1357948da626c2f5fce">&#9670;&nbsp;</a></span>~NoiseManager()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NoiseManager::~NoiseManager </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00092">92</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="ae11a42723713837d1d9812dfcf7a855a" name="ae11a42723713837d1d9812dfcf7a855a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae11a42723713837d1d9812dfcf7a855a">&#9670;&nbsp;</a></span>AddNoise()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::AddNoise </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classPMTHitCluster.html">PMTHitCluster</a> *&#160;</td>
-          <td class="paramname"><em>signalHits</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00213">213</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="a21c02008b9510e5ca2722f04f4b3e4d4" name="a21c02008b9510e5ca2722f04f4b3e4d4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a21c02008b9510e5ca2722f04f4b3e4d4">&#9670;&nbsp;</a></span>AddNoiseFileToChain()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::AddNoiseFileToChain </td>
-          <td>(</td>
-          <td class="paramtype">TChain *&#160;</td>
-          <td class="paramname"><em>chain</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">TString&#160;</td>
-          <td class="paramname"><em>noiseFilePath</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00097">97</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="afeb30d99104a91d6ff870358f2e27d53" name="afeb30d99104a91d6ff870358f2e27d53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afeb30d99104a91d6ff870358f2e27d53">&#9670;&nbsp;</a></span>DumpSettings()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::DumpSettings </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00237">237</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="aef0bc0b1b2e75f972d2d44ae4ffcd255" name="aef0bc0b1b2e75f972d2d44ae4ffcd255"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef0bc0b1b2e75f972d2d44ae4ffcd255">&#9670;&nbsp;</a></span>GetNextNoiseEvent()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::GetNextNoiseEvent </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00158">158</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="aa2c4bbd37fba1605251309c5d6cdb0ef" name="aa2c4bbd37fba1605251309c5d6cdb0ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2c4bbd37fba1605251309c5d6cdb0ef">&#9670;&nbsp;</a></span>SetNoiseEventHits()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::SetNoiseEventHits </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00185">185</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
-
-</div>
-</div>
-<a id="a8b8114139ab40bf0ffbe8c4621071c6e" name="a8b8114139ab40bf0ffbe8c4621071c6e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b8114139ab40bf0ffbe8c4621071c6e">&#9670;&nbsp;</a></span>SetNoiseTimeRange()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NoiseManager::SetNoiseTimeRange </td>
-          <td>(</td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>startTime</em>, </td>
+          <td class="paramname"><em>wildcard</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>endTime</em>&#160;</td>
+          <td class="paramname"><em>tStart</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>tEnd</em> = <code>535</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -402,27 +1157,63 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00150">150</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00228">228</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
 
 </div>
 </div>
-<a id="a2ca845a865a24df846bc3b1216ea1e45" name="a2ca845a865a24df846bc3b1216ea1e45"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ca845a865a24df846bc3b1216ea1e45">&#9670;&nbsp;</a></span>SetNoiseTree()</h2>
+<a id="ac39c7a0bdd420d2d8343c04898982849" name="ac39c7a0bdd420d2d8343c04898982849"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac39c7a0bdd420d2d8343c04898982849">&#9670;&nbsp;</a></span>SetNoiseTreeName() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void NoiseManager::SetNoiseTree </td>
+          <td class="memname">void NoiseManager::SetNoiseTreeName </td>
           <td>(</td>
-          <td class="paramtype">TTree *&#160;</td>
-          <td class="paramname"><em>tree</em></td><td>)</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>treename</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="NoiseManager_8cc_source.html#l00121">121</a> of file <a class="el" href="NoiseManager_8cc_source.html">NoiseManager.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00029">29</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="ac39c7a0bdd420d2d8343c04898982849" name="ac39c7a0bdd420d2d8343c04898982849"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac39c7a0bdd420d2d8343c04898982849">&#9670;&nbsp;</a></span>SetNoiseTreeName() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetNoiseTreeName </td>
+          <td>(</td>
+          <td class="paramtype">TString&#160;</td>
+          <td class="paramname"><em>treename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00029">29</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -450,7 +1241,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00039">39</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00032">32</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -478,7 +1269,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00039">39</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00032">32</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -506,7 +1297,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00040">40</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00035">35</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -534,7 +1325,119 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00040">40</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00035">35</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a0637777af2ec9c140236af7607ca8f78" name="a0637777af2ec9c140236af7607ca8f78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0637777af2ec9c140236af7607ca8f78">&#9670;&nbsp;</a></span>SetSeed() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetSeed </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>seed</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00036">36</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a0637777af2ec9c140236af7607ca8f78" name="a0637777af2ec9c140236af7607ca8f78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0637777af2ec9c140236af7607ca8f78">&#9670;&nbsp;</a></span>SetSeed() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetSeed </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>seed</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00036">36</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a3002c49189c28f807b1c0ab3cba184ee" name="a3002c49189c28f807b1c0ab3cba184ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3002c49189c28f807b1c0ab3cba184ee">&#9670;&nbsp;</a></span>SetSKGeneration() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetSKGeneration </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>gen</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00037">37</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+
+</div>
+</div>
+<a id="a3002c49189c28f807b1c0ab3cba184ee" name="a3002c49189c28f807b1c0ab3cba184ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3002c49189c28f807b1c0ab3cba184ee">&#9670;&nbsp;</a></span>SetSKGeneration() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NoiseManager::SetSKGeneration </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>gen</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00037">37</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -562,7 +1465,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00041">41</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="include_2NoiseManager_8hh_source.html#l00056">56</a> of file <a class="el" href="include_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>
@@ -590,7 +1493,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpSettings</b> ()</
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00041">41</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html#l00056">56</a> of file <a class="el" href="src_2manager_2NoiseManager_2NoiseManager_8hh_source.html">NoiseManager.hh</a>.</p>
 
 </div>
 </div>

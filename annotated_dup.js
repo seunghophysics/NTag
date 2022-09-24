@@ -9,6 +9,7 @@ var annotated_dup =
     [ "EventNTagManager", "classEventNTagManager.html", null ],
     [ "MuechkTree", "classMuechkTree.html", "classMuechkTree" ],
     [ "NoiseManager", "classNoiseManager.html", null ],
+    [ "NTagKerasManager", "classNTagKerasManager.html", null ],
     [ "NTagTMVAManager", "classNTagTMVAManager.html", null ],
     [ "NTagTree", "classNTagTree.html", "classNTagTree" ],
     [ "OpeningAngleStats", "structOpeningAngleStats.html", null ],
@@ -24,6 +25,7 @@ var annotated_dup =
     [ "TaggableTree", "classTaggableTree.html", "classTaggableTree" ],
     [ "TInterruptHandler", "classTInterruptHandler.html", null ],
     [ "TreeOut", "classTreeOut.html", null ],
+    [ "TriggerManager", "classTriggerManager.html", null ],
     [ "TRMSFitManager", "classTRMSFitManager.html", null ],
     [ "VertexFitManager", "classVertexFitManager.html", null ]
 ];

@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('include_2CandidateTagger_8hh_source.ht
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        <a class="code hl_class" href="classCandidateTagger.html">CandidateTagger</a>(std::string fitterName=<span class="stringliteral">&quot;&quot;</span>, Verbosity verbose=pDEFAULT);</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        <a class="code hl_class" href="classCandidateTagger.html">~CandidateTagger</a>();</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        <span class="keywordtype">void</span> SetVerbosity(Verbosity verbose) { fMsg.SetVerbosity(verbose); }</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keywordtype">void</span> SetTMATCHWINDOW(<span class="keywordtype">float</span> t) { TMATCHWINDOW = t; }</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="keywordtype">void</span> SetECuts(std::string cuts=<span class="stringliteral">&quot;0&quot;</span>);</div>
@@ -120,7 +120,7 @@ $(document).ready(function(){initNavTree('include_2CandidateTagger_8hh_source.ht
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> OverrideSettings(std::string outFilePath);</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keyword">virtual</span> <span class="keywordtype">int</span> Classify(<span class="keyword">const</span> <a class="code hl_class" href="classCandidate.html">Candidate</a>&amp; candidate);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keyword">protected</span>:</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        <span class="keywordtype">float</span> TMATCHWINDOW;</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
@@ -128,7 +128,7 @@ $(document).ready(function(){initNavTree('include_2CandidateTagger_8hh_source.ht
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        std::string fECuts;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        std::string fNCuts;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        TTreeFormula* fECutFormula;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        TTreeFormula* fNCutFormula; </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        TTreeFormula* fNCutFormula;</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        std::map&lt;std::string, float&gt; fFeatureMap;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        std::string fName;</div>
@@ -137,7 +137,7 @@ $(document).ready(function(){initNavTree('include_2CandidateTagger_8hh_source.ht
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aclassCandidateTagger_html"><div class="ttname"><a href="classCandidateTagger.html">CandidateTagger</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2CandidateTagger_8hh_source.html#l00012">CandidateTagger.hh:13</a></div></div>
-<div class="ttc" id="aclassCandidate_html"><div class="ttname"><a href="classCandidate.html">Candidate</a></div><div class="ttdoc">The container of signal candidate's features.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00045">Candidate.hh:46</a></div></div>
+<div class="ttc" id="aclassCandidate_html"><div class="ttname"><a href="classCandidate.html">Candidate</a></div><div class="ttdoc">The container of signal candidate's features.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Candidate_8hh_source.html#l00047">Candidate.hh:48</a></div></div>
 <div class="ttc" id="aclassNTagTMVAManager_html"><div class="ttname"><a href="classNTagTMVAManager.html">NTagTMVAManager</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2NTagTMVAManager_8hh_source.html#l00016">NTagTMVAManager.hh:17</a></div></div>
 <div class="ttc" id="aclassPrinter_html"><div class="ttname"><a href="classPrinter.html">Printer</a></div><div class="ttdoc">The class for printing messages.</div><div class="ttdef"><b>Definition:</b> <a href="include_2Printer_8hh_source.html#l00057">Printer.hh:58</a></div></div>
 <div class="ttc" id="aclassTreeOut_html"><div class="ttname"><a href="classTreeOut.html">TreeOut</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2TreeOut_8hh_source.html#l00006">TreeOut.hh:7</a></div></div>

@@ -13,7 +13,7 @@ var include_2Calculator_8hh =
     [ "GetMedian", "include_2Calculator_8hh.html#ad8019a84ad53cf928f78bf72304ba481", null ],
     [ "GetMinIndex", "include_2Calculator_8hh.html#af517f0484295b5e34c205cc6728575f8", null ],
     [ "GetOpeningAngle", "include_2Calculator_8hh.html#ae2fd8c5affd7dd0320589fe3c11d967d", null ],
-    [ "GetRangeIndex", "include_2Calculator_8hh.html#af8c50c2326b58f2357ec72d03aa21318", null ],
+    [ "GetRangeIndex", "include_2Calculator_8hh.html#a6c03c62ac3018d3b648811d836289ae6", null ],
     [ "GetRMS", "include_2Calculator_8hh.html#a4be0b689d0db357ac3f45ef0f0c7f0d3", null ],
     [ "GetSkew", "include_2Calculator_8hh.html#a18528d935e912dee378a9900ca4905c3", null ],
     [ "GetSum", "include_2Calculator_8hh.html#a6cc88caad4166e9ad7c40288e3152cd6", null ],
@@ -24,6 +24,7 @@ var include_2Calculator_8hh =
     [ "PickRandom", "include_2Calculator_8hh.html#a20f005881ecbff173d67fecac06ed9e4", null ],
     [ "PickSubdirectory", "include_2Calculator_8hh.html#a27b5b23da78a54c5e26e8cff6af9b1b7", null ],
     [ "SetSeed", "include_2Calculator_8hh.html#a8c57fdee85e4a8fdaca501516bc672a6", null ],
+    [ "Shuffle", "include_2Calculator_8hh.html#a6457065a4bd85e24341add21e003d2f6", null ],
     [ "Split", "include_2Calculator_8hh.html#a97548c9dd5632d3d921dc8e73916fcab", null ],
     [ "wallsk_", "include_2Calculator_8hh.html#a7a5052101db2bccb2bcc3cd07591888f", null ],
     [ "ranGen", "include_2Calculator_8hh.html#a1082db0ca4e2f959258d3bd6961941e3", null ]

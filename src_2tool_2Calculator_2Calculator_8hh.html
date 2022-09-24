@@ -109,6 +109,7 @@ $(document).ready(function(){initNavTree('src_2tool_2Calculator_2Calculator_8hh.
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
+<code>#include &lt;random&gt;</code><br />
 <code>#include &lt;TRandom3.h&gt;</code><br />
 <code>#include &lt;TString.h&gt;</code><br />
 <code>#include &lt;TVector3.h&gt;</code><br />
@@ -120,6 +121,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a7a5052101db2bccb2bcc3cd07591888f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a7a5052101db2bccb2bcc3cd07591888f">wallsk_</a> (float *vertex)</td></tr>
 <tr class="memdesc:a7a5052101db2bccb2bcc3cd07591888f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates a vertex's distance to the SK tank wall.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a7a5052101db2bccb2bcc3cd07591888f">More...</a><br /></td></tr>
 <tr class="separator:a7a5052101db2bccb2bcc3cd07591888f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04bc58147674a4a00bee6ca93b02f6e7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a04bc58147674a4a00bee6ca93b02f6e7">Sigmoid</a> (const float x)</td></tr>
+<tr class="separator:a04bc58147674a4a00bee6ca93b02f6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea6f359609fbd9807c931f32890c8856"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#aea6f359609fbd9807c931f32890c8856">Dot</a> (const float vec1[3], const float vec2[3])</td></tr>
 <tr class="memdesc:aea6f359609fbd9807c931f32890c8856"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dot produt of two arrays.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#aea6f359609fbd9807c931f32890c8856">More...</a><br /></td></tr>
 <tr class="separator:aea6f359609fbd9807c931f32890c8856"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,6 +183,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a20f005881ecbff173d67fecac06ed9e4"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a20f005881ecbff173d67fecac06ed9e4">PickRandom</a> (const std::vector&lt; T &gt; &amp;vec)</td></tr>
 <tr class="memdesc:a20f005881ecbff173d67fecac06ed9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pick a random value in a given vector.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a20f005881ecbff173d67fecac06ed9e4">More...</a><br /></td></tr>
 <tr class="separator:a20f005881ecbff173d67fecac06ed9e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6457065a4bd85e24341add21e003d2f6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a6457065a4bd85e24341add21e003d2f6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a6457065a4bd85e24341add21e003d2f6">Shuffle</a> (std::vector&lt; T &gt; &amp;vec)</td></tr>
+<tr class="memdesc:a6457065a4bd85e24341add21e003d2f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffle a given vector.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a6457065a4bd85e24341add21e003d2f6">More...</a><br /></td></tr>
+<tr class="separator:a6457065a4bd85e24341add21e003d2f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27b5b23da78a54c5e26e8cff6af9b1b7"><td class="memItemLeft" align="right" valign="top">TString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a27b5b23da78a54c5e26e8cff6af9b1b7">PickSubdirectory</a> (TString dirPath)</td></tr>
 <tr class="memdesc:a27b5b23da78a54c5e26e8cff6af9b1b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pick a random subdirectory from a given path.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a27b5b23da78a54c5e26e8cff6af9b1b7">More...</a><br /></td></tr>
 <tr class="separator:a27b5b23da78a54c5e26e8cff6af9b1b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,9 +199,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a3ce23408653bfdbc35e74b1a5e176d79"><td class="memItemLeft" align="right" valign="top">std::vector&lt; TString &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a3ce23408653bfdbc35e74b1a5e176d79">GetListOfSubdirectories</a> (TString dirPath)</td></tr>
 <tr class="memdesc:a3ce23408653bfdbc35e74b1a5e176d79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of subdirectories in a given directory path.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a3ce23408653bfdbc35e74b1a5e176d79">More...</a><br /></td></tr>
 <tr class="separator:a3ce23408653bfdbc35e74b1a5e176d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8c50c2326b58f2357ec72d03aa21318"><td class="memItemLeft" align="right" valign="top">std::vector&lt; unsigned int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#af8c50c2326b58f2357ec72d03aa21318">GetRangeIndex</a> (const std::vector&lt; double &gt; &amp;sortedVec, double low, double high)</td></tr>
-<tr class="memdesc:af8c50c2326b58f2357ec72d03aa21318"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a sorted vector, get a list of indices whose elements are within the input range.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#af8c50c2326b58f2357ec72d03aa21318">More...</a><br /></td></tr>
-<tr class="separator:af8c50c2326b58f2357ec72d03aa21318"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c03c62ac3018d3b648811d836289ae6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a6c03c62ac3018d3b648811d836289ae6"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; unsigned int &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a6c03c62ac3018d3b648811d836289ae6">GetRangeIndex</a> (const std::vector&lt; T &gt; &amp;sortedVec, T low, T high)</td></tr>
+<tr class="memdesc:a6c03c62ac3018d3b648811d836289ae6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a sorted vector, get a list of indices whose elements are within the input range.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#a6c03c62ac3018d3b648811d836289ae6">More...</a><br /></td></tr>
+<tr class="separator:a6c03c62ac3018d3b648811d836289ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3adcaff28750f3672dd7484a32858fd"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; float, int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#ae3adcaff28750f3672dd7484a32858fd">Histogram</a> (std::vector&lt; float &gt; vec, int nBins, float min, float max)</td></tr>
 <tr class="memdesc:ae3adcaff28750f3672dd7484a32858fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Histogram a given vector of float.  <a href="src_2tool_2Calculator_2Calculator_8hh.html#ae3adcaff28750f3672dd7484a32858fd">More...</a><br /></td></tr>
 <tr class="separator:ae3adcaff28750f3672dd7484a32858fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,11 +224,19 @@ template float&#160;</td><td class="memItemRight" valign="bottom"><b>GetMean&lt;
 <tr class="memitem:a548095197aaa366c25f89eb1c9dde4c0"><td class="memItemLeft" align="right" valign="top"><a id="a548095197aaa366c25f89eb1c9dde4c0" name="a548095197aaa366c25f89eb1c9dde4c0"></a>
 template TVector3&#160;</td><td class="memItemRight" valign="bottom"><b>GetMean&lt; TVector3 &gt;</b> (const std::vector&lt; TVector3 &gt; &amp;vec)</td></tr>
 <tr class="separator:a548095197aaa366c25f89eb1c9dde4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec7f5e00d0e26f6af9998338af09e4c5"><td class="memItemLeft" align="right" valign="top"><a id="aec7f5e00d0e26f6af9998338af09e4c5" name="aec7f5e00d0e26f6af9998338af09e4c5"></a>
+template std::vector&lt; unsigned int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRangeIndex&lt; double &gt;</b> (const std::vector&lt; double &gt; &amp;, double, double)</td></tr>
+<tr class="separator:aec7f5e00d0e26f6af9998338af09e4c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10531a33ff0f6b740ab18d1ca400d2c6"><td class="memItemLeft" align="right" valign="top"><a id="a10531a33ff0f6b740ab18d1ca400d2c6" name="a10531a33ff0f6b740ab18d1ca400d2c6"></a>
+template std::vector&lt; unsigned int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRangeIndex&lt; float &gt;</b> (const std::vector&lt; float &gt; &amp;, float, float)</td></tr>
+<tr class="separator:a10531a33ff0f6b740ab18d1ca400d2c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a1082db0ca4e2f959258d3bd6961941e3"><td class="memItemLeft" align="right" valign="top">TRandom3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a1082db0ca4e2f959258d3bd6961941e3">ranGen</a></td></tr>
 <tr class="separator:a1082db0ca4e2f959258d3bd6961941e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72b4c0f2de109253a41f863f9d0acc4d"><td class="memItemLeft" align="right" valign="top">std::default_random_engine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2tool_2Calculator_2Calculator_8hh.html#a72b4c0f2de109253a41f863f9d0acc4d">c_ranGen</a></td></tr>
+<tr class="separator:a72b4c0f2de109253a41f863f9d0acc4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Defines useful calculator functions. </p>
@@ -263,7 +279,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The dot product of the given two arrays. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00019">19</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00026">26</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -305,7 +321,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The index of a value in the given vector if the value exists, otherwise -1. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00178">178</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00184">184</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -345,7 +361,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The distance between vector 1 and 2. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00034">34</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00041">41</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -374,7 +390,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The nearest distance to the wall in cm. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00105">105</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00112">112</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -414,7 +430,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The distance to the wall in the given direction in cm. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00111">111</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00118">118</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -454,7 +470,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The i-th Legendre polynomial \(P_i (x)\) evaluated at x. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00058">58</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00065">65</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -501,7 +517,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A vector of subfile paths in string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00157">157</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00166">166</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -530,7 +546,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A vector of subdirectory paths in string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00185">185</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00194">194</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -559,7 +575,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The index of the minimum value in a given vector. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00133">133</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00141">141</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -590,7 +606,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The mean of the value distribution of <code>vec</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00108">108</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00112">112</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -621,7 +637,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The median of the value distribution of <code>vec</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00139">139</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00143">143</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -650,7 +666,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The index of the minimum value in a given vector. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00126">126</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00134">134</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -697,32 +713,34 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The opening angle (deg) defined by <code>uA</code>, <code>uB</code>, and <code>uC</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00078">78</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00085">85</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
-<a id="af8c50c2326b58f2357ec72d03aa21318" name="af8c50c2326b58f2357ec72d03aa21318"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af8c50c2326b58f2357ec72d03aa21318">&#9670;&nbsp;</a></span>GetRangeIndex()</h2>
+<a id="a6c03c62ac3018d3b648811d836289ae6" name="a6c03c62ac3018d3b648811d836289ae6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c03c62ac3018d3b648811d836289ae6">&#9670;&nbsp;</a></span>GetRangeIndex()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::vector&lt; unsigned int &gt; GetRangeIndex </td>
           <td>(</td>
-          <td class="paramtype">const std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
           <td class="paramname"><em>sortedVec</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">double&#160;</td>
+          <td class="paramtype">T&#160;</td>
           <td class="paramname"><em>low</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">double&#160;</td>
+          <td class="paramtype">T&#160;</td>
           <td class="paramname"><em>high</em>&#160;</td>
         </tr>
         <tr>
@@ -744,7 +762,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A vector of indices whose elements are within the input range. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00208">208</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00301">301</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -775,7 +793,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The RMS value of a float vector <code>T</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00119">119</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00123">123</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -806,7 +824,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The skewness of the value distribution of <code>vec</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00157">157</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00161">161</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -837,7 +855,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The sum of the values stored in <code>vec</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00093">93</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00097">97</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -891,7 +909,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A vector of pairs, whose first float is the bin center and the second int is the bin count. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00225">225</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00217">217</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -920,7 +938,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The norm of the given array. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00024">24</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00031">31</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -967,7 +985,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The norm of the vector with given coordinates. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00029">29</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00036">36</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -1007,7 +1025,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A randomly picked file path in string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00145">145</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00154">154</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -1038,7 +1056,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A randomly picked element of a given vector. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00239">239</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00245">245</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
 
 </div>
 </div>
@@ -1067,7 +1085,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A randomly picked subdirectory path in string. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00151">151</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00160">160</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -1088,7 +1106,57 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 <p >Sets seed of the random number generator </p>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00140">140</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00148">148</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+
+</div>
+</div>
+<a id="a6457065a4bd85e24341add21e003d2f6" name="a6457065a4bd85e24341add21e003d2f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6457065a4bd85e24341add21e003d2f6">&#9670;&nbsp;</a></span>Shuffle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void Shuffle </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shuffle a given vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vec</td><td>The input vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html#l00257">257</a> of file <a class="el" href="src_2tool_2Calculator_2Calculator_8hh_source.html">Calculator.hh</a>.</p>
+
+</div>
+</div>
+<a id="a04bc58147674a4a00bee6ca93b02f6e7" name="a04bc58147674a4a00bee6ca93b02f6e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04bc58147674a4a00bee6ca93b02f6e7">&#9670;&nbsp;</a></span>Sigmoid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Sigmoid </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00021">21</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -1128,7 +1196,7 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A vector of tokens (string) splitted by a given delimeter. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00250">250</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00242">242</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
@@ -1159,6 +1227,30 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a72b4c0f2de109253a41f863f9d0acc4d" name="a72b4c0f2de109253a41f863f9d0acc4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72b4c0f2de109253a41f863f9d0acc4d">&#9670;&nbsp;</a></span>c_ranGen</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::default_random_engine c_ranGen</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00018">18</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+
+</div>
+</div>
 <a id="a1082db0ca4e2f959258d3bd6961941e3" name="a1082db0ca4e2f959258d3bd6961941e3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1082db0ca4e2f959258d3bd6961941e3">&#9670;&nbsp;</a></span>ranGen</h2>
 
@@ -1180,7 +1272,7 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 <p >Global random number generator </p>
 
-<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00017">17</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Calculator_8cc_source.html#l00019">19</a> of file <a class="el" href="Calculator_8cc_source.html">Calculator.cc</a>.</p>
 
 </div>
 </div>
