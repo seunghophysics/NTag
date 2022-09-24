@@ -24,6 +24,21 @@ See the list of command line options for details.
 | NHITAC           | Total number of OD PMT hits within trigger              |
 | TrgType          | Trigger type: SHE+AFT: 2, SHE-only: 1, Else: 0          |
 | TDiff            | Time from previous event (msec)                         |
+| NCandidates      | Number of signal candidates (same as `ntag` tree)       |
+
+* Number of hits within neutron search range
+
+| Branch name      | Description                                             |
+|------------------|---------------------------------------------------------|
+| NAllHits         | # of all good ID hits                                   |
+| NAllODHits       | # of all good OD hits                                   |
+| NBadHits         | # of all masked bad ID hits                             |
+| NNegativeHits    | # of all masked ID hits with negative charge            |
+| NLargeQHits      | # of all masked ID hits with charge larger than QMAX    |
+| NDeadHitsByNoise | # of all dead ID hits due to noise hits                 |
+| NDeadHitsBySignal| # of all dead ID hits due to signal hits                |
+
+Deadtime is determined by PMTDEADTIME.
 
 * Prompt vertex
 
@@ -66,6 +81,12 @@ Following the Super-K coordinate system (tank center being the origin):
 | nu_diry          | Neutrino Y direction                                    |
 | nu_dirz          | Neutrino Z direction                                    |
 
+* Error flag
+
+| Branch name      | Description |
+|------------------|-------------|
+| HitAppendError   | Error flag for SHE+AFT hit merging (0: No error, 1: OD coincidence missing, 2: ID coincidence missing, 3: ID/OD coincidence missing) |
+
 ## hit
 
 This tree is generated if `-save_hits true` option is passed to [NTag](#ntag-exe).
@@ -79,6 +100,10 @@ with a size of the number of PMT hits in each event.
 | q             | Event PMT hit charge (p.e.)                                     |
 | i             | Event PMT hit cable number                                      |
 | s             | Event PMT hit signal flag (signal hits: 1 if `-add_noise true`) |
+| tof           | Event PMT hit time of flight from prompt vertex (ns)            |
+| dt            | Event PMT hit time from preceding hit (ns)                      |
+| b             | Event PMT hit burst noise flag (1 if dt < TRBNWIDTH)            |
+| n             | Event PMT hit tagged flag (1 if tagged as signal by NTag)       |
 
 ## particle
 
@@ -90,6 +115,7 @@ Each entry in each branch is an array with a size of the number of simulated par
 |---------------|------------------------------------------------------|
 | PID           | PDG code                                             |
 | ParentPID     | PDG code of the parent particle                      |
+| ParentIndex   | Index of the parent particle in `particle` tree      |
 | IntID         | Geant3 code of the particle generating interaction   |
 | t             | Time of production relative to trigger (µs)          |
 | x             | X coordinate of production vertex (cm)               |
@@ -98,6 +124,12 @@ Each entry in each branch is an array with a size of the number of simulated par
 | px            | Momentum in X direction (MeV/c)                      |
 | py            | Momentum in Y direction (MeV/c)                      |
 | pz            | Momentum in Z direction (MeV/c)                      |
+| ParentVX      | X coordinate of parent production vertex (cm)        |
+| ParentVY      | Y coordinate of parent production vertex (cm)        |
+| ParentVZ      | Z coordinate of parent production vertex (cm)        |
+| ParentPX      | Parent momentum in X direction (MeV/c)               |
+| ParentPY      | Parent momentum in Y direction (MeV/c)               |
+| ParentPZ      | Parent momentum in Z direction (MeV/c)               |
 | KE            | Kinetic energy (MeV)                                 |
 
 Below is the list of Geant3 interaction code used in IntID branch:
@@ -122,6 +154,13 @@ Each entry in each branch is an array with a size of the number of taggable sign
 | DWall         | Distance to nearest tank wall (cm)                             |
 | EarlyIndex    | Array index of corresponding signal candidate in `mue` tree    |
 | DelayedIndex  | Array index of corresponding signal candidate in `ntag` tree   |
+| parvx         | X coordinate of parent particle (cm)                           |
+| parvy         | Y coordinate of parent particle (cm)                           |
+| parvz         | Z coordinate of parent particle (cm)                           |
+| ParentE       | Total energy of parent particle (MeV)                          |
+| ParentT       | Parent particle creation time relative to trigger (µs)         |
+| ParentIntID   | Parent particle creation interaction ID                        |
+| ParentIndex   | Parent particle index in `particle` tree                       |
 
 ## mue
 
@@ -157,28 +196,39 @@ Each entry in the following branches is an array with a size of the number of MU
 | NCandidates   | Total number of NTag candidates                                          |
 
 Each entry in the following branches is an array with a size of the number of NTag candidates in each event.
+NN label K stands for Keras, and T stands for TMVA.
 
 | Branch name       | NN    | Description                                                                         |
 |-------------------|:-----:|-------------------------------------------------------------------------------------|
-| Beta_l            |       | \f$\beta_l=\frac{2}{N_{Hits}(N_{Hits}-1)}\sum_{i\neq j}P_l(\cos{\theta_ij})\f$      |
+| BSdirks           |       | BONSAI dirKS                                                                        |
+| BSenergy          |       | BONSAI reconstructed energy (MeV)                                                   |
+| BSovaq            |       | BONSAI ovaQ                                                                         |
+| Beta_l            |  K/T  | \f$\beta_l=\frac{2}{N_{Hits}(N_{Hits}-1)}\sum_{i\neq j}P_l(\cos{\theta_ij})\f$      |
+| BurstRatio        |   K   | Ratio of burst (dt < TRBNWIDTH) PMTs within candidate                               |
 | DPrompt           |   -   | Distance from prompt vertex to fitted vertex (cm)                                   |
-| DWall             |   O   | Distance from fitted vertex to nearest wall (cm)                                    |
-| DWallMeanDir      |   O   | Distance from fitted vertex to wall in mean hit direction (cm)                      |
-| FitGoodness       |   -   | Ad-hoc vertex fit goodness (see VertexFitManager::GetGoodness)                      |
+| DTaggable         |   -   | Distance from true taggable vertex to fitted vertex (cm)                            |
+| DWall             |  K/T  | Distance from fitted vertex to nearest wall (cm)                                    |
+| DWallMeanDir      |  K/T  | Distance from fitted vertex to wall in mean hit direction (cm)                      |
+| FitGoodness       |   K   | Ad-hoc vertex fit goodness (see VertexFitManager::GetGoodness)                      |
 | FitT              |   -   | Fitted time relative to trigger (µs)                                                |
 | Label             |   -   | True class label (0: noise, 1: decay-e, 2: p(n,γ), 3: Gd(n,γ))                      |
-| MeanDirAngleMean  |   O   | Mean of angles between each hit direction and mean hit direction                    |
-| MeanDirAngleRMS   |   O   | RMS of angles between each hit direction and mean hit direction                     |
-| N1300             |   O   | Number of hits within (520, +780) ns from FitT                                      |
-| N200              |   O   | Number of hits within ±100 ns from FitT                                             |
-| N50               |   -   | Number of hits within ±25 ns from FitT                                              |
-| NHits             |   O   | Number of hits within [TCANWIDTH](#signal-search-parameters)                        |
-| OpeningAngleMean  |   O   | Mean of all possible 3-hit opening angles                                           |
-| OpeningAngleSkew  |   O   | Skewness of all possible 3-hit opening angles                                       |
-| OpeningAngleStdev |   O   | Standard deviation of all possible 3-hit opening angles                             |
+| MeanDirAngleMean  |   T   | Mean of angles between each hit direction and mean hit direction                    |
+| MeanDirAngleRMS   |   T   | RMS of angles between each hit direction and mean hit direction                     |
+| N1300             |   T   | Number of hits within (-520, +780) ns from FitT                                     |
+| N200              |   T   | Number of hits within ±100 ns from FitT                                             |
+| N30               |   -   | Number of hits within ±15 ns from FitT                                              |
+| N3000             |   -   | Number of hits within ±15 ns from FitT                                              |
+| N50               |   -   | Number of hits within (-520, +2480) ns from FitT                                    |
+| NHits             |  K/T  | Number of hits within [TCANWIDTH](#signal-search-parameters)                        |
+| NNoisyPMT         |   -   | Number of hits with dark rate larger than average                                   |
+| NResHits          |   K   | N200 - NHits                                                                        |
+| NoisyPMTRatio     |   -   | Ratio of hits with dark rate larger than average                                    |
+| OpeningAngleMean  |   T   | Mean of all possible 3-hit opening angles                                           |
+| OpeningAngleSkew  |   T   | Skewness of all possible 3-hit opening angles                                       |
+| OpeningAngleStdev |   T   | Standard deviation of all possible 3-hit opening angles                             |
 | QSum              |   -   | Sum of deposit charge (p.e.)                                                        |
 | SignalRatio       |   -   | Ratio of signal hits (non-zero only if `-add_noise true`)                           |
-| TRMS              |   O   | RMS of ToF-subtracted hit times                                                     |
+| TRMS              |  K/T  | RMS of ToF-subtracted hit times                                                     |
 | TagClass          |   -   | Tag result (0: noise, 1: decay-e, 2: n-capture)                                     |
 | TagIndex          |   -   | Array index of corresponding taggable signal in `taggable` tree                     |
 | TagOut            |   -   | Neural-network output signal likelihood in range (0, 1)                             |

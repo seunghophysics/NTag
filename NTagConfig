@@ -52,6 +52,7 @@ TRBNWIDTH      10000
 # Event cut
 NIDHITMX       1000000
 NODHITMX       100000
+
 # SK I/O options
 SKOPTN         31,30,25
 SKBADOPT       55

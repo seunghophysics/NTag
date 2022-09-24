@@ -12,7 +12,7 @@ The following instruction assumes you are working on sukap.
 
 > CERNLIB 2005
 >
-> SKOFL: `skofl_trunk` or newer
+> SKOFL: `skofl_22a` or newer
 >
 > ATMPD: `ATMPD_21a` or newer
 >

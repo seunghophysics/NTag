@@ -22,22 +22,10 @@ Use of `-outdata` option automatically invokes option `-write_bank true`. See [o
 |`-vz`            | SK z coordinate (cm) (for `custom` mode only)                          | 0        |
 |`-PVXRES`        | Prompt vertex resolution (cm) (for `true` mode only)                   | 0        |
 |`-PVXBIAS`       | Prompt vertex bias (cm) (for `true` mode only)                         | 0        |
-|`-delayed_vertex`| One of `trms`, `bonsai`, `prompt`                                      | `bonsai` |
+|`-correct_tof`   | `true` if correcting ToF from prompt vertex, otherwise `false`         | `true`   |
+|`-delayed_vertex`| One of `trms`, `bonsai`, `prompt`, `lowfit`                            | `bonsai` |
 
-Prompt vertex options:
-- `none`: 
-- `apfit`:
-- `bonsai`:
-- `custom`:
-- `true`:
-- `stmu`:
-- `fitqun`:
-
-Delayed vertex options:
-- `bonsai`:
-- `lowfit`:
-- `trms`:
-- `prompt`:
+N.B. `-prompt_vertex none` automatically turns on `-correct_tof false`.
 
 
 ## Signal search parameters {#signal-search-parameters}
@@ -46,12 +34,15 @@ Delayed vertex options:
 |-----------------|------------------------------------------------------------------------|:-------:|
 |`-TMIN`          | Search start time relative to event trigger (µs)                       | 3       |
 |`-TMAX`          | Search end time relative to event trigger (µs)                         | 535     |
+|`-QMAX`          | Maximum allowed PMT hit charge (p.e.)                                  | 10      |
 |`-TWIDTH`        | Time window width of signal trigger (ns)                               | 14      |
-|`-NHITSTH`       | Threshold number of hits within trigger time window                    | 7       |
-|`-NHITSMX`       | Maximum number of hits within trigger time window                      | 400     |
+|`-NHITSTH`       | Hit trigger for candidate selection                                    | 7       |
+|`-NHITSMX`       | Maximum number of hits for hit trigger                                 | 400     |
 |`-N200MX`        | Maximum number of hits within 200 ns                                   | 1000    |
 |`-TMINPEAKSEP`   | Minimum time separation between two signal triggers (ns)               | 200     |
 |`-TCANWIDTH`     | Time window width to calculate features                                | 14      |
+|`-MINNHITS`      | Minimum number of allowed hits in the output                           | 7       |
+|`-MAXNHITS`      | Maximum number of allowed hits in the ouptut                           | 400     |
 
 
 ## Tagging conditions {#tag-cond-option}
@@ -61,6 +52,7 @@ The following are also valid options for [NTagApply](#ntagapply-exe).
 | Option          |                          Argument                                |                Default                |
 |-----------------|------------------------------------------------------------------|:-------------------------------------:|
 |`-TMATCHWINDOW`  | Maximum time window to match candidate with true taggable (ns)   | 50                                    |
+|`-NN_type`       | `keras` or `tmva`                                                | `keras`                               |
 |`-weight`        | TMVA weight file (.xml)                                          | `default`                             |
 |`-E_CUTS`        | Cuts for decay-e selection                                       | `(TagOut>0.7)&&(NHits>50)&&(FitT<20)` |
 |`-N_CUTS`        | Cuts for neutron capture selection                               | `(TagOut>0.7)`                        |
@@ -69,27 +61,33 @@ The following are also valid options for [NTagApply](#ntagapply-exe).
 
 The following are also valid options for [AddNoise](#addnoise-exe), where `-add_noise true` option is automatically turned on.
 
-| Option          |Argument                                 | Default |
-|-----------------|------------------------------------------------------------------------|:-------:|
-|`-add_noise`     | `true` or `false`                                                      | `false` |
-|`-noise_type`    | One of `sk5`, `sk6`, `ambe`                                            | `sk6`   |
-|`-TNOISESTART`   | Noise addition start time from event trigger (µs)                      | 2       |
-|`-TNOISEEND`     | Noise addition end time from event trigger (µs)                        | 536     |
-|`-NOISESEED`     | Random seed                                                            | 0       |
+| Option          | Argument                                                               |             Default            |
+|-----------------|------------------------------------------------------------------------|:------------------------------:|
+|`-add_noise`     | `true` or `false`                                                      | `false`                        |
+|`-repeat_noise`  | `true` if allowing repetition for limited amount of noise              | `true`                         |
+|`-noise_path`    | Directory path to search for noise files                               | `/disk02/calib3/usr/han/dummy` |
+|`-noise_type`    | One of `sk4`, `sk5`, `sk6`, `ambe`, or `default` (auto)                | `default`                      |
+|`-TNOISESTART`   | Noise addition start time from event trigger (µs)                      | 2                              |
+|`-TNOISEEND`     | Noise addition end time from event trigger (µs)                        | 536                            |
+|`-NOISESEED`     | Random seed                                                            | 0                              |
+|`-PMTDEADTIME`   | Artificial PMT deadtime (ns)                                           | 1000                           |
 
-When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in `/disk02/calib3/usr/han/dummy` are appended to the input SK MC before signal search starts. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
+When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by `-noise_path` (`/disk02/calib3/usr/han/dummy` by default) are appended to the input SK MC before signal search starts. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
 
-## PMT noise reduction
+## Variables for output variables
 
 | Option          |                               Argument                                 | Default |
 |-----------------|------------------------------------------------------------------------|:-------:|
-|`-TRBNWIDTH`     | PMT deadtime (µs)                                                      | 0       |
+|`-TGATEMIN`      | Minimum hit time from trigger for QISMSK calculation (µs)              | -0.5208 |
+|`-TGATEMAX`      | Maximum hit time from trigger for QISMSK calculation (µs)              |  0.7792 |
+|`-TRBNWIDTH`     | Time window width for burst noise (ns)                                 | 10000   |
 
 ## Event cut
 
-| Option          |                               Argument                                 | Default |
-|-----------------|------------------------------------------------------------------------|:-------:|
-|`-NODHITSMX`     | Maximum # of OD hits to allow                                          | 100000  |
+| Option          |                               Argument                                 | Default  |
+|-----------------|------------------------------------------------------------------------|:--------:|
+|`-NIDHITSMX`     | Maximum # of ID hits to allow                                          | 1000000  |
+|`-NODHITSMX`     | Maximum # of OD hits to allow                                          | 100000   |
 
 ## SK I/O
 
@@ -97,7 +95,9 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |-----------------|------------------------------------------------------------------------|:-------------:|
 |`-SKOPTN`        | List of SK read options                                                | `31,30,26,25` |
 |`-SKBADOPT`      | SK bad channel option                                                  | 0             |
-|`-REFRUNNO`      | SK reference run number                                                | 62428         |
+|`-REFRUNNO`      | SK reference run number                                                | 0             |
+
+If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
 
 ## Output {#cl-output}
 
@@ -143,7 +143,7 @@ Arguments must be space-delimited, for example: `-(option) (argument)`
 -out otherpath/output.root
 
 # options
--usetruevertex
+-prompt true
 ```
 
 A macro can be used in conjunction with command line arguments, for example: `NTag -in input.zbs -macro macro.txt`
