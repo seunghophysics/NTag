@@ -42,6 +42,8 @@ class ParticleCluster : public Cluster<Particle>, public TreeOut
         std::vector<float> fKEVector;
 
         std::vector<float> fParentPXVector, fParentVXVector;
+        std::vector<float> fParentPYVector, fParentVYVector;
+        std::vector<float> fParentPZVector, fParentVZVector;
 
     //ClassDef(ParticleCluster, 1)
 };

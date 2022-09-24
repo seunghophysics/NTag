@@ -116,7 +116,11 @@ void ParticleCluster::MakeBranches()
         fOutputTree->Branch("ParentPID", &fParentPIDVector);
         fOutputTree->Branch("ParentIndex", &fParentIndexVector);
         fOutputTree->Branch("ParentPX", &fParentPXVector);
+        fOutputTree->Branch("ParentPY", &fParentPYVector);
+        fOutputTree->Branch("ParentPZ", &fParentPZVector);
         fOutputTree->Branch("ParentVX", &fParentVXVector);
+        fOutputTree->Branch("ParentVY", &fParentVYVector);
+        fOutputTree->Branch("ParentVZ", &fParentVZVector);
         fOutputTree->Branch("IntID", &fInteractionIDVector);
         fOutputTree->Branch("t", &fTimeVector);
         fOutputTree->Branch("x", &fXVector);
@@ -132,7 +136,11 @@ void ParticleCluster::MakeBranches()
 void ParticleCluster::FillTree()
 {
     fParentPXVector.clear();
+    fParentPYVector.clear();
+    fParentPZVector.clear();
     fParentVXVector.clear();
+    fParentVYVector.clear();
+    fParentVZVector.clear();
 
     fPIDVector.clear();
     fParentPIDVector.clear();
@@ -153,7 +161,11 @@ void ParticleCluster::FillTree()
         fPIDVector.push_back(particle.PID());
         fParentPIDVector.push_back(particle.ParentPID());
         fParentPXVector.push_back(particle.ParentMomentum().x());
+        fParentPYVector.push_back(particle.ParentMomentum().y());
+        fParentPZVector.push_back(particle.ParentMomentum().z());
         fParentVXVector.push_back(particle.ParentVertex().x());
+        fParentVYVector.push_back(particle.ParentVertex().y());
+        fParentVZVector.push_back(particle.ParentVertex().z());
         fParentIndexVector.push_back(particle.ParentIndex());
         fInteractionIDVector.push_back(particle.IntID());
         fTimeVector.push_back(particle.Time());
