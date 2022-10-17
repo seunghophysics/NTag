@@ -9,6 +9,7 @@
 #include "Printer.hh"
 #include "Store.hh"
 #include "SKIO.hh"
+#include "git.h"
 
 int main(int argc, char **argv)
 {

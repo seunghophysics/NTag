@@ -17,6 +17,7 @@
 #include "SKLibs.hh"
 #include "NoiseManager.hh"
 #include "EventNTagManager.hh"
+#include "git.h"
 
 int main(int argc, char** argv)
 {
@@ -36,6 +37,8 @@ int main(int argc, char** argv)
     }
     ntagManager.ReadArguments(parser);
     Store& settings = ntagManager.GetSettings();
+    settings.Set("commit", gitcommit);
+    settings.Set("tag", gittag);
 
     Printer msg("NTag", pDEFAULT);
 
