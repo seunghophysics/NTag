@@ -18,6 +18,7 @@ inc: dirs
 	@cp `find src/ -name '*.hh'` include
 
 main/git.c: .git/HEAD .git/index
+	@echo "const char *gitdate = \"$(shell git show -s --format=%ci)\";" >> $@
 	@echo "const char *gitcommit = \"$(shell git rev-parse HEAD)\";" >> $@
 	@echo "const char *gittag = \"$(shell git describe --tags)\";" >> $@
 

@@ -19,8 +19,13 @@
 #include "EventNTagManager.hh"
 #include "git.h"
 
+void PrintNTag();
+void PrintVersion();
+
 int main(int argc, char** argv)
 {
+    PrintNTag();
+
     ArgParser parser(argc, argv);
     EventNTagManager ntagManager;
 
@@ -121,4 +126,27 @@ int main(int argc, char** argv)
     if (noiseManager) delete noiseManager;
 
     return 0;
+}
+
+void PrintNTag()
+{
+    std::cout << "\n" <<std::endl;
+    std::cout << "              _____________________________________"       << std::endl;
+    std::cout << "                _   _     _____      _       ____  "       << std::endl;
+    std::cout << "               | \\ |\"|   |_ \" _| U  /\"\\  uU /\"___|u" << std::endl;
+    std::cout << "              <|  \\| |>    | |    \\/ _ \\/ \\| |  _ /"   << std::endl;
+    std::cout << "              U| |\\  |u   /| |\\   / ___ \\  | |_| | "    << std::endl;
+    std::cout << "               |_| \\_|   u |_|U  /_/   \\_\\  \\____| "   << std::endl;
+    std::cout << "               ||   \\\\,-._// \\\\_  \\\\    >>  _)(|_  " << std::endl;
+    std::cout << "               (_\")  (_/(__) (__)(__)  (__)(__)__) "      << std::endl;
+    std::cout << "              _____________________________________"       << std::endl;
+
+    PrintVersion();
+}
+
+void PrintVersion()
+{
+    std::string commit(gitcommit);
+    std::cout << "              NTag version " << gittag << " (" << commit.substr(0,6) << ")\n"
+              << "              Last updated " << gitdate << "\n\n" << std::endl;
 }
