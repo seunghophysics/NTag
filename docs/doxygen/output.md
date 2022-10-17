@@ -81,6 +81,18 @@ Following the Super-K coordinate system (tank center being the origin):
 | nu_diry          | Neutrino Y direction                                    |
 | nu_dirz          | Neutrino Z direction                                    |
 
+* Added noise
+
+If run with `-add_noise true`, the following branches will be added to track where the added (random trigger) noise hits come from.
+
+| Branch name      | Description                                             |
+|------------------|---------------------------------------------------------|
+| NoiseRunNo       | Run number of the added noise hits                      |
+| NoiseSubrunNo    | Subrun number of the added noise hits                   |
+| NoiseEventNo     | Event number of the added noise hits                    |
+| NoiseEventTStart | t_min within the original noise event (ns)              |
+| NoiseEventTEnd   | t_max within the original noise event (ns)              |
+
 * Error flag
 
 | Branch name      | Description |

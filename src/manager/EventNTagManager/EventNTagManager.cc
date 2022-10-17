@@ -327,11 +327,17 @@ void EventNTagManager::AddHits()
 
 void EventNTagManager::AddNoise()
 {
-    fNoiseManager->AddIDNoise(&fEventHits);
-
     // replace OD hits with dark noise from dummy trigger data
     fEventODHits.Clear();
-    fNoiseManager->AddODNoise(&fEventODHits);
+
+    fNoiseManager->AddIDODNoise(&fEventHits, &fEventODHits);
+
+    float tNoiseWindowWidth = (fSettings.GetFloat("TNOISEEND")-fSettings.GetFloat("TNOISESTART")) * 1e3; // usec
+    fEventVariables.Set("NoiseRunNo",       fNoiseManager->GetCurrentRun());
+    fEventVariables.Set("NoiseSubrunNo",    fNoiseManager->GetCurrentSubrun());
+    fEventVariables.Set("NoiseEventNo",     fNoiseManager->GetCurrentEventID());
+    fEventVariables.Set("NoiseEventTStart", fNoiseManager->GetCurrentPartStartTime());
+    fEventVariables.Set("NoiseEventTEnd",   fNoiseManager->GetCurrentPartEndTime());
 }
 
 void EventNTagManager::ReadParticles()
@@ -1252,9 +1258,10 @@ void EventNTagManager::FindReferenceRun()
                    (skhead_.nrunsk != 999999 ? skhead_.nrunsk :
                    ((fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 0));
 
-        if (!refRunNo)
+        if (!refRunNo) {
             fMsg.Print("Unable to determine reference run number for the input MC, "
                        "specify reference run number with -REFRUNNO option.", pERROR);
+        }
     }
 
     int readStatus = SKIO::SetBadChannels(refRunNo, 0);

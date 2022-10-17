@@ -58,10 +58,14 @@ class NoiseManager
         // add noise to input PMTHitCluster
         void AddIDNoise(PMTHitCluster* signalHits);
         void AddODNoise(PMTHitCluster* signalHits);
+        void AddIDODNoise(PMTHitCluster* idSignalHits, PMTHitCluster* odSignalHits);
 
         int GetCurrentRun() { return fHeader->nrunsk; }
         int GetCurrentSubrun() { return fHeader->nsubsk; }
         int GetCurrentEventID() { return fHeader->nevsk; }
+        float GetCurrentHitTime() { return fIDNoiseEventHits[fCurrentIDHitIndex].t(); }
+        float GetCurrentPartStartTime() { return fCurrentPartStartTime; }
+        float GetCurrentPartEndTime() { return fCurrentPartEndTime; }
         TChain* GetNoiseChain() { return fNoiseTree; }
 
     protected:
@@ -84,6 +88,7 @@ class NoiseManager
         int fNoiseSeed;
 
         float fNoiseEventLength;
+        float fNoiseEventMinT, fNoiseEventMaxT;
         float fNoiseStartTime, fNoiseEndTime, fNoiseWindowWidth;
         float fNoiseT0;
 
@@ -97,11 +102,12 @@ class NoiseManager
 
         int fCurrentIDHitIndex, fCurrentODHitIndex, fCurrentEntry, fNEntries;
         int fPartID, fNParts;
+        float fCurrentPartStartTime, fCurrentPartEndTime;
 
         bool fDoRepeat, fDoN200Cut;
 
-        std::vector<float> fT, fQ;
-        std::vector<int>   fI;
+        //std::vector<float> fT, fQ;
+        //std::vector<int>   fI;
 
         PMTHitCluster fIDNoiseEventHits;
         PMTHitCluster fODNoiseEventHits;
