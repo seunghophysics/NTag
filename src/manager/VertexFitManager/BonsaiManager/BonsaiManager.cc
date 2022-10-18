@@ -65,7 +65,9 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
 
     int maxpm = MAXPM;
     cfbsinit_(&maxpm, GetPMTPositionArray());
-    int elapsedDays = skday_data_.relapse[refRunNo-1];
+
+    // 1000 subtraction is for treatment of run start offset
+    int elapsedDays = skday_data_.relapse[refRunNo-1000]; 
     waterTransparency = 12431.3;
     if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
 
@@ -188,10 +190,19 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         skhead_.nrunsk = original_nrunsk;
     }
     else {
-        if (skheadg_.sk_geometry >= 5)
+        // for no-normal run, switch nrunsk to reference run number temporarily
+        if (fRefRunNo) skhead_.nrunsk = fRefRunNo;
+
+        std::cout << skheadg_.sk_geometry << std::endl;
+        if (skheadg_.sk_geometry >= 6)
+            lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+        if (skheadg_.sk_geometry == 5)
             lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else
             lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+
+        // ...and switch back
+        skhead_.nrunsk = original_nrunsk;
     }
 
     // retreive common block
