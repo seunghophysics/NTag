@@ -94,7 +94,7 @@ bool PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
     for (auto const& hit: hitCluster) {
         if (doAppend) Append(hit);
         Float hitT = hit.t();
-        if ((tSharedLowerBound < hitT) && (hitT < tSharedUpperBound) && (hit == lastHit)) {
+        if ((tSharedLowerBound < hitT) && (hitT < tSharedUpperBound) && (hit.i() == lastHit.i())) {
             doAppend = true;
         }
     }
