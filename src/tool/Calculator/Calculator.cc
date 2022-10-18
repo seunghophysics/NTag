@@ -122,13 +122,15 @@ float GetDWallInDirection(TVector3 vtx, TVector3 dir)
 
     float dot = vtx.Dot(dir) - vtx.z()*dir.z();
     float dirSq = dir.Perp2(); float vtxSq = vtx.Perp2();
+    //float dirx = dir.x(); float diry = dir.y(); float dirz = dir.z();
 
     // Calculate distance to barrel and distance to top/bottom
     float distR = fabs((-dot + sqrt(dot*dot + dirSq*(RINTK*RINTK - vtxSq))) / dirSq);
     float distZ = fabs(dir.z() > 0 ? (ZPINTK-vtx.z())/dir.z() : (ZMINTK-vtx.z())/dir.z());
 
     // Return the smaller
-    return distR < distZ ? distR : distZ;
+    if (std::isnan(distZ)) return distR;
+    else return  distR < distZ ? distR : distZ;
 }
 
 unsigned int GetMinIndex(std::vector<float>& vec)

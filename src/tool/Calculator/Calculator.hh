@@ -163,14 +163,15 @@ float GetSkew(const std::vector<T>& vec)
     float m3 = 0;
     float mean = GetMean(vec);
     float N = vec.size();
+    float rms = GetRMS(vec);
 
     for (auto const& value: vec) {
         m3 += pow((value - mean), 3.);
     }
     m3 /= N;
 
-    if (m3==0) return 0;
-    else return m3 / pow(GetRMS(vec), 1.5);
+    if (m3==0 || rms==0) return 0;
+    else return m3 / pow(rms, 1.5);
     //return skew;
 }
 
