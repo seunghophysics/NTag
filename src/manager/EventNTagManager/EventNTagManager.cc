@@ -454,7 +454,8 @@ void EventNTagManager::ProcessEvent()
         else if (nnType=="keras") {
             if (weightPath=="default") {
                 int skGeometry = SKIO::GetSKGeometry();
-                weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedMode;
+                auto delayedKerasModel = (delayedMode=="lowfit"? std::string("bonsai") : delayedMode);
+                weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedKerasModel;
             }
             fKerasManager.LoadWeights(weightPath);
         }
