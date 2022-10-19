@@ -85,17 +85,21 @@ float GetLegendreP(int i, float& x)
 float GetOpeningAngle(TVector3 uA, TVector3 uB, TVector3 uC)
 {
     // make sure the inputs are unit vectors
-    // uA = uA.Unit(); uB = uB.Unit(); uC = uC.Unit();
+    uA = uA.Unit(); uB = uB.Unit(); uC = uC.Unit();
+
+    //float ax = uA.x(); float ay = uA.y(); float az = uA.z();
+    //float bx = uB.x(); float by = uB.y(); float bz = uB.z();
+    //float cx = uC.x(); float cy = uC.y(); float cz = uC.z();
 
     // sides of the triangle formed by the three unit vectors
     double a = (uA-uB).Mag();
     double b = (uC-uA).Mag();
     double c = (uB-uC).Mag();
 
-    if (a*b*c == 0) {
-        //double angleAB = (180./M_PI) * uA.Angle(uB)/2.;
-        //double angleAC = (180./M_PI) * uA.Angle(uC)/2.;
-        return uA.Angle(uB) == 0 ? (uA.Angle(uC) == 0 ? 0 : uA.Angle(uC)) : uA.Angle(uB);
+    if (fabs(a*b*c) < 1e-15) {
+        double angleAB = uA.Angle(uB);
+        double angleAC = uA.Angle(uC);
+        return (180./M_PI) * (angleAB ? (angleAC ? 0 : angleAC) : angleAB);
     }
 
     else {
