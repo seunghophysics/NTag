@@ -1262,7 +1262,13 @@ void EventNTagManager::FindReferenceRun()
 
         if (!refRunNo) {
             fMsg.Print("Unable to determine reference run number for the input MC, "
-                       "specify reference run number with -REFRUNNO option.", pERROR);
+                       "using default reference number...", pWARNING);
+            int skgeom = skheadg_.sk_geometry;
+            if      (skgeom==4) refRunNo = 63277;
+            else if (skgeom==5) refRunNo = 82010;
+            else if (skgeom==6) refRunNo = 85688;
+            else if (skgeom==7) refRunNo = 90488;
+            else fMsg.Print(Form("Unsupported SK geometry: %d!", skgeom), pERROR);
         }
     }
 
