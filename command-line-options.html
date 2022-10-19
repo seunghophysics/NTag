@@ -109,6 +109,22 @@ File I/O</h1>
 </table>
 <p >Use of <code>-outdata</code> option automatically invokes option <code>-write_bank true</code>. See <a class="el" href="command-line-options.html#cl-output">output</a>.</p>
 <h1><a class="anchor" id="autotoc_md7"></a>
+Run mode</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Option   </th><th class="markdownTableHeadNone">Argument   </th><th class="markdownTableHeadCenter">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-mode</code>   </td><td class="markdownTableBodyNone">Run mode   </td><td class="markdownTableBodyCenter">-   </td></tr>
+</table>
+<p >The run mode option <code>-mode</code> is to provide users a standard set of options for each delayed vertex mode and neural network type. The argument to <code>-mode</code> can be one of the following, which are in the form of <code>delayed_vertex</code>_<code>NN_type</code>:</p><ul>
+<li><code>prompt_keras</code>: assume (prompt vertex)=(delayed vertex), use Keras neural network (SK4,5,6,7)</li>
+<li><code>prompt_tmva</code>: assume (prompt vertex)=(delayed vertex), use TMVA neural network (SK6,7)</li>
+<li><code>bonsai_keras</code>: use BONSAI and Keras neural network (SK6,7)</li>
+<li><code>bonsai_tmva</code>: use BONSAI and TMVA neural network(SK6,7)</li>
+<li><code>lowfit_cuts</code>: use LOWFIT and simple cuts (no neural-network invovled), standard in the LOWE group (SK6,7)</li>
+</ul>
+<p >The implementation of this mode is based on the card files in the <code>card</code> directory. For example, <code>-mode prompt_keras</code> works in the same way as <code>-macro $NTAGLIBPATH/card/prompt_keras.card</code>. The options in the card can be overridden by other command line options or another card/macro file given by the <code>-macro</code> command.</p>
+<h1><a class="anchor" id="autotoc_md8"></a>
 Vertex</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -200,7 +216,7 @@ Dark noise</h1>
 <td class="markdownTableBodyNone"><code>-PMTDEADTIME</code>   </td><td class="markdownTableBodyNone">Artificial PMT deadtime (ns)   </td><td class="markdownTableBodyCenter">1000   </td></tr>
 </table>
 <p >When <code>-add_noise true</code> option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by <code>-noise_path</code> (<code>/disk02/calib3/usr/han/dummy</code> by default) are appended to the input SK MC before signal search starts. Note that <code>-NOISESEED 0</code> (which is default) will set a seed used in the random number generator according to the current UNIX time.</p>
-<h1><a class="anchor" id="autotoc_md8"></a>
+<h1><a class="anchor" id="autotoc_md9"></a>
 Variables for output variables</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -212,7 +228,7 @@ Variables for output variables</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-TRBNWIDTH</code>   </td><td class="markdownTableBodyNone">Time window width for burst noise (ns)   </td><td class="markdownTableBodyCenter">10000   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Event cut</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -222,7 +238,7 @@ Event cut</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-NODHITSMX</code>   </td><td class="markdownTableBodyNone">Maximum # of OD hits to allow   </td><td class="markdownTableBodyCenter">100000   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md10"></a>
+<h1><a class="anchor" id="autotoc_md11"></a>
 SK I/O</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -248,7 +264,7 @@ Output</h1>
 <td class="markdownTableBodyNone"><code>-save_hits</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">Save raw PMT hit information to output and create <code>hit</code> tree   </td><td class="markdownTableBodyCenter"><code>false</code>   </td></tr>
 </table>
 <p >When reading data (not MC) files, NTag automatically merges PMT hits from an SHE-triggered event with those from the subsequent AFT-triggered events. This automatic AFT merging can be turned off by passing <code>-force_flat true</code> to keep each event separate as in MC.</p>
-<h1><a class="anchor" id="autotoc_md11"></a>
+<h1><a class="anchor" id="autotoc_md12"></a>
 TRMS-fit</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -264,7 +280,7 @@ TRMS-fit</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>-VTXMAXRADIUS</code>   </td><td class="markdownTableBodyNone">Maximum radius of fit vertex from tank center (cm)   </td><td class="markdownTableBodyCenter">5000   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md12"></a>
+<h1><a class="anchor" id="autotoc_md13"></a>
 Logging</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -274,7 +290,7 @@ Logging</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>-debug</code>   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md13"></a>
+<h1><a class="anchor" id="autotoc_md14"></a>
 Macro rules</h1>
 <p >Use <code>#</code> as the first character in a line to make the entire line a comment.</p>
 <p >Arguments must be space-delimited, for example: <code>-(option) (argument)</code></p>
@@ -289,7 +305,7 @@ Macro rules</h1>
 <div class="line"> </div>
 <div class="line"># options</div>
 <div class="line">-prompt true</div>
-</div><!-- fragment --><p >A macro can be used in conjunction with command line arguments, for example: <code>NTag -in input.zbs -macro macro.txt</code> The priority order is command line arguments &gt; macro &gt; <a href="NTagConfig_source.html">NTagConfig</a>. </p>
+</div><!-- fragment --><p >A macro can be used in conjunction with command line arguments, for example: <code>NTag -in input.zbs -macro macro.txt</code> The priority order is command line arguments &gt; macro &gt; run mode &gt; <a href="NTagConfig_source.html">NTagConfig</a>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

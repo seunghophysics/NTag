@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wallsk_5f_0',['wallsk_',['../include_2Calculator_8hh.html#a7a5052101db2bccb2bcc3cd07591888f',1,'wallsk_(float *vertex):&#160;Calculator.hh'],['../src_2tool_2Calculator_2Calculator_8hh.html#a7a5052101db2bccb2bcc3cd07591888f',1,'wallsk_(float *vertex):&#160;Calculator.hh']]]
+  ['timer_0',['Timer',['../classPrinter.html#afb6407093cc64b0edff63b09a3785691',1,'Printer::Timer(TString line, std::clock_t tStart, Verbosity vType=pDEFAULT)'],['../classPrinter.html#a1600470c23d9e8747e19dca9221e3fd6',1,'Printer::Timer(TString line, std::clock_t tStart, Verbosity vType=pDEFAULT)']]]
 ];

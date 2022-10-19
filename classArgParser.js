@@ -14,6 +14,8 @@ var classArgParser =
     [ "operator+=", "classArgParser.html#a5387dde45882e3e3bc511f33d48966f5", null ],
     [ "OptionExists", "classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4", null ],
     [ "OptionExists", "classArgParser.html#a19b0fda7d6d95e6a4fca4bd1abcfaff4", null ],
+    [ "ReadFile", "classArgParser.html#a4b1c86c08cdd96bf4847a87c6211c830", null ],
+    [ "ReadFile", "classArgParser.html#a4b1c86c08cdd96bf4847a87c6211c830", null ],
     [ "SetTokens", "classArgParser.html#a01938f0d0ca8e1d5cb86de2d0cffc621", null ],
     [ "SetTokens", "classArgParser.html#a01938f0d0ca8e1d5cb86de2d0cffc621", null ]
 ];
