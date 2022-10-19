@@ -23,7 +23,7 @@ The argument to `-mode` can be one of the following, which are in the form of `d
 - `prompt_keras`: assume (prompt vertex)=(delayed vertex), use Keras neural network (SK4,5,6,7)
 - `prompt_tmva`: assume (prompt vertex)=(delayed vertex), use TMVA neural network (SK6,7)
 - `bonsai_keras`: use BONSAI and Keras neural network (SK6,7)
-- `bonsai_tmva`: use BONSAI and TMVA neural network(SK6,7)
+- `bonsai_tmva`: use BONSAI and TMVA neural network (SK6,7)
 - `lowfit_cuts`: use LOWFIT and simple cuts (no neural-network invovled), standard in the LOWE group (SK6,7)
 
 The implementation of this mode is based on the card files in the `card` directory. 
