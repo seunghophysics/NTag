@@ -120,6 +120,10 @@ int main(int argc, char** argv)
         ntagManager.ProcessEvent();
     }
 
+    // just in case the final data event was SHE without AFT
+    if (!ntagManager.GetHits().IsEmpty())
+        ntagManager.SearchAndFill();
+
     // save output and exit
     ntagManager.WriteTrees();
     if (ntagOutFile)  ntagOutFile->Close();
