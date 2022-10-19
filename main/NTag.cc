@@ -28,24 +28,48 @@ int main(int argc, char** argv)
 
     ArgParser parser(argc, argv);
     EventNTagManager ntagManager;
+    Printer msg("NTag", pDEFAULT);
 
     const std::string inputFilePath = parser.GetOption("-in");
     const std::string outputFilePath = parser.GetOption("-out");
     const std::string outDataFilePath = parser.GetOption("-outdata");
     const std::string macroPath = parser.GetOption("-macro");
 
-    // read macro and override by arguments
-    if (parser.OptionExists("-macro")) {
-        std::ifstream macro(parser.GetOption("-macro"));
-        ArgParser fparser(macro);
-        parser += fparser;
+    if (parser.OptionExists("-mode")) {
+        auto mode = parser.GetOption("-mode");
+        auto cardPath = GetENV("NTAGLIBPATH") + std::string("card/") + mode + std::string(".card");
+        if (DoesExist(cardPath)) parser.ReadFile(cardPath);
+        else msg.Print("Wrong input mode: " + parser.GetOption("-mode"), pERROR);
     }
+
+    // read macro and override by arguments
+    if (parser.OptionExists("-macro"))
+        parser.ReadFile(parser.GetOption("-macro"));
+
     ntagManager.ReadArguments(parser);
     Store& settings = ntagManager.GetSettings();
     settings.Set("commit", gitcommit);
     settings.Set("tag", gittag);
 
-    Printer msg("NTag", pDEFAULT);
+    // delayed mode check
+    if (!settings.HasKey("delayed_vertex")) {
+        msg.Print(Form("No delayed vertex option specified, "
+                       "use BONSAI for delayed signal vertex reconstruction by default..."), pWARNING);
+        settings.Set("delayed_vertex", "bonsai");
+    }
+
+    // prompt vertex check
+    if (!settings.HasKey("prompt_vertex")) {
+
+        if (settings.GetString("delayed_vertex")=="prompt") {
+            msg.Print("No prompt vertex option specified for delayed vertex mode \"prompt\"!", pERROR);
+        }
+        else {
+            msg.Print(Form("No prompt vertex option specified. NOT correcting photon ToF in signal search by default..."), pWARNING);
+            settings.Set("prompt_vertex", "none");
+            settings.Set("correct_tof", "false");
+        }
+    }
 
     if (!outDataFilePath.empty()) {
         SuperManager* superManager = SuperManager::GetManager();
@@ -82,7 +106,7 @@ int main(int argc, char** argv)
 
     // NTagManager reads settings from the arguments
     // Settings specified in the arguments will override the default
-    ntagManager.ReadArguments(parser);
+    //ntagManager.ReadArguments(parser);
     ntagManager.ApplySettings();
     ntagManager.DumpSettings();
 
@@ -91,7 +115,7 @@ int main(int argc, char** argv)
     if (settings.GetBool("add_noise", false)) {
         noiseManager = new NoiseManager;
         noiseManager->ApplySettings(settings, nInputEvents);
-        
+
         // PMT deadtime will be covered in EventNTagManager,
         // so override PMT deadtime in noiseManager with zero for now
         noiseManager->SetPMTDeadtime(0);

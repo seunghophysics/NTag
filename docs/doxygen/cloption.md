@@ -12,6 +12,24 @@ Default option values are defined in <a href=NTagConfig_source.html>NTagConfig</
 
 Use of `-outdata` option automatically invokes option `-write_bank true`. See [output](#cl-output).
 
+## Run mode
+
+| Option          |                               Argument                                 | Default |
+|---------------- |------------------------------------------------------------------------|:-------:|
+|`-mode`          | Run mode                                                               | -       |
+
+The run mode option `-mode` is to provide users a standard set of options for each delayed vertex mode and neural network type.
+The argument to `-mode` can be one of the following, which are in the form of `delayed_vertex`_`NN_type`:
+- `prompt_keras`: assume (prompt vertex)=(delayed vertex), use Keras neural network (SK4,5,6,7)
+- `prompt_tmva`: assume (prompt vertex)=(delayed vertex), use TMVA neural network (SK6,7)
+- `bonsai_keras`: use BONSAI and Keras neural network (SK6,7)
+- `bonsai_tmva`: use BONSAI and TMVA neural network(SK6,7)
+- `lowfit_cuts`: use LOWFIT and simple cuts (no neural-network invovled), standard in the LOWE group (SK6,7)
+
+The implementation of this mode is based on the card files in the `card` directory. 
+For example, `-mode prompt_keras` works in the same way as `-macro $NTAGLIBPATH/card/prompt_keras.card`.
+The options in the card can be overridden by other command line options or another card/macro file given by the `-macro` command.
+
 ## Vertex
 
 | Option          |                               Argument                                 | Default  |
@@ -147,4 +165,4 @@ Arguments must be space-delimited, for example: `-(option) (argument)`
 ```
 
 A macro can be used in conjunction with command line arguments, for example: `NTag -in input.zbs -macro macro.txt`
-The priority order is command line arguments > macro > <a href=NTagConfig_source.html>NTagConfig</a>.
+The priority order is command line arguments > macro > run mode > <a href=NTagConfig_source.html>NTagConfig</a>.
