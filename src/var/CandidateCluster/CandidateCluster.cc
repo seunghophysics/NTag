@@ -55,12 +55,15 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
             for (auto const& key: keys) {
                 int textWidth = key.size()>6 ? key.size() : 6;
                 float value = fElement[iCandidate][key];
-
-                if (TString(key).Contains("Index")) {
+                auto keyString = TString(key);
+                if (keyString.Contains("Index")) {
                     std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " ";
                 }
-                else if (TString(key).Contains("FitT") && fabs(value) < 10) {
+                else if (keyString.Contains("FitT") && fabs(value) < 10) {
                     std::cout << std::fixed << std::setprecision(2) << std::setw(textWidth) << value << " ";
+                }
+                else if (keyString.Contains("BSenergy")) {
+                    std::cout << std::setw(textWidth) << (value>=0 ? Form("%3.2f",value) : "-");
                 }
                 else if (key == "Label") {
                     if (value <= lNoise) std::cout << std::right << std::setw(textWidth) << "-";
