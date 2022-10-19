@@ -1,6 +1,6 @@
 # NTag
 
-The user document can be better viewed from <a href=https:://seunghophysics.github.com/NTag>this link</a>.
+The user document can be better viewed from <a href=https://seunghophysics.github.io/NTag>this link</a>.
 
 NTag is a C++ library that helps users search for neutron capture signals from all kinds of Super-Kamiokande data and simulation. Users can directly run the main executable NTag on any Super-K data/MC file to get an output ROOT file with the [ntag tree](#output-tree-structure) that has all the features extracted by the signal candidates, or utilize the NTag <a href=annotated.html>classes</a> and <a href=include_2Calculator_8hh.html>calculator functions</a> in their own program by linking to the library.
 
