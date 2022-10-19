@@ -64,6 +64,12 @@ class ArgParser{
         }
 
         /**
+         * @brief Concatenate tokens from a file.
+         * @param path Path to file.
+         */
+        ArgParser& ReadFile(std::string path);
+
+        /**
          * @brief Get the vector of option-value pairs.
          * @return A vector of pairs, whose first string is an input option
          * and the second string is the option's value.
