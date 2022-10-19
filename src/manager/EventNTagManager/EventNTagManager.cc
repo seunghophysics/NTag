@@ -659,13 +659,14 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("prompt_vertex", promptVertexMode);
     fSettings.Get("delayed_vertex", delayedVertexMode);
 
-    SetVertexMode(fPromptVertexMode, promptVertexMode);
-    SetVertexMode(fDelayedVertexMode, delayedVertexMode);
+    if (!promptVertexMode.empty())  SetVertexMode(fPromptVertexMode, promptVertexMode);
+    if (!delayedVertexMode.empty()) SetVertexMode(fDelayedVertexMode, delayedVertexMode);
 
     if (fDelayedVertexMode == mTRMS)
         fDelayedVertexManager = &fTRMSFitManager;
-    else if (fDelayedVertexMode == mBONSAI)
+    else if (fDelayedVertexMode == mBONSAI) {
         fDelayedVertexManager = &fBonsaiManager;
+    }
     else if (fDelayedVertexMode == mLOWFIT) {
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
@@ -826,7 +827,7 @@ void EventNTagManager::DumpEvent()
     fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
                                            "Label", "TagIndex", "fvx", "fvy", "fvz", "DTaggable", "TagClass"});
     if (fSettings.GetBool("print", true)) {
-        fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","));
+        fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","), !fSettings.GetBool("debug", false));
     }
 }
 

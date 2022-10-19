@@ -26,10 +26,10 @@ CandidateCluster::~CandidateCluster()
     }
 }
 
-void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
+void CandidateCluster::DumpAllElements(std::vector<std::string> keys, bool showTaggedOnly) const
 {
     Printer msg;
-    msg.PrintBlock(fName + " Candidates", pSUBEVENT);
+    msg.PrintBlock(fName + (showTaggedOnly?" Tagged":"") + " Candidates", pSUBEVENT);
 
     if (!GetSize()) {
         msg.Print("No candidate in cluster!");
@@ -50,6 +50,9 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
         std::cout << "\033[0m\n";
 
         for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
+
+            if (showTaggedOnly && fElement[iCandidate].Get("TagClass")==0) continue;
+
             std::cout << std::right << std::setw(4) << iCandidate+1 << " ";
             auto candidateFeatureMap = fElement[iCandidate].GetFeatureMap();
             for (auto const& key: keys) {
