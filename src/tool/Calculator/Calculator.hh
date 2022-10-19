@@ -54,6 +54,18 @@ static std::string GetENV(const char* pathName)
     return ( getenv(pathName) ? std::string( getenv(pathName) ) + "/" : std::string("") );
 }
 
+/**
+ * @brief Check if file exists.
+ * @param path Path to file.
+ */
+static bool DoesExist(const std::string& path) {
+    if (FILE *file = fopen(path.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } 
+    else return false;
+}
+
 float Sigmoid(const float x);
 
 /**
