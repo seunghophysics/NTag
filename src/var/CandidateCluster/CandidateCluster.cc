@@ -26,10 +26,10 @@ CandidateCluster::~CandidateCluster()
     }
 }
 
-void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
+void CandidateCluster::DumpAllElements(std::vector<std::string> keys, bool showTaggedOnly) const
 {
     Printer msg;
-    msg.PrintBlock(fName + " Candidates", pSUBEVENT);
+    msg.PrintBlock(fName + (showTaggedOnly?" Tagged":"") + " Candidates", pSUBEVENT);
 
     if (!GetSize()) {
         msg.Print("No candidate in cluster!");
@@ -50,17 +50,23 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys) const
         std::cout << "\033[0m\n";
 
         for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
+
+            if (showTaggedOnly && fElement[iCandidate].Get("TagClass")==0) continue;
+
             std::cout << std::right << std::setw(4) << iCandidate+1 << " ";
             auto candidateFeatureMap = fElement[iCandidate].GetFeatureMap();
             for (auto const& key: keys) {
                 int textWidth = key.size()>6 ? key.size() : 6;
                 float value = fElement[iCandidate][key];
-
-                if (TString(key).Contains("Index")) {
+                auto keyString = TString(key);
+                if (keyString.Contains("Index")) {
                     std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " ";
                 }
-                else if (TString(key).Contains("FitT") && fabs(value) < 10) {
+                else if (keyString.Contains("FitT") && fabs(value) < 10) {
                     std::cout << std::fixed << std::setprecision(2) << std::setw(textWidth) << value << " ";
+                }
+                else if (keyString.Contains("BSenergy")) {
+                    std::cout << std::setw(textWidth) << (value>=0 ? Form("%3.2f",value) : "-");
                 }
                 else if (key == "Label") {
                     if (value <= lNoise) std::cout << std::right << std::setw(textWidth) << "-";

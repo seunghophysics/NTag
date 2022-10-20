@@ -1,9 +1,9 @@
 # prompt vertex
 # available options: none, apfit, bonsai, custom, true, stmu, fitqun
-prompt_vertex  custom 
-vx             0
-vy             0
-vz             0
+# prompt_vertex  custom 
+# vx             0
+# vy             0
+# vz             0
 PVXRES         0
 PVXBIAS        0
 correct_tof    true
@@ -29,7 +29,7 @@ MAXNHITS       400
 TMATCHWINDOW   50
 
 # Tagging conditions
-E_CUTS (TagOut>0.7)&&(NHits>50)&&(FitT<20)
+E_CUTS (NHits>50)&&(FitT<20)
 N_CUTS (TagOut>0.7)&&((NHits<50)||(FitT>20))
 
 # Neural network options

@@ -27,6 +27,7 @@ NoiseManager::NoiseManager()
   fSKGen(6),
   fNoiseSeed(0),
   fNoiseEventLength(1000e3),
+  fNoiseEventMinT(-1000e3), fNoiseEventMaxT(1000e3),
   fNoiseStartTime(1e3), fNoiseEndTime(536e3), fNoiseWindowWidth(536e3),
   fNoiseT0(0),
   fIDMaxN200(60), fODMaxN200(20),
@@ -36,6 +37,7 @@ NoiseManager::NoiseManager()
   fCurrentIDHitIndex(0), fCurrentODHitIndex(0),
   fCurrentEntry(-1), fNEntries(0),
   fPartID(0), fNParts(2),
+  fCurrentPartStartTime(-1000e3), fCurrentPartEndTime(1000e3),
   fDoRepeat(true), fDoN200Cut(false),
   fMsg("NoiseManager")
 {}
@@ -337,9 +339,16 @@ void NoiseManager::SetNoiseEventHits()
         PopulateHitCluster(&fODNoiseEventHits, true);
 
         int nHits = fIDNoiseEventHits.GetSize();
-        fNoiseEventLength = fIDNoiseEventHits[nHits-1].t() - fIDNoiseEventHits[0].t();
+        float idMinT = fIDNoiseEventHits.First().t(); float idMaxT = fIDNoiseEventHits.Last().t();
+        float odMinT = fODNoiseEventHits.First().t(); float odMaxT = fODNoiseEventHits.Last().t();
+        float minT = idMinT>odMinT ? idMinT : odMinT;
+        float maxT = idMaxT<odMaxT ? idMaxT : odMaxT;
+        fNoiseEventMinT = minT; fNoiseEventMaxT = maxT;
+
+        fNoiseEventLength = maxT - minT;
         fNParts = (int)(fNoiseEventLength / fNoiseWindowWidth);
-        fNoiseT0 = fIDNoiseEventHits[0].t() + (fNoiseEventLength - fNParts*fNoiseWindowWidth)*ranGen.Uniform();
+        auto random = ranGen.Uniform();
+        fNoiseT0 = minT + (fNoiseEventLength - fNParts*fNoiseWindowWidth)*random;
 
         if (fNoiseEventLength < fNoiseWindowWidth) {
             fMsg.Print(Form("Noise event length %3.2f us is smaller than required window width %3.2f us, "
@@ -356,18 +365,24 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
 {
     // noise from noise files
     if (fNoiseTree) {
-
         if (fCurrentEntry == -1 || fPartID == fNParts) {
             GetNextNoiseEvent();
-            fMsg.Print(Form("Current noise entry: %d", fCurrentEntry), pDEBUG);
         }
         //std::cout << "NoiseHitsSize: " << noiseHits->GetSize() << "\n";
         //std::cout << "CurrentHitTime: " << noiseHits->At(currentHitIndex).t() << " Index: " << currentHitIndex << "\n";
 
         float partStartTime = fNoiseT0 + fPartID * fNoiseWindowWidth;
         float partEndTime = partStartTime + fNoiseWindowWidth;
+        fCurrentPartStartTime = partStartTime; fCurrentPartEndTime = partEndTime;
+        unsigned long nAvailableHits = noiseHits->GetSize();
 
-        while (noiseHits->At(currentHitIndex).t() < partStartTime) currentHitIndex++;
+        fMsg.Print(Form("Processing %s", (OD?"OD":"ID")), pDEBUG);
+        fMsg.Print(Form("Current noise entry: %d, part %d/%d", fCurrentEntry, fPartID+1, fNParts), pDEBUG);
+        fMsg.Print(Form("Noise event range: [%3.2f, %3.2f] usec, part %d/%d time range: [%3.2f, %3.2f] usec",
+                        fNoiseEventMinT*1e-3, fNoiseEventMaxT*1e-3, fPartID+1, fNParts, partStartTime*1e-3, partEndTime*1e-3), pDEBUG);
+        while (noiseHits->At(currentHitIndex).t() < partStartTime) {
+            currentHitIndex++;
+        }
 
         while (noiseHits->At(currentHitIndex).t() < partEndTime) {
             PMTHit hit = noiseHits->At(currentHitIndex);
@@ -400,16 +415,16 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
         }
     }
     //fMsg.Print("ApplyDeadtime: ", pDEFAULT, false);
-    //signalHits->ApplyDeadtime(fPMTDeadtime, true);
+    signalHits->ApplyDeadtime(fPMTDeadtime, true);
     signalHits->Sort();
     //signalHits->CheckNaN();
-    fPartID++;
+    if (!OD) fPartID++;
 }
 
 void NoiseManager::PopulateHitCluster(PMTHitCluster* hitCluster, bool OD)
 {
-    std::vector<float> t = !OD? fIDTQReal->T : fODTQReal->T;
-    std::vector<float> q = !OD? fIDTQReal->Q : fODTQReal->Q;
+    std::vector<float> t = !OD? fIDTQReal->T      : fODTQReal->T;
+    std::vector<float> q = !OD? fIDTQReal->Q      : fODTQReal->Q;
     std::vector<int>   i = !OD? fIDTQReal->cables : fODTQReal->cables;
 
     unsigned int nRawHits = t.size();
@@ -435,4 +450,10 @@ void NoiseManager::AddIDNoise(PMTHitCluster* signalHits)
 void NoiseManager::AddODNoise(PMTHitCluster* signalHits)
 {
     AddNoise(signalHits, &fODNoiseEventHits, fCurrentODHitIndex, fODDarkRatekHz, true);
+}
+
+void NoiseManager::AddIDODNoise(PMTHitCluster* idSignalHits, PMTHitCluster* odSignalHits)
+{
+    AddODNoise(odSignalHits);
+    AddIDNoise(idSignalHits);
 }

@@ -3,7 +3,7 @@ include include.gmk
 
 .PHONY: all float dirs inc clean cleanobj main docs
 
-all: float inc main
+all: float obj/main/git.o inc main
 	@echo "[NTagLib] Done!"
 
 float:
@@ -17,6 +17,11 @@ dirs:
 inc: dirs
 	@cp `find src/ -name '*.hh'` include
 
+main/git.c: .git/HEAD .git/index
+	@echo "const char *gitdate = \"$(shell git show -s --format=%ci)\";" >> $@
+	@echo "const char *gitcommit = \"$(shell git rev-parse HEAD)\";" >> $@
+	@echo "const char *gittag = \"$(shell git describe --tags)\";" >> $@
+
 include/%.hh:
 	@:
 
@@ -25,6 +30,10 @@ OBJS = $(patsubst src/%, obj/%.o, $(basename $(SRCS)))
 FORTRANSRCS = $(sort $(shell find src -name '*.F'))
 FORTRANOBJS = $(patsubst src/%, obj/%.o, $(basename $(FORTRANSRCS)))
 INC := $(addprefix -I , $(sort $(dir $(shell find src -name '*.hh'))))
+
+obj/main/git.o: main/git.c
+	@mkdir -p obj/main
+	@$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 $(OBJS): obj/%.o: src/%.cc src/%.hh
 	@mkdir -p $(@D)
@@ -45,10 +54,10 @@ lib/libNTagLib_double.a: $(OBJS) $(FORTRANOBJS)
 	@ar crf $@ $^
 
 clean:
-	@rm -rf obj lib include bin
+	@rm -rf obj lib include bin main/git.c
 
 cleanobj:
-	@rm -rf obj
+	@rm -rf obj main/git.c
 
 # main
 
@@ -62,7 +71,7 @@ $(MAINOBJS): obj/main/%.o: main/%.cc lib/libNTagLib.a
 	@mkdir -p obj/main
 	@$(CXX) $(CXXFLAGS) -o $@ -c $< $(INC) $(TFINCLUDE) $(ROOTINCLUDE) $(SKOFLINCLUDE) $(ATMPDINCLUDE)
 	
-$(MAINBINS): bin/%: obj/main/%.o
+$(MAINBINS): bin/%: obj/main/%.o obj/main/git.o
 	@mkdir -p bin
 	@echo "[NTagLib] Building executable: $(word $(words $(subst /, , $*)), $(subst /, , $*))..."
 	@LD_RUN_PATH=$(ROOTSYS)/lib:$(SKOFL_ROOT)/lib:$(TF_ROOT)/tensorflow/lib $(CXX) -o $@ $^ $(ATMPDLIB) -L lib -lNTagLib $(ATMPDLIB) $(SKOFLLIB) $(TFLIB) $(ROOTLIB) $(CERNLIB) $(CXXFLAGS)

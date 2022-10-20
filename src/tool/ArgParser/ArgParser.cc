@@ -1,4 +1,6 @@
 #include "ArgParser.hh"
+#include "Calculator.hh"
+#include "Printer.hh"
 
 ArgParser::ArgParser() {}
 
@@ -40,6 +42,19 @@ ArgParser::ArgParser(std::ifstream& f)
     }
 
     SetOptionPairs();
+}
+
+ArgParser& ArgParser::ReadFile(std::string path)
+ {
+    Printer msg("ArgParser");
+
+    if (DoesExist(path)) {
+        std::ifstream card(path);
+        ArgParser fparser(card);
+        (*this) += fparser;
+    }
+    else msg.Print("File does not exist: " + path, pERROR);
+    return *this;
 }
 
 void ArgParser::SetOptionPairs()

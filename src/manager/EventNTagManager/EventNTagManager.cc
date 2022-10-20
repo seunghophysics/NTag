@@ -327,11 +327,17 @@ void EventNTagManager::AddHits()
 
 void EventNTagManager::AddNoise()
 {
-    fNoiseManager->AddIDNoise(&fEventHits);
-
     // replace OD hits with dark noise from dummy trigger data
     fEventODHits.Clear();
-    fNoiseManager->AddODNoise(&fEventODHits);
+
+    fNoiseManager->AddIDODNoise(&fEventHits, &fEventODHits);
+
+    float tNoiseWindowWidth = (fSettings.GetFloat("TNOISEEND")-fSettings.GetFloat("TNOISESTART")) * 1e3; // usec
+    fEventVariables.Set("NoiseRunNo",       fNoiseManager->GetCurrentRun());
+    fEventVariables.Set("NoiseSubrunNo",    fNoiseManager->GetCurrentSubrun());
+    fEventVariables.Set("NoiseEventNo",     fNoiseManager->GetCurrentEventID());
+    fEventVariables.Set("NoiseEventTStart", fNoiseManager->GetCurrentPartStartTime());
+    fEventVariables.Set("NoiseEventTEnd",   fNoiseManager->GetCurrentPartEndTime());
 }
 
 void EventNTagManager::ReadParticles()
@@ -448,7 +454,8 @@ void EventNTagManager::ProcessEvent()
         else if (nnType=="keras") {
             if (weightPath=="default") {
                 int skGeometry = SKIO::GetSKGeometry();
-                weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedMode;
+                auto delayedKerasModel = (delayedMode=="lowfit"? std::string("bonsai") : delayedMode);
+                weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedKerasModel;
             }
             fKerasManager.LoadWeights(weightPath);
         }
@@ -652,13 +659,14 @@ void EventNTagManager::ApplySettings()
     fSettings.Get("prompt_vertex", promptVertexMode);
     fSettings.Get("delayed_vertex", delayedVertexMode);
 
-    SetVertexMode(fPromptVertexMode, promptVertexMode);
-    SetVertexMode(fDelayedVertexMode, delayedVertexMode);
+    if (!promptVertexMode.empty())  SetVertexMode(fPromptVertexMode, promptVertexMode);
+    if (!delayedVertexMode.empty()) SetVertexMode(fDelayedVertexMode, delayedVertexMode);
 
     if (fDelayedVertexMode == mTRMS)
         fDelayedVertexManager = &fTRMSFitManager;
-    else if (fDelayedVertexMode == mBONSAI)
+    else if (fDelayedVertexMode == mBONSAI) {
         fDelayedVertexManager = &fBonsaiManager;
+    }
     else if (fDelayedVertexMode == mLOWFIT) {
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
@@ -819,7 +827,7 @@ void EventNTagManager::DumpEvent()
     fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
                                            "Label", "TagIndex", "fvx", "fvy", "fvz", "DTaggable", "TagClass"});
     if (fSettings.GetBool("print", true)) {
-        fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","));
+        fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","), !fSettings.GetBool("debug", false));
     }
 }
 
@@ -1252,9 +1260,10 @@ void EventNTagManager::FindReferenceRun()
                    (skhead_.nrunsk != 999999 ? skhead_.nrunsk :
                    ((fNoiseManager!=nullptr) ? fNoiseManager->GetCurrentRun() : 0));
 
-        if (!refRunNo)
+        if (!refRunNo) {
             fMsg.Print("Unable to determine reference run number for the input MC, "
                        "specify reference run number with -REFRUNNO option.", pERROR);
+        }
     }
 
     int readStatus = SKIO::SetBadChannels(refRunNo, 0);

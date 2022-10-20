@@ -94,7 +94,7 @@ bool PMTHitCluster::AppendByCoincidence(PMTHitCluster& hitCluster)
     for (auto const& hit: hitCluster) {
         if (doAppend) Append(hit);
         Float hitT = hit.t();
-        if ((tSharedLowerBound < hitT) && (hitT < tSharedUpperBound) && (hit == lastHit)) {
+        if ((tSharedLowerBound < hitT) && (hitT < tSharedUpperBound) && (hit.i() == lastHit.i())) {
             doAppend = true;
         }
     }
@@ -160,6 +160,8 @@ void PMTHitCluster::RemoveVertex()
 
 unsigned int PMTHitCluster::RemoveBadChannels()
 {
+    if (fElement.empty()) return 0;
+
     auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) ||
                                                 (combad_.ibad[hit.i()-1] > 0) ||
                                                 (comdark_.dark_rate[hit.i()-1] == 0); };
@@ -326,6 +328,10 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, Float lowT, Float upT)
 
 PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
 {
+    PMTHitCluster selectedHits;
+    if (fElement.empty())
+        return selectedHits;
+
     if (!fIsSorted) Sort();
 
     if (lowT > upT)
@@ -335,7 +341,6 @@ PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
     unsigned int low = GetLowerBoundIndex(startT + lowT);
     unsigned int up  = GetUpperBoundIndex(startT + upT);
 
-    PMTHitCluster selectedHits;
     if (fHasVertex)
         selectedHits.SetVertex(fVertex);
 
@@ -491,6 +496,25 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
     for (        hit[0] = 0;        hit[0] < nHits-2; hit[0]++) {
         for (    hit[1] = hit[0]+1; hit[1] < nHits-1; hit[1]++) {
             for (hit[2] = hit[1]+1; hit[2] < nHits;   hit[2]++) {
+                /*
+                auto hit0pos = fElement[perm[hit[0]]].GetPosition();
+                auto hit1pos = fElement[perm[hit[1]]].GetPosition();
+                auto hit2pos = fElement[perm[hit[2]]].GetPosition();
+
+                float hit0x = hit0pos.x(); float hit0y = hit0pos.y(); float hit0z = hit0pos.z();
+                float hit1x = hit1pos.x(); float hit1y = hit1pos.y(); float hit1z = hit1pos.z();
+                float hit2x = hit2pos.x(); float hit2y = hit2pos.y(); float hit2z = hit2pos.z();
+
+                auto hit0dir = fElement[perm[hit[0]]].GetDirection();
+                auto hit1dir = fElement[perm[hit[1]]].GetDirection();
+                auto hit2dir = fElement[perm[hit[2]]].GetDirection();
+
+                float hitdir0x = hit0dir.x(); float hitdir0y = hit0dir.y(); float hitdir0z = hit0dir.z();
+                float hitdir1x = hit1dir.x(); float hitdir1y = hit1dir.y(); float hitdir1z = hit1dir.z();
+                float hitdir2x = hit2dir.x(); float hitdir2y = hit2dir.y(); float hitdir2z = hit2dir.z();
+
+                auto vx = fVertex.x(); auto vy = fVertex.y(); auto vz = fVertex.z();
+                */
                 openingAngles.push_back(GetOpeningAngle(fElement[perm[hit[0]]].GetDirection(),
                                                         fElement[perm[hit[1]]].GetDirection(),
                                                         fElement[perm[hit[2]]].GetDirection()));

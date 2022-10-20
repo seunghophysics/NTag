@@ -53,7 +53,7 @@ class CandidateCluster : public Cluster<Candidate>, public TreeOut
         CandidateCluster& operator=(CandidateCluster const& rhs);
 
         void Sort();
-        void DumpAllElements(std::vector<std::string> keys={}) const;
+        void DumpAllElements(std::vector<std::string> keys={}, bool showTaggedOnly=false) const;
         void Clear() { Cluster::Clear(); for (auto& pair: fFeatureVectorMap) pair.second->clear(); }
 
         void FillVectorMap();
