@@ -196,7 +196,7 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         std::cout << skheadg_.sk_geometry << std::endl;
         if (skheadg_.sk_geometry >= 6)
             lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
-        if (skheadg_.sk_geometry == 5)
+        else if (skheadg_.sk_geometry == 5)
             lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
         else
             lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
