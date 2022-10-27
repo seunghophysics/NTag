@@ -223,6 +223,10 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     fFitTime = skroot_lowe_.bsvertex[3];
 
     fFitGoodness = skroot_lowe_.bsgood[1];
+    if ( std::isinf( skroot_lowe_.bsenergy ) || std::isnan( skroot_lowe_.bsenergy ) ) {
+      fFitEnergy = -1; fFitDirKS = -1; fFitOvaQ = -1;
+    }
+
     if (skroot_lowe_.bsenergy<9998) {
         fFitEnergy = skroot_lowe_.bsenergy;
         fFitDirKS = skroot_lowe_.bsdirks;
