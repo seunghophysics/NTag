@@ -668,6 +668,7 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexManager = &fBonsaiManager;
     }
     else if (fDelayedVertexMode == mLOWFIT) {
+        fBonsaiManager.UseSKG4Parameter(fSettings.GetBool("USESKG4PARAMETER"));
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
     }

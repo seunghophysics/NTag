@@ -5,6 +5,7 @@
 #include "skdayC.h"
 #include "sktqC.h"
 #include "skroot_loweC.h"
+#include "lfparmC.h"
 
 #include "pmt_geometry.h"
 #include "likelihood.h"
@@ -71,6 +72,12 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     waterTransparency = 12431.3;
     if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
 
+    // Use G4 lowfit parameters
+    if (fUseSKG4Parameter)
+      wtpar_.flag_g4_wtpar = 1; // use SKG4 parameter
+    else 
+      wtpar_.flag_g4_wtpar = 0; // use SKDETSIM parameter
+
     fIsLOWFITInitialized = true;
 }
 
@@ -81,6 +88,11 @@ void BonsaiManager::UseLOWFIT(bool turnOn, int refRunNo)
     fUseLOWFIT = turnOn;
     if (fUseLOWFIT && !fIsLOWFITInitialized)
         InitializeLOWFIT(refRunNo);
+}
+
+void BonsaiManager::UseSKG4Parameter( bool turnOn )
+{
+    fUseSKG4Parameter = turnOn;
 }
 
 void BonsaiManager::Fit(const PMTHitCluster& hitCluster)
@@ -170,7 +182,7 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     skq_.nqisk = iHit+1;
 
     // lfallfit_sk4_data / mc
-    int NHITCUT = 1100;
+    int nhitcut_lowfit = 1100;
     int fitFlag=0; int flagSkip=0; int flagLog=1;
 
     int original_nrunsk = skhead_.nrunsk;
@@ -180,26 +192,26 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         skhead_.nrunsk = fRefRunNo;
 
         if (skheadg_.sk_geometry >= 6)
-            lfallfit_sk6_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk6_mc_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
         else if (skheadg_.sk_geometry == 5)
-            lfallfit_sk5_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk5_mc_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
         else
-            lfallfit_sk4_final_qe43_mc_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk4_final_qe43_mc_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
 
         // ...and switch back
         skhead_.nrunsk = original_nrunsk;
     }
     else {
-        // for no-normal run, switch nrunsk to reference run number temporarily
+        // for non-normal run, switch nrunsk to reference run number temporarily
         if (fRefRunNo) skhead_.nrunsk = fRefRunNo;
 
         std::cout << skheadg_.sk_geometry << std::endl;
         if (skheadg_.sk_geometry >= 6)
-            lfallfit_sk6_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk6_data_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
         else if (skheadg_.sk_geometry == 5)
-            lfallfit_sk5_data_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk5_data_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
         else
-            lfallfit_sk4_final_qe43_(&waterTransparency, &NHITCUT, &flagSkip, &flagLog, &fitFlag);
+            lfallfit_sk4_final_qe43_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
 
         // ...and switch back
         skhead_.nrunsk = original_nrunsk;

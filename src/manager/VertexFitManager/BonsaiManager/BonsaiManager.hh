@@ -18,6 +18,7 @@ class BonsaiManager : public VertexFitManager
         void InitializeLOWFIT(int refRunNo=62428);
 
         void UseLOWFIT(bool turnOn=true, int refRunNo=62428);
+        void UseSKG4Parameter(bool turnOn=true);
         void Fit(const PMTHitCluster& hitCluster);
         void FitLOWFIT(const PMTHitCluster& hitCluster);
 
@@ -41,6 +42,7 @@ class BonsaiManager : public VertexFitManager
 
         unsigned int fRefRunNo;
         bool fUseLOWFIT;
+        bool fUseSKG4Parameter;
         static bool fIsLOWFITInitialized;
         float waterTransparency;
 };
