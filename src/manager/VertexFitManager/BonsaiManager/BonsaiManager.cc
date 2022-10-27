@@ -206,7 +206,6 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         // for non-normal run, switch nrunsk to reference run number temporarily
         if (fRefRunNo) skhead_.nrunsk = fRefRunNo;
 
-        std::cout << skheadg_.sk_geometry << std::endl;
         if (skheadg_.sk_geometry >= 6)
             lfallfit_sk6_data_(&waterTransparency, &nhitcut_lowfit, &flagSkip, &flagLog, &fitFlag);
         else if (skheadg_.sk_geometry == 5)
