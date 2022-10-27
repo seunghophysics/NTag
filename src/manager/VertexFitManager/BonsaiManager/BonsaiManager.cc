@@ -61,7 +61,8 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     SetRefRunNo(refRunNo);
 
     if (!SKIO::IsZEBRAInitialized()) kzinit_();
-    skrunday_(); skwt_();
+    skrunday_(); 
+    skwt_gain_corr_();
     darklf_(&refRunNo);
 
     int maxpm = MAXPM;
