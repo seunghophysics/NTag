@@ -120,7 +120,7 @@ void CandidateCluster::FillVectorMap()
                 else {
                     fFeatureVectorMap[basePair.first]->resize(iCandidate);
                     auto value = comparedFeatureMap[basePair.first];
-                    if (std::isnan(value) | std::isinf(value)) {
+                    if (std::isnan(value) || std::isinf(value)) {
                         if (std::isnan(value)) {
                             std::cerr << Form("Candidate #%d: key %s value is NaN!", iCandidate, basePair.first.c_str()) << std::endl;
                         }

@@ -73,6 +73,7 @@ extern "C" {
     float darklf_(int*);
     void  skrunday_();
     void  skwt_();
+    void  skwt_gain_corr_();
     void  cfbsinit_(int*, float*);
     void  cfbsexit_();
     void  lfwater_(int*, float*);
