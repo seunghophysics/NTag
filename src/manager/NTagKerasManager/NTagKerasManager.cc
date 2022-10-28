@@ -31,15 +31,16 @@ void NTagKerasManager::LoadModel(std::string modelPath)
                                              {"serve"},
                                              &fModel);
 
-    if (!status.ok()) {
-        std::cerr << "[NTagKerasManager] Failed to load model: " << status;
-        fMsg.Print("Aborting...", pERROR);
+    if (status.ok()) {
+        auto model_def = fModel.GetSignatures().at("serving_default");
+
+        fInputLayerName = model_def.inputs().begin()->second.name();
+        fOutputLayerName = model_def.outputs().begin()->second.name();
     }
-
-    auto model_def = fModel.GetSignatures().at("serving_default");
-
-    fInputLayerName = model_def.inputs().begin()->second.name();
-    fOutputLayerName = model_def.outputs().begin()->second.name();
+    else {
+        std::cerr << "[NTagKerasManager] Failed to load model: " << status;
+        fMsg.Print("Skipping loading Keras model...", pWARNING);
+    }
 }
 
 void NTagKerasManager::LoadScaler(std::string scalerPath)
@@ -72,11 +73,14 @@ std::vector<float> NTagKerasManager::Transform(const Candidate& candidate)
 
 float NTagKerasManager::GetOutput(const Candidate& candidate)
 {
-    auto scaledFeatures = Transform(candidate);
-    std::copy(scaledFeatures.begin(), scaledFeatures.end(), fInputData);
+    if (fInputLayerName!="") {
+        auto scaledFeatures = Transform(candidate);
+        std::copy(scaledFeatures.begin(), scaledFeatures.end(), fInputData);
 
-    TF_CHECK_OK(fModel.session->Run({{fInputLayerName, fInputTensor}},
-                        {fOutputLayerName}, {}, &fOutputTensorVector));
+        TF_CHECK_OK(fModel.session->Run({{fInputLayerName, fInputTensor}},
+                            {fOutputLayerName}, {}, &fOutputTensorVector));
 
-    return fOutputTensorVector.at(0).flat<float>()(0);
+        return fOutputTensorVector.at(0).flat<float>()(0);
+    }
+    else return 0;
 }
