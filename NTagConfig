@@ -72,6 +72,9 @@ MINGRIDWIDTH   50
 GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
+# Low-fit
+#USESKG4PARAMETER true
+
 # logging
 print          FitT,NHits,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
 debug          false

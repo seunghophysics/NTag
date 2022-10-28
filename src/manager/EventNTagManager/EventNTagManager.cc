@@ -453,7 +453,6 @@ void EventNTagManager::ProcessEvent()
         }
         else if (nnType=="keras") {
             if (weightPath=="default") {
-                int skGeometry = SKIO::GetSKGeometry();
                 auto delayedKerasModel = (delayedMode=="lowfit"? std::string("bonsai") : delayedMode);
                 weightPath = GetENV("NTAGLIBPATH") + Form("weights/keras/sk%d/", SKIO::GetSKGeometry()) + delayedKerasModel;
             }
@@ -668,7 +667,18 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexManager = &fBonsaiManager;
     }
     else if (fDelayedVertexMode == mLOWFIT) {
-        fBonsaiManager.UseSKG4Parameter(fSettings.GetBool("USESKG4PARAMETER"));
+        bool defaultUSESKG4PARAMETER = false;
+
+        if (fFileFormat == mSKROOT) {
+            SuperManager* superManager = SuperManager::GetManager();
+            TTree* dataTree = superManager->GetTreeManager(mInput)->GetTree();
+            std::string treeTitle = dataTree->GetTitle();
+            defaultUSESKG4PARAMETER = !(treeTitle=="SK 3 tree");
+        }
+        if (!fSettings.HasKey("USESKG4PARAMETER"))
+            fSettings.Set("USESKG4PARAMETER", defaultUSESKG4PARAMETER?"true":"false");
+
+        fBonsaiManager.UseSKG4Parameter(fSettings.GetBool("USESKG4PARAMETER", defaultUSESKG4PARAMETER));
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
     }
@@ -1144,8 +1154,8 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     candidate.Set("NoisyPMTRatio", hitsInTCANWIDTH.GetNoisyPMTRatio());
 
     auto nnType = fSettings.GetString("NN_type");
-    float tagOut = nnType=="tmva" ? fTMVAManager.GetTMVAOutput(candidate) :
-                   nnType=="keras" ?  fKerasManager.GetOutput(candidate) : 0;
+    float tagOut = nnType=="tmva"  ? fTMVAManager.GetTMVAOutput(candidate) :
+                   nnType=="keras" ? fKerasManager.GetOutput(candidate)    : 0;
 
     candidate.Set("TagOut", tagOut);
     auto tagClass = fTagger.Classify(candidate);
