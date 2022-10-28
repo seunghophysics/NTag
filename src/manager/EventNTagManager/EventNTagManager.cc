@@ -1006,7 +1006,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             auto nHitsForFit = hitsForFit.GetSize();
             if (nHitsForFit > 2000) {
                 fMsg.Print(Form("A possible candidate at T=%3.2f us has N%d=%d that is larger than 2000,"
-                                " giving up fit and setting the delayed vertex the same as the prompt vertex (%3.2f, %3.2f, %3.2f)...", 
+                                " giving up fit and setting the delayed vertex the same as the prompt vertex (%3.2f, %3.2f, %3.2f)...",
                                 firstHit.t()*1e-3, int(tRight-tLeft), nHitsForFit, delayedVertex.x(), delayedVertex.y(), delayedVertex.z()), pWARNING);
                 doFit = false;
             }
@@ -1268,7 +1268,7 @@ void EventNTagManager::FindReferenceRun()
             else if (skgeom==5) refRunNo = 82010;
             else if (skgeom==6) refRunNo = 85688;
             else if (skgeom==7) refRunNo = 90488;
-            
+
             if ( 4<=skgeom || skgeom<=7 ) {
                 fMsg.Print(Form("Unable to determine reference run number for the input MC, "
                        "using default reference run %d...", refRunNo), pWARNING);

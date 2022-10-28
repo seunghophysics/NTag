@@ -61,7 +61,7 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     SetRefRunNo(refRunNo);
 
     if (!SKIO::IsZEBRAInitialized()) kzinit_();
-    skrunday_(); 
+    skrunday_();
     skwt_gain_corr_();
     darklf_(&refRunNo);
 
@@ -69,15 +69,15 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     cfbsinit_(&maxpm, GetPMTPositionArray());
 
     // 1000 subtraction is for treatment of run start offset
-    int elapsedDays = skday_data_.relapse[refRunNo-1000]; 
+    int elapsedDays = skday_data_.relapse[refRunNo-1000];
     waterTransparency = 12431.3;
     if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
 
     // Use G4 lowfit parameters
     if (fUseSKG4Parameter)
-      wtpar_.flag_g4_wtpar = 1; // use SKG4 parameter
-    else 
-      wtpar_.flag_g4_wtpar = 0; // use SKDETSIM parameter
+        wtpar_.flag_g4_wtpar = 1; // use SKG4 parameter
+    else
+        wtpar_.flag_g4_wtpar = 0; // use SKDETSIM parameter
 
     fIsLOWFITInitialized = true;
 }
@@ -222,17 +222,16 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
     fFitTime = skroot_lowe_.bsvertex[3];
 
     fFitGoodness = skroot_lowe_.bsgood[1];
-    if ( std::isinf( skroot_lowe_.bsenergy ) || std::isnan( skroot_lowe_.bsenergy ) ) {
-      fFitEnergy = -1; fFitDirKS = -1; fFitOvaQ = -1;
-    }
 
-    if (skroot_lowe_.bsenergy<9998) {
+    // bsenergy not ok
+    if (skroot_lowe_.bsenergy>9998 || std::isinf( skroot_lowe_.bsenergy ) || std::isnan( skroot_lowe_.bsenergy )) {
+        fFitEnergy = -1; fFitDirKS = -1; fFitOvaQ = -1;
+    }
+    // bsenergy ok
+    else {
         fFitEnergy = skroot_lowe_.bsenergy;
         fFitDirKS = skroot_lowe_.bsdirks;
         fFitOvaQ = fFitGoodness*fFitGoodness - fFitDirKS*fFitDirKS;
-    }
-    else {
-        fFitEnergy = -1; fFitDirKS = -1; fFitOvaQ = -1;
     }
 }
 
