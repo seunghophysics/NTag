@@ -36,7 +36,7 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys, bool showT
     }
     else {
         std::cout << "\033[4m No. ";
-        auto baseFeatureMap = fElement[0].GetFeatureMap();
+        auto baseFeatureMap = fElement.at(0).GetFeatureMap();
 
         if (keys.empty()) {
             for (auto const& pair: baseFeatureMap)
@@ -51,13 +51,13 @@ void CandidateCluster::DumpAllElements(std::vector<std::string> keys, bool showT
 
         for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
 
-            if (showTaggedOnly && fElement[iCandidate].Get("TagClass")==0) continue;
+            if (showTaggedOnly && fElement.at(iCandidate).Get("TagClass")==0) continue;
 
             std::cout << std::right << std::setw(4) << iCandidate+1 << " ";
-            auto candidateFeatureMap = fElement[iCandidate].GetFeatureMap();
+            auto candidateFeatureMap = fElement.at(iCandidate).GetFeatureMap();
             for (auto const& key: keys) {
                 int textWidth = key.size()>6 ? key.size() : 6;
-                float value = fElement[iCandidate][key];
+                float value = fElement.at(iCandidate)[key];
                 auto keyString = TString(key);
                 if (keyString.Contains("Index")) {
                     std::cout << std::right << std::setw(textWidth) << (value>=0 ? std::to_string(int(value+1)) : "-") << " ";
@@ -109,7 +109,7 @@ void CandidateCluster::FillVectorMap()
         //auto baseFeatureMap = element[0].GetFeatureMap();
         bool areFeaturesIdentical = true;
         for (unsigned int iCandidate = 0; iCandidate < GetSize(); iCandidate++) {
-            auto comparedFeatureMap = fElement[iCandidate].GetFeatureMap();
+            auto comparedFeatureMap = fElement.at(iCandidate).GetFeatureMap();
 
             for (auto const& basePair: fFeatureVectorMap) {
 

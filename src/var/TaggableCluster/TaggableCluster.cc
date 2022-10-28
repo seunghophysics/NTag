@@ -28,7 +28,7 @@ void TaggableCluster::ReadParticleCluster(const ParticleCluster& particleCluster
             // check saved captures
             for (unsigned int iCapture = 0; iCapture < fElement.size(); iCapture++) {
 
-                Taggable& capture = fElement[iCapture];
+                Taggable& capture = fElement.at(iCapture);
 
                 // if a matching capture time exists,
                 // just add the gamma-ray to the matching capture
@@ -78,7 +78,7 @@ void TaggableCluster::DumpAllElements() const
     std::cout << "\033[4m No. Type     Time (us) Dist (cm) DWall (cm) Energy (MeV) Early Delayed TaggedAs\033[0m" << std::endl;
 
     for (unsigned int iTaggable = 0; iTaggable < fElement.size(); iTaggable++) {
-        auto& taggable = fElement[iTaggable];
+        auto& taggable = fElement.at(iTaggable);
         auto vertex = taggable.Vertex();
         auto time = taggable.Time();
         auto earlyIndex = taggable.GetCandidateIndex("Early")+1;

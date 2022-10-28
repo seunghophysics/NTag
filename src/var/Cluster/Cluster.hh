@@ -128,11 +128,11 @@ class Cluster
          */
         const std::vector<T>& GetVector() const { return fElement; }
 
-        T& operator[] (int index) { return fElement[index]; }         //< Returns the element of a given index.
-        T& At(int index) { return fElement[index]; }                  //< Returns the element of a given index.
-        const T& ConstAt(int index) const { return fElement[index]; } //< Returns the element of a given index.
+        T& operator[] (int index) { return fElement.at(index); }         //< Returns the element of a given index.
+        T& At(int index) { return fElement.at(index); }                  //< Returns the element of a given index.
+        const T& ConstAt(int index) const { return fElement.at(index); } //< Returns the element of a given index.
 
-        T& First() { return fElement[0]; }    //< Returns the first element.
+        T& First() { return fElement.at(0); }    //< Returns the first element.
         T& Last() { return fElement.back(); } //< Returns the last element.
 
     protected:

@@ -47,7 +47,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         void FillTQReal(TQReal* tqreal);
         void FillCommon();
 
-        const PMTHit& operator[] (int iHit) const { return fElement[iHit]; }
+        const PMTHit& operator[] (int iHit) const { return fElement.at(iHit); }
 
         PMTHitCluster Slice(int startIndex, Float tWidth);
         PMTHitCluster Slice(int startIndex, Float minusT, Float plusT);

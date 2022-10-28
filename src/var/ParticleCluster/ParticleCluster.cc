@@ -89,7 +89,7 @@ void ParticleCluster::DumpAllElements() const
     std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent KE (MeV) \033[0m" << std::endl;
 
     for (unsigned int iParticle = 0; iParticle < fElement.size(); iParticle++) {
-        auto& particle = fElement[iParticle];
+        auto& particle = fElement.at(iParticle);
         auto vertex = particle.Vertex();
         auto parentName = GetParticleName(particle.ParentPID());
         //auto mom = particle.Momentum().Mag();
@@ -186,8 +186,8 @@ void ParticleCluster::FindParents()
     for (int i=0; i<GetSize(); i++) {
         for (int j=0; j<GetSize(); j++) {
             if (i==j) continue;
-            auto& parent = fElement[i];
-            auto& particle = fElement[j];
+            auto& parent = fElement.at(i);
+            auto& particle = fElement.at(j);
             if (particle.IsDaughterOf(parent)) {
                 particle.SetParentIndex(i);
             }

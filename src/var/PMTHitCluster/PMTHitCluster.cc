@@ -168,7 +168,7 @@ unsigned int PMTHitCluster::RemoveBadChannels()
     auto odCut = [](PMTHit const & hit){ return (hit.i() < 20000) || (hit.i() > 20000+MAXPMA) ||
                                                 (combada_.ibada[hit.i()-20000-1] > 0) ||
                                                 (comdark_.dark_rate_od[hit.i()-20000-1] == 0); };
-    auto cut = (fElement[0].i()<=MAXPM) ? idCut : odCut;
+    auto cut = (fElement.at(0).i()<=MAXPM) ? idCut : odCut;
 
     int nSize = GetSize();
     fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
@@ -301,7 +301,7 @@ void PMTHitCluster::FillCommon()
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
 {
-    return SliceRange(fElement[startIndex].t(), 0, tWidth);
+    return SliceRange(fElement.at(startIndex).t(), 0, tWidth);
     /*
     if (!fIsSorted) Sort();
 
@@ -323,7 +323,7 @@ PMTHitCluster PMTHitCluster::Slice(int startIndex, Float tWidth)
 
 PMTHitCluster PMTHitCluster::Slice(int startIndex, Float lowT, Float upT)
 {
-    return SliceRange(fElement[startIndex].t(), lowT, upT);
+    return SliceRange(fElement.at(startIndex).t(), lowT, upT);
 }
 
 PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
@@ -345,7 +345,7 @@ PMTHitCluster PMTHitCluster::SliceRange(Float startT, Float lowT, Float upT)
         selectedHits.SetVertex(fVertex);
 
     for (unsigned int iHit = low; iHit <= up; iHit++)
-        selectedHits.Append(fElement[iHit]);
+        selectedHits.Append(fElement.at(iHit));
 
     return selectedHits;
 }
@@ -360,9 +360,9 @@ unsigned int PMTHitCluster::GetIndex(PMTHit hit)
     bool isFound = false;
     unsigned int i = 0;
     for (i=0; i<GetSize(); i++) {
-        if (fabs(hit.t() - fElement[i].t()) < 1 &&
-            fabs(hit.q() - fElement[i].q()) < 1e-5 &&
-            hit.i() == fElement[i].i()) {
+        if (fabs(hit.t() - fElement.at(i).t()) < 1 &&
+            fabs(hit.q() - fElement.at(i).q()) < 1e-5 &&
+            hit.i() == fElement.at(i).i()) {
             isFound = true;
             break;
         }
@@ -466,7 +466,7 @@ std::array<float, 6> PMTHitCluster::GetBetaArray()
     for (int i = 0; i < nHits-1; i++) {
         for (int j = i+1; j < nHits; j++) {
             // cosine angle between two consecutive uv vectors
-            float cosTheta = fElement[i].GetDirection().Dot(fElement[j].GetDirection());
+            float cosTheta = fElement.at(i).GetDirection().Dot(fElement.at(j).GetDirection());
             for (int k = 1; k <= 5; k++)
                 beta[k] += GetLegendreP(k, cosTheta);
         }
@@ -515,9 +515,9 @@ OpeningAngleStats PMTHitCluster::GetOpeningAngleStats()
 
                 auto vx = fVertex.x(); auto vy = fVertex.y(); auto vz = fVertex.z();
                 */
-                openingAngles.push_back(GetOpeningAngle(fElement[perm[hit[0]]].GetDirection(),
-                                                        fElement[perm[hit[1]]].GetDirection(),
-                                                        fElement[perm[hit[2]]].GetDirection()));
+                openingAngles.push_back(GetOpeningAngle(fElement.at(perm[hit[0]]).GetDirection(),
+                                                        fElement.at(perm[hit[1]]).GetDirection(),
+                                                        fElement.at(perm[hit[2]]).GetDirection()));
                 nCombos++;
                 if (nCombos >= MAXNCOMBOS) goto calc;
             }
@@ -702,7 +702,7 @@ PMTHitCluster PMTHitCluster::Slice(std::function<float(const PMTHit&)> lambda, f
 void PMTHitCluster::ApplyCut(std::function<float(const PMTHit&)> lambda, float min, float max)
 {
     for (unsigned int iHit=0; iHit<GetSize(); iHit++) {
-        auto& hit = fElement[iHit];
+        auto& hit = fElement.at(iHit);
         if (min > lambda(hit) || lambda(hit) > max)
             fElement.erase(fElement.begin()+iHit);
     }
