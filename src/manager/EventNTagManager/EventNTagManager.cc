@@ -1197,7 +1197,7 @@ void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& c
         for (unsigned int iTaggable=0; iTaggable<taggableCluster.GetSize(); iTaggable++) {
             auto& taggable = taggableCluster[iTaggable];
             float tDiff = fabs(taggable.Time() - candidate["FitT"]);
-            if (tDiff*1e3 < tMatchWindow) {
+            if (tDiff*1e3 < tMatchWindow && GetDWall(taggable.Vertex())>0) {
                 matchTimeList.push_back(tDiff);
                 taggableIndexList.push_back(iTaggable);
             }
