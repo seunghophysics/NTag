@@ -1005,7 +1005,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             auto nHitsForFit = hitsForFit.GetSize();
             if (nHitsForFit > 2000) {
                 fMsg.Print(Form("A possible candidate at T=%3.2f us has N%d=%d that is larger than 2000,"
-                                " giving up fit and setting the delayed vertex the same as the prompt...", firstHit.t()*1e-3, int(tRight-tLeft), nHitsForFit), pWARNING);
+                                " giving up fit and setting the delayed vertex the same as the prompt vertex (%3.2f, %3.2f, %3.2f)...", 
+                                firstHit.t()*1e-3, int(tRight-tLeft), nHitsForFit, delayedVertex.x(), delayedVertex.y(), delayedVertex.z()), pWARNING);
                 doFit = false;
             }
         }
@@ -1019,10 +1020,10 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
         }
     }
 
-    if (doFit || fSettings.GetBool("correct_tof")) {
-        fEventHits.SetVertex(delayedVertex);
-        firstHit.SetToFAndDirection(delayedVertex);
-    }
+    //if (doFit || fSettings.GetBool("correct_tof")) {
+    fEventHits.SetVertex(delayedVertex);
+    firstHit.SetToFAndDirection(delayedVertex);
+    //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
