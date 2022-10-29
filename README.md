@@ -26,6 +26,8 @@ The following instruction assumes you are working on sukap.
 git clone https://github.com/seunghophysics/NTag.git
 cd NTag && make
 ```
+If you want to clone a specific tag, i.e., version x.y.z, then add `-b x.y.z` at the end of the `git clone` command.
+
 Set the environment variables `$PATH` and `$NTAGLIBPATH`.
 
 | Shell type | Install command       | Uninstall command       |
