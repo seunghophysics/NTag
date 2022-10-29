@@ -114,7 +114,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |`-SKOPTN`        | List of SK read options                                                | `31,30,26,25` |
 |`-SKBADOPT`      | SK bad channel option                                                  | 0             |
 |`-REFRUNNO`      | SK reference run number                                                | 0             |
-|`-lowfit_param`      | Water parameter type: `skdetsim` or `skg4`                             | `skg4`*       |
+|`-lowfit_param`  | Lowfit calib parameter type: `skdetsim` or `skg4`                      | `skg4`*       |
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
 
