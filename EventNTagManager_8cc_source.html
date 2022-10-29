@@ -772,20 +772,20 @@ $(document).ready(function(){initNavTree('EventNTagManager_8cc_source.html','');
 <div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>            defaultUSESKG4PARAMETER = !(treeTitle==<span class="stringliteral">&quot;SK 3 tree&quot;</span>);</div>
 <div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>        }</div>
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span> </div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>        std::string defaultWaterMC = (defaultUSESKG4PARAMETER?<span class="stringliteral">&quot;skg4&quot;</span>:<span class="stringliteral">&quot;skdetsim&quot;</span>);</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>        std::string defaultCalibMC = (defaultUSESKG4PARAMETER?<span class="stringliteral">&quot;skg4&quot;</span>:<span class="stringliteral">&quot;skdetsim&quot;</span>);</div>
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span> </div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>        <span class="keywordflow">if</span> (!fSettings.HasKey(<span class="stringliteral">&quot;water_mc&quot;</span>))</div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>            fSettings.Set(<span class="stringliteral">&quot;water_mc&quot;</span>, defaultWaterMC);</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>        <span class="keywordflow">if</span> (!fSettings.HasKey(<span class="stringliteral">&quot;lowfit_param&quot;</span>))</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>            fSettings.Set(<span class="stringliteral">&quot;lowfit_param&quot;</span>, defaultCalibMC);</div>
 <div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span> </div>
 <div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>        <span class="keywordtype">bool</span> useSKG4parameter = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>        <span class="keyword">auto</span> waterMC = fSettings.GetString(<span class="stringliteral">&quot;water_mc&quot;</span>);</div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>        <span class="keywordflow">if</span> (waterMC!=<span class="stringliteral">&quot;skg4&quot;</span> &amp;&amp; waterMC!=<span class="stringliteral">&quot;skdetsim&quot;</span>) {</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>            fMsg.<a class="code hl_function" href="classPrinter.html#a296e5254efcb5b6bd734ea63ff60785f">Print</a>(Form(<span class="stringliteral">&quot;%s is not a valid water_mc option... using %s for water_mc by default...&quot;</span>, </div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>                             waterMC.c_str(), defaultWaterMC.c_str()), pWARNING);</div>
-<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>            waterMC = defaultWaterMC;</div>
-<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>            fSettings.Set(<span class="stringliteral">&quot;water_mc&quot;</span>, defaultWaterMC);</div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>        <span class="keyword">auto</span> calibMC = fSettings.GetString(<span class="stringliteral">&quot;lowfit_param&quot;</span>);</div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>        <span class="keywordflow">if</span> (calibMC!=<span class="stringliteral">&quot;skg4&quot;</span> &amp;&amp; calibMC!=<span class="stringliteral">&quot;skdetsim&quot;</span>) {</div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>            fMsg.<a class="code hl_function" href="classPrinter.html#a296e5254efcb5b6bd734ea63ff60785f">Print</a>(Form(<span class="stringliteral">&quot;%s is not a valid lowfit_param option... using %s for lowfit_param by default...&quot;</span>, </div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>                             calibMC.c_str(), defaultCalibMC.c_str()), pWARNING);</div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>            calibMC = defaultCalibMC;</div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>            fSettings.Set(<span class="stringliteral">&quot;lowfit_param&quot;</span>, defaultCalibMC);</div>
 <div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>        }</div>
-<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>        useSKG4parameter = (waterMC==<span class="stringliteral">&quot;skdetsim&quot;</span>)? <span class="keyword">false</span> : <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>        useSKG4parameter = (calibMC==<span class="stringliteral">&quot;skdetsim&quot;</span>)? <span class="keyword">false</span> : <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span> </div>
 <div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>        fBonsaiManager.UseSKG4Parameter(useSKG4parameter);</div>
 <div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>        fBonsaiManager.UseLOWFIT(<span class="keyword">true</span>, fSettings.GetInt(<span class="stringliteral">&quot;REFRUNNO&quot;</span>));</div>
