@@ -117,6 +117,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |`-water_mc`      | Water parameter type: `skdetsim` or `skg4`                             | `skg4`*       |
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
+
 *For SKDETSIM MC, the default value is `false`.
 
 ## Output {#cl-output}
