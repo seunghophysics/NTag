@@ -25,6 +25,10 @@ float GetMass(int code)
     else if (gPIDMassMap.count(abs(code))) {
         return gPIDMassMap[abs(code)];
     }
+    else if (1e9<code && code<1e10) {
+        // nucleus code; return approximate mass in MeV
+        return (code/10) % 1000 * 931;
+    }
     else {
         std::cerr << "Code " << code << " does not exist in PDG nor ParticleTable, returning 0...\n";
         return 0;
