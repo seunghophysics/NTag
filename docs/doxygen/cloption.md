@@ -107,7 +107,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |`-NIDHITSMX`     | Maximum # of ID hits to allow                                          | 1000000  |
 |`-NODHITSMX`     | Maximum # of OD hits to allow                                          | 100000   |
 
-## SK I/O
+## SK I/O (detector parameters)
 
 | Option             |                               Argument                                 |    Default    |
 |--------------------|------------------------------------------------------------------------|:-------------:|
@@ -117,6 +117,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |`-USESKG4PARAMETER` | To use SKG4-tuned water parameters in lowfit: `true` or `false`        | `true`        |
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
+
 If `-USESKG4PARAMETER false`, SKDETSIM-tuned water parameters are read instaed. For SKDETSIM MC, the default value is `false`.
 
 ## Output {#cl-output}
