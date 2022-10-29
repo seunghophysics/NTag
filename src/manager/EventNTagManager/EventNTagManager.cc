@@ -676,20 +676,20 @@ void EventNTagManager::ApplySettings()
             defaultUSESKG4PARAMETER = !(treeTitle=="SK 3 tree");
         }
 
-        std::string defaultWaterMC = (defaultUSESKG4PARAMETER?"skg4":"skdetsim");
+        std::string defaultCalibMC = (defaultUSESKG4PARAMETER?"skg4":"skdetsim");
 
-        if (!fSettings.HasKey("water_mc"))
-            fSettings.Set("water_mc", defaultWaterMC);
+        if (!fSettings.HasKey("lowfit_param"))
+            fSettings.Set("lowfit_param", defaultCalibMC);
 
         bool useSKG4parameter = true;
-        auto waterMC = fSettings.GetString("water_mc");
-        if (waterMC!="skg4" && waterMC!="skdetsim") {
-            fMsg.Print(Form("%s is not a valid water_mc option... using %s for water_mc by default...", 
-                             waterMC.c_str(), defaultWaterMC.c_str()), pWARNING);
-            waterMC = defaultWaterMC;
-            fSettings.Set("water_mc", defaultWaterMC);
+        auto calibMC = fSettings.GetString("lowfit_param");
+        if (calibMC!="skg4" && calibMC!="skdetsim") {
+            fMsg.Print(Form("%s is not a valid lowfit_param option... using %s for lowfit_param by default...", 
+                             calibMC.c_str(), defaultCalibMC.c_str()), pWARNING);
+            calibMC = defaultCalibMC;
+            fSettings.Set("lowfit_param", defaultCalibMC);
         }
-        useSKG4parameter = (waterMC=="skdetsim")? false : true;
+        useSKG4parameter = (calibMC=="skdetsim")? false : true;
 
         fBonsaiManager.UseSKG4Parameter(useSKG4parameter);
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));

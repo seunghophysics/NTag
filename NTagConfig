@@ -73,7 +73,7 @@ GRIDSHRINKRATE 0.5
 VTXMAXRADIUS   5000
 
 # Low-fit
-#water_mc skg4
+#lowfit_param skg4
 
 # logging
 print          FitT,NHits,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
