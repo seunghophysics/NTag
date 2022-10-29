@@ -14,7 +14,7 @@ The following instruction assumes you are working on sukap.
 
 > CERNLIB 2005
 >
-> SKOFL: `skofl_22a` or newer
+> SKOFL: `skofl-trunk` (as of Oct 2022)
 >
 > ATMPD: `ATMPD_21a` or newer
 >
