@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('CandidateCluster_8cc_source.html','');
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    }</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;\033[4m No. &quot;</span>;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">auto</span> baseFeatureMap = fElement[0].GetFeatureMap();</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">auto</span> baseFeatureMap = fElement.at(0).GetFeatureMap();</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordflow">if</span> (keys.empty()) {</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; pair: baseFeatureMap)</div>
@@ -147,13 +147,13 @@ $(document).ready(function(){initNavTree('CandidateCluster_8cc_source.html','');
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> iCandidate = 0; iCandidate &lt; <a class="code hl_function" href="classCluster.html#ad9dfb9b85d340b572645fcb483778b39">GetSize</a>(); iCandidate++) {</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>            <span class="keywordflow">if</span> (showTaggedOnly &amp;&amp; fElement[iCandidate].Get(<span class="stringliteral">&quot;TagClass&quot;</span>)==0) <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>            <span class="keywordflow">if</span> (showTaggedOnly &amp;&amp; fElement.at(iCandidate).Get(<span class="stringliteral">&quot;TagClass&quot;</span>)==0) <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>            std::cout &lt;&lt; std::right &lt;&lt; std::setw(4) &lt;&lt; iCandidate+1 &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            <span class="keyword">auto</span> candidateFeatureMap = fElement[iCandidate].GetFeatureMap();</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            <span class="keyword">auto</span> candidateFeatureMap = fElement.at(iCandidate).GetFeatureMap();</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; key: keys) {</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>                <span class="keywordtype">int</span> textWidth = key.size()&gt;6 ? key.size() : 6;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                <span class="keywordtype">float</span> value = fElement[iCandidate][key];</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                <span class="keywordtype">float</span> value = fElement.at(iCandidate)[key];</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                <span class="keyword">auto</span> keyString = TString(key);</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                <span class="keywordflow">if</span> (keyString.Contains(<span class="stringliteral">&quot;Index&quot;</span>)) {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                    std::cout &lt;&lt; std::right &lt;&lt; std::setw(textWidth) &lt;&lt; (value&gt;=0 ? std::to_string(<span class="keywordtype">int</span>(value+1)) : <span class="stringliteral">&quot;-&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
@@ -205,7 +205,7 @@ $(document).ready(function(){initNavTree('CandidateCluster_8cc_source.html','');
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        <span class="comment">//auto baseFeatureMap = element[0].GetFeatureMap();</span></div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        <span class="keywordtype">bool</span> areFeaturesIdentical = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> iCandidate = 0; iCandidate &lt; <a class="code hl_function" href="classCluster.html#ad9dfb9b85d340b572645fcb483778b39">GetSize</a>(); iCandidate++) {</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>            <span class="keyword">auto</span> comparedFeatureMap = fElement[iCandidate].GetFeatureMap();</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>            <span class="keyword">auto</span> comparedFeatureMap = fElement.at(iCandidate).GetFeatureMap();</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keyword">const</span>&amp; basePair: fFeatureVectorMap) {</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
@@ -216,7 +216,7 @@ $(document).ready(function(){initNavTree('CandidateCluster_8cc_source.html','');
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                    fFeatureVectorMap[basePair.first]-&gt;resize(iCandidate);</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                    <span class="keyword">auto</span> value = comparedFeatureMap[basePair.first];</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                    <span class="keywordflow">if</span> (std::isnan(value) | std::isinf(value)) {</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                    <span class="keywordflow">if</span> (std::isnan(value) || std::isinf(value)) {</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                        <span class="keywordflow">if</span> (std::isnan(value)) {</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                            std::cerr &lt;&lt; Form(<span class="stringliteral">&quot;Candidate #%d: key %s value is NaN!&quot;</span>, iCandidate, basePair.first.c_str()) &lt;&lt; std::endl;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                        }</div>

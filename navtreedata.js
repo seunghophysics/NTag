@@ -45,7 +45,7 @@ var NAVTREE =
       [ "Dark noise", "command-line-options.html#dark-noise-option", null ],
       [ "Variables for output variables", "command-line-options.html#autotoc_md9", null ],
       [ "Event cut", "command-line-options.html#autotoc_md10", null ],
-      [ "SK I/O", "command-line-options.html#autotoc_md11", null ],
+      [ "SK I/O (detector parameters)", "command-line-options.html#autotoc_md11", null ],
       [ "Output", "command-line-options.html#cl-output", null ],
       [ "TRMS-fit", "command-line-options.html#autotoc_md12", null ],
       [ "Logging", "command-line-options.html#autotoc_md13", null ],
