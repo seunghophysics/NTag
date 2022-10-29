@@ -675,10 +675,23 @@ void EventNTagManager::ApplySettings()
             std::string treeTitle = dataTree->GetTitle();
             defaultUSESKG4PARAMETER = !(treeTitle=="SK 3 tree");
         }
-        if (!fSettings.HasKey("USESKG4PARAMETER"))
-            fSettings.Set("USESKG4PARAMETER", defaultUSESKG4PARAMETER?"true":"false");
 
-        fBonsaiManager.UseSKG4Parameter(fSettings.GetBool("USESKG4PARAMETER", defaultUSESKG4PARAMETER));
+        std::string defaultWaterMC = (defaultUSESKG4PARAMETER?"skg4":"skdetsim");
+
+        if (!fSettings.HasKey("water_mc"))
+            fSettings.Set("water_mc", defaultWaterMC);
+
+        bool useSKG4parameter = true;
+        auto waterMC = fSettings.GetString("water_mc");
+        if (waterMC!="skg4" && waterMC!="skdetsim") {
+            fMsg.Print(Form("%s is not a valid water_mc option... using %s for water_mc by default...", 
+                             waterMC.c_str(), defaultWaterMC.c_str()), pWARNING);
+            waterMC = defaultWaterMC;
+            fSettings.Set("water_mc", defaultWaterMC);
+        }
+        useSKG4parameter = (waterMC=="skdetsim")? false : true;
+
+        fBonsaiManager.UseSKG4Parameter(useSKG4parameter);
         fBonsaiManager.UseLOWFIT(true, fSettings.GetInt("REFRUNNO"));
         fDelayedVertexManager = &fBonsaiManager;
     }
