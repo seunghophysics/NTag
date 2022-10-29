@@ -118,7 +118,7 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
 
-*For SKDETSIM MC, the default value is `false`.
+*For SKDETSIM MC, the default value is `skdetsim`.
 
 ## Output {#cl-output}
 
