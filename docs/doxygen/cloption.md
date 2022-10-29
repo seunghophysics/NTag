@@ -114,10 +114,10 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 |`-SKOPTN`           | List of SK read options                                                | `31,30,26,25` |
 |`-SKBADOPT`         | SK bad channel option                                                  | 0             |
 |`-REFRUNNO`         | SK reference run number                                                | 0             |
-|`-USESKG4PARAMETER` | To use SKG4-tuned water parameters in lowfit: `true` or `false`        | `true`[^1]    |
+|`-USESKG4PARAMETER` | To use SKG4-tuned water parameters in lowfit: `true` or `false`        | `true`        |
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
-[^1]: If `false`, SKDETSIM-tuned water parameters are read instaed. For SKDETSIM MC, the default value is `false`.
+If `-USESKG4PARAMETER false`, SKDETSIM-tuned water parameters are read instaed. For SKDETSIM MC, the default value is `false`.
 
 ## Output {#cl-output}
 
