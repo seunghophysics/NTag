@@ -87,8 +87,10 @@ int main(int argc, char** argv)
     SKIO::SetSKBadChOption(settings.GetInt("SKBADOPT"));
     SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
 
-    if (parser.GetOption("-prompt_vertex")=="stmu")
+    if (parser.GetOption("-prompt_vertex")=="stmu") {
         input.AddSKOption(23);
+        settings.Set("SKOPTN", input.GetSKOption());
+    }
 
     // output MC
     if (!outDataFilePath.empty()) {
