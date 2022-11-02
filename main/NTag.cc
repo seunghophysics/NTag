@@ -79,9 +79,6 @@ int main(int argc, char** argv)
     SKIO input(inputFilePath, mInput);
 
     // SKIO settings
-    if (parser.GetOption("-prompt_vertex")=="stmu")
-        input.AddSKOption(23);
-
     //SKIO::SetSKGeometry(settings.GetInt("SKGEOMETRY"));
     // don't do bad channel mask at this tage
     //auto skOptionNoBad = TString(settings.GetString("SKOPTN")).ReplaceAll(",25", "");
@@ -89,6 +86,9 @@ int main(int argc, char** argv)
     SKIO::SetSKOption(settings.GetString("SKOPTN"));
     SKIO::SetSKBadChOption(settings.GetInt("SKBADOPT"));
     SKIO::SetRefRunNo(settings.GetInt("REFRUNNO"));
+
+    if (parser.GetOption("-prompt_vertex")=="stmu")
+        input.AddSKOption(23);
 
     // output MC
     if (!outDataFilePath.empty()) {
