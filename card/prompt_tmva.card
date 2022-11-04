@@ -1,6 +1,5 @@
 correct_tof    true
 delayed_vertex prompt
-QMAX           10000
 TWIDTH         14
 NHITSTH        7
 NHITSMX        400

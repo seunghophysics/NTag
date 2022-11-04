@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
+#include <iomanip>
 
 #include <TTree.h>
 #include <TMath.h>
@@ -158,9 +159,35 @@ void PMTHitCluster::RemoveVertex()
     }
 }
 
-unsigned int PMTHitCluster::RemoveBadChannels()
+HitReductionResult PMTHitCluster::RemoveHits(std::function<bool(const PMTHit&)> lambda, Float tMin, Float tMax)
 {
-    if (fElement.empty()) return 0;
+    auto cut = [=](PMTHit const & hit){ return (tMin<hit.t()) && (hit.t()<tMax) && lambda(hit); };
+
+    HitReductionResult res;
+    res.title        = "";
+    res.tMin         = tMin;
+    res.tMax         = tMax;
+    res.nBeforeWhole = GetSize();
+    res.nBeforeRange = CountRange(tMin, tMax);
+    res.nMatch       = CountIf(lambda);
+    res.nRemoved     = std::count_if(fElement.begin(), fElement.end(), cut);
+
+    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
+
+    res.nAfterWhole = GetSize();
+    int nActuallyRemoved = res.nBeforeWhole - res.nAfterWhole;
+    assert(res.nRemoved == nActuallyRemoved);
+
+    res.nAfterRange = CountRange(tMin, tMax);
+
+    return res;
+}
+
+HitReductionResult PMTHitCluster::RemoveBadChannels(Float tMin, Float tMax)
+{
+    HitReductionResult res = {.nRemoved=0};
+
+    if (fElement.empty()) res;
 
     auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) ||
                                                 (combad_.ibad[hit.i()-1] > 0) ||
@@ -170,26 +197,34 @@ unsigned int PMTHitCluster::RemoveBadChannels()
                                                 (comdark_.dark_rate_od[hit.i()-20000-1] == 0); };
     auto cut = (fElement.at(0).i()<=MAXPM) ? idCut : odCut;
 
-    int nSize = GetSize();
-    fElement.erase(std::remove_if(fElement.begin(), fElement.end(), cut), fElement.end());
-
-    return nSize-GetSize();
+    res = RemoveHits(cut, tMin, tMax);
+    res.title = "Bad PMTs";
+    
+    return res;
 }
 
-unsigned int PMTHitCluster::RemoveNegativeHits()
+HitReductionResult PMTHitCluster::RemoveNegativeHits(Float tMin, Float tMax)
 {
-    int nSize = GetSize();
-    fElement.erase(std::remove_if(fElement.begin(), fElement.end(),
-        [](PMTHit const & hit){ return (hit.q()<0); }), fElement.end());
-    return nSize-GetSize();
+    HitReductionResult res = RemoveHits([](PMTHit const & hit){ return (hit.q()<0); }, tMin, tMax);
+    res.title = "Q < 0";
+    return res;
 }
 
-unsigned int PMTHitCluster::RemoveLargeQHits(float qThreshold)
+HitReductionResult PMTHitCluster::RemoveLargeQHits(float qThreshold, Float tMin, Float tMax)
 {
-    int nSize = GetSize();
-    fElement.erase(std::remove_if(fElement.begin(), fElement.end(),
-        [=](PMTHit const & hit){ return (hit.q()>qThreshold); }), fElement.end());
-    return nSize-GetSize();
+    HitReductionResult res = RemoveHits([=](PMTHit const & hit){ return (hit.q()>qThreshold); }, tMin, tMax);
+    res.title = Form("Q > %3.2f", qThreshold);
+    return res;
+}
+
+unsigned int PMTHitCluster::CountIf(std::function<bool(const PMTHit&)> lambda)
+{
+    return std::count_if(fElement.begin(), fElement.end(), lambda);
+}
+
+unsigned int PMTHitCluster::CountRange(Float tMin, Float tMax)
+{
+    return CountIf([=](PMTHit const & hit){ return (tMin<hit.t()) && (hit.t()<tMax); });
 }
 
 void PMTHitCluster::FindMeanDirection()
@@ -381,9 +416,14 @@ void PMTHitCluster::AddTimeOffset(Float tOffset)
         hit = hit + tOffset;
 }
 
-std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
+HitReductionResult PMTHitCluster::ApplyDeadtime(Float deadtime, bool doRemove)
 {
-    int allSize = GetSize();
+    HitReductionResult res;
+    res.title        = Form("%3.0f ns deadtime", deadtime);
+    res.tMin         = std::numeric_limits<Float>::infinity();
+    res.tMax         = std::numeric_limits<Float>::infinity();
+    res.nBeforeWhole = GetSize();
+    res.nBeforeRange = res.nBeforeWhole;
 
     TVector3 tempVertex;
     bool bHadVertex = false;
@@ -407,7 +447,7 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
 
     //if (!fIsSorted) Sort();
     Sort();
-    unsigned int nRemovedBySignal = 0;
+    res.nRemovedBySignal = 0;
     for (auto& hit: fElement) {
         int hitPMTID = hit.i();
         Float tDiff = hit.t() - HitTime[hitPMTID];
@@ -420,11 +460,11 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
         }
         else if (hit.s()) {
             //std::cout << "Removing signal hit within deadtime " << deadtime << " ns: "; hit.Dump();
-            nRemovedBySignal++;
+            res.nRemovedBySignal++;
         }
         else if (HitType[hitPMTID]) {
             //std::cout << "Removing noise hit due to signal within deadtime " << deadtime << " ns: "; hit.Dump();
-            nRemovedBySignal++;
+            res.nRemovedBySignal++;
         }
         //else {
         //    HitTime[hitPMTID] = hit.t();
@@ -433,19 +473,31 @@ std::array<unsigned int,2> PMTHitCluster::ApplyDeadtime(Float deadtime, bool doR
         //}
     }
 
-    unsigned int nRemovedHits = allSize-dtCorrectedHits.size();
-    unsigned int nRemovedByNoise = nRemovedHits - nRemovedBySignal;
+    res.nAfterRange     = dtCorrectedHits.size();
+    res.nAfterWhole     = res.nAfterRange;
+    res.nRemoved        = res.nBeforeRange - res.nAfterRange;
+    res.nMatch          = res.nRemoved;
+    res.nRemovedByNoise = res.nRemoved - res.nRemovedBySignal;
+
     fElement = dtCorrectedHits;
 
     if (bHadVertex)
         SetVertex(tempVertex);
 
-    if (doRemove && nRemovedHits) {
-        std::cout << "Removed " << nRemovedHits << Form(" ( %d due to signal ) ", nRemovedBySignal)
-                  << "hits for PMT deadtime " << deadtime << " ns\n";
-    }
+    //if (doRemove/*&& nRemovedHits*/) {
+        //std::cout << Form("[ApplyDeadtime]      Total %6d -> %6d hits: "
+        //                  "removed %6d hits in time range [  -inf,    inf] usec (%d due to signal)\n",
+        //                  allSize, GetSize(), nRemovedHits, nRemovedBySignal, deadtime);
+    //    std::cout << std::setw(21) << std::left << Form("[ %4.0f ns deadtime ] ", deadtime);
+    //    std::cout << Form("Removed %6d hits in time range [  -inf,    inf] usec: Total %6d -> %6d hits\n",
+    //                      nRemovedHits, allSize, GetSize())//;
 
-    return std::array<unsigned int,2>({nRemovedBySignal, nRemovedByNoise});
+        //std::cout << "[ApplyDeadtime]      Removed " << nRemovedHits << Form(" ( %d due to signal ) ", nRemovedBySignal)
+        //          << "hits for PMT deadtime " << deadtime << " ns\n";
+    //}
+
+    //return std::array<unsigned int,2>({nRemovedBySignal, nRemovedByNoise});
+    return res;
 }
 
 std::array<float, 6> PMTHitCluster::GetBetaArray()

@@ -1,6 +1,5 @@
 correct_tof    false
 delayed_vertex lowfit
-QMAX           10000
 TWIDTH         200
 NHITSTH        25
 NHITSMX        200

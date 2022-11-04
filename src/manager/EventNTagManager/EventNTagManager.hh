@@ -64,6 +64,7 @@ class EventNTagManager
         // printers
         void DumpSettings() { fSettings.Print(); }
         void DumpEvent();
+        void DumpHitReductionResults(std::vector<HitReductionResult> resVec);
 
         // getters
         Store& GetSettings() { return fSettings; };

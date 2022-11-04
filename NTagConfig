@@ -15,7 +15,6 @@ delayed_vertex bonsai
 # candidate search
 TMIN           3
 TMAX           535
-QMAX           10
 TWIDTH         14
 NHITSTH        7
 NHITSMX        400

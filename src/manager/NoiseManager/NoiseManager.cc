@@ -415,8 +415,14 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
         }
     }
     //fMsg.Print("ApplyDeadtime: ", pDEFAULT, false);
-    signalHits->ApplyDeadtime(fPMTDeadtime, true);
+    auto res = signalHits->ApplyDeadtime(fPMTDeadtime, true);
     signalHits->Sort();
+
+    if (res.nRemoved) {
+        std::cout << "[NoiseManager] Removed " << res.nRemoved << Form(" ( %d due to signal ) ", res.nRemovedBySignal)
+                  << "hits for PMT deadtime " << fPMTDeadtime << " ns\n";
+    }
+
     //signalHits->CheckNaN();
     if (!OD) fPartID++;
 }

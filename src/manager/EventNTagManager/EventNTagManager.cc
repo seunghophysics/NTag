@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "TFile.h"
 
 #include "skroot.h"
@@ -684,7 +686,7 @@ void EventNTagManager::ApplySettings()
         bool useSKG4parameter = true;
         auto calibMC = fSettings.GetString("lowfit_param");
         if (calibMC!="skg4" && calibMC!="skdetsim") {
-            fMsg.Print(Form("%s is not a valid lowfit_param option... using %s for lowfit_param by default...", 
+            fMsg.Print(Form("%s is not a valid lowfit_param option... using %s for lowfit_param by default...",
                              calibMC.c_str(), defaultCalibMC.c_str()), pWARNING);
             calibMC = defaultCalibMC;
             fSettings.Set("lowfit_param", defaultCalibMC);
@@ -855,6 +857,33 @@ void EventNTagManager::DumpEvent()
     }
 }
 
+void EventNTagManager::DumpHitReductionResults(std::vector<HitReductionResult> resVec)
+{
+    std::cout << "                                              Before         Matched           After " << std::endl;
+    std::cout << "\033[4m No. Cut                Range (usec)   Range /   All   Range /   All   Range /   All \033[0m" << std::endl;
+    int iCut = 0;
+    for (auto const& res: resVec) {
+        std::cout << std::right << std::setw(3) << iCut+1 << "  ";
+        std::cout << std::left << std::setw(16) << res.title << " ";
+        if ( std::isinf(res.tMin) && std::isinf(res.tMax)) {
+            std::cout << std::right << std::setw(14) << "      -     " << " ";
+            std::cout << std::right << std::setw(15) << Form("        %6d", res.nBeforeRange, res.nBeforeWhole) << " ";
+            std::cout << std::right << std::setw(15) << Form("        %6d", res.nRemoved, res.nMatch) << " ";
+            std::cout << std::right << std::setw(15) << Form("        %6d", res.nAfterRange, res.nAfterWhole) << " ";
+        }
+        else {
+            std::cout << std::right << std::setw(14) << Form("[%4.0f, %4.0f]", res.tMin*1e-3-1, res.tMax*1e-3-1) << " ";
+            std::cout << std::right << std::setw(15) << Form("%6d /%6d", res.nBeforeRange, res.nBeforeWhole) << " ";
+            std::cout << std::right << std::setw(15) << Form("%6d /%6d", res.nRemoved, res.nMatch) << " ";
+            std::cout << std::right << std::setw(15) << Form("%6d /%6d", res.nAfterRange, res.nAfterWhole) << " ";
+        }
+        std::cout << "\n";
+        iCut++;
+    }
+
+    std::cout << "\n";
+}
+
 void EventNTagManager::CheckMC()
 {
     if (skhead_.mdrnsk == 0)
@@ -873,90 +902,83 @@ void EventNTagManager::ResetEventHitsVertex()
 
 void EventNTagManager::PrepareEventHits()
 {
-    int nNegHits = fEventHits.RemoveNegativeHits();
-    fEventODHits.RemoveNegativeHits();
-    fEventVariables.Set("NNegativeHits", nNegHits);
-    int nLargeQHits = fEventHits.RemoveLargeQHits(QMAX);
-    fEventVariables.Set("NLargeQHits", nLargeQHits);
-
-    // deadtime, burst noise
-    auto nDead = fEventHits.ApplyDeadtime(PMTDEADTIME, true);
-    fEventVariables.Set("NDeadHitsByNoise", nDead[1]);
-    fEventVariables.Set("NDeadHitsBySignal", nDead[0]);
-
-    fEventHits.SetBurstFlag(TRBNWIDTH);
-
-    ResetEventHitsVertex();
-
     // fetch bad channels, dark rates
     FindReferenceRun();
 
-    int nBadIDPMTs = 0; int nBadODPMTs = 0;
-    int nBadIDHits = 0; int nBadODHits = 0;
+    // Beginning of PMT hit reduction:
+    // 4 reduction steps
+    // (1) Remove bad PMT channels
+    // (2) Apply PMT deadtime
+    // (3) Remove negative Q hits
+    // (4) Remove large Q hits (optional, affects only search range)
 
-    int allIDSize = fEventHits.SliceRange(T0TH, T0MX).GetSize();
-    int allODSize = fEventODHits.SliceRange(T0TH, T0MX).GetSize();
+    std::vector<HitReductionResult> idHitReducRes;
+    std::vector<HitReductionResult> odHitReducRes;
 
-    // remove bad tube hits
-    if (TString(fSettings.GetString("SKOPTN")).Contains("25")) {
-        fEventHits.RemoveBadChannels();
-        fEventODHits.RemoveBadChannels();
+    // (1) Remove bad PMT channels
+    bool doRemoveBad = TString(fSettings.GetString("SKOPTN")).Contains("25");
 
-        nBadIDPMTs = combad_.nbad;
-        nBadODPMTs = combada_.nbada;
-        int redIDSize = fEventHits.SliceRange(T0TH, T0MX).GetSize();
-        int redODSize = fEventODHits.SliceRange(T0TH, T0MX).GetSize();
-        nBadIDHits = allIDSize - redIDSize;
-        nBadODHits = allODSize - redODSize;
+    int nBadIDHits = 0;
+    if (doRemoveBad) {
+        idHitReducRes.push_back(fEventHits.RemoveBadChannels());
+        odHitReducRes.push_back(fEventODHits.RemoveBadChannels());
+        nBadIDHits = idHitReducRes.back().nRemoved;
+    }
+    fEventVariables.Set("NBadHits", nBadIDHits);
 
-        std::vector<std::string> badTypes;
+    // (2) Apply PMT deadtime
+    idHitReducRes.push_back(fEventHits.ApplyDeadtime(PMTDEADTIME, true));
+    fEventVariables.Set("NDeadHitsByNoise",  idHitReducRes.back().nRemovedByNoise);
+    fEventVariables.Set("NDeadHitsBySignal", idHitReducRes.back().nRemovedBySignal);
+    fEventHits.SetBurstFlag(TRBNWIDTH);
 
-        int skbadopt = fSettings.GetInt("SKBADOPT", -1);
-        if (!skbadopt | skbadopt & (1<<0)) badTypes.push_back("bad");
-        if (!skbadopt | skbadopt & (1<<1)) badTypes.push_back("dead1");
-        if (!skbadopt | skbadopt & (1<<2)) badTypes.push_back("dead2");
-        if (!skbadopt | skbadopt & (1<<3)) badTypes.push_back("noisy");
-        if (!skbadopt | skbadopt & (1<<5)) badTypes.push_back("HK");
+    // (3) Remove negative Q hits
+    idHitReducRes.push_back(fEventHits.RemoveNegativeHits());
+    odHitReducRes.push_back(fEventODHits.RemoveNegativeHits());
+    fEventVariables.Set("NNegativeHits", idHitReducRes.back().nRemoved);
 
-        std::cout << "\n";
-        fMsg.Print(Form("BADSEL reference run: %d", fEventVariables.GetInt("RefRunNo")));
-        fMsg.Print(Form("# of bad ID PMTs: %d ( ", nBadIDPMTs), pDEFAULT, false);
-        for (auto const& btype: badTypes) std::cout << btype << " ";
-        std::cout << ")\n";
-
-        fMsg.Print(Form("# of bad OD PMTs: %d", nBadODPMTs));
-        fMsg.Print(Form("Removed %d bad ID tube hits in search range: total %d -> %d hits", nBadIDHits, allIDSize, redIDSize));
-        fMsg.Print(Form("Removed %d bad OD tube hits in search range: total %d -> %d hits", nBadODHits, allODSize, redODSize));
-        std::cout << "\n";
-
-        SKIO::ResetBadChannels();
-
-        allIDSize = redIDSize;
-        allODSize = redODSize;
+    // (4) Remove large Q hits (optional, affects only search range)
+    if (fSettings.HasKey("QMAX")) {
+        ResetEventHitsVertex();
+        idHitReducRes.push_back(fEventHits.RemoveLargeQHits(QMAX, T0TH, T0MX));
+        fEventVariables.Set("NLargeQHits", idHitReducRes.back().nRemoved);
     }
 
-    //fEventVariables.Set("NBadPMTs", nBadIDPMTs);
-    fEventVariables.Set("NBadHits", nBadIDHits);
+    int allIDSize = fEventHits.CountRange(T0TH, T0MX);
+    int allODSize = fEventODHits.CountRange(T0TH, T0MX);
     fEventVariables.Set("NAllHits", allIDSize);
     fEventVariables.Set("NAllODHits", allODSize);
 
-    //auto tDiff = fEventHits.GetProjection(HitFunc::dT);
-    //float pmtMinTDiff = *std::min_element(tDiff.begin(), tDiff.end());
-    //fEventVariables.Set("MinPMTTDiff", pmtMinTDiff);
+    // print out hit reduction results
+    fMsg.PrintBlock("ID hit reduction", pEVENT);
+    DumpHitReductionResults(idHitReducRes);
+    fMsg.PrintBlock("OD hit reduction", pEVENT);
+    DumpHitReductionResults(odHitReducRes);
+    //fMsg.Print(Form("                   ID hits in time range [%6.2f, %6.2f] usec: total %6d  / %6d hits",
+    //                T0TH*1e-3-1, T0MX*1e-3-1, allIDSize, fEventHits.GetSize()));
+    //fMsg.Print(Form("                   OD hits in time range [%6.2f, %6.2f] usec: total %6d  / %6d hits",
+    //                T0TH*1e-3-1, T0MX*1e-3-1, allODSize, fEventODHits.GetSize()));
+    // End of hit reduction
+    // Set event variables
 
     // qismsk
+    fEventHits.RemoveVertex();
+    fEventHits.Sort();
+
     float qismsk = 0;
     float tGateMin = fSettings.GetFloat("TGATEMIN")*1e3 + 1000.;
     float tGateMax = fSettings.GetFloat("TGATEMAX")*1e3 + 1000.;
     for (auto const& hit: fEventHits) {
         float hitTime = hit.t();
         if (tGateMin < hitTime && hitTime < tGateMax) {
+            //std::cout << hit.t() << " " << hit.i() << " " << hit.q() << std::endl;
             qismsk += hit.q();
         }
     }
 
     // qismsk = skq_.qismsk;
     fEventVariables.Set("QISMSK", qismsk);
+    ResetEventHitsVertex();
 
     //fEventHits.DumpAllElements();
     //fEventODHits.DumpAllElements();
@@ -974,6 +996,8 @@ void EventNTagManager::PrepareEventHits()
         if (pair.second > odMaxN200) odMaxN200 = pair.second;
     }
     fEventVariables.Set("ODMaxN200", odMaxN200);
+
+    SKIO::ResetBadChannels();
 }
 
 //void EventNTagManager::SetToF(const TVector3& vertex)
@@ -1324,6 +1348,25 @@ void EventNTagManager::FindReferenceRun()
     SKIO::SetBadChannels(refRunNo);
 
     fEventVariables.Set("RefRunNo", refRunNo);
+
+    int nBadIDPMTs = combad_.nbad;
+    int nBadODPMTs = combada_.nbada;
+
+    std::vector<std::string> badTypes;
+
+    int skbadopt = fSettings.GetInt("SKBADOPT", -1);
+    if (!skbadopt | skbadopt & (1<<0)) badTypes.push_back("bad");
+    if (!skbadopt | skbadopt & (1<<1)) badTypes.push_back("dead1");
+    if (!skbadopt | skbadopt & (1<<2)) badTypes.push_back("dead2");
+    if (!skbadopt | skbadopt & (1<<3)) badTypes.push_back("noisy");
+    if (!skbadopt | skbadopt & (1<<5)) badTypes.push_back("HK");
+
+    std::cout << "\n";
+    fMsg.Print(Form("BADSEL reference run: %d", fEventVariables.GetInt("RefRunNo")));
+    fMsg.Print(Form("# of bad ID PMTs: %d ( ", nBadIDPMTs), pDEFAULT, false);
+    for (auto const& btype: badTypes) std::cout << btype << " ";
+    std::cout << ")\n";
+    fMsg.Print(Form("# of bad OD PMTs: %d", nBadODPMTs));
 }
 
 void EventNTagManager::SetTaggedType(Taggable& taggable, Candidate& candidate)

@@ -1,5 +1,4 @@
 delayed_vertex bonsai
-QMAX           10000
 TWIDTH         14
 NHITSTH        7
 NHITSMX        400

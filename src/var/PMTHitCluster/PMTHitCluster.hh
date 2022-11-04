@@ -17,6 +17,14 @@ typedef struct OpeningAngleStats {
     float mean, median, stdev, skewness;
 } OpeningAngleStats;
 
+typedef struct HitReductionResult {
+    std::string  title;
+    unsigned int nBeforeWhole, nMatch, nAfterWhole;
+    unsigned int nBeforeRange, nRemoved, nAfterRange;
+    unsigned int nRemovedBySignal, nRemovedByNoise;
+    Float tMin, tMax;
+} HitReductionResult;
+
 class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
 {
     public:
@@ -35,9 +43,20 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetVertex() const { return fVertex; }
         bool HasVertex() { return fHasVertex; }
         void RemoveVertex();
-        unsigned int RemoveBadChannels();
-        unsigned int RemoveNegativeHits();
-        unsigned int RemoveLargeQHits(float qThreshold=10);
+
+        HitReductionResult RemoveHits(std::function<bool(const PMTHit&)> lambda, 
+                                      Float tMin=-std::numeric_limits<Float>::infinity(), 
+                                      Float tMax=std::numeric_limits<Float>::infinity());
+        HitReductionResult RemoveBadChannels(Float tMin=-std::numeric_limits<Float>::infinity(), 
+                                             Float tMax=std::numeric_limits<Float>::infinity());
+        HitReductionResult RemoveNegativeHits(Float tMin=-std::numeric_limits<Float>::infinity(), 
+                                              Float tMax=std::numeric_limits<Float>::infinity());
+        HitReductionResult RemoveLargeQHits(float qThreshold=10,
+                                            Float tMin=-std::numeric_limits<Float>::infinity(), 
+                                            Float tMax=std::numeric_limits<Float>::infinity());
+        unsigned int CountIf(std::function<bool(const PMTHit&)> lambda);
+        unsigned int CountRange(Float tMin, Float tMax);
+
         void FindMeanDirection();
 
         void Sort();
@@ -68,7 +87,7 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         inline const TVector3& GetMeanDirection() const { return fMeanDirection; }
 
         void AddTimeOffset(Float tOffset);
-        std::array<unsigned int,2> ApplyDeadtime(Float deadtime, bool doRemove=true);
+        HitReductionResult ApplyDeadtime(Float deadtime, bool doRemove=true);
 
         template<typename T>
         float Find(std::function<T(const PMTHit&)> projFunc,
