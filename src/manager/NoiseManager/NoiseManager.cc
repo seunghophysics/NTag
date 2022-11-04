@@ -300,8 +300,9 @@ void NoiseManager::GetNextNoiseEvent()
         if (fCurrentEntry == fNEntries && fDoRepeat) {
             // start from beginning
             fMsg.Print("Repetition allowed: going back to the first entry in noise tree...", pWARNING);
-            fCurrentEntry = 0;
-            fNoiseTree->GetEntry(fCurrentEntry);
+            fCurrentEntry = -1;
+            GetNextNoiseEvent();
+            //fNoiseTree->GetEntry(fCurrentEntry);
         }
         else {
             // error
