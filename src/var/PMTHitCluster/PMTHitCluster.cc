@@ -187,7 +187,7 @@ HitReductionResult PMTHitCluster::RemoveBadChannels(Float tMin, Float tMax)
 {
     HitReductionResult res = {.nRemoved=0};
 
-    if (fElement.empty()) res;
+    if (fElement.empty()) return res;
 
     auto idCut = [](PMTHit const & hit){ return (hit.i() > MAXPM) ||
                                                 (combad_.ibad[hit.i()-1] > 0) ||
