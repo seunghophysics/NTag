@@ -27,6 +27,10 @@ int main(int argc, char** argv)
     PrintNTag();
 
     ArgParser parser(argc, argv);
+
+    if (parser.OptionExists("-debug"))
+        SKIO::SetVerbose(true);
+
     EventNTagManager ntagManager;
     Printer msg("NTag", pDEFAULT);
 

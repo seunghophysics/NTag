@@ -66,7 +66,9 @@ void EventNTagManager::ReadPromptVertex(VertexMode mode)
     }
 
     else if (mode == mAPFIT) {
+        SKIO::DisableConsoleOut();
         int bank = 0; aprstbnk_(&bank);
+        SKIO::EnableConsoleOut();
         fPromptVertex = TVector3(apcommul_.appos);
 
         // ring
@@ -188,7 +190,8 @@ void EventNTagManager::ReadVariables()
     // trigger information
     int trgtype = ((skhead_.idtgsk & 1<<29) ? tAFT :
                   ((skhead_.idtgsk & 1<<28) ? tSHE :
-                  ((skhead_.idtgsk & 1<< 1) ?  tHE : tELSE)));
+                  ((skhead_.idtgsk & 1<< 1) ?  tHE : 
+                  ((skhead_.idtgsk & 1<< 0) ?  tLE : tELSE))));
     static double prevEvTime = 0;
     double globalTime =  (skhead_.nt48sk[0] * std::pow(2, 32)
                         + skhead_.nt48sk[1] * std::pow(2, 16)
@@ -219,7 +222,10 @@ void EventNTagManager::ReadVariables()
         fEventVariables.Set("MCT0", SKIO::GetMCTriggerOffset(fFileFormat)*1e-3);
 
         // NEUT
-        float posnu[3]{0., 0., 1e5+1}; nerdnebk_(posnu);
+        float posnu[3]{0., 0., 1e5+1}; 
+        SKIO::DisableConsoleOut();
+        nerdnebk_(posnu);
+        SKIO::EnableConsoleOut();
         if (posnu[2] < 1e5) {
             fSettings.Set("neut", true);
             auto nuMomVec = TVector3(nework_.pne[0]);
@@ -442,6 +448,7 @@ void EventNTagManager::SearchAndFill()
 void EventNTagManager::ProcessEvent()
 {
     static bool initialized = false;
+    fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
 
     if (!initialized) {
         CheckMC();
@@ -629,7 +636,7 @@ void EventNTagManager::ApplySettings()
 
     if (fSettings.GetBool("debug")) fMsg.SetVerbosity(pDEBUG);
 
-    fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
+    //fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
 
     // NTag parameters
     float tMin = fSettings.GetFloat("TMIN");
@@ -847,14 +854,86 @@ void EventNTagManager::ClearData()
 
 void EventNTagManager::DumpEvent()
 {
-    fEventVariables.Print();
-    fEventParticles.DumpAllElements();
-    fEventTaggables.DumpAllElements();
-    fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
-                                           "Label", "TagIndex", "fvx", "fvy", "fvz", "DTaggable", "TagClass"});
+    bool debug = fSettings.GetBool("debug", false);
+    std::cout << "\n\n\n\n";
+    if (debug) fEventVariables.Print();
+    DumpEventVariables();
+    if (debug) fEventParticles.DumpAllElements();
+    if (debug) fEventTaggables.DumpAllElements();
     if (fSettings.GetBool("print", true)) {
+        fEventEarlyCandidates.DumpAllElements({"FitT", "NHits", "DWall", "Goodness",
+                                               "Label", "TagIndex", "fvx", "fvy", "fvz", "DTaggable", "TagClass"});
         fEventCandidates.DumpAllElements(Split(fSettings.GetString("print"), ","), !fSettings.GetBool("debug", false));
     }
+}
+
+void EventNTagManager::DumpEventVariables()
+{
+    fMsg.PrintBlock("Event summary", pSUBEVENT, pDEFAULT, false);
+
+    // Event header
+    std::cout << "\n\033[1;36m* Event header\033[m\n";
+    std::cout << "\033[4mRun       Subrun    Event     Evis (MeV)\033[0m\n";
+    std::cout << std::left << std::setw(10) << fEventVariables.GetInt("RunNo");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetInt("SubrunNo");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetInt("EventNo");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetString("EVis", "-");
+    std::cout << std::endl;
+    std::cout << "\n\033[4mQISMSK (p.e.)       OD Hits             \033[0m\n";
+    std::cout << std::left << std::setw(20) << fEventVariables.GetFloat("QISMSK");
+    std::cout << std::left << std::setw(20) << fEventVariables.GetInt("NHITAC");
+    std::cout << std::endl;
+
+    // Trigger information
+    std::cout << "\n\033[1;36m* Trigger\033[m\n";
+    std::cout << "\033[4mTrgType   MCTrgOffset (ns)   TDiff (ms) \033[0m\n";
+    std::cout << std::left << std::setw(10);
+    auto trgType = fEventVariables.GetInt("TrgType");
+
+    if      (trgType == 1) std::cout << "SHE-only";
+    else if (trgType == 2) std::cout << "SHE+AFT";
+    else if (trgType == 3) std::cout << "LE";
+    else if (trgType == 4) std::cout << "HE";
+    else                   std::cout << "Other";
+    std::cout << std::left << std::setw(17);
+    auto trgOffset = fEventVariables.GetString("MCT0", "-");
+    auto tDiff = fEventVariables.GetFloat("TDiff");
+    std::cout << std::left << std::setw(13);
+    if (fIsMC) std::cout << "-";
+    else        std::cout << tDiff;
+    std::cout << std::endl;
+
+    // Prompt vertex
+    std::cout << "\n\033[1;36m* Prompt vertex                        \033[m\n";
+    std::cout << "\033[4mX (cm)    Y (cm)    Z (cm)    DWall (cm)\033[0m\n";
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("pvx");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("pvy");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("pvz");
+    std::cout << std::left << std::setw(10) << Form("%3.0f", fEventVariables.GetFloat("DWall"));
+    std::cout << std::endl;
+
+    // True vertex (MC)
+    std::cout << "\n\033[1;36m* MC true vertex                        \033[m\n";
+    std::cout << "\033[4mX (cm)    Y (cm)    Z (cm)     Error (cm)\033[0m\n";
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("vecvx");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("vecvy");
+    std::cout << std::left << std::setw(10) << fEventVariables.GetFloat("vecvz");
+    std::cout << std::left << std::setw(10) << Form("%3.0f", fEventVariables.GetFloat("VtxRes"));
+    std::cout << std::endl;
+
+    // Number of total hits
+    std::cout << "\n\033[1;36m* Number of hits in search range       \033[m\n";
+    std::cout << "\033[4mID                 OD                   \033[0m\n";
+    std::cout << std::left << std::setw(20) << fEventVariables.GetInt("NAllHits");
+    std::cout << std::left << std::setw(20) << fEventVariables.GetInt("NAllODHits");
+    std::cout << std::endl;
+
+    // Number of total hits
+    std::cout << "\n\033[1;36m* Number of taggables                  \033[m\n";
+    std::cout << "\033[4mID                 OD                   \033[0m\n";
+    std::cout << std::left << std::setw(20) << fEventVariables.GetInt("NAllHits");
+    std::cout << std::left << std::setw(20) << fEventVariables.GetInt("NAllODHits");
+    std::cout << std::endl;
 }
 
 void EventNTagManager::DumpHitReductionResults(std::vector<HitReductionResult> resVec)
@@ -944,20 +1023,26 @@ void EventNTagManager::PrepareEventHits()
         fEventVariables.Set("NLargeQHits", idHitReducRes.back().nRemoved);
     }
 
+    ResetEventHitsVertex();
     int allIDSize = fEventHits.CountRange(T0TH, T0MX);
     int allODSize = fEventODHits.CountRange(T0TH, T0MX);
     fEventVariables.Set("NAllHits", allIDSize);
     fEventVariables.Set("NAllODHits", allODSize);
 
     // print out hit reduction results
-    fMsg.PrintBlock("ID hit reduction", pEVENT);
+    std::cout << "\n";
+    fMsg.Print("ID hit reduction results:");
     DumpHitReductionResults(idHitReducRes);
-    fMsg.PrintBlock("OD hit reduction", pEVENT);
+    fMsg.Print(Form("Remaining ID hits in search range [%4.0f, %4.0f] usec (correct_tof = %s): ",
+                    T0TH*1e-3-1, T0MX*1e-3-1, fSettings.GetString("correct_tof").c_str()));
+    fMsg.Print(Form("%d / %d hits\n", allIDSize, fEventHits.GetSize()));
+
+    fMsg.Print("OD hit reduction results:");
     DumpHitReductionResults(odHitReducRes);
-    //fMsg.Print(Form("                   ID hits in time range [%6.2f, %6.2f] usec: total %6d  / %6d hits",
-    //                T0TH*1e-3-1, T0MX*1e-3-1, allIDSize, fEventHits.GetSize()));
-    //fMsg.Print(Form("                   OD hits in time range [%6.2f, %6.2f] usec: total %6d  / %6d hits",
-    //                T0TH*1e-3-1, T0MX*1e-3-1, allODSize, fEventODHits.GetSize()));
+    fMsg.Print(Form("Remaining OD hits in search range [%6.2f, %6.2f] usec: ",
+                    T0TH*1e-3-1, T0MX*1e-3-1));
+    fMsg.Print(Form("%d / %d hits\n", allODSize, fEventODHits.GetSize()));
+
     // End of hit reduction
     // Set event variables
 
@@ -1404,16 +1489,28 @@ void EventNTagManager::PruneCandidates()
 void EventNTagManager::FillNTagCommon()
 {
     int nCandidates = fEventCandidates.GetSize();
-    int nTrueE = 0, nTaggedE = 0, nTrueN = 0, nTaggedN = 0;
+    int nTrueE = 0, nTaggableE = 0, nTaggedE = 0;
+    int nTrueN = 0, nTaggableN = 0, nTaggedN = 0;
 
-    // count true
+    // count true, taggable
     if (fIsMC) {
+        for (auto const& particle: fEventParticles) {
+            if (particle.IntID()==iDECAY && abs(particle.PID())==ELECTRON) nTrueE++;
+            else if (particle.PID() == NEUTRON)                            nTrueN++;
+        }
+
         for (auto const& taggable: fEventTaggables) {
-            if      (taggable.Type() == typeE) nTrueE++;
-            else if (taggable.Type() == typeN) nTrueN++;
+            bool inTank = GetDWall(taggable.Vertex()) > 0;
+            bool inRange = (T0TH*1e-3-1<taggable.Time()) && (taggable.Time()<T0MX*1e-3-1);
+            if (inTank && inRange) {
+                if      (taggable.Type()==typeE) nTaggableE++;
+                else if (taggable.Type()==typeN) nTaggableN++;
+            }
         }
         fEventVariables.Set("NTrueE", nTrueE);
         fEventVariables.Set("NTrueN", nTrueN);
+        fEventVariables.Set("NTaggableE", nTaggableE);
+        fEventVariables.Set("NTaggableN", nTaggableN);
     }
 
     // muechk: count tagged

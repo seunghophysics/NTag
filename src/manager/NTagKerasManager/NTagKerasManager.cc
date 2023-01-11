@@ -1,8 +1,10 @@
 #include <fstream>
 #include <string>
+#include <cstdlib>
 
 #include <tensorflow/core/public/session.h>
 
+#include "SKIO.hh"
 #include "NTagGlobal.hh"
 #include "Candidate.hh"
 #include "NTagKerasManager.hh"
@@ -11,6 +13,7 @@ NTagKerasManager::NTagKerasManager()
 : fInputTensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1,14})),
   fMsg("NTagKerasManager")
 {
+    if (!SKIO::GetVerbose()) setenv("TF_CPP_MIN_LOG_LEVEL", "3", 1);
     fInputData = fInputTensor.flat<float>().data();
 }
 
@@ -25,6 +28,7 @@ void NTagKerasManager::LoadModel(std::string modelPath)
     tensorflow::SessionOptions session_options_;
     tensorflow::RunOptions run_options_;
 
+    std::cout << "[NTagKerasManager] Loading model at " << modelPath << "\n";
     auto status = tensorflow::LoadSavedModel(session_options_,
                                              run_options_,
                                              modelPath.c_str(),

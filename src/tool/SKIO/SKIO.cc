@@ -21,6 +21,10 @@ int SKIO::fSKGeometry = 5;
 int SKIO::fSKBadChOption = 0;
 int SKIO::fRefRunNo = 85619;
 
+int SKIO::fTmpOut = 0;
+int SKIO::fBackupOut = 0;
+bool SKIO::fVerbose = false;
+
 SKIO::SKIO()
 : fIOMode(mInput), fFileFormat(mZBS), fFilePath(""),
   fNEvents(0), fCurrentEventID(0), fIsFileOpen(false), fMsg("SKIO")
@@ -89,6 +93,8 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
     // ZBS
     if (fFileFormat == mZBS) {
 
+        SKIO::DisableConsoleOut();
+
         // Initialize ZEBRA
         if (!fIsZEBRAInitialized) {
             zbsinit_();
@@ -108,6 +114,8 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
                     fFilePath.Length(), 5, 0, 3, 0, 0, 20, 0, 0);
         skopenf_(&logicalUnit, &fileIndex, "Z", &openError);
 
+        SKIO::EnableConsoleOut();
+
         if (openError) {
             fMsg.Print("SKOPENF returned error status while opening the input ZBS: " + fFilePath, pERROR);
         }
@@ -115,6 +123,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
 
     // SKROOT
     else if (fFileFormat == mSKROOT) {
+        SKIO::DisableConsoleOut();
         if (fIOMode == mInput) {
             kzinit_();
 
@@ -128,7 +137,7 @@ void SKIO::OpenFile(std::string fileName, IOMode mode)
             skroot_set_input_file_(&logicalUnit, fInFilePath.Data(), fInFilePath.Length());
             skroot_init_(&logicalUnit);
         }
-
+        SKIO::EnableConsoleOut();
     }
 
     fIsFileOpen = true;
@@ -141,6 +150,7 @@ void SKIO::CloseFile()
 {
     int logicalUnit = fIOMode;
 
+    SKIO::DisableConsoleOut();
     if (fFileFormat == mZBS) {
         skclosef_(&logicalUnit);
     }
@@ -148,6 +158,7 @@ void SKIO::CloseFile()
         skroot_close_(&logicalUnit);
         skroot_end_();
     }
+    SKIO::EnableConsoleOut();
 
     //fNEvents = 0;
     fCurrentEventID = 0;
@@ -156,9 +167,11 @@ void SKIO::CloseFile()
 
 int SKIO::ReadNextEvent()
 {
+    SKIO::DisableConsoleOut();
     int logicalUnit = fIOMode;
     int readStatus = skread_(&logicalUnit);
     if (readStatus == mReadOK) fCurrentEventID++;
+    SKIO::EnableConsoleOut();
     return readStatus;
 }
 
@@ -227,12 +240,15 @@ int SKIO::GetNumberOfEvents()
             int readStatus = mReadOK;
 
             std::cout << "\n";
-            fMsg.Print("Counting the number of events in the input file...\n");
+            fMsg.Print("Counting the number of events in the input file...");
+            
+            SKIO::DisableConsoleOut();
             while (readStatus == mReadOK) {
                 readStatus = skread_(&logicalUnit);
                 if (readStatus == mReadOK) nEvents++;
-                std::cout << "[SKIO] Number of events: " << nEvents << "\r";
+                //std::cout << "[SKIO] Number of events: " << nEvents << "\r";
             }
+            SKIO::EnableConsoleOut();
 
             CloseFile();
             fNEvents = nEvents;
@@ -281,12 +297,6 @@ void SKIO::DumpSettings()
 
 void SKIO::SetRefRunNo(int refRunNo)
 {
-    // auto
-    if (!refRunNo) {
-
-    }
-
-    // manual
     fRefRunNo = refRunNo;
 }
 
@@ -295,12 +305,14 @@ int SKIO::SetBadChannels(int runNo, int subrunNo, bool fetchTQ)
     int badchError = 0; int darkError = 0;
     combad_.log_level_skbadch = 4; // silent
     comdark_.log_level_skdark = 4; // silent
+    SKIO::DisableConsoleOut();
     skbadch_(&runNo, &subrunNo, &badchError);
     skdark_(&runNo, &darkError);
     if (fetchTQ) {
         skbadch_mask_tqz_();
         tqrealsk_();
     }
+    SKIO::EnableConsoleOut();
     return (badchError>=0) && (darkError==0);
 }
 
@@ -396,9 +408,33 @@ float SKIO::GetMCTriggerOffset(FileFormat format)
         trgOffset = -MCINFO->prim_pret0[0];
     }
     else if (format==mZBS) {
+        SKIO::DisableConsoleOut();
         trginfo_(&trgOffset);
         trgOffset -= 1000;
+        SKIO::EnableConsoleOut();
     }
 
     return trgOffset;
+}
+
+void SKIO::DisableConsoleOut()
+{
+    if (!fVerbose) {
+        fflush(stdout);
+        fBackupOut = dup(1);
+        FILE* f = fopen("/dev/null", "w");
+        fTmpOut = fileno(f);
+        dup2(fTmpOut, 1);
+        fclose(f);
+    }
+}
+
+void SKIO::EnableConsoleOut()
+{
+    if (!fVerbose)
+    {
+        fflush(stdout);
+        dup2(fBackupOut, 1);
+        close(fBackupOut);
+    }
 }

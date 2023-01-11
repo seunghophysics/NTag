@@ -98,6 +98,11 @@ class SKIO
 
         static bool IsZEBRAInitialized() { return fIsZEBRAInitialized; }
 
+        static void SetVerbose(bool verbose) { fVerbose = verbose; }
+        static bool GetVerbose() { return fVerbose; }
+        static void DisableConsoleOut();
+        static void EnableConsoleOut();
+
     private:
         IOMode fIOMode;
         FileFormat fFileFormat;
@@ -115,6 +120,10 @@ class SKIO
         static int fSKGeometry;
         static int fSKBadChOption;
         static int fRefRunNo;
+
+        static int fTmpOut;
+        static int fBackupOut;
+        static bool fVerbose;
 
         Printer fMsg;
 };

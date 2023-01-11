@@ -42,6 +42,9 @@ class EventNTagManager
         void ProcessEvent();
         void ProcessDataEvent();
         void ProcessFlatEvent();
+        
+        // bad channel settings
+        void PrepareEventHits();
 
         // main search function
         void SearchCandidates();
@@ -64,6 +67,7 @@ class EventNTagManager
         // printers
         void DumpSettings() { fSettings.Print(); }
         void DumpEvent();
+        void DumpEventVariables();
         void DumpHitReductionResults(std::vector<HitReductionResult> resVec);
 
         // getters
@@ -113,7 +117,6 @@ class EventNTagManager
 
         // reference run for bad channels and dark rates
         void FindReferenceRun();
-        void PrepareEventHits();
 
         // tag class for candidate
         //int FindTagClass(const Candidate& candidate);
@@ -190,6 +193,8 @@ class TInterruptHandler : public TSignalHandler
         {
             std::cerr << "Received SIGINT. Writing output..." << std::endl;
             fNTagManager->WriteTrees(true);
+            
+            SKIO::DisableConsoleOut();
             int lun = 10; skclosef_(&lun);
                 lun = 20; skclosef_(&lun);
 

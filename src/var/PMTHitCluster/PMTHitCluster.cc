@@ -185,7 +185,7 @@ HitReductionResult PMTHitCluster::RemoveHits(std::function<bool(const PMTHit&)> 
 
 HitReductionResult PMTHitCluster::RemoveBadChannels(Float tMin, Float tMax)
 {
-    HitReductionResult res = {.nRemoved=0};
+    HitReductionResult res = {.title="Bad PMTs", .nRemoved=0, .tMin=tMin, .tMax=tMax};
 
     if (fElement.empty()) return res;
 

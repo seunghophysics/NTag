@@ -13,6 +13,7 @@
 #include "skwaterlenC.h"
 
 #include "SKLibs.hh"
+#include "SKIO.hh"
 #include "Printer.hh"
 
 TVector3 GetStopMuVertex()
@@ -26,7 +27,9 @@ TVector3 GetStopMuVertex()
     int iRing = 0; // first ring
     enum {iGamma, iElectron, iMuon};
 
+    SKIO::DisableConsoleOut();
     stmfit_(initPoint, momDir, goodness, entryQ);
+    SKIO::EnableConsoleOut();
 
     if (goodness < 0)
         msg.Print("STMFIT error occurred.", pWARNING);
@@ -42,6 +45,7 @@ TVector3 GetStopMuVertex()
     // Set cherenkov angle roughly to 42 deg
     apcommul_.apangcer[iRing] = 42.;
 
+    SKIO::DisableConsoleOut();
     int iCall = 0, iTrCor = 0, iPAng = 0; // probably dummy
     int nRing = 1;
     sparisep_(iCall, iTrCor, iPAng, nRing); // momentum
@@ -62,6 +66,7 @@ TVector3 GetStopMuVertex()
     appatsp_.approb[iRing][iElectron] = -100.; // e-like probability
     appatsp_.approb[iRing][iMuon]     = 0.;    // mu-like probability (set this higher than e-like!)
     spfinalsep_();
+    SKIO::EnableConsoleOut();
 
     for (int dim = 0; dim < 3; dim++)
         momDir[dim] = apcommul_.apdir[iRing][dim];

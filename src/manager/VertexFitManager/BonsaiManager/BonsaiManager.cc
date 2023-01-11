@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <stdio.h>
 
 #include "skparmC.h"
 #include "skheadC.h"
@@ -46,6 +47,7 @@ BonsaiManager::~BonsaiManager()
 
 void BonsaiManager::Initialize()
 {
+    SKIO::DisableConsoleOut();
     if (!skheadg_.sk_geometry) {
         skheadg_.sk_geometry = 5; // default: SK5
         geoset_();
@@ -54,12 +56,14 @@ void BonsaiManager::Initialize()
     fPMTGeometry = new pmt_geometry(MAXPM, GetPMTPositionArray());
     fLikelihood = new likelihood(fPMTGeometry->cylinder_radius(), fPMTGeometry->cylinder_height());
     fLikelihood->set_hits(NULL);
+    SKIO::EnableConsoleOut();
 }
 
 void BonsaiManager::InitializeLOWFIT(int refRunNo)
 {
     SetRefRunNo(refRunNo);
 
+    SKIO::DisableConsoleOut();
     if (!SKIO::IsZEBRAInitialized()) kzinit_();
     skrunday_();
     skwt_gain_corr_();
@@ -72,6 +76,7 @@ void BonsaiManager::InitializeLOWFIT(int refRunNo)
     int elapsedDays = skday_data_.relapse[refRunNo-1000];
     waterTransparency = 12431.3;
     if (refRunNo) lfwater_(&elapsedDays, &waterTransparency);
+    SKIO::EnableConsoleOut();
 
     // Use G4 lowfit parameters
     if (fUseSKG4Parameter)
@@ -188,6 +193,8 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
 
     int original_nrunsk = skhead_.nrunsk;
 
+    SKIO::DisableConsoleOut();
+
     if (skhead_.mdrnsk == 0) {
         // for mc, switch nrunsk to reference run number temporarily
         skhead_.nrunsk = fRefRunNo;
@@ -216,6 +223,8 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         // ...and switch back
         skhead_.nrunsk = original_nrunsk;
     }
+
+    SKIO::EnableConsoleOut();
 
     // retreive common block
     fFitVertex = TVector3(skroot_lowe_.bsvertex[0], skroot_lowe_.bsvertex[1], skroot_lowe_.bsvertex[2]);

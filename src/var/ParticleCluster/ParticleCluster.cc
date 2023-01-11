@@ -2,6 +2,7 @@
 
 #include <neworkC.h>
 
+#include "SKIO.hh"
 #include "SKLibs.hh"
 #include "Calculator.hh"
 #include "ParticleCluster.hh"
@@ -17,12 +18,16 @@ void ParticleCluster::ReadCommonBlock(vcwork_common primaryCommon, secndprt_comm
     Clear();
 
     // Primaries
-    for (int iVec = 0; iVec < primaryCommon.nvect; iVec++) {
+    int nPrimaries = primaryCommon.nvect < MAXVECT ? primaryCommon.nvect : MAXVECT;
+    for (int iVec = 0; iVec < nPrimaries; iVec++) {
         int g3pid = primaryCommon.ip[iVec];
         int g4pid = 0;
         if (g3pid == 4) {
             // get pid from neut vectors
-            float posnu[3]; nerdnebk_(posnu);
+            float posnu[3]; 
+            SKIO::DisableConsoleOut();
+            nerdnebk_(posnu);
+            SKIO::EnableConsoleOut();
             g4pid = nework_.ipne[iVec];
         }
         else g4pid = gG3toG4PIDMap[g3pid];
@@ -86,12 +91,15 @@ void ParticleCluster::DumpAllElements() const
     }
 
     msg.PrintBlock("MC Particles", pEVENT);
-    std::cout << "\033[4m No.   Particle Time (us) Interaction     Parent KE (MeV) \033[0m" << std::endl;
+    std::cout << "\033[4m No.   Particle Time (us) Interaction  Parent(Index) KE (MeV) \033[0m" << std::endl;
 
     for (unsigned int iParticle = 0; iParticle < fElement.size(); iParticle++) {
         auto& particle = fElement.at(iParticle);
         auto vertex = particle.Vertex();
         auto parentName = GetParticleName(particle.ParentPID());
+        parentName = (parentName=="0" ? TString("-") : parentName);
+        auto parentIndex = particle.ParentIndex()>=0? Form("(%d)", particle.ParentIndex()+1) : "(-)";
+
         //auto mom = particle.Momentum().Mag();
         auto ke = particle.Energy();
         std::cout << std::right << std::setw(3) << iParticle+1 << "  ";
@@ -101,7 +109,7 @@ void ParticleCluster::DumpAllElements() const
         else
         std::cout << std::right << std::setw(8) << (int)(particle.Time()+0.5f) << "  ";
         std::cout << std::right << std::setw(11) << particle.GetIntName() << " ";
-        std::cout << std::right << std::setw(10) << (parentName=="0" ? TString("-") : parentName) << " ";
+        std::cout << std::right << std::setw(14) << (parentName+parentIndex) << " ";
         if (ke<10)
             std::cout << std::right << std::setw(8) << std::setprecision(1) << ke << "\n";
         else
