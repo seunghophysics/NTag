@@ -9,6 +9,7 @@
 #include "Printer.hh"
 #include "Store.hh"
 #include "SKIO.hh"
+//#include "TriggerManager.hh"
 #include "git.h"
 
 int main(int argc, char **argv)
@@ -48,6 +49,8 @@ int main(int argc, char **argv)
     NoiseManager noiseManager;
     noiseManager.ApplySettings(settings, nInputEvents);
 
+    //TriggerManager trgManager(settings.GetInt("REFRUNNO"));
+
     // Event loop
     for (int eventID=1; eventID<=nInputEvents; eventID++) {
         msg.Print(Form("Processing event #%d...\x1b[A\r", eventID));
@@ -66,6 +69,13 @@ int main(int argc, char **argv)
 
         inputMCIDHits.Append(inputMCODHits);
         auto& outputHits = inputMCIDHits;
+
+        // Apply software trigger, if needed
+        //if (settings.GetBool("reapply_trigger", false)) {
+        //    trgManager.ApplyTrigger(inputMCIDHits);
+        //    //outputMC.FillHEADER(softwareTrg);
+        //    //outputMC.FillMCINFO(softwareTrg);
+        //}
 
         outputMC.FillTQREAL(outputHits);
         outputMC.Write();

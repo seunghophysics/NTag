@@ -176,18 +176,36 @@ void NoiseManager::SetNoiseTreeFromOptions(TString option, int nInputEvents, flo
 
     TString dummyFilePath;
 
+    int nTrial = 0;
     while (fNEntries <= /*2**/nRequiredEvents) {
-        if (run == "") {
+        
+        // limit the number of iterations
+        nTrial++;
+        if (nTrial > 10000) {
+            std::cerr << "Could not find enough noise files within iteration limit 10000, aborting...\n";
+            abort();
+        }
+
+        // multiple runs 
+        if (run == "" && !runDirs.empty()) {
             dummyRunPath = PickRandom(runDirs);
             int dummyRunNo = ((TObjString*)((dummyRunPath.Tokenize('/'))->Last()))->GetString().Atoi();
             if (!dummyRunNo) continue; // skip any non-numeric run directory name
             if (dummyRunNo < minRun || maxRun < dummyRunNo ) continue;
             fileList = GetListOfFiles(dummyRunPath, ".root");
         }
+        
+        // specific run
         if (!fileList.empty())
             dummyFilePath = PickRandom(fileList);
         else continue;
+        
         AddNoiseFileToChain(dummyChain, dummyFilePath);
+    }
+
+    if (!fNEntries) {
+        std::cerr << "Empty noise chain! Aborting...\n";
+        abort();
     }
 
     SetNoiseTree(dummyChain);
