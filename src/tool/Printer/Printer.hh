@@ -63,7 +63,7 @@ class Printer
          * @param className The class name to print in all messages. Use the name of the owner class.
          * @param verbose #Verbosity.
          */
-        Printer(const char* className="", Verbosity verbose=pDEFAULT);
+        Printer(std::string className="", Verbosity verbose=pDEFAULT);
         ~Printer();
 
         /**
@@ -103,7 +103,7 @@ class Printer
         inline void SetVerbosity(Verbosity verbose) { fVerbosity = verbose; }
 
     private:
-        const char*  fClassName;
+        std::string  fClassName;
         Verbosity    fVerbosity;
 };
 

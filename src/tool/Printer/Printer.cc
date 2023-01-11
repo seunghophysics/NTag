@@ -3,7 +3,7 @@
 
 #include "Printer.hh"
 
-Printer::Printer(const char* className, Verbosity verbose):
+Printer::Printer(std::string className, Verbosity verbose):
 fClassName(className), fVerbosity(verbose) {}
 Printer::~Printer() {}
 
