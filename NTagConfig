@@ -75,5 +75,5 @@ VTXMAXRADIUS   5000
 #lowfit_param skg4
 
 # logging
-print          FitT,NHits,DWall,DPrompt,DTaggable,Beta1,SignalRatio,BurstRatio,FitGoodness,DarkLikelihood,TagOut,Label,TagIndex,TagClass
+print          FitT,NHits,SignalRatio,DarkLikelihood,TagOut,Label,TagIndex,TagClass
 debug          false
