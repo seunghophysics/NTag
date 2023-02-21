@@ -144,7 +144,9 @@ int main(int argc, char** argv)
     }
 
     // event loop
-    for (int eventID=1; eventID<=nInputEvents; eventID++) {
+    int eventStart = parser.OptionExists("-event_start")? std::stoi(parser.GetOption("-event_start")) : 1;
+
+    for (int eventID=eventStart; eventID<=nInputEvents; eventID++) {
         std::cout << "\n"; msg.Print(Form("Processing Event #%d / %d...", eventID, nInputEvents));
         input.ReadEvent(eventID);
         ntagManager.ProcessEvent();
