@@ -450,11 +450,32 @@ void EventNTagManager::ProcessEvent()
     static bool initialized = false;
     fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
 
+
     if (!initialized) {
         CheckMC();
         auto nnType = fSettings.GetString("NN_type");
         auto weightPath = fSettings.GetString("weight");
         auto delayedMode = fSettings.GetString("delayed_vertex");
+
+        auto addWords = [](std::vector<std::string> &base, std::string str){
+          while ( str != "" ){
+            auto pos = str.find(',');
+            if( pos == std::string::npos ){
+              base.push_back( str);
+              str = "";
+            }
+            else {
+              base.push_back( str.substr(0, pos) );
+              str = str.substr(pos+1);
+            }
+          }
+          return;
+        };
+        if( newFeatures != "" ) {
+          gTMVAFeatures.clear();
+          addWords( gTMVAFeatures, newFeatures );
+        }
+
         if (nnType=="tmva") {
             if (weightPath=="default")
                 weightPath = delayedMode;
@@ -1102,10 +1123,6 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     // set default values for delayed candidate properties
     TVector3 delayedVertex = fPromptVertex;
-    // Temporal vertex with Bonsai fit, for improving prompt_tmva and prompt_keras
-    TVector3 delayedBonsaiVertex   = fPromptVertex;
-    float    delayedBonsaiTime     = 0.;
-    float    delayedBonsaiGoodness = 0.;
 
     Float delayedTime = firstHit.t() + TWIDTH/2.;
     float delayedGoodness = 0;
@@ -1114,37 +1131,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     // prompt mode: delayed vertex = prompt vertex
     if (fDelayedVertexMode == mPROMPT) {
-        if (fPromptVertexMode != mNONE){
+        if (fPromptVertexMode != mNONE)
             delayedGoodness = fDelayedVertexManager->GetGoodness(trgHits, fPromptVertex, delayedTime);
-            // apply delayed vertex fit
-            PMTHitCluster hitsForFit;
-
-            fEventHits.RemoveVertex();
-            fEventHits.Sort();
-            firstHit.UnsetToFAndDirection();
-            unsigned int firstHitID = fEventHits.GetIndex(firstHit);
-            Float tLeft  = fDelayedVertexMode == mLOWFIT ? -520 : -500;
-            Float tRight = fDelayedVertexMode == mLOWFIT ?  780 : 1000;
-            hitsForFit = fEventHits.Slice(firstHitID, TWIDTH/2.+tLeft, TWIDTH/2.+tRight) - firstHit.t() + 1000;
-
-            // give up bonsai fit for N1300 larger than 2000
-            auto nHitsForFit = hitsForFit.GetSize();
-            if (nHitsForFit > 2000) {
-                fMsg.Print(Form("A possible candidate at T=%3.2f us has N%d=%d that is larger than 2000,"
-                                " giving up fit and setting the delayed vertex the same as the prompt vertex (%3.2f, %3.2f, %3.2f)...",
-                                firstHit.t()*1e-3, int(tRight-tLeft), nHitsForFit, delayedVertex.x(), delayedVertex.y(), delayedVertex.z()), pWARNING);
-                doFit = false;
-            }
-
-            if (doFit) {
-                hitsForFit.Sort();
-                fDelayedVertexManager = &fBonsaiManager;//Use Bonsai for Temporal Fit.
-                fDelayedVertexManager->Fit(hitsForFit);
-                delayedBonsaiVertex   = fDelayedVertexManager->GetFitVertex();
-                delayedBonsaiTime     = fDelayedVertexManager->GetFitTime() + firstHit.t() - 1000;
-                delayedBonsaiGoodness = fDelayedVertexManager->GetFitGoodness();
-            }
-        }
         else
             fMsg.Print("MODE ERROR: Prompt vertex mode is NONE while delayed vertex mode is PROMPT!", pERROR);
     }
@@ -1192,15 +1180,6 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
-
-    if (fabs(delayedBonsaiTime-firstHit.t()) < TMINPEAKSEP &&
-        fabs(delayedBonsaiTime-lastCandidateTime) > TMINPEAKSEP &&
-        T0TH < delayedBonsaiTime && delayedBonsaiTime < T0MX) {
-        fEventHits.SetBonsaiVertex(delayedBonsaiVertex);
-    }
-    else {
-        fEventHits.SetBonsaiVertex(TVector3(-9999,-9999,-9999));
-    }
 
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
@@ -1261,7 +1240,6 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     candidate.Set("fvx", delayedVertex.x());
     candidate.Set("fvy", delayedVertex.y());
     candidate.Set("fvz", delayedVertex.z());
-    auto delayedBonsaiVertex = fEventHits.GetBonsaiVertex();
 
     // Number of hits
     candidate.Set("NHits", hitsInTCANWIDTH.GetSize());
@@ -1312,19 +1290,6 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     candidate.Set("DPrompt", fPromptVertexMode==mNONE && fPromptVertex==TVector3() ?
                              -1 : (fPromptVertex-delayedVertex).Mag());
 
-    float DBonsaiPrompt;
-    // If Bonsai reconstruction cannot be done in proper time range, DBonsaiPrompt return -1.
-    // * DBonsaiPrompt should be >= 0, in the normal case.
-    if ( delayedBonsaiVertex.x() == -9999 && delayedBonsaiVertex.y() == -9999 && delayedBonsaiVertex.z() == -9999)
-    {
-        DBonsaiPrompt = -1;
-    }
-    else
-    {
-        DBonsaiPrompt =  (fPromptVertex-delayedBonsaiVertex).Mag();
-    }
-    candidate.Set("DBonsaiPrompt", fPromptVertexMode==mNONE && fPromptVertex==TVector3() ?
-            -1 : DBonsaiPrompt);
 
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
     candidate.Set("NBurst", hitsInTCANWIDTH.GetNBurst());

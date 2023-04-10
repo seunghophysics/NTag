@@ -146,17 +146,6 @@ void PMTHitCluster::SetVertex(const TVector3& inVertex)
     }
 }
 
-void PMTHitCluster::SetBonsaiVertex(const TVector3& inBonsaiVertex)
-{
-    if (!fHasBonsaiVertex || fBonsaiVertex != inBonsaiVertex) {
-        if (fHasBonsaiVertex) RemoveBonsaiVertex();
-
-        fBonsaiVertex = inBonsaiVertex;
-        fHasBonsaiVertex = true;
-    }
-}
-
-
 void PMTHitCluster::RemoveVertex()
 {
     if (fHasVertex) {
@@ -167,14 +156,6 @@ void PMTHitCluster::RemoveVertex()
         fHasVertex = false;
 
         fIsSorted = false;
-    }
-}
-
-void PMTHitCluster::RemoveBonsaiVertex()
-{
-    if (fHasBonsaiVertex) {
-        fBonsaiVertex = TVector3();
-        fHasBonsaiVertex = false;
     }
 }
 

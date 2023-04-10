@@ -44,11 +44,6 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
         bool HasVertex() { return fHasVertex; }
         void RemoveVertex();
 
-        void SetBonsaiVertex(const TVector3& inBonsaiVertex);
-        inline const TVector3& GetBonsaiVertex() const { return fBonsaiVertex; }
-        bool HasBonsaiVertex() { return fHasBonsaiVertex; }
-        void RemoveBonsaiVertex();
-
         HitReductionResult RemoveHits(std::function<bool(const PMTHit&)> lambda, 
                                       Float tMin=-std::numeric_limits<Float>::infinity(), 
                                       Float tMax=std::numeric_limits<Float>::infinity());
@@ -144,9 +139,6 @@ class PMTHitCluster : public Cluster<PMTHit>, public TreeOut
     private:
         bool fIsSorted, fHasVertex;
         TVector3 fVertex, fMeanDirection;
-
-        bool fHasBonsaiVertex;
-        TVector3 fBonsaiVertex;
 
         std::vector<Float> fT, fToF, fDT;
         std::vector<float> fQ;
