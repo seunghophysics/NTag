@@ -456,6 +456,7 @@ void EventNTagManager::ProcessEvent()
         auto nnType = fSettings.GetString("NN_type");
         auto weightPath = fSettings.GetString("weight");
         auto delayedMode = fSettings.GetString("delayed_vertex");
+        auto newFeatures = fSettings.GetString("custom_mva_features");
 
         auto addWords = [](std::vector<std::string> &base, std::string str){
           while ( str != "" ){

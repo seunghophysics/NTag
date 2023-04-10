@@ -40,11 +40,7 @@ static std::vector<std::string> gNTagFeatures = {"NHits", "N30", "N50", "N200", 
                                                  "fvx", "fvy", "fvz", "DTaggable", "FitGoodness", "DPrompt", "DWall", "DWallMeanDir",
                                                  "SignalRatio", "BurstRatio", "TagOut", "TagIndex", "TagClass", "Label"};
 
-static std::vector<std::string> gTMVAFeatures = {"NHits", "N200", "TRMS",
-                                                 "Beta1", "Beta5",
-                                                 "OpeningAngleMean", "OpeningAngleSkew", "OpeningAngleStdev",
-                                                 "MeanDirAngleMean", "MeanDirAngleRMS",
-                                                 "DWall", "DWallMeanDir"};
+extern std::vector<std::string> gTMVAFeatures;
 
 static std::vector<std::string> gKerasFeatures = {"NHits", "NResHits", "TRMS",
                                                   "Beta1", "Beta2", "Beta3", "Beta4", "Beta5",
