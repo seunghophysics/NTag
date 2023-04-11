@@ -38,12 +38,6 @@ int main(int argc, char** argv)
     const std::string outputFilePath = parser.GetOption("-out");
     const std::string outDataFilePath = parser.GetOption("-outdata");
     const std::string macroPath = parser.GetOption("-macro");
-    const std::string startEv_str = parser.GetOption("-ev_start");
-    const std::string endEv_str = parser.GetOption("-ev_end");
-    int startEv = 1;
-    int endEv = 10000000;
-    if( startEv_str != "" ) startEv = std::stoi(startEv_str);
-    if( endEv_str != "" )   endEv   = std::stoi(endEv_str);
 
     if (parser.OptionExists("-mode")) {
         auto mode = parser.GetOption("-mode");
@@ -150,8 +144,7 @@ int main(int argc, char** argv)
     }
 
     // event loop
-    endEv = std::min(nInputEvents, endEv);
-    for (int eventID=startEv; eventID<=endEv; eventID++) {
+    for (int eventID=1; eventID<=nInputEvents; eventID++) {
         std::cout << "\n"; msg.Print(Form("Processing Event #%d / %d...", eventID, nInputEvents));
         input.ReadEvent(eventID);
         ntagManager.ProcessEvent();
