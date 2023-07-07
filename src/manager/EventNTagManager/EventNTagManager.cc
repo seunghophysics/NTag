@@ -1159,7 +1159,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
 
     //if (doFit || fSettings.GetBool("correct_tof")) {
     fEventHits.SetVertex(delayedVertex);
-    firstHit.SetToFAndDirection( fForcePromptVertex? promptVertex : delayedVertex );
+    firstHit.SetToFAndDirection( fForcePromptVertex? fPromptVertex : delayedVertex );
     //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
