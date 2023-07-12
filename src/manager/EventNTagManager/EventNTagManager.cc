@@ -722,7 +722,7 @@ void EventNTagManager::ApplySettings()
     }
 
     fForcePromptVertex = false;
-    if( fSettings.HasKey("force_prompt_vertex") ) fForcePromptVertex = true;
+    if( fSettings.GetBool("force_prompt_vertex") ) fForcePromptVertex = true;
 
     fSettings.Get("TRMSTWIDTH", TRMSTWIDTH);
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
