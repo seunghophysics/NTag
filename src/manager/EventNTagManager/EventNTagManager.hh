@@ -113,7 +113,7 @@ class EventNTagManager
         void FindDelayedCandidate(unsigned int iHit);
 
         // feature extraction
-        void FindFeatures(Candidate& candidate, Float canTime);
+        void FindFeatures(Candidate& candidate, Float canTime, const TVector3 &delayedVertex);
 
         // reference run for bad channels and dark rates
         void FindReferenceRun();

@@ -1158,8 +1158,8 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     }
 
     //if (doFit || fSettings.GetBool("correct_tof")) {
-    fEventHits.SetVertex(delayedVertex);
-    firstHit.SetToFAndDirection( fForcePromptVertex? fPromptVertex : delayedVertex );
+    fEventHits.SetVertex(        fForcePromptVertex? fPromptVertex : delayedVertex);
+    firstHit.SetToFAndDirection( fForcePromptVertex? fPromptVertex : delayedVertex);
     //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
@@ -1181,7 +1181,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             candidate.Set("BSenergy", fBonsaiManager.GetFitEnergy());
             candidate.Set("BSdirks", fBonsaiManager.GetFitDirKS());
             candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
-            FindFeatures(candidate, tmpDelayedTimeForHitSlice);
+            FindFeatures(candidate, tmpDelayedTimeForHitSlice, delayedVertex);
             fEventCandidates.Append(candidate);
         }
     }
@@ -1189,13 +1189,11 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     ResetEventHitsVertex();
 }
 
-void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
+void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime, const TVector3 &delayedVertex)
 {
     //unsigned int firstHitID = candidate.HitID();
     //float fitTime = candidate.Get("FitT")*1e3 + 1000;
 
-    const auto delayedVertex = fEventHits.GetVertex();
-    if ( fForcePromptVertex) fEventHits.SetVertex( fPromptVertex);
     auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
     auto hitsIn30ns      = fEventHits.SliceRange(canTime,                -15,          +15);
     auto hitsIn50ns      = fEventHits.SliceRange(canTime,                -25,          +25);
