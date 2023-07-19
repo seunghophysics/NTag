@@ -1107,7 +1107,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     TVector3 delayedVertex = fPromptVertex;
 
     Float delayedTime = firstHit.t() + TWIDTH/2.;
-    Float delayedTimeNotReconstructed = delayedTime;
+    const Float delayedTimeNotReconstructed = delayedTime;
     float delayedGoodness = 0;
 
     bool doFit = true;
@@ -1165,7 +1165,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
-    Float_t tmpDelayedTimeForHitSlice = fForcePromptVertex? delayedTimeNotReconstructed : delayedTime;
+    const Float_t tmpDelayedTimeForHitSlice = fForcePromptVertex? delayedTimeNotReconstructed : delayedTime;
     if (fabs(tmpDelayedTimeForHitSlice-firstHit.t()) < TMINPEAKSEP &&
         fabs(tmpDelayedTimeForHitSlice-lastCandidateTime) > TMINPEAKSEP &&
         T0TH < tmpDelayedTimeForHitSlice && tmpDelayedTimeForHitSlice < T0MX) {
@@ -1193,6 +1193,9 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
 {
     //unsigned int firstHitID = candidate.HitID();
     //float fitTime = candidate.Get("FitT")*1e3 + 1000;
+
+    const auto delayedVertex = fEventHits.GetVertex();
+    if ( fForcePromptVertex) fEventHits.SetVertex( fPromptVertex);
     auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
     auto hitsIn30ns      = fEventHits.SliceRange(canTime,                -15,          +15);
     auto hitsIn50ns      = fEventHits.SliceRange(canTime,                -25,          +25);
@@ -1219,7 +1222,6 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     //candidate.Set("NBackHits", nBackHits);
 
     // Delayed vertex
-    auto delayedVertex = fEventHits.GetVertex();
     candidate.Set("fvx", delayedVertex.x());
     candidate.Set("fvy", delayedVertex.y());
     candidate.Set("fvz", delayedVertex.z());
