@@ -18,4 +18,4 @@ PMTDEADTIME    900
 E_CUTS         (TagOut>0.7)&&(NHits>50)&&(FitT<20)
 N_CUTS         (TagOut>0.7)&&((NHits<50)||(FitT>20))
 force_prompt_vertex true
-override_delayed_parameters_more_for_lowe
+override_delayed_parameters_more_for_lowe true
