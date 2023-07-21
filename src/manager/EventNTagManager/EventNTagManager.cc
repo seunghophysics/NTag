@@ -723,6 +723,8 @@ void EventNTagManager::ApplySettings()
 
     fForcePromptVertex = false;
     if( fSettings.GetBool("force_prompt_vertex") ) fForcePromptVertex = true;
+    fOverrideDelayedParametersMoreForLOWE = false;
+    if( fSettings.GetBool("override_delayed_parameters_more_for_lowe") ) fOverrideDelayedParametersMoreForLOWE = true;
 
     fSettings.Get("TRMSTWIDTH", TRMSTWIDTH);
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
@@ -1182,6 +1184,17 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             candidate.Set("BSdirks", fBonsaiManager.GetFitDirKS());
             candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
             FindFeatures(candidate, tmpDelayedTimeForHitSlice, delayedVertex);
+            if ( fOverrideDelayedParametersMoreForLOWE ) { // This is prepared in order to reflect prompt vertex to DWall, DWallMeandir 
+              if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
+                  fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
+                  T0TH < delayedTime && delayedTime < T0MX)
+                candidate.Set("DPrompt", -1.0);
+              auto hitsInTCANWIDTH = fEventHits.SliceRange(tmpDelayedTimeForHitSlice, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
+              auto dirVec = hitsInTCANWIDTH[HitFunc::Dir];
+              auto meanDir = GetMean(dirVec).Unit();
+              candidate.Set("DWall", GetDWall(fPromptVertex));
+              candidate.Set("DWallMeanDir", GetDWallInDirection(fPromptVertex, meanDir));
+            }
             fEventCandidates.Append(candidate);
         }
     }

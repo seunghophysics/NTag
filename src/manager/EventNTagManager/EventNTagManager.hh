@@ -148,6 +148,7 @@ class EventNTagManager
         Store fSettings;
         VertexMode fPromptVertexMode, fDelayedVertexMode;
         bool fForcePromptVertex;
+        bool fOverrideDelayedParametersMoreForLOWE;
         float PVXRES, PVXBIAS;
         Float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW, TRBNWIDTH, PMTDEADTIME;
         int NHITSTH, NHITSMX, N200TH, N200MX, MINNHITS, MAXNHITS;
