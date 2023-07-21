@@ -1185,9 +1185,9 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
             candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
             FindFeatures(candidate, tmpDelayedTimeForHitSlice, delayedVertex);
             if ( fOverrideDelayedParametersMoreForLOWE ) { // This is prepared in order to reflect prompt vertex to DWall, DWallMeandir 
-              if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
-                  fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
-                  T0TH < delayedTime && delayedTime < T0MX)
+              if ( !(fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
+                     fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
+                     T0TH < delayedTime && delayedTime < T0MX))
                 candidate.Set("DPrompt", -1.0);
               auto hitsInTCANWIDTH = fEventHits.SliceRange(tmpDelayedTimeForHitSlice, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
               auto dirVec = hitsInTCANWIDTH[HitFunc::Dir];
