@@ -1,0 +1,21 @@
+correct_tof    true
+delayed_vertex lowfit
+TWIDTH         14
+NHITSTH        7
+NHITSMX        400
+N200MX         1000
+TMINPEAKSEP    50
+TCANWIDTH      14
+MINNHITS       7
+MAXNHITS       400
+TMATCHWINDOW   50
+NN_type        tmva
+weight         default
+SKOPTN         31,30,25
+SKBADOPT       55
+REFRUNNO       0
+PMTDEADTIME    900
+E_CUTS         (TagOut>0.7)&&(NHits>50)&&(FitT<20)
+N_CUTS         (TagOut>0.7)&&((NHits<50)||(FitT>20))
+force_prompt_vertex true
+override_delayed_parameters_more_for_lowe
