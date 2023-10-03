@@ -35,6 +35,7 @@ class NoiseManager
         void SetRepeat(bool b) { fDoRepeat = b; }
         void SetSeed(int seed) { fNoiseSeed = seed; ranGen.SetSeed(seed); }
         void SetSKGeneration(int gen) { fSKGen = gen; }
+        void SetRandomizeFirstEntry(bool b) { fDoRandomizeFirstEntry = b; }
         void DumpSettings();
 
         // noise tree generation
@@ -105,6 +106,9 @@ class NoiseManager
         float fCurrentPartStartTime, fCurrentPartEndTime;
 
         bool fDoRepeat, fDoN200Cut;
+
+		bool fDoRandomizeFirstEntry;
+		int  fRandomizedFirstEntry;
 
         //std::vector<float> fT, fQ;
         //std::vector<int>   fI;

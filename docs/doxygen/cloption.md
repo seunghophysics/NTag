@@ -89,6 +89,7 @@ The following are also valid options for [AddNoise](#addnoise-exe), where `-add_
 |`-TNOISEEND`     | Noise addition end time from event trigger (µs)                        | 536                            |
 |`-NOISESEED`     | Random seed                                                            | 0                              |
 |`-PMTDEADTIME`   | Artificial PMT deadtime (ns)                                           | 1000                           |
+|`-RANDOMIZENOISE`| Randomize the starting entry of noise tree. `false`: Read from 1st ent.| `true`                         |
 
 When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by `-noise_path` (`/disk02/calib3/usr/han/dummy` by default) are appended to the input SK MC before signal search starts. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
 
