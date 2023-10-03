@@ -8,6 +8,7 @@ FCFLAGS += -w -fPIC -lstdc++
 
 SKOFL_ROOT = /usr/local/sklib_gcc8/skofl-trunk
 ATMPD_ROOT = /usr/local/sklib_gcc8/atmpd-trunk
+NEUT_ROOT = /usr/local/sklib_gcc8/neut_5.4.0.1.rev634.t2ksk
 ROOTSYS = /usr/local/sklib_gcc8/root_v5.34.38
 CERN_ROOT = /usr/local/sklib_gcc8/cern/2005
 TF_ROOT = /disk02/usr6/han/apps/tensorflow_cc-v2.5.0-cpu
@@ -19,7 +20,7 @@ SKOFLLIB = -L $(SKOFL_ROOT)/lib -lgeom -lskrd -lastro -lzbs -lgeom -lsklib -llib
 ATMPDINCLUDE = -I $(ATMPD_ROOT)/include -I $(ATMPD_ROOT)/src/analysis/neutron/ntag_gd -I $(ATMPD_ROOT)/src/recon/fitqun
 ATMPDLIB = -L $(ATMPD_ROOT)/lib -lapdrlib -lhutl -laplib -lringlib -ltp -ltf -lringlib \
 		   -laplib -lmsfit -lseplib -lmslib -lseplib -lmsfit -lprtlib -lmuelib \
-		   -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k -lNtag
+		   -lffit -lodlib -lstmu -laplowe -laplib -lfiTQun -ltf -lmslib -llelib -lntuple_t2k -lNtag -L$(NEUT_ROOT)/lib -lzbsfns_5.4.0
 
 ROOTINCLUDE = -I $(TMVASYS)/inc -I $(ROOTSYS)/include
 ROOTLIB = -L $(ROOTSYS)/lib -lTMVA -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lMinuit -lXMLIO -lMLP -lTreePlayer -lUnuran -lEG
