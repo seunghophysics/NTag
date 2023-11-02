@@ -85,12 +85,13 @@ The following are also valid options for [AddNoise](#addnoise-exe), where `-add_
 |`-repeat_noise`  | `true` if allowing repetition for limited amount of noise              | `true`                         |
 |`-noise_path`    | Directory path to search for noise files                               | `/disk02/calib3/usr/han/dummy` |
 |`-noise_type`    | One of `sk4`, `sk5`, `sk6`, `ambe`, or `default` (auto)                | `default`                      |
+|`-in_noise`      | Noise files in RegEx format or file list (for expert)                  | none                           |
 |`-TNOISESTART`   | Noise addition start time from event trigger (µs)                      | 2                              |
 |`-TNOISEEND`     | Noise addition end time from event trigger (µs)                        | 536                            |
 |`-NOISESEED`     | Random seed                                                            | 0                              |
 |`-PMTDEADTIME`   | Artificial PMT deadtime (ns)                                           | 1000                           |
 
-When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by `-noise_path` (`/disk02/calib3/usr/han/dummy` by default) are appended to the input SK MC before signal search starts. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
+When `-add_noise true` option is used, dark noise hits randomly extracted from dummy trigger data files stored in the path specified by `-noise_path` (`/disk02/calib3/usr/han/dummy` by default) are appended to the input SK MC before signal search starts. In default, `-in_noise` option is turned off. But, if it is specified, it has the highest priority than `-noise_path` and `-noise_type`. Note that `-NOISESEED 0` (which is default) will set a seed used in the random number generator according to the current UNIX time.
 
 ## Variables for output variables
 
@@ -111,10 +112,11 @@ When `-add_noise true` option is used, dark noise hits randomly extracted from d
 
 | Option          |                               Argument                                 |    Default    |
 |-----------------|------------------------------------------------------------------------|:-------------:|
-|`-SKOPTN`        | List of SK read options                                                | `31,30,26,25` |
+|`-SKOPTN`        | List of SK read options                                                | `31,30,25` |
 |`-SKBADOPT`      | SK bad channel option                                                  | 0             |
 |`-REFRUNNO`      | SK reference run number                                                | 0             |
 |`-lowfit_param`  | Lowfit calib parameter type: `skdetsim` or `skg4`                      | `skg4`*       |
+|`-SKGEOMETY`     | SK Geometry                                                            |                            |
 
 If `-REFRUNNO 0`, NTag looks up a reference run number that is closest to a given event.
 
