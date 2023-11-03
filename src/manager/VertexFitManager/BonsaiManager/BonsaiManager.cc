@@ -180,7 +180,7 @@ void BonsaiManager::FitLOWFIT(const PMTHitCluster& hitCluster)
         }
     }
     // nqisk: total number of hit PMTs
-    skq_.nqisk = iHit+1;
+    skq_.nqisk = iHit;
 
     // lfallfit_sk4_data / mc
     int nhitcut_lowfit = 1100;
