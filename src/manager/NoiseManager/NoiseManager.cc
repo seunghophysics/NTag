@@ -38,7 +38,7 @@ NoiseManager::NoiseManager()
   fCurrentEntry(-1), fNEntries(0),
   fPartID(0), fNParts(2),
   fCurrentPartStartTime(-1000e3), fCurrentPartEndTime(1000e3),
-  fDoRepeat(true), fDoN200Cut(false),
+	fDoRepeat(true), fDoN200Cut(false), fDoRandomizeFirstEntry(true), fRandomizedFirstEntry(-1),
   fMsg("NoiseManager")
 {}
 
@@ -68,6 +68,8 @@ void NoiseManager::DumpSettings()
     if (fNoiseTree) {
         fMsg.Print(Form("Noise type: " + fNoiseType));
         fMsg.Print(Form("Total dummy trigger entries: %d", fNoiseTree->GetEntries(fNoiseCut)));
+		fMsg.Print(Form("Randomized starting entry? : %s", (fDoRandomizeFirstEntry ? "yes" : "no")));
+		fMsg.Print(Form("Dummy trgger starting entry: %d", (fRandomizedFirstEntry == -1 ? 0 : fRandomizedFirstEntry)));
         fMsg.Print(Form("Repetition allowed? %s", (fDoRepeat ? "yes" : "no")));
         if (fDoN200Cut) fMsg.Print(Form("Noise MaxN200: %d (ID), %d (OD)", fIDMaxN200, fODMaxN200));
     }
@@ -117,7 +119,27 @@ void NoiseManager::SetNoiseTree(TChain* tree)
     fHeader = 0; fNoiseTree->SetBranchAddress("HEADER", &fHeader);
     fNEntries = fNoiseTree->GetEntries();
 
-    fNoiseTree->GetEntry();
+	if (fDoRandomizeFirstEntry == true)
+	{
+	    auto random = ranGen.Uniform();
+	    long randomized_ent = (long) ((double)ceil(fNEntries*random));
+		fRandomizedFirstEntry = randomized_ent-1;
+		int ret = fNoiseTree->GetEntry(fRandomizedFirstEntry);
+		//fMsg.Print(Form("Randomize TChain starting entry: %d", fDoRandomizeFirstEntry));
+		//fMsg.Print(Form("             Total TChain entry: %d", fNEntries));
+		//fMsg.Print(Form("          TChain starting entry: %d", fNoiseTree->GetReadEntry()));
+		//fMsg.Print(Form("                         random: %g", random));
+		//fMsg.Print(Form("                 randomized_ent: %d", randomized_ent));
+		if ( ret == 0 )
+		{
+			fMsg.Print("Something wrong at: NoiseManager::SetNoiseTree()", pERROR);
+		}
+	}
+	else
+	{
+		fNoiseTree->GetEntry(0);
+	}
+
 }
 
 void NoiseManager::DumpNoiseFileList(TString pathToList)
@@ -275,11 +297,13 @@ void NoiseManager::ApplySettings(Store& settings, int nInputEvents)
     //auto pmtDeadtime = settings.GetFloat("PMTDEADTIME", 900);
     float pmtDeadtime = 900;
     auto debug       = settings.GetBool("debug", false);
+	auto randomizeNoise = settings.GetBool("RANDOMIZENOISE", true);
 
     SetSKGeneration(skGen);
     SetSeed(noiseSeed);
     SetNoiseMaxN200(idMaxN200, odMaxN200, doN200Cut);
     SetPMTDeadtime(pmtDeadtime);
+	SetRandomizeFirstEntry(randomizeNoise);
     if (debug) SetVerbosity(pDEBUG);
     if (noiseType == "simulate") {
         SetDarkRate(idDarkRate, odDarkRate);
@@ -389,6 +413,10 @@ void NoiseManager::AddNoise(PMTHitCluster* signalHits, PMTHitCluster* noiseHits,
     // noise from noise files
     if (fNoiseTree) {
         if (fCurrentEntry == -1 || fPartID == fNParts) {
+			if (fDoRandomizeFirstEntry && fCurrentEntry == -1 && fRandomizedFirstEntry != -1) {
+				fCurrentEntry = fRandomizedFirstEntry - 1;
+				fRandomizedFirstEntry = -1; // Change the fCurrentEntry, only for the first time.
+			}
             GetNextNoiseEvent();
         }
         //std::cout << "NoiseHitsSize: " << noiseHits->GetSize() << "\n";
