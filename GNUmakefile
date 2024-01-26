@@ -3,6 +3,8 @@ include include.gmk
 
 .PHONY: all float dirs inc clean cleanobj main docs
 
+FLAGGIT := $(shell [ -e .git ] && echo "ON" || echo "OFF")
+
 all: float obj/main/git.o inc main
 	@echo "[NTagLib] Done!"
 
@@ -17,10 +19,16 @@ dirs:
 inc: dirs
 	@cp `find src/ -name '*.hh'` include
 
-main/git.c: .git/HEAD .git/index
+main/git.c:
+ifeq ($(FLAGGIT),ON)
 	@echo "const char *gitdate = \"$(shell git show -s --format=%ci)\";" >> $@
 	@echo "const char *gitcommit = \"$(shell git rev-parse HEAD)\";" >> $@
 	@echo "const char *gittag = \"$(shell git describe --tags)\";" >> $@
+else
+	@echo "const char *gitdate = \"N/A\";" >> $@
+	@echo "const char *gitcommit = \"N/A\";" >> $@
+	@echo "const char *gittag = \"N/A\";" >> $@
+endif
 
 include/%.hh:
 	@:
