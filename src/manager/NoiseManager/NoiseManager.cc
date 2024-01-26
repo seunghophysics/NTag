@@ -108,6 +108,10 @@ void NoiseManager::AddNoiseFileToChain(TChain* chain, TString noiseFilePath)
 void NoiseManager::SetNoiseTree(TChain* tree)
 {
     fNoiseTree = tree;
+    fNoiseTree->SetBranchStatus("*", 0);
+    fNoiseTree->SetBranchStatus("TQREAL", 1);
+    fNoiseTree->SetBranchStatus("TQAREAL", 1);
+    fNoiseTree->SetBranchStatus("HEADER", 1);
     fIDTQReal = 0; fNoiseTree->SetBranchAddress("TQREAL", &fIDTQReal);
     fODTQReal = 0; fNoiseTree->SetBranchAddress("TQAREAL", &fODTQReal);
     fHeader = 0; fNoiseTree->SetBranchAddress("HEADER", &fHeader);
