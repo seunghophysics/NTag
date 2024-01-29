@@ -450,11 +450,33 @@ void EventNTagManager::ProcessEvent()
     static bool initialized = false;
     fSettings.Set("SKGEOMETRY", SKIO::GetSKGeometry());
 
+
     if (!initialized) {
         CheckMC();
         auto nnType = fSettings.GetString("NN_type");
         auto weightPath = fSettings.GetString("weight");
         auto delayedMode = fSettings.GetString("delayed_vertex");
+        auto newFeatures = fSettings.GetString("custom_mva_features");
+
+        auto addWords = [](std::vector<std::string> &base, std::string str){
+          while ( str != "" ){
+            auto pos = str.find(',');
+            if( pos == std::string::npos ){
+              base.push_back( str);
+              str = "";
+            }
+            else {
+              base.push_back( str.substr(0, pos) );
+              str = str.substr(pos+1);
+            }
+          }
+          return;
+        };
+        if( newFeatures != "" ) {
+          gTMVAFeatures.clear();
+          addWords( gTMVAFeatures, newFeatures );
+        }
+
         if (nnType=="tmva") {
             if (weightPath=="default")
                 weightPath = delayedMode;
@@ -1159,6 +1181,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
+
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
     if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
@@ -1267,6 +1290,7 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
 
     candidate.Set("DPrompt", fPromptVertexMode==mNONE && fPromptVertex==TVector3() ?
                              -1 : (fPromptVertex-delayedVertex).Mag());
+
 
     candidate.Set("SignalRatio", hitsInTCANWIDTH.GetSignalRatio());
     candidate.Set("NBurst", hitsInTCANWIDTH.GetNBurst());
