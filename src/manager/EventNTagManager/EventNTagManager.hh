@@ -113,7 +113,13 @@ class EventNTagManager
         void FindDelayedCandidate(unsigned int iHit);
 
         // feature extraction
-        void FindFeatures(Candidate& candidate, Float canTime);
+        void FindFeatures(Candidate& candidate, Float canTime, const TVector3 &delayedVertex, bool skipHitTag = false);
+
+        // Apply NN
+        float ApplyNN(const Candidate &candidate); 
+
+        // Tag hit around candidate -> returns number of hits tagged newly
+        int TagHits(const Float canTime);
 
         // reference run for bad channels and dark rates
         void FindReferenceRun();
@@ -147,6 +153,8 @@ class EventNTagManager
         // NTag settings
         Store fSettings;
         VertexMode fPromptVertexMode, fDelayedVertexMode;
+        bool fForcePromptVertex;
+        bool fOverrideDelayedParametersMoreForLOWE;
         float PVXRES, PVXBIAS;
         Float T0TH, T0MX, TWIDTH, TCANWIDTH, TMINPEAKSEP, TMATCHWINDOW, TRBNWIDTH, PMTDEADTIME;
         int NHITSTH, NHITSMX, N200TH, N200MX, MINNHITS, MAXNHITS;
