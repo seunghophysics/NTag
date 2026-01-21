@@ -721,6 +721,11 @@ void EventNTagManager::ApplySettings()
         fDelayedVertexMode = mPROMPT;
     }
 
+    fForcePromptVertex = false;
+    if( fSettings.GetBool("force_prompt_vertex") ) fForcePromptVertex = true;
+    fOverrideDelayedParametersMoreForLOWE = false;
+    if( fSettings.GetBool("override_delayed_parameters_more_for_lowe") ) fOverrideDelayedParametersMoreForLOWE = true;
+
     fSettings.Get("TRMSTWIDTH", TRMSTWIDTH);
     fSettings.Get("INITGRIDWIDTH", INITGRIDWIDTH);
     fSettings.Get("MINGRIDWIDTH", MINGRIDWIDTH);
@@ -1104,6 +1109,7 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     TVector3 delayedVertex = fPromptVertex;
 
     Float delayedTime = firstHit.t() + TWIDTH/2.;
+    const Float delayedTimeNotReconstructed = delayedTime;
     float delayedGoodness = 0;
 
     bool doFit = true;
@@ -1154,29 +1160,49 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     }
 
     //if (doFit || fSettings.GetBool("correct_tof")) {
-    fEventHits.SetVertex(delayedVertex);
-    firstHit.SetToFAndDirection(delayedVertex);
+    fEventHits.SetVertex(        fForcePromptVertex? fPromptVertex : delayedVertex);
+    firstHit.SetToFAndDirection( fForcePromptVertex? fPromptVertex : delayedVertex);
     //}
 
     Float lastCandidateTime = fEventCandidates.GetSize() ? fEventCandidates.Last().Get("FitT")*1e3 + 1000 : std::numeric_limits<Float>::lowest();
     // fitted time should not be too far off from the first hit time
     // to prevent double counting of same hits
-    if (fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
-        fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
-        T0TH < delayedTime && delayedTime < T0MX) {
+    const Float_t tmpDelayedTimeForHitSlice = fForcePromptVertex? delayedTimeNotReconstructed : delayedTime;
+    if (fabs(tmpDelayedTimeForHitSlice-firstHit.t()) < TMINPEAKSEP &&
+        fabs(tmpDelayedTimeForHitSlice-lastCandidateTime) > TMINPEAKSEP &&
+        T0TH < tmpDelayedTimeForHitSlice && tmpDelayedTimeForHitSlice < T0MX) {
         //iHit = fEventHits.GetLowerBoundIndex(delayedTime);
         //unsigned int nHits = fEventHits.Slice(iHit, -TCANWIDTH/2., TCANWIDTH/2.).GetSize();
         // -0.03 is to ensure that hit at index == iHit is included in nHits
-        unsigned int nHits = fEventHits.SliceRange(delayedTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.).GetSize();
+        unsigned int nHits = fEventHits.SliceRange(tmpDelayedTimeForHitSlice, -TCANWIDTH/2.-0.03, TCANWIDTH/2.).GetSize();
 
         if (nHits >= MINNHITS && nHits <= MAXNHITS) {
             Candidate candidate(iHit);
-            candidate.Set("FitT", (delayedTime-1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
+            candidate.Set("FitT", (tmpDelayedTimeForHitSlice -1000)*1e-3); // -1000 ns is to offset the trigger time T=1000 ns
             candidate.Set("FitGoodness", delayedGoodness);
             candidate.Set("BSenergy", fBonsaiManager.GetFitEnergy());
             candidate.Set("BSdirks", fBonsaiManager.GetFitDirKS());
             candidate.Set("BSovaq", fBonsaiManager.GetFitOvaQ());
-            FindFeatures(candidate, delayedTime);
+            bool skipHitTag = fOverrideDelayedParametersMoreForLOWE? true: false;
+            FindFeatures(candidate, tmpDelayedTimeForHitSlice, delayedVertex, skipHitTag);
+            if ( fOverrideDelayedParametersMoreForLOWE ) { // This is prepared in order to reflect prompt vertex to DWall, DWallMeandir 
+              if ( !(fabs(delayedTime-firstHit.t()) < TMINPEAKSEP &&
+                     fabs(delayedTime-lastCandidateTime) > TMINPEAKSEP &&
+                     T0TH < delayedTime && delayedTime < T0MX))
+                candidate.Set("DPrompt", -1.0);
+              auto hitsInTCANWIDTH = fEventHits.SliceRange(tmpDelayedTimeForHitSlice, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
+              auto dirVec = hitsInTCANWIDTH[HitFunc::Dir];
+              auto meanDir = GetMean(dirVec).Unit();
+              candidate.Set("DWall", GetDWall(fPromptVertex));
+              candidate.Set("DWallMeanDir", GetDWallInDirection(fPromptVertex, meanDir));
+
+              // Recalculate tagOut after updates of DWall, DWallMeanDir
+              float tagOut = ApplyNN(candidate);
+              candidate.Set("TagOut", tagOut);
+              auto tagClass = fTagger.Classify(candidate);
+              candidate.Set("TagClass", tagClass);
+              if( tagClass > 0) TagHits( tmpDelayedTimeForHitSlice);
+            }
             fEventCandidates.Append(candidate);
         }
     }
@@ -1184,10 +1210,11 @@ void EventNTagManager::FindDelayedCandidate(unsigned int iHit)
     ResetEventHitsVertex();
 }
 
-void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
+void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime, const TVector3 &delayedVertex, bool skipHitTag)
 {
     //unsigned int firstHitID = candidate.HitID();
     //float fitTime = candidate.Get("FitT")*1e3 + 1000;
+
     auto hitsInTCANWIDTH = fEventHits.SliceRange(canTime, -TCANWIDTH/2.-0.03, TCANWIDTH/2.);
     auto hitsIn30ns      = fEventHits.SliceRange(canTime,                -15,          +15);
     auto hitsIn50ns      = fEventHits.SliceRange(canTime,                -25,          +25);
@@ -1214,7 +1241,6 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     //candidate.Set("NBackHits", nBackHits);
 
     // Delayed vertex
-    auto delayedVertex = fEventHits.GetVertex();
     candidate.Set("fvx", delayedVertex.x());
     candidate.Set("fvy", delayedVertex.y());
     candidate.Set("fvz", delayedVertex.z());
@@ -1275,24 +1301,34 @@ void EventNTagManager::FindFeatures(Candidate& candidate, Float canTime)
     candidate.Set("NNoisyPMT", hitsInTCANWIDTH.GetNNoisyPMT());
     candidate.Set("NoisyPMTRatio", hitsInTCANWIDTH.GetNoisyPMTRatio());
 
-    auto nnType = fSettings.GetString("NN_type");
-    float tagOut = nnType=="tmva"  ? fTMVAManager.GetTMVAOutput(candidate) :
-                   nnType=="keras" ? fKerasManager.GetOutput(candidate)    : 0;
-
+    float tagOut = ApplyNN(candidate);
     candidate.Set("TagOut", tagOut);
     auto tagClass = fTagger.Classify(candidate);
     candidate.Set("TagClass", tagClass);
 
-    if (tagClass>0) {
-        auto allHitT = fEventHits.GetProjection(HitFunc::T);
-        std::vector<float> hitT(allHitT.begin(), allHitT.end());
+    if ( (!skipHitTag) && tagClass>0)
+        TagHits(canTime);
+}
 
-        auto hitIndex = GetRangeIndex(hitT, float(canTime-TCANWIDTH/2.-0.03), float(canTime+TCANWIDTH/2.));
-        for (auto i: hitIndex) {
-            fEventHits.At(i).SetTagFlag(1);
-            //fEventHits[i].Dump();
-        }
+float EventNTagManager::ApplyNN( const Candidate &candidate) {
+    auto nnType = fSettings.GetString("NN_type");
+    float tagOut = nnType=="tmva"  ? fTMVAManager.GetTMVAOutput(candidate) :
+                   nnType=="keras" ? fKerasManager.GetOutput(candidate)    : 0;
+    return tagOut;
+}
+
+int EventNTagManager::TagHits(const Float canTime){
+    int ntagged = 0;
+    auto allHitT = fEventHits.GetProjection(HitFunc::T);
+    std::vector<float> hitT(allHitT.begin(), allHitT.end());
+
+    auto hitIndex = GetRangeIndex(hitT, float(canTime-TCANWIDTH/2.-0.03), float(canTime+TCANWIDTH/2.));
+    for (auto i: hitIndex) {
+        fEventHits.At(i).SetTagFlag(1);
+        ntagged++;
+        //fEventHits[i].Dump();
     }
+    return ntagged;
 }
 
 void EventNTagManager::Map(TaggableCluster& taggableCluster, CandidateCluster& candidateCluster, Float tMatchWindow)
